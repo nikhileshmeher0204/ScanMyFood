@@ -1,16 +1,66 @@
-# read_the_label
+# ReadTheLabel
 
-A new Flutter project.
+A Flutter application that helps users track their nutritional intake by analyzing food product labels and meals using AI.
+
+## Features
+- 📸 Scan product labels and food items using your device's camera
+- 🔍 AI-powered nutrition analysis using Google's Gemini API
+- 📊 Track daily nutrient intake with detailed breakdowns
+- 📅 View historical food consumption data
+- 📈 Visual representations of macronutrient distribution
+- ⚡ Real-time nutritional insights and recommendations
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### Prerequisites
+- Flutter SDK (>=3.4.3)
+- Dart SDK
+- Google Gemini API key
 
-A few resources to get you started if this is your first Flutter project:
+### Installation
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+1. Clone the repository
+```bash
+git clone https://github.com/nikhileshmeher0204/read_the_label.git
+```
+2. Navigate to the project directory
+```bash
+cd read_the_label
+```
+3. Create a .env file in the root directory and add your Gemini API key:
+```bash
+GEMINI_API_KEY=your_api_key_here
+```
+4. Install dependencies
+```bash
+flutter pub get
+```
+5. Run the app
+```bash
+flutter run
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+###Technologies Used
+- Flutter SDK (>=3.4.3)
+- Dart SDK
+- Google Gemini API key
+- Flutter & Dart
+- Google Generative AI (Gemini)
+- SharedPreferences for local storage
+- Various Flutter packages:
+-   image_picker for camera integration
+-   flutter_dotenv for environment variables
+-   fl_chart for data visualization
+-   rive for animations
+-   And more...
+
+###Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+###License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+###Acknowledgments
+- Google Generative AI for the Gemini API
+- Flutter team for the amazing framework
+
