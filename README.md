@@ -40,7 +40,7 @@ flutter pub get
 flutter run
 ```
 
-# Technologies Used
+## Technologies Used
 - Flutter SDK (>=3.4.3)
 - Dart SDK
 - Google Gemini API key
@@ -54,13 +54,13 @@ flutter run
 -   rive for animations
 -   And more...
 
-# Contributing
+## Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-# License
+## License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-# Acknowledgments
+## Acknowledgments
 - Google Generative AI for the Gemini API
 - Flutter team for the amazing framework
 
