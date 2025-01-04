@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:read_the_label/logic.dart';
+import 'package:read_the_label/main.dart';
 
 class PortionButton extends StatelessWidget {
   final BuildContext context;
@@ -24,7 +25,7 @@ class PortionButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: isSelected
             ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.tertiary,
+            : Theme.of(context).colorScheme.cardBackground,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
@@ -55,7 +56,7 @@ class CustomPortionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Theme.of(context).colorScheme.tertiary,
+        backgroundColor: Theme.of(context).colorScheme.cardBackground,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),

@@ -52,6 +52,7 @@ Widget DetailedNutrientsCard(
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                       title: const Text('About Nutrients'),
                       content: const Text(
                         'This section shows detailed breakdown of your nutrient intake. Values are shown as percentage of daily recommended intake.',

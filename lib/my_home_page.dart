@@ -21,7 +21,6 @@ import 'package:read_the_label/widgets/total_nutrients_card.dart';
 import 'package:rive/rive.dart' as rive;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:read_the_label/logic.dart';
-import 'data/dv_values.dart';
 import 'widgets/portion_buttons.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -40,17 +39,6 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isScanning = false;
   double _scanLinePosition = 0.0;
   Timer? _scanTimer;
-
-  LinearGradient _getGradient(BuildContext context) {
-    return LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: [
-        Theme.of(context).colorScheme.surface,
-        Theme.of(context).colorScheme.surface,
-      ],
-    );
-  }
 
   void _startScanAnimation() {
     setState(() {
@@ -103,14 +91,15 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         const SizedBox(width: 16),
         ElevatedButton.icon(
-          icon: const Icon(Icons.photo_library, color: Colors.black),
+          icon: Icon(Icons.photo_library,
+              color: Theme.of(context).colorScheme.onSurface),
           label: const Text("Gallery",
               style: TextStyle(
                   fontFamily: 'Poppins', fontWeight: FontWeight.w400)),
           style: ElevatedButton.styleFrom(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            backgroundColor: Theme.of(context).colorScheme.tertiary,
+            backgroundColor: Theme.of(context).colorScheme.cardBackground,
             foregroundColor: Theme.of(context).colorScheme.onSurface,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           ),
@@ -219,7 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       bottomNavigationBar: Container(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.cardBackground,
         child: ClipRect(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
@@ -240,23 +229,17 @@ class _MyHomePageState extends State<MyHomePage> {
               unselectedItemColor: Colors.grey,
               currentIndex: _currentIndex,
               onTap: _switchTab,
-              items: [
+              items: const [
                 BottomNavigationBarItem(
-                  icon: _currentIndex == 0
-                      ? const Icon(Icons.document_scanner)
-                      : const Icon(Icons.document_scanner_outlined),
+                  icon: Icon(Icons.document_scanner),
                   label: 'Scan Label',
                 ),
                 BottomNavigationBarItem(
-                  icon: _currentIndex == 1
-                      ? const Icon(Icons.food_bank)
-                      : const Icon(Icons.food_bank_outlined),
+                  icon: Icon(Icons.food_bank),
                   label: 'Scan Food',
                 ),
                 BottomNavigationBarItem(
-                  icon: _currentIndex == 2
-                      ? const Icon(Icons.pie_chart)
-                      : const Icon(Icons.pie_chart_outline),
+                  icon: Icon(Icons.pie_chart),
                   label: 'Daily Intake',
                 ),
               ],
@@ -266,9 +249,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Container(
         height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-          gradient: _getGradient(context),
-        ),
+        color: Theme.of(context).colorScheme.surface,
         child: AnimatedSwitcher(
           duration: _duration,
           transitionBuilder: (Widget child, Animation<double> animation) {
@@ -318,6 +299,7 @@ class _MyHomePageState extends State<MyHomePage> {
               margin: const EdgeInsets.all(20),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.cardBackground,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: Colors.transparent),
               ),
@@ -333,7 +315,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     if (_logic.frontImage != null)
                       Stack(
                         children: [
-                          Image(image: FileImage(_logic.frontImage!)),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image(image: FileImage(_logic.frontImage!)),
+                          ),
                           if (_logic.getIsLoading() && _isScanning)
                             const Positioned.fill(
                               left: 5,
@@ -470,24 +455,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4, vertical: 4),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Theme.of(context).colorScheme.tertiary,
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        child: Text(
-                          _logic.productName,
-                          style: const TextStyle(
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                              fontSize: 24),
-                          textAlign: TextAlign.start,
-                        ),
+                      child: Text(
+                        _logic.productName,
+                        style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w400,
+                            fontSize: 24),
+                        textAlign: TextAlign.start,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -644,26 +618,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.tertiary,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                          child: Text(
-                            "Serving Size: ${_logic.getServingSize().round()} g",
-                            style: TextStyle(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge!
-                                    .color,
-                                fontSize: 16,
-                                fontFamily: 'Poppins'),
-                          ),
+                        Text(
+                          "Serving Size: ${_logic.getServingSize().round()} g",
+                          style: TextStyle(
+                              color:
+                                  Theme.of(context).textTheme.bodyLarge!.color,
+                              fontSize: 16,
+                              fontFamily: 'Poppins'),
                         ),
                         IconButton(
                           icon: Icon(Icons.edit,
@@ -675,8 +636,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.tertiary,
+                                backgroundColor: Theme.of(context)
+                                    .colorScheme
+                                    .cardBackground,
                                 title: Text('Edit Serving Size',
                                     style: TextStyle(
                                         color: Theme.of(context)
@@ -724,11 +686,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 16),
-                    // In your _buildHomePage method, after the nutrient tiles
-
-                    // Replace slider with a more intuitive portion selector
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
@@ -828,10 +786,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   Icon(
                                     Icons.add_circle_outline,
                                     size: 20,
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .labelLarge!
-                                        .color,
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
@@ -841,9 +797,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                       fontWeight: FontWeight.w600,
                                       fontFamily: 'Poppins',
                                       color: Theme.of(context)
-                                          .textTheme
-                                          .labelLarge!
-                                          .color,
+                                          .colorScheme
+                                          .onPrimary,
                                     ),
                                   ),
                                 ],
@@ -852,10 +807,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 "${_logic.sliderValue.toStringAsFixed(0)} grams, ${(_logic.getCalories() * (_logic.sliderValue / _logic.getServingSize())).toStringAsFixed(0)} calories",
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .labelLarge!
-                                      .color,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
                                   fontFamily: 'Poppins',
                                 ),
                               ),
@@ -1125,7 +1078,7 @@ class _FoodScanPageState extends State<FoodScanPage> {
           style: ElevatedButton.styleFrom(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            backgroundColor: Theme.of(context).colorScheme.tertiary,
+            backgroundColor: Theme.of(context).colorScheme.cardBackground,
             foregroundColor: Theme.of(context).colorScheme.onSurface,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           ),
@@ -1165,6 +1118,7 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
   final List<DateTime> _dates = List.generate(
       7, (index) => DateTime.now().subtract(Duration(days: 6 - index)));
   final Logic logic = Logic();
+  int _currentIndex = 2;
 
   @override
   void initState() {
@@ -1257,7 +1211,11 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
               },
             ),
             MacronutrientSummaryCard(context, _dailyIntake),
-            FoodHistoryCard(context, _selectedDate, logic),
+            FoodHistoryCard(
+                context: context,
+                currentIndex: _currentIndex,
+                logic: logic,
+                selectedDate: _selectedDate),
             DetailedNutrientsCard(context, _dailyIntake),
           ],
         ),

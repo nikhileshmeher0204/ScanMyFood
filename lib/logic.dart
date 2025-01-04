@@ -37,6 +37,16 @@ class Logic {
   List<FoodConsumption> get foodHistory => _foodHistory;
   String _mealName = "";
   String get mealName => _mealName;
+  final ValueNotifier<bool> loadingNotifier = ValueNotifier<bool>(false);
+
+  bool get isAnalyzing => loadingNotifier.value;
+  set _isAnalyzing(bool value) {
+    loadingNotifier.value = value;
+  }
+
+  void dispose() {
+    loadingNotifier.dispose();
+  }
 
   String getStorageKey(DateTime date) {
     // Standardize the storage key format
@@ -463,6 +473,140 @@ Strictly follow these rules:
     _isLoading = false;
     setState(() {});
     return _generatedText;
+  }
+
+  Future<String> logMealViaText({
+    required String foodItemsText,
+  }) async {
+    try {
+      _isAnalyzing = true;
+
+      print("Processing logging food items via text: \n$foodItemsText");
+      final apiKey = kIsWeb
+          ? const String.fromEnvironment('GEMINI_API_KEY')
+          : dotenv.env['GEMINI_API_KEY'];
+
+      final model = GenerativeModel(
+        model: 'gemini-1.5-flash',
+        apiKey: apiKey!,
+      );
+
+      final prompt = TextPart(
+          """You are a nutrition expert. Analyze these food items and their quantities:\n$foodItemsText\n. Generate nutritional info for each of the mentioned food items and their respective quantities and respond using this JSON schema: 
+{
+  "meal_analysis": {
+  "meal_name": "Name of the meal",
+    "items": [
+      {
+        "food_name": "Name of the food item",
+        "mentioned_quantity": {
+          "amount": 0,
+          "unit": "g",
+        },
+        "nutrients_per_100g": {
+          "calories": 0,
+          "protein": {"value": 0, "unit": "g"},
+          "carbohydrates": {"value": 0, "unit": "g"},
+          "fat": {"value": 0, "unit": "g"},
+          "fiber": {"value": 0, "unit": "g"}
+        },
+        "nutrients_in_mentioned_quantity": {
+          "calories": 0,
+          "protein": {"value": 0, "unit": "g"},
+          "carbohydrates": {"value": 0, "unit": "g"},
+          "fat": {"value": 0, "unit": "g"},
+          "fiber": {"value": 0, "unit": "g"}
+        },
+      }
+    ],
+    "total_nutrients": {
+      "calories": 0,
+      "protein": {"value": 0, "unit": "g"},
+      "carbohydrates": {"value": 0, "unit": "g"},
+      "fat": {"value": 0, "unit": "g"},
+      "fiber": {"value": 0, "unit": "g"}
+    }
+  }
+}
+
+Important considerations:
+1. Use standard USDA database values when available
+2. Account for common preparation methods
+3. Convert all measurements to standard units
+4. Consider regional variations in portion sizes
+5. Round values to one decimal place
+6. Account for density and volume-to-weight conversions
+
+Provide accurate nutritional data based on the most reliable food databases and scientific sources.
+""");
+      final response = await model.generateContent([
+        Content.multi([prompt])
+      ]);
+      if (response.text == null) {
+        throw Exception("Empty response from model");
+      }
+      print("\n\nGot response from model!");
+
+      try {
+        // Extract JSON from response
+        final jsonString = response.text!.substring(
+          response.text!.indexOf('{'),
+          response.text!.lastIndexOf('}') + 1,
+        );
+        final jsonResponse = jsonDecode(jsonString);
+        final plateAnalysis = jsonResponse['meal_analysis'];
+        _mealName = plateAnalysis['meal_name'] ?? 'Unknown Meal';
+        // Clear previous analysis
+        analyzedFoodItems.clear();
+
+        // Process each food item
+        if (plateAnalysis['items'] != null) {
+          for (var item in plateAnalysis['items']) {
+            analyzedFoodItems.add(FoodItem(
+              name: item['food_name'],
+              quantity: item['mentioned_quantity']['amount'].toDouble(),
+              unit: item['mentioned_quantity']['unit'],
+              nutrientsPer100g: {
+                'calories': item['nutrients_per_100g']['calories'],
+                'protein': item['nutrients_per_100g']['protein']['value'],
+                'carbohydrates': item['nutrients_per_100g']['carbohydrates']
+                    ['value'],
+                'fat': item['nutrients_per_100g']['fat']['value'],
+                'fiber': item['nutrients_per_100g']['fiber']['value'],
+              },
+            ));
+          }
+        }
+
+        // Store total nutrients
+        totalPlateNutrients = {
+          'calories': plateAnalysis['total_nutrients']['calories'],
+          'protein': plateAnalysis['total_nutrients']['protein']['value'],
+          'carbohydrates': plateAnalysis['total_nutrients']['carbohydrates']
+              ['value'],
+          'fat': plateAnalysis['total_nutrients']['fat']['value'],
+          'fiber': plateAnalysis['total_nutrients']['fiber']['value'],
+        };
+
+        // Print statements to check values
+        print("Total Plate Nutrients:");
+        print("Calories: ${totalPlateNutrients['calories']}");
+        print("Protein: ${totalPlateNutrients['protein']}");
+        print("Carbohydrates: ${totalPlateNutrients['carbohydrates']}");
+        print("Fat: ${totalPlateNutrients['fat']}");
+        print("Fiber: ${totalPlateNutrients['fiber']}");
+        _isAnalyzing = false;
+        print("\n\nsetting _isLoading to false\n\n");
+        return response.text!;
+      } catch (e) {
+        print("Error analyzing food: $e");
+        _isAnalyzing = false;
+        return "Error";
+      }
+    } catch (e) {
+      print("Error: $e");
+      return "Unexpected error";
+    }
   }
 
   Future<String> analyzeFoodImage({

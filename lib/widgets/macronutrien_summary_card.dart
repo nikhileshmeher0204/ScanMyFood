@@ -122,6 +122,7 @@ Widget _buildMacronutrientIndicator(
 ) {
   final percent = (value / goal).clamp(0.0, 1.0);
   return Column(
+    spacing: 4,
     children: [
       Container(
         padding: const EdgeInsets.all(12),
@@ -135,7 +136,6 @@ Widget _buildMacronutrientIndicator(
           size: 24,
         ),
       ),
-      const SizedBox(height: 8),
       Text(
         label,
         style: const TextStyle(
@@ -144,7 +144,6 @@ Widget _buildMacronutrientIndicator(
           fontFamily: 'Poppins',
         ),
       ),
-      const SizedBox(height: 4),
       Text(
         '${value.toStringAsFixed(1)}g',
         style: const TextStyle(
@@ -152,6 +151,17 @@ Widget _buildMacronutrientIndicator(
           fontSize: 16,
           fontWeight: FontWeight.bold,
           fontFamily: 'Poppins',
+        ),
+      ),
+      SizedBox(
+        height: 5,
+        width: 50,
+        child: LinearProgressIndicator(
+          value: percent,
+          backgroundColor: Colors.white24,
+          valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+          minHeight: 5,
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     ],

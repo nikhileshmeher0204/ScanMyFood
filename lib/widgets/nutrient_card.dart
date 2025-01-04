@@ -16,7 +16,7 @@ Widget NutrientCard(BuildContext context, Map<String, dynamic> nutrient,
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: Colors.white12,
+      color: Colors.white24,
       borderRadius: BorderRadius.circular(20),
       border: Border.all(
         color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
