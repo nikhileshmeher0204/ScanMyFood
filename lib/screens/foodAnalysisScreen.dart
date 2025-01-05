@@ -56,11 +56,22 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (isLoading)
-                    const Column(
+                    Column(
                       children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            'Analysis Results',
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Poppins'),
+                          ),
+                        ),
                         const FoodItemCardShimmer(),
-                        FoodItemCardShimmer(),
-                        TotalNutrientsCardShimmer(),
+                        const FoodItemCardShimmer(),
+                        const TotalNutrientsCardShimmer(),
                       ],
                     ),
                   // Results Section

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:read_the_label/logic.dart';
@@ -180,7 +181,7 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                           onSubmit: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
+                              CupertinoPageRoute(
                                 builder: (context) => FoodAnalysisScreen(
                                   logic: widget.logic,
                                   updateIndex: (index) {

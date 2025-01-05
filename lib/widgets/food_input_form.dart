@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:read_the_label/logic.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/screens/foodAnalysisScreen.dart';
 
 class FoodInputForm extends StatefulWidget {
   final Logic logic;
@@ -197,7 +198,7 @@ class _FoodInputFormState extends State<FoodInputForm> {
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: MaterialButton(
                 onPressed: () {
