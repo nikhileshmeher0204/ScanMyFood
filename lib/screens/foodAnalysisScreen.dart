@@ -8,6 +8,8 @@ import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/widgets/food_item_card.dart';
 import 'package:read_the_label/widgets/total_nutrients_card.dart';
 import 'package:rive/rive.dart' as rive;
+import 'loading/food_item_card_shimmer.dart';
+import 'loading/total_nutrients_card_shimmer.dart';
 
 class FoodAnalysisScreen extends StatefulWidget {
   final Logic logic;
@@ -53,33 +55,13 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  //Loading animation
                   if (isLoading)
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 24.0),
-                      child: Column(
-                        spacing: 16,
-                        children: [
-                          const SizedBox(
-                            height: 50,
-                            width: 50,
-                            child: rive.RiveAnimation.asset(
-                              'assets/riveAssets/ai_generate_loading.riv',
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          Text(
-                            "Analyzing nutrition label...",
-                            style: TextStyle(
-                              color:
-                                  Theme.of(context).textTheme.bodyMedium!.color,
-                              fontSize: 14,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      ),
+                    const Column(
+                      children: [
+                        const FoodItemCardShimmer(),
+                        FoodItemCardShimmer(),
+                        TotalNutrientsCardShimmer(),
+                      ],
                     ),
                   // Results Section
                   if (!isLoading && widget.logic.analyzedFoodItems.isNotEmpty)
@@ -90,13 +72,11 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Text(
                             'Analysis Results',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Poppins'),
                           ),
                         ),
                         const SizedBox(height: 16),

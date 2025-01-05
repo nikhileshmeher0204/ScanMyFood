@@ -47,6 +47,7 @@ dependencies:
   fl_chart: ^0.70.0
   rive: ^0.13.20
   flutter_launcher_icons: ^0.14.2
+  shimmer: ^3.0.0
 
 
 flutter_launcher_icons:

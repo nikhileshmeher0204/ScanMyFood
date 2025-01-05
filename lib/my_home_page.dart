@@ -1115,10 +1115,8 @@ class DailyIntakePage extends StatefulWidget {
 class _DailyIntakePageState extends State<DailyIntakePage> {
   late Map<String, double> _dailyIntake;
   DateTime _selectedDate = DateTime.now();
-  final List<DateTime> _dates = List.generate(
-      7, (index) => DateTime.now().subtract(Duration(days: 6 - index)));
   final Logic logic = Logic();
-  int _currentIndex = 2;
+  final int _currentIndex = 2;
 
   @override
   void initState() {
