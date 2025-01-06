@@ -8,6 +8,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/models/food_item.dart';
+import 'package:read_the_label/screens/loading/food_item_card_shimmer.dart';
+import 'package:read_the_label/screens/loading/total_nutrients_card_shimmer.dart';
 import 'package:read_the_label/widgets/date_selector.dart';
 import 'package:read_the_label/widgets/detailed_nutrients_card.dart';
 import 'package:read_the_label/widgets/food_history_card.dart';
@@ -985,30 +987,23 @@ class _FoodScanPageState extends State<FoodScanPage> {
 
             //Loading animation
             if (widget.logic.getIsLoading())
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 24.0),
-                child: Column(
-                  spacing: 16,
-                  children: [
-                    const SizedBox(
-                      height: 50,
-                      width: 50,
-                      child: rive.RiveAnimation.asset(
-                        'assets/riveAssets/ai_generate_loading.riv',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Text(
-                      "Analyzing nutrition label...",
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Text(
+                      'Analysis Results',
                       style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyMedium!.color,
-                        fontSize: 14,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w400,
-                      ),
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins'),
                     ),
-                  ],
-                ),
+                  ),
+                  const FoodItemCardShimmer(),
+                  const FoodItemCardShimmer(),
+                  const TotalNutrientsCardShimmer(),
+                ],
               ),
             // Results Section
             if (widget.logic.foodImage != null &&

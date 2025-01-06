@@ -189,14 +189,14 @@ class _FoodInputFormState extends State<FoodInputForm> {
                 // color: Theme.of(context).colorScheme.cardBackground,
                 gradient: const LinearGradient(
                   colors: [
-                    Color(0xFF007AFF), // iOS Blue
-                    Color(0xFFFF2D55), // iOS Pink
-                    Color(0xFFFF9500), // iOS Orange
-                    Color(0xFFFFCC00), // iOS Yellow
+                    Color.fromARGB(255, 237, 202, 149),
+                    Color.fromARGB(255, 253, 142, 81),
+                    Color.fromARGB(255, 255, 0, 85),
+                    Color.fromARGB(255, 0, 21, 255),
                   ],
-                  stops: [0.0, 0.5, 0.8, 1.0],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
+                  stops: [0.2, 0.4, 0.6, 1.0],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(16),
               ),

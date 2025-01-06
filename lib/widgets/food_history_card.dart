@@ -145,83 +145,86 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                   .shrink(); // Return empty widget for non-matching dates
             },
           ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  Color.fromARGB(255, 237, 202, 149),
-                  Color.fromARGB(255, 253, 142, 81),
-                  Color.fromARGB(255, 255, 0, 85),
-                  Color.fromARGB(255, 0, 21, 255),
-                ],
-                stops: [0.2, 0.4, 0.6, 1.0],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                IconButton(
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(20)),
-                      ),
-                      builder: (context) => Padding(
-                        padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).viewInsets.bottom,
-                        ),
-                        child: FoodInputForm(
-                          logic: widget.logic,
-                          onSubmit: () {
-                            Navigator.push(
-                              context,
-                              CupertinoPageRoute(
-                                builder: (context) => FoodAnalysisScreen(
-                                  logic: widget.logic,
-                                  updateIndex: (index) {
-                                    setState(
-                                      () {
-                                        widget.currentIndex = index;
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.add),
+          GestureDetector(
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 ),
-                Text(
-                  "Add Food Item",
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                    foreground: Paint()
-                      ..shader = const LinearGradient(
-                        colors: <Color>[
-                          Color.fromARGB(255, 0, 21, 255),
-                          Color.fromARGB(255, 255, 0, 85),
-                          Color.fromARGB(255, 250, 220, 194),
-                        ],
-                        stops: [0.3, 0.5, 0.8], // Four stops for four colors
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ).createShader(
-                        const Rect.fromLTWH(0.0, 0.0, 250.0, 16.0),
-                      ),
+                builder: (context) => Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                  child: FoodInputForm(
+                    logic: widget.logic,
+                    onSubmit: () {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => FoodAnalysisScreen(
+                            logic: widget.logic,
+                            updateIndex: (index) {
+                              setState(
+                                () {
+                                  widget.currentIndex = index;
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
-              ],
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [
+                    Color.fromARGB(255, 237, 202, 149),
+                    Color.fromARGB(255, 253, 142, 81),
+                    Color.fromARGB(255, 255, 0, 85),
+                    Color.fromARGB(255, 0, 21, 255),
+                  ],
+                  stops: [0.2, 0.4, 0.6, 1.0],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.add,
+                    color: Color.fromARGB(255, 0, 21, 255),
+                  ),
+                  Text(
+                    "Add Food Item",
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
+                      foreground: Paint()
+                        ..shader = const LinearGradient(
+                          colors: <Color>[
+                            Color.fromARGB(255, 0, 21, 255),
+                            Color.fromARGB(255, 255, 0, 85),
+                            Color.fromARGB(255, 250, 220, 194),
+                          ],
+                          stops: [0.3, 0.5, 0.8], // Four stops for four colors
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ).createShader(
+                          const Rect.fromLTWH(0.0, 0.0, 250.0, 16.0),
+                        ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
