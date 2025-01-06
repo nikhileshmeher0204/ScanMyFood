@@ -115,7 +115,7 @@ class TotalNutrientsCard extends StatelessWidget {
                     isLast: true),
                 ElevatedButton.icon(
                   onPressed: () {
-                    print("Add to Daily Intake button pressed");
+                    print("Add to today's intake button pressed");
                     print(
                         "Current total nutrients: ${logic.totalPlateNutrients}");
                     logic.addToDailyIntake(context, updateIndex, 'food');
@@ -127,7 +127,7 @@ class TotalNutrientsCard extends StatelessWidget {
                     );
                   },
                   icon: const Icon(Icons.add_circle_outline),
-                  label: const Text('Add to Daily Intake'),
+                  label: const Text('Add to today\'s intake'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Theme.of(context).colorScheme.primary,

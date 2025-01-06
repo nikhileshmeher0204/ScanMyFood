@@ -3,13 +3,16 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/models/food_item.dart';
-import 'package:read_the_label/screens/loading/food_item_card_shimmer.dart';
-import 'package:read_the_label/screens/loading/total_nutrients_card_shimmer.dart';
+import 'package:read_the_label/screens/ask_AI_page.dart';
+import 'package:read_the_label/widgets/ask_ai_widget.dart';
+import 'package:read_the_label/widgets/food_item_card_shimmer.dart';
+import 'package:read_the_label/widgets/total_nutrients_card_shimmer.dart';
 import 'package:read_the_label/widgets/date_selector.dart';
 import 'package:read_the_label/widgets/detailed_nutrients_card.dart';
 import 'package:read_the_label/widgets/food_history_card.dart';
@@ -990,6 +993,7 @@ class _FoodScanPageState extends State<FoodScanPage> {
             //Loading animation
             if (widget.logic.getIsLoading())
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -1033,6 +1037,22 @@ class _FoodScanPageState extends State<FoodScanPage> {
                         _currentIndex = index;
                       });
                     },
+                  ),
+                  InkWell(
+                    onTap: () {
+                      print("Tap detected!");
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => AskAiPage(
+                            mealName: widget.logic.mealName,
+                            foodImage: widget.logic.foodImage!,
+                            logic: widget.logic,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const AskAiWidget(),
                   ),
                 ],
               ),

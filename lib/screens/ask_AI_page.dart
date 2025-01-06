@@ -1,0 +1,231 @@
+import 'dart:io';
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:read_the_label/logic.dart';
+import 'package:read_the_label/main.dart';
+
+class AskAiPage extends StatefulWidget {
+  String mealName;
+  File? foodImage;
+  final Logic logic;
+  AskAiPage(
+      {super.key,
+      required this.mealName,
+      required this.foodImage,
+      required this.logic});
+
+  @override
+  State<AskAiPage> createState() => _AskAiPageState();
+}
+
+class _AskAiPageState extends State<AskAiPage> {
+  @override
+  Widget build(BuildContext context) {
+    final apiKey = kIsWeb
+        ? const String.fromEnvironment('GEMINI_API_KEY')
+        : dotenv.env['GEMINI_API_KEY'];
+
+    final nutritionContext = '''
+    Meal: ${widget.mealName}
+    Nutritional Information:
+    - Calories: ${widget.logic.totalPlateNutrients['calories']} kcal
+    - Protein: ${widget.logic.totalPlateNutrients['protein']}g
+    - Carbohydrates: ${widget.logic.totalPlateNutrients['carbohydrates']}g
+    - Fat: ${widget.logic.totalPlateNutrients['fat']}g
+    - Fiber: ${widget.logic.totalPlateNutrients['fiber']}g
+  ''';
+
+    print("Nutritional Context:\n\n\n\n$nutritionContext");
+
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+        ),
+        title: const Text('Ask AI'),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 100),
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.cardBackground,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Stack(
+                children: [
+                  widget.foodImage != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image(
+                            image: FileImage(widget.foodImage!),
+                            fit: BoxFit.cover,
+                            alignment: Alignment.bottomCenter,
+                            width: double.infinity,
+                            height: 200,
+                          ),
+                        )
+                      : Container(
+                          height: 200,
+                          color: Theme.of(context).colorScheme.surface,
+                        ),
+                  ImageFiltered(
+                    imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: ShaderMask(
+                      shaderCallback: (rect) {
+                        return LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Colors.black, Colors.black.withOpacity(0)],
+                            stops: [0.4, 0.75]).createShader(rect);
+                      },
+                      blendMode: BlendMode.dstOut,
+                      child: widget.foodImage != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image(
+                                image: FileImage(widget.foodImage!),
+                                fit: BoxFit.cover,
+                                alignment: Alignment.bottomCenter,
+                                width: double.infinity,
+                                height: 200,
+                              ),
+                            )
+                          : Container(
+                              height: 200,
+                              color: Theme.of(context).colorScheme.surface,
+                            ),
+                    ),
+                  ),
+                  Positioned(
+                    left: 16,
+                    right: 16,
+                    bottom: 2,
+                    child: Text(
+                      widget.mealName,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 22,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height - 400,
+              width: MediaQuery.of(context).size.width,
+              child: LlmChatView(
+                // suggestions: const [
+                //   'Is this meal balanced?',
+                //   'Is this meal rich in vitamins?',
+                //   'What are the potential allergens in this meal?',
+                //   'Is this meal good for weight loss?',
+                //   'How does this meal support muscle growth?',
+                //   'What are the health benefits of this meal?',
+                // ],
+                welcomeMessage:
+                    "Hello, what would you like to know about ${widget.mealName}?",
+                style: LlmChatViewStyle(
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    actionButtonBarDecoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      borderRadius: BorderRadius.circular(28),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    addButtonStyle: ActionButtonStyle(
+                      iconColor: Theme.of(context).colorScheme.onSurface,
+                      iconDecoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.cardBackground,
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                    ),
+                    chatInputStyle: ChatInputStyle(
+                      textStyle: const TextStyle(
+                        fontFamily: 'Poppins',
+                      ),
+                      backgroundColor:
+                          Theme.of(context).colorScheme.cardBackground,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                    ),
+                    llmMessageStyle: LlmMessageStyle(
+                        markdownStyle:
+                            MarkdownStyleSheet.fromTheme(Theme.of(context)),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.cardBackground,
+                          borderRadius: BorderRadius.circular(28),
+                        ),
+                        iconDecoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: BorderRadius.circular(28),
+                        ),
+                        iconColor: Colors.white),
+                    userMessageStyle: UserMessageStyle(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.cardBackground,
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      textStyle: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    )),
+                provider: GeminiProvider(
+                  model: GenerativeModel(
+                    model: 'gemini-1.5-flash',
+                    apiKey: apiKey!,
+                    systemInstruction: Content.system('''
+            You are a helpful friendly assistant specialized in providing nutritional information and guidance about meals.
+            
+            Current meal context:
+            $nutritionContext
+            
+            Base your answers on this specific nutritional data when discussing this meal.
+            Answer questions clearly, with relevant icons, and keep responses concise.
+          '''),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart'; // Add this import
 import 'package:read_the_label/models/food_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -114,10 +115,12 @@ class Logic {
     required String foodName,
     required Map<String, double> nutrients,
     required String source,
+    required String imagePath,
   }) async {
     print("Adding to food history: $foodName");
     print("With nutrients: $nutrients");
     print("Source: $source");
+    print("Image path: $imagePath");
 
     // Load existing history first
     await loadFoodHistory();
@@ -127,6 +130,7 @@ class Logic {
       dateTime: DateTime.now(),
       nutrients: nutrients,
       source: source,
+      imagePath: imagePath,
     );
 
     // Add new item to existing history
@@ -183,12 +187,13 @@ class Logic {
     }
   }
 
-  void addToDailyIntake(
+  Future<void> addToDailyIntake(
       BuildContext context, Function(int) updateIndex, String source) async {
     print("Adding to daily intake. Source: $source");
     print("Current daily intake before: $dailyIntake");
 
     Map<String, double> newNutrients = {};
+    File? imageFile;
 
     if (source == 'label' && parsedNutrients.isNotEmpty) {
       for (var nutrient in parsedNutrients) {
@@ -199,6 +204,7 @@ class Logic {
         double adjustedQuantity = quantity * (sliderValue / _servingSize);
         newNutrients[name] = adjustedQuantity;
       }
+      imageFile = _frontImage;
     } else if (source == 'food' && totalPlateNutrients.isNotEmpty) {
       newNutrients = {
         'Energy': (totalPlateNutrients['calories'] ?? 0).toDouble(),
@@ -207,6 +213,16 @@ class Logic {
         'Fat': (totalPlateNutrients['fat'] ?? 0).toDouble(),
         'Fiber': (totalPlateNutrients['fiber'] ?? 0).toDouble(),
       };
+      imageFile = foodImage;
+    }
+
+    // Save the image to the device storage
+    String imagePath = '';
+    if (imageFile != null) {
+      final directory = await getApplicationDocumentsDirectory();
+      final imageName = '${DateTime.now().millisecondsSinceEpoch}.png';
+      final savedImage = await imageFile.copy('${directory.path}/$imageName');
+      imagePath = savedImage.path;
     }
 
     // Update dailyIntake with new nutrients
@@ -218,6 +234,7 @@ class Logic {
       foodName: source == 'label' ? _productName : _mealName,
       nutrients: newNutrients,
       source: source,
+      imagePath: imagePath,
     );
 
     print("Updated daily intake before saving: $dailyIntake");

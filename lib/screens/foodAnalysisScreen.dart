@@ -8,8 +8,8 @@ import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/widgets/food_item_card.dart';
 import 'package:read_the_label/widgets/total_nutrients_card.dart';
 import 'package:rive/rive.dart' as rive;
-import 'loading/food_item_card_shimmer.dart';
-import 'loading/total_nutrients_card_shimmer.dart';
+import '../widgets/food_item_card_shimmer.dart';
+import '../widgets/total_nutrients_card_shimmer.dart';
 
 class FoodAnalysisScreen extends StatefulWidget {
   final Logic logic;
@@ -63,6 +63,7 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Text(
                             'Analysis Results',
+                            textAlign: TextAlign.left,
                             style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 24,

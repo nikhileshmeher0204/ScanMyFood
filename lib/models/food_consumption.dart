@@ -3,12 +3,14 @@ class FoodConsumption {
   final DateTime dateTime;
   final Map<String, double> nutrients;
   final String source;
+  final String imagePath;
 
   FoodConsumption({
     required this.foodName,
     required this.dateTime,
     required this.nutrients,
     required this.source,
+    required this.imagePath,
   });
 
   Map<String, dynamic> toJson() => {
@@ -16,6 +18,7 @@ class FoodConsumption {
         'dateTime': dateTime.toIso8601String(),
         'nutrients': nutrients,
         'source': source,
+        'imagePath': imagePath,
       };
 
   factory FoodConsumption.fromJson(Map<String, dynamic> json) {
@@ -26,10 +29,11 @@ class FoodConsumption {
     });
 
     return FoodConsumption(
-      foodName: json['foodName'] as String,
-      dateTime: DateTime.parse(json['dateTime'] as String),
+      foodName: json['foodName'] as String? ?? '',
+      dateTime: DateTime.parse(json['dateTime'] as String? ?? ''),
       nutrients: nutrients,
-      source: json['source'] as String,
+      source: json['source'] as String? ?? '',
+      imagePath: json['imagePath'] as String? ?? '',
     );
   }
 }
