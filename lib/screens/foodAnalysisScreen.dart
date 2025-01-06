@@ -45,6 +45,7 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
         title: const Text('Food Analysis'),
       ),
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).padding.bottom + 80,

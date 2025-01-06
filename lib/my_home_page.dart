@@ -289,6 +289,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildHomePage(BuildContext context) {
     return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       child: Padding(
         padding:
             EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 80),
@@ -931,6 +932,7 @@ class _FoodScanPageState extends State<FoodScanPage> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       child: Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).padding.bottom + 80,
@@ -1185,6 +1187,7 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       child: Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).padding.bottom + 80,
