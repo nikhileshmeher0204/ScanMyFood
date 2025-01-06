@@ -36,17 +36,25 @@ class Logic {
   Map<String, dynamic> get nutritionAnalysis => _nutritionAnalysis;
   List<FoodConsumption> _foodHistory = [];
   List<FoodConsumption> get foodHistory => _foodHistory;
-  String _mealName = "";
-  String get mealName => _mealName;
   final ValueNotifier<bool> loadingNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<String> mealNameNotifier = ValueNotifier<String>("");
+
+  // String _mealName = "";
+  // String get mealName => _mealName;
+  String get mealName => mealNameNotifier.value;
+  set _mealName(String value) {
+    mealNameNotifier.value = value;
+  }
+
+  @override
+  void dispose() {
+    mealNameNotifier.dispose();
+    loadingNotifier.dispose();
+  }
 
   bool get isAnalyzing => loadingNotifier.value;
   set _isAnalyzing(bool value) {
     loadingNotifier.value = value;
-  }
-
-  void dispose() {
-    loadingNotifier.dispose();
   }
 
   String getStorageKey(DateTime date) {
@@ -231,7 +239,7 @@ class Logic {
     });
 
     await addToFoodHistory(
-      foodName: source == 'label' ? _productName : _mealName,
+      foodName: source == 'label' ? _productName : mealName,
       nutrients: newNutrients,
       source: source,
       imagePath: imagePath,

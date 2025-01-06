@@ -74,7 +74,6 @@ class FoodItemCardShimmer extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
             // Nutrient grid
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
