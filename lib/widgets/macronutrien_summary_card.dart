@@ -4,8 +4,7 @@ Widget MacronutrientSummaryCard(
     BuildContext context, Map<String, double> dailyIntake) {
   final calories = dailyIntake['Energy'] ?? 0.0;
   const calorieGoal = 2000.0;
-  final caloriePercent = (calories / calorieGoal).clamp(0.0, 1.0);
-
+  final caloriePercent = (calories / calorieGoal);
   return Container(
     margin: const EdgeInsets.symmetric(horizontal: 20),
     padding: const EdgeInsets.all(20),
@@ -133,29 +132,29 @@ Widget _buildMacronutrientIndicator(
         child: Icon(
           icon,
           color: Colors.white,
-          size: 24,
+          size: 32,
         ),
       ),
       Text(
         label,
         style: const TextStyle(
-          color: Colors.white70,
-          fontSize: 14,
-          fontFamily: 'Poppins',
-        ),
+            color: Colors.white,
+            fontSize: 16,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w500),
       ),
       Text(
-        '${value.toStringAsFixed(1)}g',
+        '${value.toStringAsFixed(1)}/${goal.toStringAsFixed(1)}g',
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
           fontFamily: 'Poppins',
         ),
       ),
       SizedBox(
-        height: 5,
-        width: 50,
+        height: 6,
+        width: 80,
         child: LinearProgressIndicator(
           value: percent,
           backgroundColor: Colors.white24,

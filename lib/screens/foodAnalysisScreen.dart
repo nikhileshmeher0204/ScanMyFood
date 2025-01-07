@@ -58,6 +58,7 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                 children: [
                   if (isLoading)
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),

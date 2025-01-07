@@ -38,6 +38,7 @@ class Logic {
   List<FoodConsumption> get foodHistory => _foodHistory;
   final ValueNotifier<bool> loadingNotifier = ValueNotifier<bool>(false);
   final ValueNotifier<String> mealNameNotifier = ValueNotifier<String>("");
+  final dailyIntakeNotifier = ValueNotifier<Map<String, double>>({});
 
   // String _mealName = "";
   // String get mealName => _mealName;
@@ -55,6 +56,19 @@ class Logic {
   bool get isAnalyzing => loadingNotifier.value;
   set _isAnalyzing(bool value) {
     loadingNotifier.value = value;
+  }
+
+  String? getApiKey() {
+    try {
+      final key = dotenv.env['GEMINI_API_KEY'];
+      if (key == null || key.isEmpty) {
+        throw Exception('GEMINI_API_KEY not found in .env file');
+      }
+      return key;
+    } catch (e) {
+      debugPrint('Error loading API key: $e');
+      return null;
+    }
   }
 
   String getStorageKey(DateTime date) {
@@ -247,6 +261,8 @@ class Logic {
 
     print("Updated daily intake before saving: $dailyIntake");
     await saveDailyIntake();
+    dailyIntakeNotifier.value = Map.from(dailyIntake);
+
     updateIndex(2);
   }
 
@@ -354,9 +370,9 @@ class Logic {
 
   Color getColorForPercent(double percent, BuildContext context) {
     if (percent > 1.0) return Colors.red; // Exceeded daily value
-    if (percent > 0.8) return Colors.orange; // High but not exceeded
+    if (percent > 0.8) return Colors.green; // High but not exceeded
     if (percent > 0.6) return Colors.yellow; // Moderate
-    if (percent > 0.4) return Colors.lightGreen; // Low to moderate
+    if (percent > 0.4) return Colors.yellow; // Low to moderate
     return Colors.green; // Low
   }
 
@@ -365,9 +381,7 @@ class Logic {
     _isLoading = true;
     setState(() {});
 
-    final apiKey = kIsWeb
-        ? const String.fromEnvironment('GEMINI_API_KEY')
-        : dotenv.env['GEMINI_API_KEY'];
+    final apiKey = getApiKey();
 
     final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey!);
 
@@ -507,10 +521,8 @@ Strictly follow these rules:
       _isAnalyzing = true;
 
       print("Processing logging food items via text: \n$foodItemsText");
-      final apiKey = kIsWeb
-          ? const String.fromEnvironment('GEMINI_API_KEY')
-          : dotenv.env['GEMINI_API_KEY'];
-
+      final apiKey = getApiKey();
+      print("Apikey is: ");
       final model = GenerativeModel(
         model: 'gemini-1.5-flash',
         apiKey: apiKey!,
@@ -641,9 +653,7 @@ Provide accurate nutritional data based on the most reliable food databases and 
     _isLoading = true;
     setState(() {});
 
-    final apiKey = kIsWeb
-        ? const String.fromEnvironment('GEMINI_API_KEY')
-        : dotenv.env['GEMINI_API_KEY'];
+    final apiKey = getApiKey();
 
     final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey!);
 

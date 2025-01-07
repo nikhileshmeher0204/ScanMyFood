@@ -1055,6 +1055,21 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
     super.initState();
     _dailyIntake = widget.dailyIntake;
     _initializeData();
+    logic.dailyIntakeNotifier.addListener(_onDailyIntakeChanged);
+  }
+
+  void _onDailyIntakeChanged() {
+    if (mounted) {
+      setState(() {
+        _dailyIntake = Map.from(logic.dailyIntakeNotifier.value);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    logic.dailyIntakeNotifier.removeListener(_onDailyIntakeChanged);
+    super.dispose();
   }
 
   Future<void> _initializeData() async {
