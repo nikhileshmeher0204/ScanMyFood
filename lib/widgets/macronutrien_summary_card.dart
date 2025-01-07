@@ -143,14 +143,28 @@ Widget _buildMacronutrientIndicator(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w500),
       ),
-      Text(
-        '${value.toStringAsFixed(1)}/${goal.toStringAsFixed(1)}g',
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          fontFamily: 'Poppins',
-        ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '${value.toStringAsFixed(1)}g',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          Text(
+            ' / ${goal.toStringAsFixed(1)}g',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontWeight: FontWeight.w400,
+              fontFamily: 'Poppins',
+            ),
+          ),
+        ],
       ),
       SizedBox(
         height: 6,

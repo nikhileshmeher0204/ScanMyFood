@@ -953,22 +953,22 @@ class _FoodScanPageState extends State<FoodScanPage> {
                       });
                     },
                   ),
-                  InkWell(
-                    onTap: () {
-                      print("Tap detected!");
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => AskAiPage(
-                            mealName: widget.logic.mealName,
-                            foodImage: widget.logic.foodImage!,
-                            logic: widget.logic,
-                          ),
-                        ),
-                      );
-                    },
-                    child: const AskAiWidget(),
-                  ),
+                  // InkWell(
+                  //   onTap: () {
+                  //     print("Tap detected!");
+                  //     Navigator.push(
+                  //       context,
+                  //       CupertinoPageRoute(
+                  //         builder: (context) => AskAiPage(
+                  //           mealName: widget.logic.mealName,
+                  //           foodImage: widget.logic.foodImage!,
+                  //           logic: widget.logic,
+                  //         ),
+                  //       ),
+                  //     );
+                  //   },
+                  //   child: const AskAiWidget(),
+                  // ),
                 ],
               ),
           ],
