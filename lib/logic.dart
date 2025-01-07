@@ -353,11 +353,11 @@ class Logic {
   }
 
   Color getColorForPercent(double percent, BuildContext context) {
-    if (percent > 1.0) return Theme.of(context).colorScheme.error;
-    if (percent > 0.8)
-      return Theme.of(context).colorScheme.error.withOpacity(0.8);
-    if (percent > 0.6) return Theme.of(context).colorScheme.primary;
-    return Theme.of(context).colorScheme.tertiary;
+    if (percent > 1.0) return Colors.red; // Exceeded daily value
+    if (percent > 0.8) return Colors.orange; // High but not exceeded
+    if (percent > 0.6) return Colors.yellow; // Moderate
+    if (percent > 0.4) return Colors.lightGreen; // Low to moderate
+    return Colors.green; // Low
   }
 
   Future<String> analyzeImages(

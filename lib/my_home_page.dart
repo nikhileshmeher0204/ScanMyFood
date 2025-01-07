@@ -12,6 +12,7 @@ import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/screens/ask_AI_page.dart';
 import 'package:read_the_label/widgets/ask_ai_widget.dart';
 import 'package:read_the_label/widgets/food_item_card_shimmer.dart';
+import 'package:read_the_label/widgets/nutrient_info_shimmer.dart';
 import 'package:read_the_label/widgets/total_nutrients_card_shimmer.dart';
 import 'package:read_the_label/widgets/date_selector.dart';
 import 'package:read_the_label/widgets/detailed_nutrients_card.dart';
@@ -41,40 +42,6 @@ class _MyHomePageState extends State<MyHomePage> {
   final Logic _logic = Logic();
   int _currentIndex = 0;
   final _duration = const Duration(milliseconds: 300);
-  bool _isScanning = false;
-  double _scanLinePosition = 0.0;
-  Timer? _scanTimer;
-
-  void _startScanAnimation() {
-    setState(() {
-      _isScanning = true;
-      _scanLinePosition = 0.0;
-    });
-
-    _scanTimer?.cancel();
-
-    _scanTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
-      if (!mounted || !_logic.getIsLoading()) {
-        timer.cancel();
-        if (mounted) {
-          setState(() {
-            _isScanning = false;
-            _scanLinePosition = 0.0;
-          });
-        }
-        return;
-      }
-
-      if (mounted && _isScanning) {
-        setState(() {
-          _scanLinePosition += 2;
-          if (_scanLinePosition > MediaQuery.of(context).size.height) {
-            _scanLinePosition = 0;
-          }
-        });
-      }
-    });
-  }
 
   Widget _buildImageCaptureButtons() {
     return Row(
@@ -168,16 +135,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _analyzeImages() {
     if (_logic.canAnalyze()) {
-      _startScanAnimation();
       _logic.analyzeImages(setState: setState);
     }
-  }
-
-  @override
-  void dispose() {
-    _scanTimer?.cancel();
-    _isScanning = false;
-    super.dispose();
   }
 
   void _switchTab(int index) {
@@ -325,7 +284,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             borderRadius: BorderRadius.circular(20),
                             child: Image(image: FileImage(_logic.frontImage!)),
                           ),
-                          if (_logic.getIsLoading() && _isScanning)
+                          if (_logic.getIsLoading())
                             const Positioned.fill(
                               left: 5,
                               right: 5,
@@ -343,7 +302,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       )
                     else
                       Icon(
-                        Icons.camera_alt_outlined,
+                        Icons.document_scanner,
                         size: 70,
                         color: Theme.of(context)
                             .colorScheme
@@ -352,7 +311,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     const SizedBox(height: 20),
                     Text(
-                      "Scan product front or choose from gallery",
+                      "To get started, scan product front or choose from gallery!",
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 14,
@@ -365,92 +325,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-            if (_selectedFile != null)
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  gradient: LinearGradient(
-                    colors: [
-                      Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.primary.withOpacity(0.8),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withOpacity(0.3),
-                      blurRadius: 12,
-                      spreadRadius: 0,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 16,
-                    ),
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    elevation: 0,
-                  ),
-                  onPressed: () {
-                    _analyzeImages();
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.auto_awesome,
-                          size: 20, color: Colors.white),
-                      const SizedBox(width: 8),
-                      Text(
-                        _isScanning ? "Analyzing..." : "Analyze",
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Poppins',
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            if (_logic.getIsLoading())
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 24.0),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 16),
-                    const SizedBox(
-                      height: 50,
-                      width: 50,
-                      child: rive.RiveAnimation.asset(
-                        'assets/riveAssets/ai_generate_loading.riv',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      "Analyzing nutrition label...",
-                      style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyMedium!.color,
-                        fontSize: 14,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            if (_logic.getIsLoading()) const NutrientInfoShimmer(),
 
             //Good/Moderate nutrients
             if (_logic.getGoodNutrients().isNotEmpty)
@@ -910,7 +785,24 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                   ],
                 ),
-              )
+              ),
+            if (_logic.getServingSize() > 0)
+              InkWell(
+                onTap: () {
+                  print("Tap detected!");
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => AskAiPage(
+                        mealName: _logic.productName,
+                        foodImage: _logic.frontImage!,
+                        logic: _logic,
+                      ),
+                    ),
+                  );
+                },
+                child: const AskAiWidget(),
+              ),
           ],
         ),
       ),
@@ -963,7 +855,29 @@ class _FoodScanPageState extends State<FoodScanPage> {
                 child: Column(
                   children: [
                     if (widget.logic.foodImage != null)
-                      Image(image: FileImage(widget.logic.foodImage!))
+                      Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image(
+                                image: FileImage(widget.logic.foodImage!)),
+                          ),
+                          if (widget.logic.getIsLoading())
+                            const Positioned.fill(
+                              left: 5,
+                              right: 5,
+                              top: 5,
+                              bottom: 5,
+                              child: rive.RiveAnimation.asset(
+                                'assets/riveAssets/qr_code_scanner.riv',
+                                fit: BoxFit.fill,
+                                artboard: 'scan_board',
+                                animations: ['anim1'],
+                                stateMachines: ['State Machine 1'],
+                              ),
+                            ),
+                        ],
+                      )
                     else
                       Icon(
                         Icons.restaurant_outlined,
@@ -975,7 +889,8 @@ class _FoodScanPageState extends State<FoodScanPage> {
                       ),
                     const SizedBox(height: 20),
                     Text(
-                      "Take a photo of your food or choose from gallery",
+                      "Snap a picture of your meal or pick one from your gallery",
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 14,

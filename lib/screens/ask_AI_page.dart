@@ -172,8 +172,8 @@ class _AskAiPageState extends State<AskAiPage> {
                     bottom: 2,
                     child: Text(
                       widget.mealName,
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
+                      style: const TextStyle(
+                        color: Colors.white,
                         fontSize: 22,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
@@ -187,18 +187,44 @@ class _AskAiPageState extends State<AskAiPage> {
               height: MediaQuery.of(context).size.height - 400,
               width: MediaQuery.of(context).size.width,
               child: LlmChatView(
-                // suggestions: const [
-                //   'Is this meal balanced?',
-                //   'Is this meal rich in vitamins?',
-                //   'What are the potential allergens in this meal?',
-                //   'Is this meal good for weight loss?',
-                //   'How does this meal support muscle growth?',
-                //   'What are the health benefits of this meal?',
-                // ],
+                suggestions: const [
+                  '🍽️ Is this meal balanced?',
+                  '🍊 Is this meal rich in vitamins?',
+                  '🏋️‍♂️ Is this meal good for weight loss?',
+                  '💪 How does this meal support muscle growth?',
+                  '🌟 What are the health benefits of this meal?',
+                ],
                 provider: _provider,
                 welcomeMessage:
                     "👋 Hello, what would you like to know about ${widget.mealName}? 🍽️",
                 style: LlmChatViewStyle(
+                  suggestionStyle: SuggestionStyle(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.cardBackground,
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      textStyle: TextStyle(
+                        fontFamily: 'Poppins',
+                        foreground: Paint()
+                          ..shader = const LinearGradient(
+                            colors: <Color>[
+                              Color.fromARGB(255, 0, 21, 255),
+                              Color.fromARGB(255, 255, 0, 85),
+                              Color.fromARGB(255, 255, 119, 0),
+                              Color.fromARGB(255, 250, 220, 194),
+                            ],
+                            stops: [
+                              0.1,
+                              0.5,
+                              0.7,
+                              1.0,
+                            ], // Four stops for four colors
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ).createShader(
+                            const Rect.fromLTWH(0.0, 0.0, 250.0, 16.0),
+                          ),
+                      )),
                   backgroundColor: Theme.of(context).colorScheme.surface,
                   actionButtonBarDecoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,

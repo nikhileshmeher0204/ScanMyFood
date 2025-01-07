@@ -49,7 +49,8 @@ class MyApp extends StatelessWidget {
           surface: const Color(0xFF121212),
           primary: const Color(0xFF4E7BFF),
           secondary: const Color(0xFF9C72FF),
-          tertiary: const Color(0xFFFFB300),
+          tertiary: const Color.fromARGB(
+              255, 220, 109, 190), // Changed to a bright green color
           error: const Color(0xFFFF5C5C),
           onSurface: Colors.white,
           onPrimary: Colors.white,

@@ -70,6 +70,29 @@ Widget DetailedNutrientsCard(
             ],
           ),
         ),
+        if (dailyIntake.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.restaurant_menu,
+                  color: Theme.of(context).colorScheme.onTertiary,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Log your meals to see detailed nutrient breakdown.',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.onTertiary,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
 
         // Nutrients Grid
         Padding(

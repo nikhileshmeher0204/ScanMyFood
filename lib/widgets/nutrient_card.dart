@@ -8,7 +8,7 @@ Widget NutrientCard(BuildContext context, Map<String, dynamic> nutrient,
   final total = double.tryParse(nutrient['Current Daily Value']
           .replaceAll(RegExp(r'[^0-9\.]'), '')) ??
       0.0;
-  final percent = (current / total).clamp(0.0, 1.0);
+  final percent = current / total;
   final Logic logic = Logic();
 
   final unit = logic.getUnit(name);
