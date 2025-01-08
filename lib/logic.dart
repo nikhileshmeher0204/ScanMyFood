@@ -99,6 +99,8 @@ class Logic {
 
   Future<void> saveDailyIntake() async {
     try {
+      print("✅Start of saveDailyIntake()");
+      print("⚡Daily intake at the start of saveDailyIntake(): $dailyIntake");
       final prefs = await SharedPreferences.getInstance();
       final today = DateTime.now();
       final storageKey = getStorageKey(today);
@@ -128,6 +130,8 @@ class Logic {
       // Verify the save
       final savedData = prefs.getString(storageKey);
       print("Verification - Saved data: $savedData");
+      print("⚡Daily intake at the end of saveDailyIntake(): $dailyIntake");
+      print("✅End of saveDailyIntake()");
     } catch (e) {
       print("Error saving daily intake: $e");
     }
@@ -139,6 +143,8 @@ class Logic {
     required String source,
     required String imagePath,
   }) async {
+    print("✅Start of addToFoodHistory()");
+    print("⚡Daily intake at start of addToFoodHistory(): $dailyIntake");
     print("Adding to food history: $foodName");
     print("With nutrients: $nutrients");
     print("Source: $source");
@@ -160,9 +166,13 @@ class Logic {
     print("Updated food history length: ${_foodHistory.length}");
 
     await _saveFoodHistory();
+    print("✅End of addToFoodHistory()");
+    print("⚡Daily intake at end of addToFoodHistory(): $dailyIntake");
   }
 
   Future<void> loadFoodHistory() async {
+    print("✅Start of loadFoodHistory()");
+    print("⚡Daily intake: $dailyIntake");
     print("Loading food history from storage...");
     final prefs = await SharedPreferences.getInstance();
     final String? storedHistory = prefs.getString('food_history');
@@ -181,6 +191,8 @@ class Logic {
         _foodHistory.forEach((item) {
           print("Loaded item: ${item.foodName} on ${item.dateTime}");
         });
+        print("⚡Daily intake: $dailyIntake");
+        print("✅End of loadFoodHistory()");
       } catch (e) {
         print("Error loading food history: $e");
         _foodHistory = [];
@@ -193,6 +205,8 @@ class Logic {
 
   Future<void> _saveFoodHistory() async {
     try {
+      print("✅Start of _saveFoodHistory()");
+      print("⚡Daily intake at start of _saveFoodHistory(): $dailyIntake");
       final prefs = await SharedPreferences.getInstance();
       final historyJson = _foodHistory.map((item) => item.toJson()).toList();
       print("Saving food history with ${historyJson.length} items");
@@ -204,6 +218,8 @@ class Logic {
       final decodedSave =
           savedData != null ? jsonDecode(savedData) as List : [];
       print("Verification - Saved food history items: ${decodedSave.length}");
+      print("⚡Daily intake at end of _saveFoodHIistory(): $dailyIntake");
+      print("✅End of _saveFoodHistory()");
     } catch (e) {
       print("Error saving food history: $e");
     }
@@ -211,8 +227,11 @@ class Logic {
 
   Future<void> addToDailyIntake(
       BuildContext context, Function(int) updateIndex, String source) async {
+    dailyIntake = {};
     print("Adding to daily intake. Source: $source");
     print("Current daily intake before: $dailyIntake");
+    print("✅Start of addToDailyIntake()");
+    print("⚡Daily intake at start of addToDailyIntake(): $dailyIntake");
 
     Map<String, double> newNutrients = {};
     File? imageFile;
@@ -259,9 +278,10 @@ class Logic {
       imagePath: imagePath,
     );
 
-    print("Updated daily intake before saving: $dailyIntake");
     await saveDailyIntake();
     dailyIntakeNotifier.value = Map.from(dailyIntake);
+    print("⚡Daily intake at end of addToDailyIntake(): $dailyIntake");
+    print("✅End of addToDailyIntake()");
 
     updateIndex(2);
   }
@@ -649,6 +669,7 @@ Provide accurate nutritional data based on the most reliable food databases and 
   Future<String> analyzeFoodImage({
     required File imageFile,
     required Function(void Function()) setState,
+    required bool mounted,
   }) async {
     _isLoading = true;
     setState(() {});
@@ -754,28 +775,36 @@ Consider:
             'fiber': plateAnalysis['total_plate_nutrients']['fiber']['value'],
           };
 
-          setState(() {
-            _isLoading = false;
-          });
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
 
           return response.text!;
         } catch (e) {
           print("Error parsing JSON response: $e");
-          setState(() {
-            _isLoading = false;
-          });
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
           return "Error parsing response";
         }
       }
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
       return "No response received";
     } catch (e) {
       print("Error analyzing food image: $e");
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
       return "Error analyzing image";
     }
   }

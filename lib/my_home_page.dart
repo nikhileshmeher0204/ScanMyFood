@@ -953,22 +953,22 @@ class _FoodScanPageState extends State<FoodScanPage> {
                       });
                     },
                   ),
-                  // InkWell(
-                  //   onTap: () {
-                  //     print("Tap detected!");
-                  //     Navigator.push(
-                  //       context,
-                  //       CupertinoPageRoute(
-                  //         builder: (context) => AskAiPage(
-                  //           mealName: widget.logic.mealName,
-                  //           foodImage: widget.logic.foodImage!,
-                  //           logic: widget.logic,
-                  //         ),
-                  //       ),
-                  //     );
-                  //   },
-                  //   child: const AskAiWidget(),
-                  // ),
+                  InkWell(
+                    onTap: () {
+                      print("Tap detected!");
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => AskAiPage(
+                            mealName: widget.logic.mealName,
+                            foodImage: widget.logic.foodImage!,
+                            logic: widget.logic,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const AskAiWidget(),
+                  ),
                 ],
               ),
           ],
@@ -1025,12 +1025,19 @@ class _FoodScanPageState extends State<FoodScanPage> {
     final image = await imagePicker.pickImage(source: source);
 
     if (image != null) {
-      setState(() {
-        widget.logic.foodImage = File(image.path);
-      });
+      if (mounted) {
+        setState(() {
+          widget.logic.foodImage = File(image.path);
+        });
+      }
       await widget.logic.analyzeFoodImage(
         imageFile: widget.logic.foodImage!,
-        setState: setState,
+        setState: (fn) {
+          if (mounted) {
+            setState(fn);
+          }
+        },
+        mounted: mounted,
       );
     }
   }
