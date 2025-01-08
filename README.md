@@ -17,8 +17,9 @@ A Flutter application that helps users track their nutritional intake by analyzi
 
 
 ## Screenshots and Videos
+https://github.com/user-attachments/assets/82553c7d-5d61-4d22-9d99-2c2e15fa215b
 
-| https://github.com/user-attachments/assets/82553c7d-5d61-4d22-9d99-2c2e15fa215b | <img src="https://github.com/user-attachments/assets/2b758598-71ae-4d8b-9406-73b2b52a8019" width="300" alt="Screenshot 1" /> | <img src="https://github.com/user-attachments/assets/4936fba5-3909-4048-9445-d5f33e0da63b" width="300" alt="Screenshot 2" /> |
+| <img src="https://github.com/user-attachments/assets/2b758598-71ae-4d8b-9406-73b2b52a8019" width="300" alt="Screenshot 1" /> | <img src="https://github.com/user-attachments/assets/2b758598-71ae-4d8b-9406-73b2b52a8019" width="300" alt="Screenshot 1" /> | <img src="https://github.com/user-attachments/assets/4936fba5-3909-4048-9445-d5f33e0da63b" width="300" alt="Screenshot 2" /> |
 |:---------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|
 | <img src="https://github.com/user-attachments/assets/be941868-2eb8-4785-8a9e-d0d91bce66b3" width="300" alt="Screenshot 3" /> | <img src="https://github.com/user-attachments/assets/c2a024ba-5f30-4fa2-b406-1fa4b7d4ce05" width="300" alt="Screenshot 4" /> | <img src="https://github.com/user-attachments/assets/f527f2ed-38ee-4918-a9cc-7f9bf855f4aa" width="300" alt="Screenshot 5" /> |
 
