@@ -11,8 +11,9 @@ A Flutter application that helps users track their nutritional intake by analyzi
 - ⚡ Real-time nutritional insights and recommendations
 
 ## Screenshots
-![Screenshot_1736278679](https://github.com/user-attachments/assets/e5984576-64c5-444f-a3c3-c6ab36a67f4d)![Screenshot_1736278900](https://github.com/user-attachments/assets/2b758598-71ae-4d8b-9406-73b2b52a8019)![Screenshot_1736278958](https://github.com/user-attachments/assets/af0fd918-f383-4a8![Screenshot_1736353747](https://github.com/user-attachments/assets/be941868-2eb8-4785-8a9e-d0d91bce66b3)
-0-9a2a-1e288a1888ae)
+
+| ![Screenshot_1736278679](https://github.com/user-attachments/assets/e5984576-64c5-444f-a3c3-c6ab36a67f4d) | ![Screenshot_1736278900](https://github.com/user-attachments/assets/2b758598-71ae-4d8b-9406-73b2b52a8019) | ![Screenshot_1736278958](https://github.com/user-attachments/assets/af0fd918-f383-4a8) | ![Screenshot_1736353747](https://github.com/user-attachments/assets/be941868-2eb8-4785-8a9e-d0d91bce66b3) |
+|:---------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|
 
 
 
