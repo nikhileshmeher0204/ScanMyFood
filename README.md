@@ -30,7 +30,7 @@ https://github.com/user-attachments/assets/82553c7d-5d61-4d22-9d99-2c2e15fa215b
 
 1. Clone the repository
 ```bash
-git clone https://github.com/nikhileshmeher0204/read_the_label.git
+git clone https://github.com/nikhileshmeher0204/FoodScanAI.git
 ```
 2. Navigate to the project directory
 ```bash
