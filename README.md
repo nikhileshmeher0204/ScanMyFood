@@ -46,7 +46,7 @@ flutter pub get
 ```
 5. Run the app
 ```bash
-flutter run
+flutter run --no-enable-impeller
 ```
 
 ## Technologies Used
