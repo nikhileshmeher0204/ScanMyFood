@@ -34,7 +34,7 @@ git clone https://github.com/nikhileshmeher0204/FoodScanAI.git
 ```
 2. Navigate to the project directory
 ```bash
-cd read_the_label
+cd FoodScanAI
 ```
 3. Create a .env file in the root directory and add your Gemini API key:
 ```bash
