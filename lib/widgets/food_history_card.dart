@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/logic.dart';
+import 'package:read_the_label/providers/UiProvider.dart';
 import 'package:read_the_label/screens/foodAnalysisScreen.dart';
 import 'package:read_the_label/widgets/food_input_form.dart';
+import 'package:read_the_label/providers/ui_provider.dart';
 
 class FoodHistoryCard extends StatefulWidget {
   final BuildContext context;
@@ -164,15 +167,14 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                       Navigator.push(
                         context,
                         CupertinoPageRoute(
-                          builder: (context) => FoodAnalysisScreen(
-                            logic: widget.logic,
-                            updateIndex: (index) {
-                              setState(
-                                () {
-                                  widget.currentIndex = index;
-                                },
-                              );
-                            },
+                          builder: (context) => Consumer<UiProvider>(
+                            builder: (context, uiProvider, _) =>
+                                FoodAnalysisScreen(
+                              logic: widget.logic,
+                              updateIndex: (index) {
+                                uiProvider.updateCurrentIndex(index);
+                              },
+                            ),
                           ),
                         ),
                       );

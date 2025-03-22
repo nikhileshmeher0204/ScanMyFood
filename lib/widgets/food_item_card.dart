@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/logic.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/providers/nutrition_provider.dart';
 import 'package:read_the_label/widgets/food_nutreint_tile.dart';
 import '../models/food_item.dart';
 import 'nutrient_tile.dart';
@@ -19,6 +21,8 @@ class FoodItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final nutritionProvider =
+        Provider.of<NutritionProvider>(context, listen: false);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
