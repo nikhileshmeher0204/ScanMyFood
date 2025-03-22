@@ -2,9 +2,11 @@ import 'dart:ui';
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/logic.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/models/food_item.dart';
+import 'package:read_the_label/providers/UiProvider.dart';
 import 'package:read_the_label/widgets/food_item_card.dart';
 import 'package:read_the_label/widgets/total_nutrients_card.dart';
 import 'package:rive/rive.dart' as rive;
@@ -27,9 +29,17 @@ class FoodAnalysisScreen extends StatefulWidget {
 
 class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
   late int currentIndex;
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with a default value or get from provider
+    currentIndex = context.read<UiProvider>().currentIndex;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final uiProvider = Provider.of<UiProvider>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -102,9 +112,8 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                         TotalNutrientsCard(
                           logic: widget.logic,
                           updateIndex: (index) {
-                            setState(() {
-                              currentIndex = index;
-                            });
+                            uiProvider.updateCurrentIndex(index);
+                            widget.updateIndex(index);
                           },
                         ),
                       ],

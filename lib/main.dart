@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
+import 'package:provider/provider.dart';
+import 'package:read_the_label/providers/UiProvider.dart';
 import 'my_home_page.dart';
 
 Future<void> main() async {
@@ -18,7 +19,9 @@ Future<void> main() async {
   } else {
     await dotenv.load(fileName: ".env");
   }
-  runApp(const MyApp());
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => UiProvider()),
+  ], child: const MyApp()));
 }
 
 extension CustomColors on ColorScheme {
