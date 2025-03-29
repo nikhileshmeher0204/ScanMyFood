@@ -104,9 +104,10 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        ...widget.logic.analyzedFoodItems.map((item) =>
-                            FoodItemCard(
-                                item: item,
+                        ...widget.logic.analyzedFoodItems.asMap().entries.map(
+                            (entry) => FoodItemCard(
+                                item: entry.value,
+                                index: entry.key,
                                 setState: setState,
                                 logic: widget.logic)),
                         TotalNutrientsCard(

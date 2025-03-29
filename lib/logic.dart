@@ -6,7 +6,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart'; // Add this import
+import 'package:provider/provider.dart';
 import 'package:read_the_label/models/food_item.dart';
+import 'package:read_the_label/providers/UiProvider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data/dv_values.dart';
@@ -235,6 +237,8 @@ class Logic {
 
     Map<String, double> newNutrients = {};
     File? imageFile;
+    final uiProvider = Provider.of<UiProvider>(context, listen: false);
+
 
     if (source == 'label' && parsedNutrients.isNotEmpty) {
       for (var nutrient in parsedNutrients) {
@@ -242,7 +246,7 @@ class Logic {
         final quantity = double.tryParse(
                 nutrient['quantity'].replaceAll(RegExp(r'[^0-9\.]'), '')) ??
             0;
-        double adjustedQuantity = quantity * (sliderValue / _servingSize);
+        double adjustedQuantity = quantity * (uiProvider.sliderValue / _servingSize);
         newNutrients[name] = adjustedQuantity;
       }
       imageFile = _frontImage;
@@ -329,6 +333,12 @@ class Logic {
     if (_mySetState != null) {
       _mySetState!(() {});
     }
+  }
+
+  // Create a method in Logic to initialize UiProvider
+  void initializeUiProvider(UiProvider uiProvider) {
+    uiProvider.updateServingSize(getServingSize());
+    uiProvider.updateSliderValue(sliderValue);
   }
 
   double getCalories() {

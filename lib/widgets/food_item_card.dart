@@ -9,12 +9,14 @@ import 'nutrient_tile.dart';
 
 class FoodItemCard extends StatelessWidget {
   final FoodItem item;
+  final int index;
   final Function setState;
   final Logic logic;
 
   const FoodItemCard({
     super.key,
     required this.item,
+    required this.index,
     required this.setState,
     required this.logic,
   });
@@ -154,6 +156,9 @@ class FoodItemCard extends StatelessWidget {
   }
 
   void _showEditDialog(BuildContext context) {
+    final nutritionProvider =
+        Provider.of<NutritionProvider>(context, listen: false);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -184,10 +189,8 @@ class FoodItemCard extends StatelessWidget {
           onChanged: (value) {
             double? newQuantity = double.tryParse(value);
             if (newQuantity != null) {
-              setState(() {
-                item.quantity = newQuantity;
-                logic.updateTotalNutrients();
-              });
+              nutritionProvider.updateFoodItemQuantity(index, newQuantity);
+              logic.updateTotalNutrients();
             }
           },
         ),

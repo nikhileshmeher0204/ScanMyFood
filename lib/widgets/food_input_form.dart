@@ -33,14 +33,6 @@ class _FoodInputFormState extends State<FoodInputForm> {
     super.dispose();
   }
 
-  void _updateState() {
-    if (_mounted) {
-      setState(() {
-        // Update state
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(

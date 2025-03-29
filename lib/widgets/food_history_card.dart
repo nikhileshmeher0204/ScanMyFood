@@ -6,7 +6,6 @@ import 'package:read_the_label/logic.dart';
 import 'package:read_the_label/providers/UiProvider.dart';
 import 'package:read_the_label/screens/foodAnalysisScreen.dart';
 import 'package:read_the_label/widgets/food_input_form.dart';
-import 'package:read_the_label/providers/ui_provider.dart';
 
 class FoodHistoryCard extends StatefulWidget {
   final BuildContext context;
