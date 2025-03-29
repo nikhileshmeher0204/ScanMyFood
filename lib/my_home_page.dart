@@ -7,8 +7,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/models/food_item.dart';
+import 'package:read_the_label/providers/UiProvider.dart';
 import 'package:read_the_label/screens/ask_AI_page.dart';
 import 'package:read_the_label/widgets/ask_ai_widget.dart';
 import 'package:read_the_label/widgets/food_item_card_shimmer.dart';
@@ -250,6 +252,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildHomePage(BuildContext context) {
+    final uiProvider = Provider.of<UiProvider>(context, listen: false);
+    uiProvider.updateServingSize(_logic.getServingSize());
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Padding(
@@ -493,214 +497,208 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
 
             if (_logic.getServingSize() > 0)
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          "Serving Size: ${_logic.getServingSize().round()} g",
+              Consumer<UiProvider>(builder: (context, uiProvider, _) {
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            "Serving Size: ${_logic.getServingSize().round()} g",
+                            style: TextStyle(
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .color,
+                                fontSize: 16,
+                                fontFamily: 'Poppins'),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.edit,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall!
+                                    .color,
+                                size: 20),
+                            onPressed: () {
+                              // Show edit dialog
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  backgroundColor: Theme.of(context)
+                                      .colorScheme
+                                      .cardBackground,
+                                  title: Text('Edit Serving Size',
+                                      style: TextStyle(
+                                          color: Theme.of(context)
+                                              .textTheme
+                                              .titleLarge!
+                                              .color,
+                                          fontFamily: 'Poppins')),
+                                  content: TextField(
+                                    keyboardType: TextInputType.number,
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .textTheme
+                                            .titleLarge!
+                                            .color),
+                                    decoration: InputDecoration(
+                                      hintText: 'Enter serving size in grams',
+                                      hintStyle: TextStyle(
+                                          color: Theme.of(context)
+                                              .textTheme
+                                              .titleLarge!
+                                              .color,
+                                          fontFamily: 'Poppins'),
+                                    ),
+                                    onChanged: (value) {
+                                      _logic.updateServingSize(
+                                          double.tryParse(value) ?? 0.0);
+                                    },
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      child: Text('OK',
+                                          style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              color: Theme.of(context)
+                                                  .textTheme
+                                                  .titleMedium!
+                                                  .color)),
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "How much did you consume?",
                           style: TextStyle(
                               color:
-                                  Theme.of(context).textTheme.bodyLarge!.color,
+                                  Theme.of(context).textTheme.bodyMedium!.color,
                               fontSize: 16,
                               fontFamily: 'Poppins'),
                         ),
-                        IconButton(
-                          icon: Icon(Icons.edit,
-                              color:
-                                  Theme.of(context).textTheme.titleSmall!.color,
-                              size: 20),
-                          onPressed: () {
-                            // Show edit dialog
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                backgroundColor: Theme.of(context)
-                                    .colorScheme
-                                    .cardBackground,
-                                title: Text('Edit Serving Size',
-                                    style: TextStyle(
-                                        color: Theme.of(context)
-                                            .textTheme
-                                            .titleLarge!
-                                            .color,
-                                        fontFamily: 'Poppins')),
-                                content: TextField(
-                                  keyboardType: TextInputType.number,
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge!
-                                          .color),
-                                  decoration: InputDecoration(
-                                    hintText: 'Enter serving size in grams',
-                                    hintStyle: TextStyle(
-                                        color: Theme.of(context)
-                                            .textTheme
-                                            .titleLarge!
-                                            .color,
-                                        fontFamily: 'Poppins'),
-                                  ),
-                                  onChanged: (value) {
-                                    _logic.updateServingSize(
-                                        double.tryParse(value) ?? 0.0);
-                                  },
-                                ),
-                                actions: [
-                                  TextButton(
-                                    child: Text('OK',
-                                        style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            color: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium!
-                                                .color)),
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "How much did you consume?",
-                        style: TextStyle(
-                            color:
-                                Theme.of(context).textTheme.bodyMedium!.color,
-                            fontSize: 16,
-                            fontFamily: 'Poppins'),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        PortionButton(
-                          context: context,
-                          portion: 0.25,
-                          label: "¼",
-                          logic: _logic,
-                          setState: setState,
-                        ),
-                        PortionButton(
-                          context: context,
-                          portion: 0.5,
-                          label: "½",
-                          logic: _logic,
-                          setState: setState,
-                        ),
-                        PortionButton(
-                          context: context,
-                          portion: 0.75,
-                          label: "¾",
-                          logic: _logic,
-                          setState: setState,
-                        ),
-                        PortionButton(
-                          context: context,
-                          portion: 1.0,
-                          label: "1",
-                          logic: _logic,
-                          setState: setState,
-                        ),
-                        CustomPortionButton(
-                          logic: _logic,
-                          setState: setState,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Builder(
-                      builder: (context) {
-                        return ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.primary,
-                            foregroundColor:
-                                Theme.of(context).colorScheme.onSurface,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 16,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 2,
-                            minimumSize: const Size(
-                                200, 50), // Set minimum width and height
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          const PortionButton(
+                            portion: 0.25,
+                            label: "¼",
                           ),
-                          onPressed: () {
-                            _logic.addToDailyIntake(context, (index) {
-                              setState(() {
-                                _currentIndex = index;
-                              });
-                            }, 'label');
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text(
-                                    'Added to today\'s intake!'), // Updated message
-                                action: SnackBarAction(
-                                  label:
-                                      'VIEW', // Changed from 'SHOW' to 'VIEW'
-                                  onPressed: () {
-                                    setState(() {
-                                      _currentIndex = 2;
-                                    });
-                                  },
-                                ),
+                          const PortionButton(
+                            portion: 0.5,
+                            label: "½",
+                          ),
+                          const PortionButton(
+                            portion: 0.75,
+                            label: "¾",
+                          ),
+                          const PortionButton(
+                            portion: 1.0,
+                            label: "1",
+                          ),
+                          CustomPortionButton(
+                            logic: _logic,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Consumer(
+                        builder: (context, uiProvider, _) {
+                          return ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onSurface,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 16,
                               ),
-                            );
-                          },
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.add_circle_outline,
-                                    size: 20,
-                                    color:
-                                        Theme.of(context).colorScheme.onPrimary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 2,
+                              minimumSize: const Size(
+                                  200, 50), // Set minimum width and height
+                            ),
+                            onPressed: () {
+                              _logic.addToDailyIntake(context, (index) {
+                                setState(() {
+                                  _currentIndex = index;
+                                });
+                              }, 'label');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text(
+                                      'Added to today\'s intake!'), // Updated message
+                                  action: SnackBarAction(
+                                    label:
+                                        'VIEW', // Changed from 'SHOW' to 'VIEW'
+                                    onPressed: () {
+                                      setState(() {
+                                        _currentIndex = 2;
+                                      });
+                                    },
                                   ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    "Add to today's intake",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      fontFamily: 'Poppins',
+                                ),
+                              );
+                            },
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.add_circle_outline,
+                                      size: 20,
                                       color: Theme.of(context)
                                           .colorScheme
                                           .onPrimary,
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                "${_logic.sliderValue.toStringAsFixed(0)} grams, ${(_logic.getCalories() * (_logic.sliderValue / _logic.getServingSize())).toStringAsFixed(0)} calories",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                  fontFamily: 'Poppins',
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      "Add to today's intake",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'Poppins',
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
+                                Text(
+                                  "${_logic.sliderValue.toStringAsFixed(0)} grams, ${(_logic.getCalories() * (_logic.sliderValue / _logic.getServingSize())).toStringAsFixed(0)} calories",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                    fontFamily: 'Poppins',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              }),
             if (_logic.getServingSize() == 0 &&
                 _logic.parsedNutrients.isNotEmpty)
               Padding(
@@ -943,8 +941,12 @@ class _FoodScanPageState extends State<FoodScanPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  ...widget.logic.analyzedFoodItems.map((item) => FoodItemCard(
-                      item: item, setState: setState, logic: widget.logic)),
+                  ...widget.logic.analyzedFoodItems.asMap().entries.map(
+                      (entry) => FoodItemCard(
+                          item: entry.value,
+                          index: entry.key,
+                          setState: setState,
+                          logic: widget.logic)),
                   TotalNutrientsCard(
                     logic: widget.logic,
                     updateIndex: (index) {

@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/providers/UiProvider.dart';
+import 'package:read_the_label/providers/daily_intake_provider.dart';
+import 'package:read_the_label/providers/nutrition_provider.dart';
 import 'my_home_page.dart';
 
 Future<void> main() async {
@@ -21,6 +23,9 @@ Future<void> main() async {
   }
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => UiProvider()),
+    ChangeNotifierProvider(create: (_) => NutritionProvider()),
+    ChangeNotifierProvider(create: (_) => DailyIntakeProvider()),
+
   ], child: const MyApp()));
 }
 
