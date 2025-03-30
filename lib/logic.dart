@@ -41,6 +41,15 @@ class Logic {
   final ValueNotifier<bool> loadingNotifier = ValueNotifier<bool>(false);
   final ValueNotifier<String> mealNameNotifier = ValueNotifier<String>("");
   final dailyIntakeNotifier = ValueNotifier<Map<String, double>>({});
+  UiProvider? uiProvider;
+
+  void initProvider(BuildContext context) {
+    try {
+      uiProvider = Provider.of<UiProvider>(context, listen: false);
+    } catch (e) {
+      print("Error initializing UiProvider: $e");
+    }
+  }
 
   // String _mealName = "";
   // String get mealName => _mealName;
@@ -237,8 +246,6 @@ class Logic {
 
     Map<String, double> newNutrients = {};
     File? imageFile;
-    final uiProvider = Provider.of<UiProvider>(context, listen: false);
-
 
     if (source == 'label' && parsedNutrients.isNotEmpty) {
       for (var nutrient in parsedNutrients) {
@@ -246,7 +253,10 @@ class Logic {
         final quantity = double.tryParse(
                 nutrient['quantity'].replaceAll(RegExp(r'[^0-9\.]'), '')) ??
             0;
-        double adjustedQuantity = quantity * (uiProvider.sliderValue / _servingSize);
+        // double adjustedQuantity = quantity * (sliderValue / _servingSize);
+        double adjustedQuantity =
+            quantity * (uiProvider!.sliderValue / uiProvider!.servingSize);
+
         newNutrients[name] = adjustedQuantity;
       }
       imageFile = _frontImage;
@@ -335,12 +345,6 @@ class Logic {
     }
   }
 
-  // Create a method in Logic to initialize UiProvider
-  void initializeUiProvider(UiProvider uiProvider) {
-    uiProvider.updateServingSize(getServingSize());
-    uiProvider.updateSliderValue(sliderValue);
-  }
-
   double getCalories() {
     var energyNutrient = parsedNutrients.firstWhere(
       (nutrient) => nutrient['name'] == 'Energy',
@@ -396,14 +400,6 @@ class Logic {
       default:
         return Icons.science;
     }
-  }
-
-  Color getColorForPercent(double percent, BuildContext context) {
-    if (percent > 1.0) return Colors.red; // Exceeded daily value
-    if (percent > 0.8) return Colors.green; // High but not exceeded
-    if (percent > 0.6) return Colors.yellow; // Moderate
-    if (percent > 0.4) return Colors.yellow; // Low to moderate
-    return Colors.green; // Low
   }
 
   Future<String> analyzeImages(
@@ -506,6 +502,10 @@ Strictly follow these rules:
         _servingSize = double.tryParse(_nutritionAnalysis["serving_size"]
                 .replaceAll(RegExp(r'[^0-9\.]'), '')) ??
             0.0;
+        uiProvider!.updateServingSize(double.tryParse(
+                _nutritionAnalysis["serving_size"]
+                    .replaceAll(RegExp(r'[^0-9\.]'), '')) ??
+            0.0);
       }
 
       parsedNutrients = (_nutritionAnalysis['nutrients'] as List)

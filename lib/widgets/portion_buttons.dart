@@ -16,9 +16,10 @@ class PortionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final uiProvider = context.watch<UiProvider>();
+    final uiProvider = Provider.of<UiProvider>(context, listen: false);
     bool isSelected =
         (uiProvider.sliderValue / uiProvider.servingSize) == portion;
+
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: isSelected
@@ -28,8 +29,9 @@ class PortionButton extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       onPressed: () {
-        context.read<UiProvider>().applyPortion(portion);
-        print("✅Portion selected: $portion");
+        print(
+            'Debug: sliderValue=${uiProvider.sliderValue}, servingSize=${uiProvider.servingSize}, portion=$portion, will set to=${uiProvider.servingSize * portion}');
+        uiProvider.updateSliderValue(uiProvider.servingSize * portion);
       },
       child: Text(label,
           style: TextStyle(
@@ -40,17 +42,13 @@ class PortionButton extends StatelessWidget {
 }
 
 class CustomPortionButton extends StatelessWidget {
-  final Logic logic;
-
   const CustomPortionButton({
     super.key,
-    required this.logic,
   });
 
   @override
   Widget build(BuildContext context) {
-    final uiProvider = context.watch<UiProvider>();
-
+    final uiProvider = Provider.of<UiProvider>(context, listen: false);
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: Theme.of(context).colorScheme.cardBackground,
@@ -79,9 +77,7 @@ class CustomPortionButton extends StatelessWidget {
                 ),
               ),
               onChanged: (value) {
-                context
-                    .read<UiProvider>()
-                    .updateSliderValue(double.tryParse(value) ?? 0.0);
+                uiProvider.updateSliderValue(double.tryParse(value) ?? 0.0);
               },
             ),
             actions: [

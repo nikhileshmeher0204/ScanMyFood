@@ -25,7 +25,6 @@ Future<void> main() async {
     ChangeNotifierProvider(create: (_) => UiProvider()),
     ChangeNotifierProvider(create: (_) => NutritionProvider()),
     ChangeNotifierProvider(create: (_) => DailyIntakeProvider()),
-
   ], child: const MyApp()));
 }
 

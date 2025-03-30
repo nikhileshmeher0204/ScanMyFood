@@ -45,6 +45,16 @@ class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
   final _duration = const Duration(milliseconds: 300);
 
+  @override
+  void initState() {
+    super.initState();
+
+    // Schedule provider initialization after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _logic.initProvider(context);
+    });
+  }
+
   Widget _buildImageCaptureButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -252,8 +262,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildHomePage(BuildContext context) {
-    final uiProvider = Provider.of<UiProvider>(context, listen: false);
-    uiProvider.updateServingSize(_logic.getServingSize());
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Padding(
@@ -589,112 +597,102 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Row(
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          const PortionButton(
+                          PortionButton(
                             portion: 0.25,
                             label: "¼",
                           ),
-                          const PortionButton(
+                          PortionButton(
                             portion: 0.5,
                             label: "½",
                           ),
-                          const PortionButton(
+                          PortionButton(
                             portion: 0.75,
                             label: "¾",
                           ),
-                          const PortionButton(
+                          PortionButton(
                             portion: 1.0,
                             label: "1",
                           ),
-                          CustomPortionButton(
-                            logic: _logic,
-                          ),
+                          CustomPortionButton(),
                         ],
                       ),
                       const SizedBox(height: 16),
-                      Consumer(
-                        builder: (context, uiProvider, _) {
-                          return ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.onSurface,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 16,
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onSurface,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                          minimumSize: const Size(
+                              200, 50), // Set minimum width and height
+                        ),
+                        onPressed: () {
+                          _logic.addToDailyIntake(context, (index) {
+                            setState(() {
+                              _currentIndex = index;
+                            });
+                          }, 'label');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                  'Added to today\'s intake!'), // Updated message
+                              action: SnackBarAction(
+                                label: 'VIEW', // Changed from 'SHOW' to 'VIEW'
+                                onPressed: () {
+                                  setState(() {
+                                    _currentIndex = 2;
+                                  });
+                                },
                               ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 2,
-                              minimumSize: const Size(
-                                  200, 50), // Set minimum width and height
                             ),
-                            onPressed: () {
-                              _logic.addToDailyIntake(context, (index) {
-                                setState(() {
-                                  _currentIndex = index;
-                                });
-                              }, 'label');
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text(
-                                      'Added to today\'s intake!'), // Updated message
-                                  action: SnackBarAction(
-                                    label:
-                                        'VIEW', // Changed from 'SHOW' to 'VIEW'
-                                    onPressed: () {
-                                      setState(() {
-                                        _currentIndex = 2;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Column(
+                          );
+                        },
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.add_circle_outline,
-                                      size: 20,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      "Add to today's intake",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        fontFamily: 'Poppins',
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary,
-                                      ),
-                                    ),
-                                  ],
+                                Icon(
+                                  Icons.add_circle_outline,
+                                  size: 20,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
                                 ),
+                                const SizedBox(width: 8),
                                 Text(
-                                  "${_logic.sliderValue.toStringAsFixed(0)} grams, ${(_logic.getCalories() * (_logic.sliderValue / _logic.getServingSize())).toStringAsFixed(0)} calories",
+                                  "Add to today's intake",
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'Poppins',
                                     color:
                                         Theme.of(context).colorScheme.onPrimary,
-                                    fontFamily: 'Poppins',
                                   ),
                                 ),
                               ],
                             ),
-                          );
-                        },
-                      ),
+                            Text(
+                              "${uiProvider.sliderValue.toStringAsFixed(0)} grams, ${(_logic.getCalories() * (uiProvider.sliderValue / uiProvider.servingSize)).toStringAsFixed(0)} calories",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
                     ],
                   ),
                 );
@@ -712,10 +710,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     TextField(
                       keyboardType: TextInputType.number,
                       onChanged: (value) {
-                        setState(() {
-                          _logic.updateSliderValue(
-                              double.tryParse(value) ?? 0.0, setState);
-                        });
+                        // setState(() {
+                        //   _logic.updateSliderValue(
+                        //       double.tryParse(value) ?? 0.0, setState);
+                        // });
+
+                        context
+                            .read<UiProvider>()
+                            .updateSliderValue(double.tryParse(value) ?? 0.0);
                       },
                       decoration: const InputDecoration(
                           hintText: "Enter serving size in grams or ml",
