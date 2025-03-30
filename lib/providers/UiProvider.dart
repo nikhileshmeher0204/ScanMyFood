@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 
 class UiProvider extends ChangeNotifier {
-  // Current main navigation index
-  int _currentIndex = 0;
-  double _sliderValue = 0.0;
+  // UI state
   double _servingSize = 0.0;
+  double _sliderValue = 0.0;
+  int _currentIndex = 0;
 
   int get currentIndex => _currentIndex;
-  double get sliderValue => _sliderValue;
   double get servingSize => _servingSize;
+  double get sliderValue => _sliderValue;
 
   void updateCurrentIndex(int index) {
     _currentIndex = index;
+    notifyListeners();
+  }
+
+  void updateServingSize(double size) {
+    _servingSize = size;
     notifyListeners();
   }
 
@@ -20,15 +25,11 @@ class UiProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateServingSize(double size) {
-    _servingSize = size;
-    // Update slider value to match full serving by default
-    _sliderValue = 0.0;
-    notifyListeners();
-  }
-
-  void applyPortion(double portion) {
-    _sliderValue = _servingSize * portion;
-    notifyListeners();
+  Color getColorForPercent(double percent) {
+    if (percent > 1.0) return Colors.red; // Exceeded daily value
+    if (percent > 0.8) return Colors.green; // High but not exceeded
+    if (percent > 0.6) return Colors.yellow; // Moderate
+    if (percent > 0.4) return Colors.yellow; // Low to moderate
+    return Colors.green; // Low
   }
 }

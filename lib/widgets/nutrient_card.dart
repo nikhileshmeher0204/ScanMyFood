@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/logic.dart';
+import 'package:read_the_label/providers/UiProvider.dart';
 
 Widget NutrientCard(BuildContext context, Map<String, dynamic> nutrient,
     Map<String, double> dailyIntake) {
+  final uiProvider = Provider.of<UiProvider>(context, listen: false);
   final name = nutrient['Nutrient'];
   final current = dailyIntake[name] ?? 0.0;
   final total = double.tryParse(nutrient['Current Daily Value']
@@ -23,7 +26,7 @@ Widget NutrientCard(BuildContext context, Map<String, dynamic> nutrient,
       ),
       boxShadow: [
         BoxShadow(
-          color: logic.getColorForPercent(percent, context).withOpacity(0.1),
+          color: uiProvider.getColorForPercent(percent).withOpacity(0.1),
           blurRadius: 8,
           offset: const Offset(0, 2),
         ),
@@ -52,7 +55,7 @@ Widget NutrientCard(BuildContext context, Map<String, dynamic> nutrient,
             ),
             Icon(
               logic.getNutrientIcon(name),
-              color: logic.getColorForPercent(percent, context),
+              color: uiProvider.getColorForPercent(percent),
               size: 20,
             ),
           ],
@@ -65,7 +68,7 @@ Widget NutrientCard(BuildContext context, Map<String, dynamic> nutrient,
           backgroundColor:
               Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
           valueColor: AlwaysStoppedAnimation<Color>(
-              logic.getColorForPercent(percent, context)),
+              uiProvider.getColorForPercent(percent)),
           minHeight: 6,
           borderRadius: BorderRadius.circular(3),
         ),
@@ -86,10 +89,9 @@ Widget NutrientCard(BuildContext context, Map<String, dynamic> nutrient,
             Text(
               '${(percent * 100).toStringAsFixed(0)}%',
               style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: logic.getColorForPercent(percent, context),
-              ),
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: uiProvider.getColorForPercent(percent)),
             ),
           ],
         ),
