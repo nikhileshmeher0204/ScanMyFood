@@ -1,30 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/logic.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/providers/nutrition_provider.dart';
 import 'package:read_the_label/widgets/food_nutreint_tile.dart';
 import '../models/food_item.dart';
-import 'nutrient_tile.dart';
 
 class FoodItemCard extends StatelessWidget {
   final FoodItem item;
   final int index;
-  final Function setState;
-  final Logic logic;
 
   const FoodItemCard({
     super.key,
     required this.item,
     required this.index,
-    required this.setState,
-    required this.logic,
   });
 
   @override
   Widget build(BuildContext context) {
-    final nutritionProvider =
-        Provider.of<NutritionProvider>(context, listen: false);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
@@ -155,9 +147,10 @@ class FoodItemCard extends StatelessWidget {
     );
   }
 
+  // In _showEditDialog method:
+
   void _showEditDialog(BuildContext context) {
-    final nutritionProvider =
-        Provider.of<NutritionProvider>(context, listen: false);
+    final controller = TextEditingController(text: item.quantity.toString());
 
     showDialog(
       context: context,
@@ -171,6 +164,7 @@ class FoodItemCard extends StatelessWidget {
           ),
         ),
         content: TextField(
+          controller: controller,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             hintText: 'Enter quantity in ${item.unit}',
@@ -186,13 +180,6 @@ class FoodItemCard extends StatelessWidget {
             color: Theme.of(context).colorScheme.onSurface,
             fontFamily: 'Poppins',
           ),
-          onChanged: (value) {
-            double? newQuantity = double.tryParse(value);
-            if (newQuantity != null) {
-              nutritionProvider.updateFoodItemQuantity(index, newQuantity);
-              logic.updateTotalNutrients();
-            }
-          },
         ),
         actions: [
           TextButton(
@@ -215,9 +202,11 @@ class FoodItemCard extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              setState(() {
-                logic.updateTotalNutrients();
-              });
+              double? newQuantity = double.tryParse(controller.text);
+              if (newQuantity != null) {
+                item.quantity = newQuantity;
+                context.read<NutritionProvider>().updateTotalNutrients();
+              }
               Navigator.of(context).pop();
             },
           ),

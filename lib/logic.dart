@@ -26,12 +26,8 @@ class Logic {
   File? foodImage;
   List<FoodItem> analyzedFoodItems = [];
   Map<String, dynamic> totalPlateNutrients = {};
-  double _servingSize = 0.0;
-  double sliderValue = 0.0;
   Map<String, double> dailyIntake = {};
-  bool _isLoading = false;
   static final navKey = GlobalKey<NavigatorState>();
-  Function(void Function())? _mySetState;
   String _productName = "";
   String get productName => _productName;
   Map<String, dynamic> _nutritionAnalysis = {};
@@ -51,17 +47,9 @@ class Logic {
     }
   }
 
-  // String _mealName = "";
-  // String get mealName => _mealName;
   String get mealName => mealNameNotifier.value;
   set _mealName(String value) {
     mealNameNotifier.value = value;
-  }
-
-  @override
-  void dispose() {
-    mealNameNotifier.dispose();
-    loadingNotifier.dispose();
   }
 
   bool get isAnalyzing => loadingNotifier.value;
@@ -199,9 +187,9 @@ class Logic {
             decoded.map((item) => FoodConsumption.fromJson(item)).toList();
 
         print("Successfully loaded ${_foodHistory.length} food items");
-        _foodHistory.forEach((item) {
+        for (var item in _foodHistory) {
           print("Loaded item: ${item.foodName} on ${item.dateTime}");
-        });
+        }
         print("⚡Daily intake: $dailyIntake");
         print("✅End of loadFoodHistory()");
       } catch (e) {
@@ -300,20 +288,8 @@ class Logic {
     updateIndex(2);
   }
 
-  double getServingSize() => _servingSize;
   List<Map<String, dynamic>> getGoodNutrients() => goodNutrients;
   List<Map<String, dynamic>> getBadNutrients() => badNutrients;
-
-  bool getIsLoading() => _isLoading;
-
-  void setSetState(Function(void Function()) setState) {
-    _mySetState = setState;
-  }
-
-  void updateSliderValue(double newValue, Function(void Function()) setState) {
-    sliderValue = newValue;
-    setState(() {});
-  }
 
   static GlobalKey<NavigatorState> getNavKey() => navKey;
 
@@ -336,15 +312,6 @@ class Logic {
     return null;
   }
 
-  void updateServingSize(double newSize) {
-    _servingSize = newSize;
-    // Reset slider value when serving size changes
-    sliderValue = 0.0;
-    if (_mySetState != null) {
-      _mySetState!(() {});
-    }
-  }
-
   double getCalories() {
     var energyNutrient = parsedNutrients.firstWhere(
       (nutrient) => nutrient['name'] == 'Energy',
@@ -357,55 +324,9 @@ class Logic {
     return double.tryParse(quantity) ?? 0.0;
   }
 
-  String getUnit(String nutrient) {
-    switch (nutrient.toLowerCase()) {
-      case 'energy':
-        return ' kcal';
-      case 'protein':
-      case 'carbohydrate':
-      case 'fat':
-      case 'fiber':
-      case 'sugar':
-        return 'g';
-      case 'sodium':
-      case 'potassium':
-      case 'calcium':
-      case 'iron':
-        return 'mg';
-      default:
-        return '';
-    }
-  }
-
-  IconData getNutrientIcon(String nutrient) {
-    switch (nutrient.toLowerCase()) {
-      case 'energy':
-        return Icons.bolt;
-      case 'protein':
-        return Icons.fitness_center;
-      case 'carbohydrate':
-        return Icons.grain;
-      case 'fat':
-        return Icons.opacity;
-      case 'fiber':
-        return Icons.grass;
-      case 'sodium':
-        return Icons.water_drop;
-      case 'calcium':
-        return Icons.shield;
-      case 'iron':
-        return Icons.architecture;
-      case 'vitamin':
-        return Icons.brightness_high;
-      default:
-        return Icons.science;
-    }
-  }
-
   Future<String> analyzeImages(
       {required Function(void Function()) setState}) async {
-    _isLoading = true;
-    setState(() {});
+    uiProvider!.setLoading(true);
 
     final apiKey = getApiKey();
 
@@ -499,9 +420,6 @@ Strictly follow these rules:
       _nutritionAnalysis = jsonResponse['nutrition_analysis'];
 
       if (_nutritionAnalysis.containsKey("serving_size")) {
-        _servingSize = double.tryParse(_nutritionAnalysis["serving_size"]
-                .replaceAll(RegExp(r'[^0-9\.]'), '')) ??
-            0.0;
         uiProvider!.updateServingSize(double.tryParse(
                 _nutritionAnalysis["serving_size"]
                     .replaceAll(RegExp(r'[^0-9\.]'), '')) ??
@@ -539,8 +457,7 @@ Strictly follow these rules:
       print("Error parsing JSON: $e");
     }
 
-    _isLoading = false;
-    setState(() {});
+    uiProvider!.setLoading(false);
     return _generatedText;
   }
 
@@ -681,8 +598,7 @@ Provide accurate nutritional data based on the most reliable food databases and 
     required Function(void Function()) setState,
     required bool mounted,
   }) async {
-    _isLoading = true;
-    setState(() {});
+    uiProvider!.setLoading(true);
 
     final apiKey = getApiKey();
 
@@ -786,34 +702,26 @@ Consider:
           };
 
           if (mounted) {
-            setState(() {
-              _isLoading = false;
-            });
+            uiProvider!.setLoading(false);
           }
 
           return response.text!;
         } catch (e) {
           print("Error parsing JSON response: $e");
           if (mounted) {
-            setState(() {
-              _isLoading = false;
-            });
+            uiProvider!.setLoading(false);
           }
           return "Error parsing response";
         }
       }
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        uiProvider!.setLoading(false);
       }
       return "No response received";
     } catch (e) {
       print("Error analyzing food image: $e");
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        uiProvider!.setLoading(false);
       }
       return "Error analyzing image";
     }

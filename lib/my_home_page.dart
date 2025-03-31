@@ -159,7 +159,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    _logic.setSetState(setState);
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
@@ -267,253 +266,261 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Padding(
         padding:
             EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 80),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 100),
-            Container(
-              margin: const EdgeInsets.all(20),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.cardBackground,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.transparent),
-              ),
-              child: DottedBorder(
-                borderPadding: const EdgeInsets.all(-20),
-                borderType: BorderType.RRect,
-                radius: const Radius.circular(20),
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
-                strokeWidth: 1,
-                dashPattern: const [6, 4],
-                child: Column(
-                  children: [
-                    if (_logic.frontImage != null)
-                      Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image(image: FileImage(_logic.frontImage!)),
+        child: Consumer<UiProvider>(builder: (context, uiProvider, _) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 100),
+              Container(
+                margin: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.cardBackground,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.transparent),
+                ),
+                child: DottedBorder(
+                  borderPadding: const EdgeInsets.all(-20),
+                  borderType: BorderType.RRect,
+                  radius: const Radius.circular(20),
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+                  strokeWidth: 1,
+                  dashPattern: const [6, 4],
+                  child: Builder(builder: (context) {
+                    return Column(
+                      children: [
+                        if (_logic.frontImage != null)
+                          Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child:
+                                    Image(image: FileImage(_logic.frontImage!)),
+                              ),
+                              if (uiProvider.loading)
+                                const Positioned.fill(
+                                  left: 5,
+                                  right: 5,
+                                  top: 5,
+                                  bottom: 5,
+                                  child: rive.RiveAnimation.asset(
+                                    'assets/riveAssets/qr_code_scanner.riv',
+                                    fit: BoxFit.fill,
+                                    artboard: 'scan_board',
+                                    animations: ['anim1'],
+                                    stateMachines: ['State Machine 1'],
+                                  ),
+                                )
+                            ],
+                          )
+                        else
+                          Icon(
+                            Icons.document_scanner,
+                            size: 70,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.5),
                           ),
-                          if (_logic.getIsLoading())
-                            const Positioned.fill(
-                              left: 5,
-                              right: 5,
-                              top: 5,
-                              bottom: 5,
-                              child: rive.RiveAnimation.asset(
-                                'assets/riveAssets/qr_code_scanner.riv',
-                                fit: BoxFit.fill,
-                                artboard: 'scan_board',
-                                animations: ['anim1'],
-                                stateMachines: ['State Machine 1'],
+                        const SizedBox(height: 20),
+                        Text(
+                          "To get started, scan product front or choose from gallery!",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 14,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w400),
+                        ),
+                        const SizedBox(height: 20),
+                        _buildImageCaptureButtons(),
+                      ],
+                    );
+                  }),
+                ),
+              ),
+              if (uiProvider.loading) const NutrientInfoShimmer(),
+
+              //Good/Moderate nutrients
+              if (_logic.getGoodNutrients().isNotEmpty)
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Text(
+                          _logic.productName,
+                          style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w400,
+                              fontSize: 24),
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 4,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF4CAF50),
+                                borderRadius: BorderRadius.circular(2),
                               ),
                             ),
-                        ],
-                      )
-                    else
-                      Icon(
-                        Icons.document_scanner,
-                        size: 70,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.5),
+                            const SizedBox(width: 12),
+                            Text(
+                              "Optimal Nutrients",
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge!
+                                    .color,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w400,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    const SizedBox(height: 20),
-                    Text(
-                      "To get started, scan product front or choose from gallery!",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 14,
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: _logic
+                              .getGoodNutrients()
+                              .map((nutrient) => NutrientTile(
+                                    nutrient: nutrient['name'],
+                                    healthSign: nutrient['health_impact'],
+                                    quantity: nutrient['quantity'],
+                                    insight: nutrientInsights[nutrient['name']],
+                                    dailyValue: nutrient['daily_value'],
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              //Bad nutrients
+              if (_logic.getBadNutrients().isNotEmpty)
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 4,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                color:
+                                    const Color(0xFFFF5252), // Red accent bar
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              "Watch Out",
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge!
+                                    .color,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w400,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: _logic
+                              .getBadNutrients()
+                              .map((nutrient) => NutrientTile(
+                                    nutrient: nutrient['name'],
+                                    healthSign: nutrient['health_impact'],
+                                    quantity: nutrient['quantity'],
+                                    insight: nutrientInsights[nutrient['name']],
+                                    dailyValue: nutrient['daily_value'],
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (_logic.getBadNutrients().isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 4,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(
+                              255, 94, 255, 82), // Red accent bar
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        "Recommendations",
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.titleLarge!.color,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
                           fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w400),
-                    ),
-                    const SizedBox(height: 20),
-                    _buildImageCaptureButtons(),
-                  ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
-            if (_logic.getIsLoading()) const NutrientInfoShimmer(),
+              if (_logic.nutritionAnalysis['primary_concerns'] != null)
+                ..._logic.nutritionAnalysis['primary_concerns'].map(
+                  (concern) => NutrientBalanceCard(
+                    issue: concern['issue'] ?? '',
+                    explanation: concern['explanation'] ?? '',
+                    recommendations: (concern['recommendations'] as List?)
+                            ?.map((rec) => {
+                                  'food': rec['food'] ?? '',
+                                  'quantity': rec['quantity'] ?? '',
+                                  'reasoning': rec['reasoning'] ?? '',
+                                })
+                            .toList() ??
+                        [],
+                  ),
+                ),
 
-            //Good/Moderate nutrients
-            if (_logic.getGoodNutrients().isNotEmpty)
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Text(
-                        _logic.productName,
-                        style: const TextStyle(
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w400,
-                            fontSize: 24),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 4,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF4CAF50),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            "Optimal Nutrients",
-                            style: TextStyle(
-                              color:
-                                  Theme.of(context).textTheme.titleLarge!.color,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w400,
-                              fontFamily: 'Poppins',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: _logic
-                            .getGoodNutrients()
-                            .map((nutrient) => NutrientTile(
-                                  nutrient: nutrient['name'],
-                                  healthSign: nutrient['health_impact'],
-                                  quantity: nutrient['quantity'],
-                                  insight: nutrientInsights[nutrient['name']],
-                                  dailyValue: nutrient['daily_value'],
-                                ))
-                            .toList(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            //Bad nutrients
-            if (_logic.getBadNutrients().isNotEmpty)
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 4,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFF5252), // Red accent bar
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            "Watch Out",
-                            style: TextStyle(
-                              color:
-                                  Theme.of(context).textTheme.titleLarge!.color,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w400,
-                              fontFamily: 'Poppins',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: _logic
-                            .getBadNutrients()
-                            .map((nutrient) => NutrientTile(
-                                  nutrient: nutrient['name'],
-                                  healthSign: nutrient['health_impact'],
-                                  quantity: nutrient['quantity'],
-                                  insight: nutrientInsights[nutrient['name']],
-                                  dailyValue: nutrient['daily_value'],
-                                ))
-                            .toList(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            if (_logic.getBadNutrients().isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 4,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(
-                            255, 94, 255, 82), // Red accent bar
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      "Recommendations",
-                      style: TextStyle(
-                        color: Theme.of(context).textTheme.titleLarge!.color,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'Poppins',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            if (_logic.nutritionAnalysis != null &&
-                _logic.nutritionAnalysis['primary_concerns'] != null)
-              ..._logic.nutritionAnalysis['primary_concerns'].map(
-                (concern) => NutrientBalanceCard(
-                  issue: concern['issue'] ?? '',
-                  explanation: concern['explanation'] ?? '',
-                  recommendations: (concern['recommendations'] as List?)
-                          ?.map((rec) => {
-                                'food': rec['food'] ?? '',
-                                'quantity': rec['quantity'] ?? '',
-                                'reasoning': rec['reasoning'] ?? '',
-                              })
-                          .toList() ??
-                      [],
-                ),
-              ),
-
-            if (_logic.getServingSize() > 0)
-              Consumer<UiProvider>(builder: (context, uiProvider, _) {
-                return Padding(
+              if (context.read<UiProvider>().servingSize > 0)
+                Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
                       Row(
                         children: [
                           Text(
-                            "Serving Size: ${_logic.getServingSize().round()} g",
+                            "Serving Size: ${context.read<UiProvider>().servingSize.round()} g",
                             style: TextStyle(
                                 color: Theme.of(context)
                                     .textTheme
@@ -561,8 +568,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                           fontFamily: 'Poppins'),
                                     ),
                                     onChanged: (value) {
-                                      _logic.updateServingSize(
-                                          double.tryParse(value) ?? 0.0);
+                                      context
+                                          .read<UiProvider>()
+                                          .updateServingSize(
+                                              double.tryParse(value) ?? 0.0);
                                     },
                                   ),
                                   actions: [
@@ -695,116 +704,114 @@ class _MyHomePageState extends State<MyHomePage> {
                       )
                     ],
                   ),
-                );
-              }),
-            if (_logic.getServingSize() == 0 &&
-                _logic.parsedNutrients.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    const Text(
-                      'Serving size not found, please enter it manually',
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                    TextField(
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        // setState(() {
-                        //   _logic.updateSliderValue(
-                        //       double.tryParse(value) ?? 0.0, setState);
-                        // });
-
-                        context
-                            .read<UiProvider>()
-                            .updateSliderValue(double.tryParse(value) ?? 0.0);
-                      },
-                      decoration: const InputDecoration(
-                          hintText: "Enter serving size in grams or ml",
-                          hintStyle: TextStyle(color: Colors.white54)),
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    if (_logic.getServingSize() > 0)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Slider(
-                            value: _logic.sliderValue,
-                            min: 0,
-                            max: _logic.getServingSize(),
-                            onChanged: (newValue) {
-                              _logic.updateSliderValue(newValue, setState);
-                            }),
-                      ),
-                    if (_logic.getServingSize() > 0)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          "Serving Size: ${_logic.getServingSize().round()} g",
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontFamily: 'Poppins'),
-                        ),
-                      ),
-                    if (_logic.getServingSize() > 0)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Builder(
-                          builder: (context) {
-                            return ElevatedButton(
-                                style: ButtonStyle(
-                                    backgroundColor: WidgetStateProperty.all(
-                                        Colors.white10)),
-                                onPressed: () {
-                                  _logic.addToDailyIntake(context, (index) {
-                                    setState(() {
-                                      _currentIndex = index;
-                                    });
-                                  }, 'label');
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: const Text(
-                                          'Added to today\'s intake!',
-                                          style:
-                                              TextStyle(fontFamily: 'Poppins')),
-                                      action: SnackBarAction(
-                                        label: 'SHOW',
-                                        onPressed: () {
-                                          setState(() {
-                                            _currentIndex = 1;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: const Text("Add to today's intake",
-                                    style: TextStyle(fontFamily: 'Poppins')));
-                          },
-                        ),
-                      ),
-                  ],
                 ),
-              ),
-            if (_logic.getServingSize() > 0)
-              InkWell(
-                onTap: () {
-                  print("Tap detected!");
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (context) => AskAiPage(
-                        mealName: _logic.productName,
-                        foodImage: _logic.frontImage!,
-                        logic: _logic,
+
+              if (context.read<UiProvider>().servingSize == 0 &&
+                  _logic.parsedNutrients.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'Serving size not found, please enter it manually',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
-                    ),
-                  );
-                },
-                child: const AskAiWidget(),
-              ),
-          ],
-        ),
+                      TextField(
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          context
+                              .read<UiProvider>()
+                              .updateSliderValue(double.tryParse(value) ?? 0.0);
+                        },
+                        decoration: const InputDecoration(
+                            hintText: "Enter serving size in grams or ml",
+                            hintStyle: TextStyle(color: Colors.white54)),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      if (context.read<UiProvider>().servingSize > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Slider(
+                              value: context.read<UiProvider>().sliderValue,
+                              min: 0,
+                              max: context.read<UiProvider>().servingSize,
+                              onChanged: (newValue) {
+                                context
+                                    .read<UiProvider>()
+                                    .updateSliderValue(newValue);
+                              }),
+                        ),
+                      if (context.read<UiProvider>().servingSize > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            "Serving Size: ${context.read<UiProvider>().servingSize.round()} g",
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontFamily: 'Poppins'),
+                          ),
+                        ),
+                      if (context.read<UiProvider>().servingSize > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Builder(
+                            builder: (context) {
+                              return ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor: WidgetStateProperty.all(
+                                          Colors.white10)),
+                                  onPressed: () {
+                                    _logic.addToDailyIntake(context, (index) {
+                                      setState(() {
+                                        _currentIndex = index;
+                                      });
+                                    }, 'label');
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: const Text(
+                                            'Added to today\'s intake!',
+                                            style: TextStyle(
+                                                fontFamily: 'Poppins')),
+                                        action: SnackBarAction(
+                                          label: 'SHOW',
+                                          onPressed: () {
+                                            setState(() {
+                                              _currentIndex = 1;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text("Add to today's intake",
+                                      style: TextStyle(fontFamily: 'Poppins')));
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              if (context.read<UiProvider>().servingSize > 0)
+                InkWell(
+                  onTap: () {
+                    print("Tap detected!");
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) => AskAiPage(
+                          mealName: _logic.productName,
+                          foodImage: _logic.frontImage!,
+                          logic: _logic,
+                        ),
+                      ),
+                    );
+                  },
+                  child: const AskAiWidget(),
+                ),
+            ],
+          );
+        }),
       ),
     );
   }
@@ -832,151 +839,157 @@ class _FoodScanPageState extends State<FoodScanPage> {
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).padding.bottom + 80,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 100),
-            // Scanning Section
-            Container(
-              margin: const EdgeInsets.all(20),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.cardBackground,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.transparent),
-              ),
-              child: DottedBorder(
-                borderPadding: const EdgeInsets.all(-20),
-                borderType: BorderType.RRect,
-                radius: const Radius.circular(20),
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
-                strokeWidth: 1,
-                dashPattern: const [6, 4],
-                child: Column(
-                  children: [
-                    if (widget.logic.foodImage != null)
-                      Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image(
-                                image: FileImage(widget.logic.foodImage!)),
-                          ),
-                          if (widget.logic.getIsLoading())
-                            const Positioned.fill(
-                              left: 5,
-                              right: 5,
-                              top: 5,
-                              bottom: 5,
-                              child: rive.RiveAnimation.asset(
-                                'assets/riveAssets/qr_code_scanner.riv',
-                                fit: BoxFit.fill,
-                                artboard: 'scan_board',
-                                animations: ['anim1'],
-                                stateMachines: ['State Machine 1'],
-                              ),
+        child: Consumer<UiProvider>(builder: (context, uiProvider, _) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 100),
+              // Scanning Section
+              Container(
+                margin: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.cardBackground,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.transparent),
+                ),
+                child: DottedBorder(
+                  borderPadding: const EdgeInsets.all(-20),
+                  borderType: BorderType.RRect,
+                  radius: const Radius.circular(20),
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+                  strokeWidth: 1,
+                  dashPattern: const [6, 4],
+                  child: Column(
+                    children: [
+                      if (widget.logic.foodImage != null)
+                        Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Image(
+                                  image: FileImage(widget.logic.foodImage!)),
                             ),
-                        ],
-                      )
-                    else
-                      Icon(
-                        Icons.restaurant_outlined,
-                        size: 70,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.5),
+                            if (context.read<UiProvider>().loading)
+                              const Positioned.fill(
+                                left: 5,
+                                right: 5,
+                                top: 5,
+                                bottom: 5,
+                                child: rive.RiveAnimation.asset(
+                                  'assets/riveAssets/qr_code_scanner.riv',
+                                  fit: BoxFit.fill,
+                                  artboard: 'scan_board',
+                                  animations: ['anim1'],
+                                  stateMachines: ['State Machine 1'],
+                                ),
+                              )
+                          ],
+                        )
+                      else
+                        Icon(
+                          Icons.restaurant_outlined,
+                          size: 70,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.5),
+                        ),
+                      const SizedBox(height: 20),
+                      Text(
+                        "Snap a picture of your meal or pick one from your gallery",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 14,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
-                    const SizedBox(height: 20),
-                    Text(
-                      "Snap a picture of your meal or pick one from your gallery",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 14,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    _buildImageCaptureButtons(),
-                  ],
+                      const SizedBox(height: 20),
+                      _buildImageCaptureButtons(),
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            //Loading animation
-            if (widget.logic.getIsLoading())
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      'Analysis Results',
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins'),
+              //Loading animation
+
+              if (context.read<UiProvider>().loading)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Text(
+                        'Analysis Results',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins'),
+                      ),
                     ),
-                  ),
-                  const FoodItemCardShimmer(),
-                  const FoodItemCardShimmer(),
-                  const TotalNutrientsCardShimmer(),
-                ],
-              ),
-            // Results Section
-            if (widget.logic.foodImage != null &&
-                widget.logic.analyzedFoodItems.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      'Analysis Results',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w600,
-                          ),
+                    const FoodItemCardShimmer(),
+                    const FoodItemCardShimmer(),
+                    const TotalNutrientsCardShimmer(),
+                  ],
+                ),
+
+              // Results Section
+              if (widget.logic.foodImage != null &&
+                  widget.logic.analyzedFoodItems.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Text(
+                        'Analysis Results',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  ...widget.logic.analyzedFoodItems.asMap().entries.map(
-                      (entry) => FoodItemCard(
-                          item: entry.value,
-                          index: entry.key,
-                          setState: setState,
-                          logic: widget.logic)),
-                  TotalNutrientsCard(
-                    logic: widget.logic,
-                    updateIndex: (index) {
-                      setState(() {
-                        _currentIndex = index;
-                      });
-                    },
-                  ),
-                  InkWell(
-                    onTap: () {
-                      print("Tap detected!");
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => AskAiPage(
-                            mealName: widget.logic.mealName,
-                            foodImage: widget.logic.foodImage!,
-                            logic: widget.logic,
+                    const SizedBox(height: 16),
+                    ...widget.logic.analyzedFoodItems
+                        .asMap()
+                        .entries
+                        .map((entry) => FoodItemCard(
+                              item: entry.value,
+                              index: entry.key,
+                            )),
+                    TotalNutrientsCard(
+                      logic: widget.logic,
+                      updateIndex: (index) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                      },
+                    ),
+                    InkWell(
+                      onTap: () {
+                        print("Tap detected!");
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (context) => AskAiPage(
+                              mealName: widget.logic.mealName,
+                              foodImage: widget.logic.foodImage!,
+                              logic: widget.logic,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    child: const AskAiWidget(),
-                  ),
-                ],
-              ),
-          ],
-        ),
+                        );
+                      },
+                      child: const AskAiWidget(),
+                    ),
+                  ],
+                ),
+            ],
+          );
+        }),
       ),
     );
   }

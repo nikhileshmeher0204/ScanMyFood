@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/logic.dart';
 import 'package:read_the_label/providers/UiProvider.dart';
 
 Widget NutrientCard(BuildContext context, Map<String, dynamic> nutrient,
@@ -12,9 +11,8 @@ Widget NutrientCard(BuildContext context, Map<String, dynamic> nutrient,
           .replaceAll(RegExp(r'[^0-9\.]'), '')) ??
       0.0;
   final percent = current / total;
-  final Logic logic = Logic();
 
-  final unit = logic.getUnit(name);
+  final unit = uiProvider.getUnit(name);
 
   return Container(
     padding: const EdgeInsets.all(16),
@@ -54,7 +52,7 @@ Widget NutrientCard(BuildContext context, Map<String, dynamic> nutrient,
               ),
             ),
             Icon(
-              logic.getNutrientIcon(name),
+              uiProvider.getNutrientIcon(name),
               color: uiProvider.getColorForPercent(percent),
               size: 20,
             ),

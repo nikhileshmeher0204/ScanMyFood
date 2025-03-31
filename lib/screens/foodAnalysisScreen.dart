@@ -1,15 +1,11 @@
 import 'dart:ui';
 
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/logic.dart';
-import 'package:read_the_label/main.dart';
-import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/providers/UiProvider.dart';
 import 'package:read_the_label/widgets/food_item_card.dart';
 import 'package:read_the_label/widgets/total_nutrients_card.dart';
-import 'package:rive/rive.dart' as rive;
 import '../widgets/food_item_card_shimmer.dart';
 import '../widgets/total_nutrients_card_shimmer.dart';
 
@@ -104,12 +100,13 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        ...widget.logic.analyzedFoodItems.asMap().entries.map(
-                            (entry) => FoodItemCard(
-                                item: entry.value,
-                                index: entry.key,
-                                setState: setState,
-                                logic: widget.logic)),
+                        ...widget.logic.analyzedFoodItems
+                            .asMap()
+                            .entries
+                            .map((entry) => FoodItemCard(
+                                  item: entry.value,
+                                  index: entry.key,
+                                )),
                         TotalNutrientsCard(
                           logic: widget.logic,
                           updateIndex: (index) {
