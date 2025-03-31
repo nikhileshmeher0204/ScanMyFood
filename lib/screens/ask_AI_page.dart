@@ -1,14 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
-import 'package:path/path.dart' as path;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:read_the_label/logic.dart';
 import 'package:read_the_label/main.dart';
 

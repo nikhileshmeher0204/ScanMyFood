@@ -26,6 +26,7 @@ class FoodHistoryCard extends StatefulWidget {
 }
 
 class _FoodHistoryCardState extends State<FoodHistoryCard> {
+  @override
   Widget build(context) {
     return Container(
       decoration: BoxDecoration(

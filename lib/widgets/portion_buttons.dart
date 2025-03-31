@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/logic.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/providers/UiProvider.dart';
 

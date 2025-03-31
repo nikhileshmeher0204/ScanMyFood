@@ -8,10 +8,10 @@ class FoodInputForm extends StatefulWidget {
   final VoidCallback onSubmit;
 
   const FoodInputForm({
-    Key? key,
+    super.key,
     required this.logic,
     required this.onSubmit,
-  }) : super(key: key);
+  });
 
   @override
   State<FoodInputForm> createState() => _FoodInputFormState();
