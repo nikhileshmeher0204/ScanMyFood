@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:read_the_label/logic.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/providers/nutrition_provider.dart';
 import 'package:read_the_label/screens/foodAnalysisScreen.dart';
 
 class FoodInputForm extends StatefulWidget {
-  final Logic logic;
   final VoidCallback onSubmit;
 
   const FoodInputForm({
     super.key,
-    required this.logic,
     required this.onSubmit,
   });
 
@@ -200,9 +199,9 @@ class _FoodInputFormState extends State<FoodInputForm> {
                       .join('\n, ');
                   print("Food Items: \n $foodItems");
                   if (foodItems.isNotEmpty) {
-                    widget.logic.logMealViaText(
-                      foodItemsText: foodItems,
-                    );
+                    context.read<NutritionProvider>().logMealViaText(
+                          foodItemsText: foodItems,
+                        );
                     Navigator.pop(context);
                     widget.onSubmit();
                   }

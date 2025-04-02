@@ -25,6 +25,7 @@ class UiProvider extends ChangeNotifier {
 
   void updateServingSize(double size) {
     _servingSize = size;
+    print(_servingSize);
     notifyListeners();
   }
 

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
-import '../logic.dart';
+import 'package:read_the_label/providers/nutrition_provider.dart';
 
 class TotalNutrientsCard extends StatelessWidget {
-  final Logic logic;
   final Function(int) updateIndex;
 
   const TotalNutrientsCard({
     super.key,
-    required this.logic,
     required this.updateIndex,
   });
 
@@ -46,7 +45,7 @@ class TotalNutrientsCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${logic.analyzedFoodItems.length} items',
+                        '${context.read<NutritionProvider>().analyzedFoodItems.length} items',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
                           fontSize: 16,
@@ -85,31 +84,46 @@ class TotalNutrientsCard extends StatelessWidget {
                 _buildNutrientRow(
                     context,
                     'Calories',
-                    logic.totalPlateNutrients['calories'] ?? 0,
+                    context
+                            .read<NutritionProvider>()
+                            .totalPlateNutrients['calories'] ??
+                        0,
                     'kcal',
                     Icons.local_fire_department_outlined),
                 _buildNutrientRow(
                     context,
                     'Protein',
-                    logic.totalPlateNutrients['protein'] ?? 0,
+                    context
+                            .read<NutritionProvider>()
+                            .totalPlateNutrients['protein'] ??
+                        0,
                     'g',
                     Icons.fitness_center_outlined),
                 _buildNutrientRow(
                     context,
                     'Carbohydrates',
-                    logic.totalPlateNutrients['carbohydrates'] ?? 0,
+                    context
+                            .read<NutritionProvider>()
+                            .totalPlateNutrients['carbohydrates'] ??
+                        0,
                     'g',
                     Icons.grain_outlined),
                 _buildNutrientRow(
                     context,
                     'Fat',
-                    logic.totalPlateNutrients['fat'] ?? 0,
+                    context
+                            .read<NutritionProvider>()
+                            .totalPlateNutrients['fat'] ??
+                        0,
                     'g',
                     Icons.opacity_outlined),
                 _buildNutrientRow(
                     context,
                     'Fiber',
-                    logic.totalPlateNutrients['fiber'] ?? 0,
+                    context
+                            .read<NutritionProvider>()
+                            .totalPlateNutrients['fiber'] ??
+                        0,
                     'g',
                     Icons.grass_outlined,
                     isLast: true),
@@ -117,8 +131,10 @@ class TotalNutrientsCard extends StatelessWidget {
                   onPressed: () {
                     print("Add to today's intake button pressed");
                     print(
-                        "Current total nutrients: ${logic.totalPlateNutrients}");
-                    logic.addToDailyIntake(context, updateIndex, 'food');
+                        "Current total nutrients: ${context.read<NutritionProvider>().totalPlateNutrients}");
+                    context
+                        .read<NutritionProvider>()
+                        .addToDailyIntake(context, updateIndex, 'food');
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Added to daily intake'),
