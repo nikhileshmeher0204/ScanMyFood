@@ -2,19 +2,17 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/logic.dart';
 import 'package:read_the_label/providers/UiProvider.dart';
+import 'package:read_the_label/providers/nutrition_provider.dart';
 import 'package:read_the_label/widgets/food_item_card.dart';
 import 'package:read_the_label/widgets/total_nutrients_card.dart';
 import '../widgets/food_item_card_shimmer.dart';
 import '../widgets/total_nutrients_card_shimmer.dart';
 
 class FoodAnalysisScreen extends StatefulWidget {
-  final Logic logic;
   final Function(int) updateIndex;
 
   const FoodAnalysisScreen({
-    required this.logic,
     required this.updateIndex,
     super.key,
   });
@@ -57,7 +55,7 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
             bottom: MediaQuery.of(context).padding.bottom + 80,
           ),
           child: ValueListenableBuilder<bool>(
-            valueListenable: widget.logic.loadingNotifier,
+            valueListenable: context.read<NutritionProvider>().loadingNotifier,
             builder: (context, isLoading, child) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,7 +82,11 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                       ],
                     ),
                   // Results Section
-                  if (!isLoading && widget.logic.analyzedFoodItems.isNotEmpty)
+                  if (!isLoading &&
+                      context
+                          .read<NutritionProvider>()
+                          .analyzedFoodItems
+                          .isNotEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -100,7 +102,9 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        ...widget.logic.analyzedFoodItems
+                        ...context
+                            .read<NutritionProvider>()
+                            .analyzedFoodItems
                             .asMap()
                             .entries
                             .map((entry) => FoodItemCard(
@@ -108,7 +112,6 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                                   index: entry.key,
                                 )),
                         TotalNutrientsCard(
-                          logic: widget.logic,
                           updateIndex: (index) {
                             uiProvider.updateCurrentIndex(index);
                             widget.updateIndex(index);

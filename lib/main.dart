@@ -21,11 +21,19 @@ Future<void> main() async {
   } else {
     await dotenv.load(fileName: ".env");
   }
-  runApp(MultiProvider(providers: [
-    ChangeNotifierProvider(create: (_) => UiProvider()),
-    ChangeNotifierProvider(create: (_) => NutritionProvider()),
-    ChangeNotifierProvider(create: (_) => DailyIntakeProvider()),
-  ], child: const MyApp()));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UiProvider()),
+        ChangeNotifierProxyProvider<UiProvider, NutritionProvider>(
+          create: (_) => NutritionProvider(),
+          update: (_, uiProvider, nutritionProvider) =>
+              nutritionProvider!..uiProvider = uiProvider,
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 extension CustomColors on ColorScheme {

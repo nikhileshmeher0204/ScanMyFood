@@ -6,18 +6,18 @@ import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:read_the_label/logic.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/providers/nutrition_provider.dart';
 
 class AskAiPage extends StatefulWidget {
   String mealName;
   File? foodImage;
-  final Logic logic;
-  AskAiPage(
-      {super.key,
-      required this.mealName,
-      required this.foodImage,
-      required this.logic});
+  AskAiPage({
+    super.key,
+    required this.mealName,
+    required this.foodImage,
+  });
 
   @override
   State<AskAiPage> createState() => _AskAiPageState();
@@ -37,13 +37,16 @@ class _AskAiPageState extends State<AskAiPage> {
     super.initState();
     _currentMealName = widget.mealName;
     _provider = _createProvider();
-    widget.logic.mealNameNotifier.addListener(_onMealNameChange);
+    context
+        .read<NutritionProvider>()
+        .mealNameNotifier
+        .addListener(_onMealNameChange);
   }
 
   void _onMealNameChange() {
-    if (widget.logic.mealName != _currentMealName) {
+    if (context.read<NutritionProvider>().mealName != _currentMealName) {
       setState(() {
-        _currentMealName = widget.logic.mealName;
+        _currentMealName = context.read<NutritionProvider>().mealName;
         // Create new provider with empty history
         _provider = _createProvider();
       });
@@ -52,7 +55,10 @@ class _AskAiPageState extends State<AskAiPage> {
 
   @override
   void dispose() {
-    widget.logic.mealNameNotifier.removeListener(_onMealNameChange);
+    context
+        .read<NutritionProvider>()
+        .mealNameNotifier
+        .removeListener(_onMealNameChange);
     super.dispose();
   }
 
@@ -60,11 +66,11 @@ class _AskAiPageState extends State<AskAiPage> {
     nutritionContext = '''
       Meal: ${widget.mealName}
       Nutritional Information:
-      - Calories: ${widget.logic.totalPlateNutrients['calories']} kcal
-      - Protein: ${widget.logic.totalPlateNutrients['protein']}g
-      - Carbohydrates: ${widget.logic.totalPlateNutrients['carbohydrates']}g
-      - Fat: ${widget.logic.totalPlateNutrients['fat']}g
-      - Fiber: ${widget.logic.totalPlateNutrients['fiber']}g
+      - Calories: ${context.read<NutritionProvider>().totalPlateNutrients['calories']} kcal
+      - Protein: ${context.read<NutritionProvider>().totalPlateNutrients['protein']}g
+      - Carbohydrates: ${context.read<NutritionProvider>().totalPlateNutrients['carbohydrates']}g
+      - Fat: ${context.read<NutritionProvider>().totalPlateNutrients['fat']}g
+      - Fiber: ${context.read<NutritionProvider>().totalPlateNutrients['fiber']}g
     ''';
 
     return GeminiProvider(

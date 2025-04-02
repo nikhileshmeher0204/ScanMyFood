@@ -11,10 +11,12 @@ import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/providers/UiProvider.dart';
+import 'package:read_the_label/providers/nutrition_provider.dart';
 import 'package:read_the_label/screens/ask_AI_page.dart';
 import 'package:read_the_label/widgets/ask_ai_widget.dart';
 import 'package:read_the_label/widgets/food_item_card_shimmer.dart';
 import 'package:read_the_label/widgets/nutrient_info_shimmer.dart';
+import 'package:read_the_label/widgets/product_image_capture_buttons.dart';
 import 'package:read_the_label/widgets/total_nutrients_card_shimmer.dart';
 import 'package:read_the_label/widgets/date_selector.dart';
 import 'package:read_the_label/widgets/detailed_nutrients_card.dart';
@@ -28,7 +30,6 @@ import 'package:read_the_label/data/nutrient_insights.dart';
 import 'package:read_the_label/widgets/total_nutrients_card.dart';
 import 'package:rive/rive.dart' as rive;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:read_the_label/logic.dart';
 import 'widgets/portion_buttons.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -41,67 +42,19 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   File? _selectedFile;
   final ImagePicker imagePicker = ImagePicker();
-  final Logic _logic = Logic();
   int _currentIndex = 0;
   final _duration = const Duration(milliseconds: 300);
 
-  @override
-  void initState() {
-    super.initState();
-
-    // Schedule provider initialization after first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _logic.initProvider(context);
-    });
-  }
-
-  Widget _buildImageCaptureButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton.icon(
-          icon: const Icon(Icons.qr_code_scanner_outlined, color: Colors.white),
-          label: const Text("Scan Now",
-              style: TextStyle(
-                  fontFamily: 'Poppins', fontWeight: FontWeight.w400)),
-          style: ElevatedButton.styleFrom(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          ),
-          onPressed: () => _handleImageCapture(ImageSource.camera),
-        ),
-        const SizedBox(width: 16),
-        ElevatedButton.icon(
-          icon: Icon(Icons.photo_library,
-              color: Theme.of(context).colorScheme.onSurface),
-          label: const Text("Gallery",
-              style: TextStyle(
-                  fontFamily: 'Poppins', fontWeight: FontWeight.w400)),
-          style: ElevatedButton.styleFrom(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            backgroundColor: Theme.of(context).colorScheme.cardBackground,
-            foregroundColor: Theme.of(context).colorScheme.onSurface,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          ),
-          onPressed: () => _handleImageCapture(ImageSource.gallery),
-        ),
-      ],
-    );
-  }
-
   void _handleImageCapture(ImageSource source) async {
     // First, capture front image
-    await _logic.captureImage(
+    final provider = Provider.of<NutritionProvider>(context, listen: false);
+
+    await provider.captureImage(
       source: source,
       isFrontImage: true,
-      setState: setState,
     );
 
-    if (_logic.frontImage != null) {
+    if (provider.frontImage != null) {
       // Show dialog for nutrition label
       if (mounted) {
         showDialog(
@@ -126,13 +79,12 @@ class _MyHomePageState extends State<MyHomePage> {
               TextButton(
                 onPressed: () async {
                   Navigator.pop(context);
-                  await _logic.captureImage(
+                  await provider.captureImage(
                     source: source,
                     isFrontImage: false,
-                    setState: setState,
                   );
-                  if (_logic.canAnalyze()) {
-                    _analyzeImages();
+                  if (provider.canAnalyze()) {
+                    await provider.analyzeImages();
                   }
                 },
                 child: const Text('Continue',
@@ -142,12 +94,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       }
-    }
-  }
-
-  void _analyzeImages() {
-    if (_logic.canAnalyze()) {
-      _logic.analyzeImages(setState: setState);
     }
   }
 
@@ -244,14 +190,12 @@ class _MyHomePageState extends State<MyHomePage> {
               AnimatedOpacity(
                 opacity: _currentIndex == 1 ? 1.0 : 0.0,
                 duration: _duration,
-                child: FoodScanPage(logic: _logic),
+                child: FoodScanPage(),
               ),
               AnimatedOpacity(
                 opacity: _currentIndex == 2 ? 1.0 : 0.0,
                 duration: _duration,
-                child: DailyIntakePage(
-                  dailyIntake: _logic.dailyIntake,
-                ),
+                child: DailyIntakePage(),
               ),
             ],
           ),
@@ -266,7 +210,8 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Padding(
         padding:
             EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 80),
-        child: Consumer<UiProvider>(builder: (context, uiProvider, _) {
+        child: Consumer2<UiProvider, NutritionProvider>(
+            builder: (context, uiProvider, nutritionProvider, _) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
@@ -291,13 +236,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Builder(builder: (context) {
                     return Column(
                       children: [
-                        if (_logic.frontImage != null)
+                        if (nutritionProvider.frontImage != null)
                           Stack(
                             children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
-                                child:
-                                    Image(image: FileImage(_logic.frontImage!)),
+                                child: Image(
+                                    image: FileImage(
+                                        nutritionProvider.frontImage!)),
                               ),
                               if (uiProvider.loading)
                                 const Positioned.fill(
@@ -335,7 +281,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               fontWeight: FontWeight.w400),
                         ),
                         const SizedBox(height: 20),
-                        _buildImageCaptureButtons(),
+                        ProductImageCaptureButtons(
+                          onImageCapturePressed: _handleImageCapture,
+                        ),
                       ],
                     );
                   }),
@@ -344,7 +292,10 @@ class _MyHomePageState extends State<MyHomePage> {
               if (uiProvider.loading) const NutrientInfoShimmer(),
 
               //Good/Moderate nutrients
-              if (_logic.getGoodNutrients().isNotEmpty)
+              if (context
+                  .read<NutritionProvider>()
+                  .getGoodNutrients()
+                  .isNotEmpty)
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 24.0),
                   child: Column(
@@ -353,7 +304,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24.0),
                         child: Text(
-                          _logic.productName,
+                          nutritionProvider.productName,
                           style: const TextStyle(
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.w400,
@@ -396,7 +347,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Wrap(
                           spacing: 12,
                           runSpacing: 12,
-                          children: _logic
+                          children: context
+                              .read<NutritionProvider>()
                               .getGoodNutrients()
                               .map((nutrient) => NutrientTile(
                                     nutrient: nutrient['name'],
@@ -413,7 +365,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
 
               //Bad nutrients
-              if (_logic.getBadNutrients().isNotEmpty)
+              if (context
+                  .read<NutritionProvider>()
+                  .getBadNutrients()
+                  .isNotEmpty)
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 24.0),
                   child: Column(
@@ -454,7 +409,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Wrap(
                           spacing: 12,
                           runSpacing: 12,
-                          children: _logic
+                          children: context
+                              .read<NutritionProvider>()
                               .getBadNutrients()
                               .map((nutrient) => NutrientTile(
                                     nutrient: nutrient['name'],
@@ -469,7 +425,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
-              if (_logic.getBadNutrients().isNotEmpty)
+              if (context
+                  .read<NutritionProvider>()
+                  .getBadNutrients()
+                  .isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Row(
@@ -496,23 +455,29 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
-              if (_logic.nutritionAnalysis['primary_concerns'] != null)
-                ..._logic.nutritionAnalysis['primary_concerns'].map(
-                  (concern) => NutrientBalanceCard(
-                    issue: concern['issue'] ?? '',
-                    explanation: concern['explanation'] ?? '',
-                    recommendations: (concern['recommendations'] as List?)
-                            ?.map((rec) => {
-                                  'food': rec['food'] ?? '',
-                                  'quantity': rec['quantity'] ?? '',
-                                  'reasoning': rec['reasoning'] ?? '',
-                                })
-                            .toList() ??
-                        [],
-                  ),
-                ),
+              if (context
+                      .read<NutritionProvider>()
+                      .nutritionAnalysis['primary_concerns'] !=
+                  null)
+                ...context
+                    .read<NutritionProvider>()
+                    .nutritionAnalysis['primary_concerns']
+                    .map(
+                      (concern) => NutrientBalanceCard(
+                        issue: concern['issue'] ?? '',
+                        explanation: concern['explanation'] ?? '',
+                        recommendations: (concern['recommendations'] as List?)
+                                ?.map((rec) => {
+                                      'food': rec['food'] ?? '',
+                                      'quantity': rec['quantity'] ?? '',
+                                      'reasoning': rec['reasoning'] ?? '',
+                                    })
+                                .toList() ??
+                            [],
+                      ),
+                    ),
 
-              if (context.read<UiProvider>().servingSize > 0)
+              if (uiProvider.servingSize > 0)
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -520,7 +485,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       Row(
                         children: [
                           Text(
-                            "Serving Size: ${context.read<UiProvider>().servingSize.round()} g",
+                            "Serving Size: ${uiProvider.servingSize.round()} g",
                             style: TextStyle(
                                 color: Theme.of(context)
                                     .textTheme
@@ -647,7 +612,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               200, 50), // Set minimum width and height
                         ),
                         onPressed: () {
-                          _logic.addToDailyIntake(context, (index) {
+                          context
+                              .read<NutritionProvider>()
+                              .addToDailyIntake(context, (index) {
                             setState(() {
                               _currentIndex = index;
                             });
@@ -692,7 +659,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               ],
                             ),
                             Text(
-                              "${uiProvider.sliderValue.toStringAsFixed(0)} grams, ${(_logic.getCalories() * (uiProvider.sliderValue / uiProvider.servingSize)).toStringAsFixed(0)} calories",
+                              "${uiProvider.sliderValue.toStringAsFixed(0)} grams, ${(nutritionProvider.getCalories() * (uiProvider.sliderValue / uiProvider.servingSize)).toStringAsFixed(0)} calories",
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Theme.of(context).colorScheme.onPrimary,
@@ -706,8 +673,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
 
-              if (context.read<UiProvider>().servingSize == 0 &&
-                  _logic.parsedNutrients.isNotEmpty)
+              if (uiProvider.servingSize == 0 &&
+                  nutritionProvider.parsedNutrients.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -719,8 +686,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       TextField(
                         keyboardType: TextInputType.number,
                         onChanged: (value) {
-                          context
-                              .read<UiProvider>()
+                          uiProvider
                               .updateSliderValue(double.tryParse(value) ?? 0.0);
                         },
                         decoration: const InputDecoration(
@@ -728,31 +694,29 @@ class _MyHomePageState extends State<MyHomePage> {
                             hintStyle: TextStyle(color: Colors.white54)),
                         style: const TextStyle(color: Colors.white),
                       ),
-                      if (context.read<UiProvider>().servingSize > 0)
+                      if (uiProvider.servingSize > 0)
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Slider(
-                              value: context.read<UiProvider>().sliderValue,
+                              value: uiProvider.sliderValue,
                               min: 0,
-                              max: context.read<UiProvider>().servingSize,
+                              max: uiProvider.servingSize,
                               onChanged: (newValue) {
-                                context
-                                    .read<UiProvider>()
-                                    .updateSliderValue(newValue);
+                                uiProvider.updateSliderValue(newValue);
                               }),
                         ),
-                      if (context.read<UiProvider>().servingSize > 0)
+                      if (uiProvider.servingSize > 0)
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
-                            "Serving Size: ${context.read<UiProvider>().servingSize.round()} g",
+                            "Serving Size: ${uiProvider.servingSize.round()} g",
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontFamily: 'Poppins'),
                           ),
                         ),
-                      if (context.read<UiProvider>().servingSize > 0)
+                      if (uiProvider.servingSize > 0)
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Builder(
@@ -762,7 +726,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                       backgroundColor: WidgetStateProperty.all(
                                           Colors.white10)),
                                   onPressed: () {
-                                    _logic.addToDailyIntake(context, (index) {
+                                    context
+                                        .read<NutritionProvider>()
+                                        .addToDailyIntake(context, (index) {
                                       setState(() {
                                         _currentIndex = index;
                                       });
@@ -792,7 +758,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
-              if (context.read<UiProvider>().servingSize > 0)
+              if (uiProvider.servingSize > 0)
                 InkWell(
                   onTap: () {
                     print("Tap detected!");
@@ -800,9 +766,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       context,
                       CupertinoPageRoute(
                         builder: (context) => AskAiPage(
-                          mealName: _logic.productName,
-                          foodImage: _logic.frontImage!,
-                          logic: _logic,
+                          mealName: nutritionProvider.productName,
+                          foodImage: nutritionProvider.frontImage!,
                         ),
                       ),
                     );
@@ -818,10 +783,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class FoodScanPage extends StatefulWidget {
-  final Logic logic;
-
   const FoodScanPage({
-    required this.logic,
     super.key,
   });
 
@@ -839,7 +801,8 @@ class _FoodScanPageState extends State<FoodScanPage> {
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).padding.bottom + 80,
         ),
-        child: Consumer<UiProvider>(builder: (context, uiProvider, _) {
+        child: Consumer2<UiProvider, NutritionProvider>(
+            builder: (context, uiProvider, nutritionProvider, _) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -863,15 +826,17 @@ class _FoodScanPageState extends State<FoodScanPage> {
                   dashPattern: const [6, 4],
                   child: Column(
                     children: [
-                      if (widget.logic.foodImage != null)
+                      if (nutritionProvider.foodImage != null)
                         Stack(
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(20),
                               child: Image(
-                                  image: FileImage(widget.logic.foodImage!)),
+                                  image: FileImage(context
+                                      .read<NutritionProvider>()
+                                      .foodImage!)),
                             ),
-                            if (context.read<UiProvider>().loading)
+                            if (uiProvider.loading)
                               const Positioned.fill(
                                 left: 5,
                                 right: 5,
@@ -908,7 +873,9 @@ class _FoodScanPageState extends State<FoodScanPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      _buildImageCaptureButtons(),
+                      FoodImageCaptureButtons(
+                        onImageCapturePressed: _handleFoodImageCapture,
+                      ),
                     ],
                   ),
                 ),
@@ -916,7 +883,7 @@ class _FoodScanPageState extends State<FoodScanPage> {
 
               //Loading animation
 
-              if (context.read<UiProvider>().loading)
+              if (uiProvider.loading)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -938,8 +905,11 @@ class _FoodScanPageState extends State<FoodScanPage> {
                 ),
 
               // Results Section
-              if (widget.logic.foodImage != null &&
-                  widget.logic.analyzedFoodItems.isNotEmpty)
+              if (nutritionProvider.foodImage != null &&
+                  context
+                      .read<NutritionProvider>()
+                      .analyzedFoodItems
+                      .isNotEmpty)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -954,7 +924,9 @@ class _FoodScanPageState extends State<FoodScanPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ...widget.logic.analyzedFoodItems
+                    ...context
+                        .read<NutritionProvider>()
+                        .analyzedFoodItems
                         .asMap()
                         .entries
                         .map((entry) => FoodItemCard(
@@ -962,7 +934,6 @@ class _FoodScanPageState extends State<FoodScanPage> {
                               index: entry.key,
                             )),
                     TotalNutrientsCard(
-                      logic: widget.logic,
                       updateIndex: (index) {
                         setState(() {
                           _currentIndex = index;
@@ -976,9 +947,8 @@ class _FoodScanPageState extends State<FoodScanPage> {
                           context,
                           CupertinoPageRoute(
                             builder: (context) => AskAiPage(
-                              mealName: widget.logic.mealName,
-                              foodImage: widget.logic.foodImage!,
-                              logic: widget.logic,
+                              mealName: nutritionProvider.mealName,
+                              foodImage: nutritionProvider.foodImage!,
                             ),
                           ),
                         );
@@ -994,117 +964,57 @@ class _FoodScanPageState extends State<FoodScanPage> {
     );
   }
 
-  Widget _buildImageCaptureButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton.icon(
-          icon: Icon(Icons.camera_alt_outlined,
-              color: Theme.of(context).colorScheme.onPrimary),
-          label: const Text(
-            "Take Photo",
-            style:
-                TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w400),
-          ),
-          style: ElevatedButton.styleFrom(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          ),
-          onPressed: () => _handleFoodImageCapture(ImageSource.camera),
-        ),
-        const SizedBox(width: 16),
-        ElevatedButton.icon(
-          icon: Icon(Icons.photo_library,
-              color: Theme.of(context).colorScheme.onPrimary),
-          label: const Text(
-            "Gallery",
-            style:
-                TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w400),
-          ),
-          style: ElevatedButton.styleFrom(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            backgroundColor: Theme.of(context).colorScheme.cardBackground,
-            foregroundColor: Theme.of(context).colorScheme.onSurface,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          ),
-          onPressed: () => _handleFoodImageCapture(ImageSource.gallery),
-        ),
-      ],
-    );
-  }
-
   void _handleFoodImageCapture(ImageSource source) async {
+    final provider = Provider.of<NutritionProvider>(context, listen: false);
     final imagePicker = ImagePicker();
     final image = await imagePicker.pickImage(source: source);
 
     if (image != null) {
       if (mounted) {
         setState(() {
-          widget.logic.foodImage = File(image.path);
+          provider.foodImage = File(image.path);
         });
       }
-      await widget.logic.analyzeFoodImage(
-        imageFile: widget.logic.foodImage!,
-        setState: (fn) {
-          if (mounted) {
-            setState(fn);
-          }
-        },
-        mounted: mounted,
+      await provider.analyzeFoodImage(
+        imageFile: provider.foodImage!,
       );
     }
   }
 }
 
 class DailyIntakePage extends StatefulWidget {
-  final Map<String, double> dailyIntake;
-  const DailyIntakePage({super.key, required this.dailyIntake});
+  const DailyIntakePage({super.key});
 
   @override
   State<DailyIntakePage> createState() => _DailyIntakePageState();
 }
 
 class _DailyIntakePageState extends State<DailyIntakePage> {
-  late Map<String, double> _dailyIntake;
+  Map<String, double> _dailyIntake = {};
   DateTime _selectedDate = DateTime.now();
-  final Logic logic = Logic();
   final int _currentIndex = 2;
 
   @override
   void initState() {
     super.initState();
-    _dailyIntake = widget.dailyIntake;
     _initializeData();
-    logic.dailyIntakeNotifier.addListener(_onDailyIntakeChanged);
-  }
-
-  void _onDailyIntakeChanged() {
-    if (mounted) {
-      setState(() {
-        _dailyIntake = Map.from(logic.dailyIntakeNotifier.value);
-      });
-    }
   }
 
   @override
   void dispose() {
-    logic.dailyIntakeNotifier.removeListener(_onDailyIntakeChanged);
     super.dispose();
   }
 
   Future<void> _initializeData() async {
     print("Initializing DailyIntakePage data...");
+    final provider = Provider.of<NutritionProvider>(context, listen: false);
 
     // Debug check storage
-    await logic.debugCheckStorage();
+    await provider.debugCheckStorage();
 
     // Load food history first
     print("Loading food history...");
-    await logic.loadFoodHistory();
+    await provider.loadFoodHistory();
 
     // Then load daily intake for selected date
     print("Loading daily intake for selected date...");
@@ -1114,14 +1024,16 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
       setState(() {
         print("State updated after initialization");
         print("Current daily intake: $_dailyIntake");
-        print("Current food history: ${logic.foodHistory}");
+        print("Current food history: ${provider.foodHistory}");
       });
     }
   }
 
   Future<void> _loadDailyIntake(DateTime date) async {
     print("Loading daily intake for date: ${date.toString()}");
-    final String storageKey = logic.getStorageKey(date);
+    final provider = Provider.of<NutritionProvider>(context, listen: false);
+
+    final String storageKey = provider.getStorageKey(date);
     print("Storage key: $storageKey");
 
     final prefs = await SharedPreferences.getInstance();
@@ -1142,7 +1054,7 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
         setState(() {
           _selectedDate = date;
           _dailyIntake = dailyIntake;
-          logic.dailyIntake = dailyIntake;
+          provider.dailyIntake = dailyIntake;
           print("State updated with dailyIntake: $_dailyIntake");
         });
       }
@@ -1151,7 +1063,7 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
         setState(() {
           _selectedDate = date;
           _dailyIntake = {};
-          logic.dailyIntake = {};
+          provider.dailyIntake = {};
           print("Reset to empty dailyIntake");
         });
       }
@@ -1167,28 +1079,30 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
           bottom: MediaQuery.of(context).padding.bottom + 80,
           top: MediaQuery.of(context).padding.top + 10,
         ),
-        child: Column(
-          children: [
-            HeaderCard(context, _selectedDate),
-            DateSelector(
-              context,
-              _selectedDate,
-              (DateTime newDate) {
-                setState(() {
-                  _selectedDate = newDate;
-                  _loadDailyIntake(newDate);
-                });
-              },
-            ),
-            MacronutrientSummaryCard(context, _dailyIntake),
-            FoodHistoryCard(
-                context: context,
-                currentIndex: _currentIndex,
-                logic: logic,
-                selectedDate: _selectedDate),
-            DetailedNutrientsCard(context, _dailyIntake),
-          ],
-        ),
+        child: Consumer<NutritionProvider>(
+            builder: (context, nutritionProvider, _) {
+          return Column(
+            children: [
+              HeaderCard(context, _selectedDate),
+              DateSelector(
+                context,
+                _selectedDate,
+                (DateTime newDate) {
+                  setState(() {
+                    _selectedDate = newDate;
+                    _loadDailyIntake(newDate);
+                  });
+                },
+              ),
+              MacronutrientSummaryCard(context, _dailyIntake),
+              FoodHistoryCard(
+                  context: context,
+                  currentIndex: _currentIndex,
+                  selectedDate: _selectedDate),
+              DetailedNutrientsCard(context, _dailyIntake),
+            ],
+          );
+        }),
       ),
     );
   }

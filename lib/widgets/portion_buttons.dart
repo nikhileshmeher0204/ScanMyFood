@@ -15,7 +15,7 @@ class PortionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final uiProvider = Provider.of<UiProvider>(context, listen: false);
+    final uiProvider = Provider.of<UiProvider>(context, listen: true);
     bool isSelected =
         (uiProvider.sliderValue / uiProvider.servingSize) == portion;
 
@@ -47,7 +47,7 @@ class CustomPortionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final uiProvider = Provider.of<UiProvider>(context, listen: false);
+    final uiProvider = Provider.of<UiProvider>(context, listen: true);
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: Theme.of(context).colorScheme.cardBackground,

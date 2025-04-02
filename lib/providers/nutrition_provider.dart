@@ -36,20 +36,13 @@ class NutritionProvider extends ChangeNotifier {
   final ValueNotifier<bool> loadingNotifier = ValueNotifier<bool>(false);
   final ValueNotifier<String> mealNameNotifier = ValueNotifier<String>("");
   final dailyIntakeNotifier = ValueNotifier<Map<String, double>>({});
-  UiProvider? uiProvider;
+  late UiProvider uiProvider;
 
   List<Map<String, dynamic>> getGoodNutrients() => goodNutrients;
   List<Map<String, dynamic>> getBadNutrients() => badNutrients;
   bool canAnalyze() => _frontImage != null && _nutritionLabelImage != null;
 
   static GlobalKey<NavigatorState> getNavKey() => navKey;
-  void initProvider(BuildContext context) {
-    try {
-      uiProvider = Provider.of<UiProvider>(context, listen: false);
-    } catch (e) {
-      print("Error initializing UiProvider: $e");
-    }
-  }
 
   String get mealName => mealNameNotifier.value;
   set _mealName(String value) {
@@ -59,6 +52,11 @@ class NutritionProvider extends ChangeNotifier {
   bool get isAnalyzing => loadingNotifier.value;
   set _isAnalyzing(bool value) {
     loadingNotifier.value = value;
+  }
+
+  void setLoading(bool isLoading) {
+    _isAnalyzing = isLoading;
+    notifyListeners();
   }
 
   String? getApiKey() {
@@ -285,7 +283,7 @@ class NutritionProvider extends ChangeNotifier {
     );
 
     await saveDailyIntake();
-    dailyIntakeNotifier.value = Map.from(dailyIntake);
+    notifyListeners();
     print("⚡Daily intake at end of addToDailyIntake(): $dailyIntake");
     print("✅End of addToDailyIntake()");
 
@@ -323,9 +321,9 @@ class NutritionProvider extends ChangeNotifier {
     return double.tryParse(quantity) ?? 0.0;
   }
 
-  Future<String> analyzeImages(
-      {required Function(void Function()) setState}) async {
-    uiProvider!.setLoading(true);
+  Future<String> analyzeImages() async {
+    setLoading(true);
+    notifyListeners();
 
     final apiKey = getApiKey();
 
@@ -411,52 +409,83 @@ Strictly follow these rules:
     _generatedText = response.text!;
     print("This is response content: $_generatedText");
     try {
-      final jsonString = _generatedText.substring(
-          _generatedText.indexOf('{'), _generatedText.lastIndexOf('}') + 1);
-      final jsonResponse = jsonDecode(jsonString);
+      // Extract the entire JSON structure with better error handling
+      final startIndex = _generatedText.indexOf('{');
+      final endIndex = _generatedText.lastIndexOf('}');
 
-      _productName = jsonResponse['product']['name'];
-      _nutritionAnalysis = jsonResponse['nutrition_analysis'];
-
-      if (_nutritionAnalysis.containsKey("serving_size")) {
-        uiProvider!.updateServingSize(double.tryParse(
-                _nutritionAnalysis["serving_size"]
-                    .replaceAll(RegExp(r'[^0-9\.]'), '')) ??
-            0.0);
+      if (startIndex == -1 || endIndex == -1 || endIndex <= startIndex) {
+        throw Exception("Invalid JSON structure in response");
       }
 
-      parsedNutrients = (_nutritionAnalysis['nutrients'] as List)
-          .cast<Map<String, dynamic>>();
+      final jsonString = _generatedText.substring(startIndex, endIndex + 1);
+      print("Extracted JSON string length: ${jsonString.length}");
 
-      parsedNutrients = (_nutritionAnalysis['nutrients'] as List)
-          .cast<Map<String, dynamic>>()
-          .map((nutrient) {
-        // Handle null values by providing default values
-        return {
-          'name': nutrient['name'] ?? 'Unknown',
-          'quantity': nutrient['quantity'] ?? '0',
-          'daily_value': nutrient['daily_value'] ?? '0%',
-          'status': nutrient['status'] ?? 'Moderate',
-          'health_impact': nutrient['health_impact'] ?? 'Moderate',
-        };
-      }).toList();
+      final jsonResponse = jsonDecode(jsonString);
 
-      // Clear and update good/bad nutrients
-      goodNutrients.clear();
-      badNutrients.clear();
-      for (var nutrient in parsedNutrients) {
-        if (nutrient["health_impact"] == "Good" ||
-            nutrient["health_impact"] == "Moderate") {
-          goodNutrients.add(nutrient);
-        } else {
-          badNutrients.add(nutrient);
+      // Check for required fields
+      if (!jsonResponse.containsKey('product') ||
+          !jsonResponse.containsKey('nutrition_analysis')) {
+        throw Exception("Missing required fields in response");
+      }
+
+      _productName = jsonResponse['product']['name'] ?? "Unknown Product";
+      _nutritionAnalysis = jsonResponse['nutrition_analysis'];
+
+      // Safe parsing for serving size
+      if (_nutritionAnalysis.containsKey("serving_size") &&
+          _nutritionAnalysis["serving_size"] != null) {
+        final servingSizeStr = _nutritionAnalysis["serving_size"].toString();
+        final servingSizeNum = double.tryParse(
+                servingSizeStr.replaceAll(RegExp(r'[^0-9\.]'), '')) ??
+            0.0;
+
+        if (servingSizeNum > 0) {
+          print("Setting serving size to: $servingSizeNum");
+          uiProvider.updateServingSize(servingSizeNum);
+        }
+      }
+
+      // Safe parsing for nutrients with more defensive code
+      if (_nutritionAnalysis.containsKey('nutrients') &&
+          _nutritionAnalysis['nutrients'] is List) {
+        // Create a clean copy - don't assign directly
+        parsedNutrients = [];
+
+        for (var nutrient in _nutritionAnalysis['nutrients']) {
+          // Skip null entries
+          if (nutrient == null) continue;
+
+          // Create safe entry with defaults for all fields
+          parsedNutrients.add({
+            'name': nutrient['name'] ?? 'Unknown',
+            'quantity': nutrient['quantity'] ?? '0',
+            'daily_value': nutrient['daily_value'] ?? '0%',
+            'status': nutrient['status'] ?? 'Moderate',
+            'health_impact': nutrient['health_impact'] ?? 'Moderate',
+          });
+        }
+
+        // Clear and update good/bad nutrients
+        goodNutrients.clear();
+        badNutrients.clear();
+
+        for (var nutrient in parsedNutrients) {
+          if (nutrient["health_impact"] == "Good" ||
+              nutrient["health_impact"] == "Moderate") {
+            goodNutrients.add(nutrient);
+          } else {
+            badNutrients.add(nutrient);
+          }
         }
       }
     } catch (e) {
       print("Error parsing JSON: $e");
+    } finally {
+      // Ensure loading state is reset even if there are errors
+      setLoading(false);
+      notifyListeners();
     }
 
-    uiProvider!.setLoading(false);
     return _generatedText;
   }
 
@@ -594,10 +623,9 @@ Provide accurate nutritional data based on the most reliable food databases and 
 
   Future<String> analyzeFoodImage({
     required File imageFile,
-    required Function(void Function()) setState,
-    required bool mounted,
   }) async {
-    uiProvider!.setLoading(true);
+    setLoading(true);
+    notifyListeners();
 
     final apiKey = getApiKey();
 
@@ -700,28 +728,24 @@ Consider:
             'fiber': plateAnalysis['total_plate_nutrients']['fiber']['value'],
           };
 
-          if (mounted) {
-            uiProvider!.setLoading(false);
-          }
-
+          setLoading(false);
+          notifyListeners();
           return response.text!;
         } catch (e) {
           print("Error parsing JSON response: $e");
-          if (mounted) {
-            uiProvider!.setLoading(false);
-          }
+          setLoading(false);
+          notifyListeners();
           return "Error parsing response";
         }
       }
-      if (mounted) {
-        uiProvider!.setLoading(false);
-      }
+      setLoading(false);
+      ;
+      notifyListeners();
       return "No response received";
     } catch (e) {
       print("Error analyzing food image: $e");
-      if (mounted) {
-        uiProvider!.setLoading(false);
-      }
+      setLoading(false);
+      notifyListeners();
       return "Error analyzing image";
     }
   }
@@ -729,7 +753,6 @@ Consider:
   Future<void> captureImage({
     required ImageSource source,
     required bool isFrontImage,
-    required Function(void Function()) setState,
   }) async {
     final imagePicker = ImagePicker();
     final image = await imagePicker.pickImage(source: source);
