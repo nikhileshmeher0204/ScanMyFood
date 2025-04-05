@@ -215,8 +215,7 @@ class NutritionProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> addToDailyIntake(
-      BuildContext context, Function(int) updateIndex, String source) async {
+  Future<void> addToDailyIntake(BuildContext context, String source) async {
     dailyIntake = {};
     print("Adding to daily intake. Source: $source");
     print("Current daily intake before: $dailyIntake");
@@ -275,8 +274,6 @@ class NutritionProvider extends ChangeNotifier {
     notifyListeners();
     print("⚡Daily intake at end of addToDailyIntake(): $dailyIntake");
     print("✅End of addToDailyIntake()");
-
-    updateIndex(2);
   }
 
   String? getInsights(Map<String, double> dailyIntake) {
