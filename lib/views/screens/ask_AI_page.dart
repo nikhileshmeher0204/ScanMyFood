@@ -8,7 +8,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
-import 'package:read_the_label/providers/nutrition_provider.dart';
+import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
 
 class AskAiPage extends StatefulWidget {
   String mealName;
@@ -57,7 +57,7 @@ class _AskAiPageState extends State<AskAiPage> {
   GeminiProvider _createProvider([List<ChatMessage>? history]) {
     // Safe provider access - only after widget is built
     final nutritionProvider =
-        Provider.of<NutritionProvider>(context, listen: false);
+        Provider.of<NutritionViewModel>(context, listen: false);
 
     // Add null safety for all accessed values
     final calories = nutritionProvider.totalPlateNutrients['calories'] ?? 0;
@@ -133,7 +133,7 @@ class _AskAiPageState extends State<AskAiPage> {
       });
     }
 
-    final mealName = context.watch<NutritionProvider>().mealName;
+    final mealName = context.watch<NutritionViewModel>().mealName;
     if (mealName != widget.mealName) {
       widget.mealName = mealName;
       // Schedule update for next frame to avoid rebuild during build

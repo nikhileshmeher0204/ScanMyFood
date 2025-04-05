@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/providers/UiProvider.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 Widget NutrientCard(BuildContext context, Map<String, dynamic> nutrient,
     Map<String, double> dailyIntake) {
-  final uiProvider = Provider.of<UiProvider>(context, listen: false);
+  final uiProvider = Provider.of<UiViewModel>(context, listen: false);
   final name = nutrient['Nutrient'];
   final current = dailyIntake[name] ?? 0.0;
   final total = double.tryParse(nutrient['Current Daily Value']

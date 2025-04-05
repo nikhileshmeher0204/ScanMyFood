@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/providers/UiProvider.dart';
-import 'package:read_the_label/providers/nutrition_provider.dart';
-import 'package:read_the_label/screens/foodAnalysisScreen.dart';
-import 'package:read_the_label/widgets/food_input_form.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
+import 'package:read_the_label/views/screens/foodAnalysisScreen.dart';
+import 'package:read_the_label/views/widgets/food_input_form.dart';
 
 class FoodHistoryCard extends StatefulWidget {
   final BuildContext context;
@@ -93,10 +93,10 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: context.watch<NutritionProvider>().foodHistory.length,
+            itemCount: context.watch<NutritionViewModel>().foodHistory.length,
             itemBuilder: (context, index) {
               final item =
-                  context.watch<NutritionProvider>().foodHistory[index];
+                  context.watch<NutritionViewModel>().foodHistory[index];
               // Only show items from selected date
               if (isSameDay(item.dateTime, widget.selectedDate)) {
                 return Container(
@@ -165,7 +165,7 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                       Navigator.push(
                         context,
                         CupertinoPageRoute(
-                          builder: (context) => Consumer<UiProvider>(
+                          builder: (context) => Consumer<UiViewModel>(
                             builder: (context, uiProvider, _) =>
                                 FoodAnalysisScreen(
                               updateIndex: (index) {

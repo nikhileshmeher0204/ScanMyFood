@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:read_the_label/viewmodels/base_view_model.dart';
 
-class UiProvider extends ChangeNotifier {
+class UiViewModel extends BaseViewModel {
   // UI state
   double _servingSize = 0.0;
   double _sliderValue = 0.0;
