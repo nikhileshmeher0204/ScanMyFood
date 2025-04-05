@@ -98,9 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _switchTab(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+    Provider.of<UiProvider>(context, listen: false).updateCurrentIndex(index);
   }
 
   @override
@@ -128,46 +126,49 @@ class _MyHomePageState extends State<MyHomePage> {
               fontWeight: FontWeight.w500),
         ),
       ),
-      bottomNavigationBar: Container(
-        color: Theme.of(context).colorScheme.cardBackground,
-        child: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-            child: BottomNavigationBar(
-              elevation: 0,
-              selectedLabelStyle: TextStyle(
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w400,
-                color: Theme.of(context).colorScheme.onSurface,
+      bottomNavigationBar:
+          Consumer<UiProvider>(builder: (context, uiProvider, _) {
+        return Container(
+          color: Theme.of(context).colorScheme.cardBackground,
+          child: ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+              child: BottomNavigationBar(
+                elevation: 0,
+                selectedLabelStyle: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w400,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                unselectedLabelStyle: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w400,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                backgroundColor: Colors.transparent,
+                selectedItemColor: Theme.of(context).colorScheme.primary,
+                unselectedItemColor: Colors.grey,
+                currentIndex: uiProvider.currentIndex,
+                onTap: _switchTab,
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.document_scanner),
+                    label: 'Scan Label',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.food_bank),
+                    label: 'Scan Food',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.pie_chart),
+                    label: 'Daily Intake',
+                  ),
+                ],
               ),
-              unselectedLabelStyle: TextStyle(
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w400,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-              backgroundColor: Colors.transparent,
-              selectedItemColor: Theme.of(context).colorScheme.primary,
-              unselectedItemColor: Colors.grey,
-              currentIndex: _currentIndex,
-              onTap: _switchTab,
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.document_scanner),
-                  label: 'Scan Label',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.food_bank),
-                  label: 'Scan Food',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.pie_chart),
-                  label: 'Daily Intake',
-                ),
-              ],
             ),
           ),
-        ),
-      ),
+        );
+      }),
       body: Container(
         height: MediaQuery.of(context).size.height,
         color: Theme.of(context).colorScheme.surface,
@@ -179,26 +180,28 @@ class _MyHomePageState extends State<MyHomePage> {
               child: child,
             );
           },
-          child: IndexedStack(
-            key: ValueKey<int>(_currentIndex),
-            index: _currentIndex,
-            children: [
-              AnimatedOpacity(
-                  opacity: _currentIndex == 0 ? 1.0 : 0.0,
+          child: Consumer<UiProvider>(builder: (context, uiProvider, _) {
+            return IndexedStack(
+              key: ValueKey<int>(uiProvider.currentIndex),
+              index: uiProvider.currentIndex,
+              children: [
+                AnimatedOpacity(
+                    opacity: uiProvider.currentIndex == 0 ? 1.0 : 0.0,
+                    duration: _duration,
+                    child: _buildHomePage(context)),
+                AnimatedOpacity(
+                  opacity: uiProvider.currentIndex == 1 ? 1.0 : 0.0,
                   duration: _duration,
-                  child: _buildHomePage(context)),
-              AnimatedOpacity(
-                opacity: _currentIndex == 1 ? 1.0 : 0.0,
-                duration: _duration,
-                child: FoodScanPage(),
-              ),
-              AnimatedOpacity(
-                opacity: _currentIndex == 2 ? 1.0 : 0.0,
-                duration: _duration,
-                child: DailyIntakePage(),
-              ),
-            ],
-          ),
+                  child: FoodScanPage(),
+                ),
+                AnimatedOpacity(
+                  opacity: uiProvider.currentIndex == 2 ? 1.0 : 0.0,
+                  duration: _duration,
+                  child: DailyIntakePage(),
+                ),
+              ],
+            );
+          }),
         ),
       ),
     );
@@ -580,8 +583,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       const SizedBox(height: 16),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
+                          backgroundColor: uiProvider.sliderValue == 0
+                              ? Colors.grey
+                              : Theme.of(context).colorScheme.primary,
                           foregroundColor:
                               Theme.of(context).colorScheme.onSurface,
                           padding: const EdgeInsets.symmetric(
@@ -596,25 +600,33 @@ class _MyHomePageState extends State<MyHomePage> {
                               200, 50), // Set minimum width and height
                         ),
                         onPressed: () {
-                          nutritionProvider.addToDailyIntake(context, (index) {
-                            setState(() {
-                              _currentIndex = index;
-                            });
-                          }, 'label');
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                  'Added to today\'s intake!'), // Updated message
-                              action: SnackBarAction(
-                                label: 'VIEW', // Changed from 'SHOW' to 'VIEW'
-                                onPressed: () {
-                                  setState(() {
-                                    _currentIndex = 2;
-                                  });
-                                },
+                          if (uiProvider.sliderValue == 0) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Please select your consumption to continue'), // Updated message
                               ),
-                            ),
-                          );
+                            );
+                          } else {
+                            nutritionProvider.addToDailyIntake(
+                                context, 'label');
+                            uiProvider.updateCurrentIndex(2);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                    'Added to today\'s intake!'), // Updated message
+                                action: SnackBarAction(
+                                  label:
+                                      'VIEW', // Changed from 'SHOW' to 'VIEW'
+                                  onPressed: () {
+                                    Provider.of<UiProvider>(context,
+                                            listen: false)
+                                        .updateCurrentIndex(2);
+                                  },
+                                ),
+                              ),
+                            );
+                          }
                         },
                         child: Column(
                           children: [
@@ -708,13 +720,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                       backgroundColor: WidgetStateProperty.all(
                                           Colors.white10)),
                                   onPressed: () {
-                                    context
-                                        .read<NutritionProvider>()
-                                        .addToDailyIntake(context, (index) {
-                                      setState(() {
-                                        _currentIndex = index;
-                                      });
-                                    }, 'label');
+                                    nutritionProvider.addToDailyIntake(
+                                        context, 'label');
+                                    uiProvider.updateCurrentIndex(2);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: const Text(
@@ -774,7 +782,6 @@ class FoodScanPage extends StatefulWidget {
 }
 
 class _FoodScanPageState extends State<FoodScanPage> {
-  int _currentIndex = 1;
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -909,13 +916,7 @@ class _FoodScanPageState extends State<FoodScanPage> {
                               item: entry.value,
                               index: entry.key,
                             )),
-                    TotalNutrientsCard(
-                      updateIndex: (index) {
-                        setState(() {
-                          _currentIndex = index;
-                        });
-                      },
-                    ),
+                    const TotalNutrientsCard(),
                     InkWell(
                       onTap: () {
                         print("Tap detected!");
@@ -968,7 +969,6 @@ class DailyIntakePage extends StatefulWidget {
 class _DailyIntakePageState extends State<DailyIntakePage> {
   Map<String, double> _dailyIntake = {};
   DateTime _selectedDate = DateTime.now();
-  final int _currentIndex = 2;
 
   @override
   void initState() {
@@ -1073,7 +1073,7 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
               MacronutrientSummaryCard(context, _dailyIntake),
               FoodHistoryCard(
                   context: context,
-                  currentIndex: _currentIndex,
+                  currentIndex: 2,
                   selectedDate: _selectedDate),
               DetailedNutrientsCard(context, _dailyIntake),
             ],

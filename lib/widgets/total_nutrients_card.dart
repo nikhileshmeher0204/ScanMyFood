@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/providers/UiProvider.dart';
 import 'package:read_the_label/providers/nutrition_provider.dart';
 
 class TotalNutrientsCard extends StatelessWidget {
-  final Function(int) updateIndex;
-
   const TotalNutrientsCard({
     super.key,
-    required this.updateIndex,
   });
 
   @override
@@ -129,12 +127,15 @@ class TotalNutrientsCard extends StatelessWidget {
                     isLast: true),
                 ElevatedButton.icon(
                   onPressed: () {
+                    final uiProvider =
+                        Provider.of<UiProvider>(context, listen: false);
+                    final nutritionProvider =
+                        Provider.of<NutritionProvider>(context, listen: false);
                     print("Add to today's intake button pressed");
                     print(
-                        "Current total nutrients: ${context.watch<NutritionProvider>().totalPlateNutrients}");
-                    context
-                        .read<NutritionProvider>()
-                        .addToDailyIntake(context, updateIndex, 'food');
+                        "Current total nutrients: ${nutritionProvider.totalPlateNutrients}");
+                    nutritionProvider.addToDailyIntake(context, 'food');
+                    uiProvider.updateCurrentIndex(2);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Added to daily intake'),

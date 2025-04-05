@@ -32,7 +32,8 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final uiProvider = Provider.of<UiProvider>(context, listen: false);
+    final nutritionProvider =
+        Provider.of<NutritionProvider>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(
@@ -82,10 +83,7 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                     ),
                   // Results Section
                   if (uiProvider.loading &&
-                      context
-                          .read<NutritionProvider>()
-                          .analyzedFoodItems
-                          .isNotEmpty)
+                      nutritionProvider.analyzedFoodItems.isNotEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -110,12 +108,7 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                                   item: entry.value,
                                   index: entry.key,
                                 )),
-                        TotalNutrientsCard(
-                          updateIndex: (index) {
-                            uiProvider.updateCurrentIndex(index);
-                            widget.updateIndex(index);
-                          },
-                        ),
+                        const TotalNutrientsCard(),
                       ],
                     ),
                 ],
