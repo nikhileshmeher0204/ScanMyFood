@@ -54,13 +54,12 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).padding.bottom + 80,
           ),
-          child: ValueListenableBuilder<bool>(
-            valueListenable: context.read<NutritionProvider>().loadingNotifier,
-            builder: (context, isLoading, child) {
+          child: Consumer<UiProvider>(
+            builder: (context, uiProvider, _) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (isLoading)
+                  if (uiProvider.loading)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -82,7 +81,7 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                       ],
                     ),
                   // Results Section
-                  if (!isLoading &&
+                  if (uiProvider.loading &&
                       context
                           .read<NutritionProvider>()
                           .analyzedFoodItems

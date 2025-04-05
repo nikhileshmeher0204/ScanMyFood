@@ -33,7 +33,6 @@ class NutritionProvider extends ChangeNotifier {
   Map<String, dynamic> get nutritionAnalysis => _nutritionAnalysis;
   List<FoodConsumption> _foodHistory = [];
   List<FoodConsumption> get foodHistory => _foodHistory;
-  final ValueNotifier<bool> loadingNotifier = ValueNotifier<bool>(false);
   final ValueNotifier<String> mealNameNotifier = ValueNotifier<String>("");
   final dailyIntakeNotifier = ValueNotifier<Map<String, double>>({});
   late UiProvider uiProvider;
@@ -47,16 +46,6 @@ class NutritionProvider extends ChangeNotifier {
   String get mealName => mealNameNotifier.value;
   set _mealName(String value) {
     mealNameNotifier.value = value;
-  }
-
-  bool get isAnalyzing => loadingNotifier.value;
-  set _isAnalyzing(bool value) {
-    loadingNotifier.value = value;
-  }
-
-  void setLoading(bool isLoading) {
-    _isAnalyzing = isLoading;
-    notifyListeners();
   }
 
   String? getApiKey() {
@@ -322,8 +311,7 @@ class NutritionProvider extends ChangeNotifier {
   }
 
   Future<String> analyzeImages() async {
-    setLoading(true);
-    notifyListeners();
+    uiProvider.setLoading(true);
 
     final apiKey = getApiKey();
 
@@ -482,8 +470,7 @@ Strictly follow these rules:
       print("Error parsing JSON: $e");
     } finally {
       // Ensure loading state is reset even if there are errors
-      setLoading(false);
-      notifyListeners();
+      uiProvider.setLoading(false);
     }
 
     return _generatedText;
@@ -493,7 +480,7 @@ Strictly follow these rules:
     required String foodItemsText,
   }) async {
     try {
-      _isAnalyzing = true;
+      uiProvider.setLoading(true);
 
       print("Processing logging food items via text: \n$foodItemsText");
       final apiKey = getApiKey();
@@ -607,12 +594,12 @@ Provide accurate nutritional data based on the most reliable food databases and 
         print("Carbohydrates: ${totalPlateNutrients['carbohydrates']}");
         print("Fat: ${totalPlateNutrients['fat']}");
         print("Fiber: ${totalPlateNutrients['fiber']}");
-        _isAnalyzing = false;
+        uiProvider.setLoading(false);
         print("\n\nsetting _isLoading to false\n\n");
         return response.text!;
       } catch (e) {
         print("Error analyzing food: $e");
-        _isAnalyzing = false;
+        uiProvider.setLoading(false);
         return "Error";
       }
     } catch (e) {
@@ -624,8 +611,7 @@ Provide accurate nutritional data based on the most reliable food databases and 
   Future<String> analyzeFoodImage({
     required File imageFile,
   }) async {
-    setLoading(true);
-    notifyListeners();
+    uiProvider.setLoading(true);
 
     final apiKey = getApiKey();
 
@@ -728,24 +714,20 @@ Consider:
             'fiber': plateAnalysis['total_plate_nutrients']['fiber']['value'],
           };
 
-          setLoading(false);
-          notifyListeners();
+          uiProvider.setLoading(false);
           return response.text!;
         } catch (e) {
           print("Error parsing JSON response: $e");
-          setLoading(false);
-          notifyListeners();
+          uiProvider.setLoading(false);
           return "Error parsing response";
         }
       }
-      setLoading(false);
-      ;
-      notifyListeners();
+      uiProvider.setLoading(false);
+
       return "No response received";
     } catch (e) {
       print("Error analyzing food image: $e");
-      setLoading(false);
-      notifyListeners();
+      uiProvider.setLoading(false);
       return "Error analyzing image";
     }
   }

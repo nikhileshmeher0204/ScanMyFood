@@ -292,10 +292,7 @@ class _MyHomePageState extends State<MyHomePage> {
               if (uiProvider.loading) const NutrientInfoShimmer(),
 
               //Good/Moderate nutrients
-              if (context
-                  .read<NutritionProvider>()
-                  .getGoodNutrients()
-                  .isNotEmpty)
+              if (nutritionProvider.getGoodNutrients().isNotEmpty)
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 24.0),
                   child: Column(
@@ -347,8 +344,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Wrap(
                           spacing: 12,
                           runSpacing: 12,
-                          children: context
-                              .read<NutritionProvider>()
+                          children: nutritionProvider
                               .getGoodNutrients()
                               .map((nutrient) => NutrientTile(
                                     nutrient: nutrient['name'],
@@ -365,10 +361,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
 
               //Bad nutrients
-              if (context
-                  .read<NutritionProvider>()
-                  .getBadNutrients()
-                  .isNotEmpty)
+              if (nutritionProvider.getBadNutrients().isNotEmpty)
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 24.0),
                   child: Column(
@@ -409,8 +402,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Wrap(
                           spacing: 12,
                           runSpacing: 12,
-                          children: context
-                              .read<NutritionProvider>()
+                          children: nutritionProvider
                               .getBadNutrients()
                               .map((nutrient) => NutrientTile(
                                     nutrient: nutrient['name'],
@@ -425,10 +417,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
-              if (context
-                  .read<NutritionProvider>()
-                  .getBadNutrients()
-                  .isNotEmpty)
+              if (nutritionProvider.getBadNutrients().isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Row(
@@ -455,27 +444,22 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
-              if (context
-                      .read<NutritionProvider>()
-                      .nutritionAnalysis['primary_concerns'] !=
+              if (nutritionProvider.nutritionAnalysis['primary_concerns'] !=
                   null)
-                ...context
-                    .read<NutritionProvider>()
-                    .nutritionAnalysis['primary_concerns']
-                    .map(
-                      (concern) => NutrientBalanceCard(
-                        issue: concern['issue'] ?? '',
-                        explanation: concern['explanation'] ?? '',
-                        recommendations: (concern['recommendations'] as List?)
-                                ?.map((rec) => {
-                                      'food': rec['food'] ?? '',
-                                      'quantity': rec['quantity'] ?? '',
-                                      'reasoning': rec['reasoning'] ?? '',
-                                    })
-                                .toList() ??
-                            [],
-                      ),
-                    ),
+                ...nutritionProvider.nutritionAnalysis['primary_concerns'].map(
+                  (concern) => NutrientBalanceCard(
+                    issue: concern['issue'] ?? '',
+                    explanation: concern['explanation'] ?? '',
+                    recommendations: (concern['recommendations'] as List?)
+                            ?.map((rec) => {
+                                  'food': rec['food'] ?? '',
+                                  'quantity': rec['quantity'] ?? '',
+                                  'reasoning': rec['reasoning'] ?? '',
+                                })
+                            .toList() ??
+                        [],
+                  ),
+                ),
 
               if (uiProvider.servingSize > 0)
                 Padding(
@@ -612,9 +596,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               200, 50), // Set minimum width and height
                         ),
                         onPressed: () {
-                          context
-                              .read<NutritionProvider>()
-                              .addToDailyIntake(context, (index) {
+                          nutritionProvider.addToDailyIntake(context, (index) {
                             setState(() {
                               _currentIndex = index;
                             });
@@ -832,9 +814,8 @@ class _FoodScanPageState extends State<FoodScanPage> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(20),
                               child: Image(
-                                  image: FileImage(context
-                                      .read<NutritionProvider>()
-                                      .foodImage!)),
+                                  image:
+                                      FileImage(nutritionProvider.foodImage!)),
                             ),
                             if (uiProvider.loading)
                               const Positioned.fill(
@@ -906,10 +887,7 @@ class _FoodScanPageState extends State<FoodScanPage> {
 
               // Results Section
               if (nutritionProvider.foodImage != null &&
-                  context
-                      .read<NutritionProvider>()
-                      .analyzedFoodItems
-                      .isNotEmpty)
+                  nutritionProvider.analyzedFoodItems.isNotEmpty)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -924,9 +902,7 @@ class _FoodScanPageState extends State<FoodScanPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ...context
-                        .read<NutritionProvider>()
-                        .analyzedFoodItems
+                    ...nutritionProvider.analyzedFoodItems
                         .asMap()
                         .entries
                         .map((entry) => FoodItemCard(

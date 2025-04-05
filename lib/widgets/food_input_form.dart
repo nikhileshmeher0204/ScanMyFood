@@ -199,7 +199,7 @@ class _FoodInputFormState extends State<FoodInputForm> {
                       .join('\n, ');
                   print("Food Items: \n $foodItems");
                   if (foodItems.isNotEmpty) {
-                    context.read<NutritionProvider>().logMealViaText(
+                    context.watch<NutritionProvider>().logMealViaText(
                           foodItemsText: foodItems,
                         );
                     Navigator.pop(context);
