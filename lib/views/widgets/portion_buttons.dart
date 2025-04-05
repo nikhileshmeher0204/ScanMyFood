@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
-import 'package:read_the_label/providers/UiProvider.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class PortionButton extends StatelessWidget {
   final double portion;
@@ -15,7 +15,7 @@ class PortionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final uiProvider = Provider.of<UiProvider>(context, listen: true);
+    final uiProvider = Provider.of<UiViewModel>(context, listen: true);
     bool isSelected =
         (uiProvider.sliderValue / uiProvider.servingSize) == portion;
 
@@ -47,7 +47,7 @@ class CustomPortionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final uiProvider = Provider.of<UiProvider>(context, listen: true);
+    final uiProvider = Provider.of<UiViewModel>(context, listen: true);
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: Theme.of(context).colorScheme.cardBackground,

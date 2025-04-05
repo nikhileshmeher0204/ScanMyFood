@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
-import 'package:read_the_label/providers/nutrition_provider.dart';
-import 'package:read_the_label/screens/foodAnalysisScreen.dart';
+import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
+import 'package:read_the_label/views/screens/foodAnalysisScreen.dart';
 
 class FoodInputForm extends StatefulWidget {
   final VoidCallback onSubmit;
@@ -199,7 +199,7 @@ class _FoodInputFormState extends State<FoodInputForm> {
                       .join('\n, ');
                   print("Food Items: \n $foodItems");
                   if (foodItems.isNotEmpty) {
-                    context.watch<NutritionProvider>().logMealViaText(
+                    context.watch<NutritionViewModel>().logMealViaText(
                           foodItemsText: foodItems,
                         );
                     Navigator.pop(context);

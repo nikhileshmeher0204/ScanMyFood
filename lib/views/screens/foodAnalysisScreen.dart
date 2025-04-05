@@ -2,10 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/providers/UiProvider.dart';
-import 'package:read_the_label/providers/nutrition_provider.dart';
-import 'package:read_the_label/widgets/food_item_card.dart';
-import 'package:read_the_label/widgets/total_nutrients_card.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
+import 'package:read_the_label/views/widgets/food_item_card.dart';
+import 'package:read_the_label/views/widgets/total_nutrients_card.dart';
 import '../widgets/food_item_card_shimmer.dart';
 import '../widgets/total_nutrients_card_shimmer.dart';
 
@@ -27,13 +27,13 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
   void initState() {
     super.initState();
     // Initialize with a default value or get from provider
-    currentIndex = context.read<UiProvider>().currentIndex;
+    currentIndex = context.read<UiViewModel>().currentIndex;
   }
 
   @override
   Widget build(BuildContext context) {
     final nutritionProvider =
-        Provider.of<NutritionProvider>(context, listen: false);
+        Provider.of<NutritionViewModel>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(
@@ -55,7 +55,7 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).padding.bottom + 80,
           ),
-          child: Consumer<UiProvider>(
+          child: Consumer<UiViewModel>(
             builder: (context, uiProvider, _) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,7 +100,7 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                         ),
                         const SizedBox(height: 16),
                         ...context
-                            .read<NutritionProvider>()
+                            .read<NutritionViewModel>()
                             .analyzedFoodItems
                             .asMap()
                             .entries

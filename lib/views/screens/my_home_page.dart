@@ -10,27 +10,27 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/models/food_item.dart';
-import 'package:read_the_label/providers/UiProvider.dart';
-import 'package:read_the_label/providers/nutrition_provider.dart';
-import 'package:read_the_label/screens/ask_AI_page.dart';
-import 'package:read_the_label/widgets/ask_ai_widget.dart';
-import 'package:read_the_label/widgets/food_item_card_shimmer.dart';
-import 'package:read_the_label/widgets/nutrient_info_shimmer.dart';
-import 'package:read_the_label/widgets/product_image_capture_buttons.dart';
-import 'package:read_the_label/widgets/total_nutrients_card_shimmer.dart';
-import 'package:read_the_label/widgets/date_selector.dart';
-import 'package:read_the_label/widgets/detailed_nutrients_card.dart';
-import 'package:read_the_label/widgets/food_history_card.dart';
-import 'package:read_the_label/widgets/food_item_card.dart';
-import 'package:read_the_label/widgets/header_widget.dart';
-import 'package:read_the_label/widgets/macronutrien_summary_card.dart';
-import 'package:read_the_label/widgets/nutrient_balance_card.dart';
-import 'package:read_the_label/widgets/nutrient_tile.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
+import 'package:read_the_label/views/screens/ask_AI_page.dart';
+import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
+import 'package:read_the_label/views/widgets/food_item_card_shimmer.dart';
+import 'package:read_the_label/views/widgets/nutrient_info_shimmer.dart';
+import 'package:read_the_label/views/widgets/product_image_capture_buttons.dart';
+import 'package:read_the_label/views/widgets/total_nutrients_card_shimmer.dart';
+import 'package:read_the_label/views/widgets/date_selector.dart';
+import 'package:read_the_label/views/widgets/detailed_nutrients_card.dart';
+import 'package:read_the_label/views/widgets/food_history_card.dart';
+import 'package:read_the_label/views/widgets/food_item_card.dart';
+import 'package:read_the_label/views/widgets/header_widget.dart';
+import 'package:read_the_label/views/widgets/macronutrien_summary_card.dart';
+import 'package:read_the_label/views/widgets/nutrient_balance_card.dart';
+import 'package:read_the_label/views/widgets/nutrient_tile.dart';
 import 'package:read_the_label/data/nutrient_insights.dart';
-import 'package:read_the_label/widgets/total_nutrients_card.dart';
+import 'package:read_the_label/views/widgets/total_nutrients_card.dart';
 import 'package:rive/rive.dart' as rive;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'widgets/portion_buttons.dart';
+import '../widgets/portion_buttons.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -47,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _handleImageCapture(ImageSource source) async {
     // First, capture front image
-    final provider = Provider.of<NutritionProvider>(context, listen: false);
+    final provider = Provider.of<NutritionViewModel>(context, listen: false);
 
     await provider.captureImage(
       source: source,
@@ -98,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _switchTab(int index) {
-    Provider.of<UiProvider>(context, listen: false).updateCurrentIndex(index);
+    Provider.of<UiViewModel>(context, listen: false).updateCurrentIndex(index);
   }
 
   @override
@@ -127,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       bottomNavigationBar:
-          Consumer<UiProvider>(builder: (context, uiProvider, _) {
+          Consumer<UiViewModel>(builder: (context, uiProvider, _) {
         return Container(
           color: Theme.of(context).colorScheme.cardBackground,
           child: ClipRect(
@@ -180,7 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: child,
             );
           },
-          child: Consumer<UiProvider>(builder: (context, uiProvider, _) {
+          child: Consumer<UiViewModel>(builder: (context, uiProvider, _) {
             return IndexedStack(
               key: ValueKey<int>(uiProvider.currentIndex),
               index: uiProvider.currentIndex,
@@ -213,7 +213,7 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Padding(
         padding:
             EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 80),
-        child: Consumer2<UiProvider, NutritionProvider>(
+        child: Consumer2<UiViewModel, NutritionViewModel>(
             builder: (context, uiProvider, nutritionProvider, _) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -521,7 +521,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     ),
                                     onChanged: (value) {
                                       context
-                                          .read<UiProvider>()
+                                          .read<UiViewModel>()
                                           .updateServingSize(
                                               double.tryParse(value) ?? 0.0);
                                     },
@@ -619,7 +619,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   label:
                                       'VIEW', // Changed from 'SHOW' to 'VIEW'
                                   onPressed: () {
-                                    Provider.of<UiProvider>(context,
+                                    Provider.of<UiViewModel>(context,
                                             listen: false)
                                         .updateCurrentIndex(2);
                                   },
@@ -790,7 +790,7 @@ class _FoodScanPageState extends State<FoodScanPage> {
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).padding.bottom + 80,
         ),
-        child: Consumer2<UiProvider, NutritionProvider>(
+        child: Consumer2<UiViewModel, NutritionViewModel>(
             builder: (context, uiProvider, nutritionProvider, _) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -942,7 +942,7 @@ class _FoodScanPageState extends State<FoodScanPage> {
   }
 
   void _handleFoodImageCapture(ImageSource source) async {
-    final provider = Provider.of<NutritionProvider>(context, listen: false);
+    final provider = Provider.of<NutritionViewModel>(context, listen: false);
     final imagePicker = ImagePicker();
     final image = await imagePicker.pickImage(source: source);
 
@@ -983,7 +983,7 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
 
   Future<void> _initializeData() async {
     print("Initializing DailyIntakePage data...");
-    final provider = Provider.of<NutritionProvider>(context, listen: false);
+    final provider = Provider.of<NutritionViewModel>(context, listen: false);
 
     // Debug check storage
     await provider.debugCheckStorage();
@@ -1007,7 +1007,7 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
 
   Future<void> _loadDailyIntake(DateTime date) async {
     print("Loading daily intake for date: ${date.toString()}");
-    final provider = Provider.of<NutritionProvider>(context, listen: false);
+    final provider = Provider.of<NutritionViewModel>(context, listen: false);
 
     final String storageKey = provider.getStorageKey(date);
     print("Storage key: $storageKey");
@@ -1055,7 +1055,7 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
           bottom: MediaQuery.of(context).padding.bottom + 80,
           top: MediaQuery.of(context).padding.top + 10,
         ),
-        child: Consumer<NutritionProvider>(
+        child: Consumer<NutritionViewModel>(
             builder: (context, nutritionProvider, _) {
           return Column(
             children: [

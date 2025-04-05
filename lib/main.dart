@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/providers/UiProvider.dart';
-import 'package:read_the_label/providers/daily_intake_provider.dart';
-import 'package:read_the_label/providers/nutrition_provider.dart';
-import 'my_home_page.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
+import 'views/screens/my_home_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,9 +23,9 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => UiProvider()),
-        ChangeNotifierProxyProvider<UiProvider, NutritionProvider>(
-          create: (_) => NutritionProvider(),
+        ChangeNotifierProvider(create: (_) => UiViewModel()),
+        ChangeNotifierProxyProvider<UiViewModel, NutritionViewModel>(
+          create: (_) => NutritionViewModel(),
           update: (_, uiProvider, nutritionProvider) =>
               nutritionProvider!..uiProvider = uiProvider,
         ),

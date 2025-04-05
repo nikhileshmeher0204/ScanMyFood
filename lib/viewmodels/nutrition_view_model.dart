@@ -1,19 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart'; // Add this import
-import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:read_the_label/data/dv_values.dart';
 import 'package:read_the_label/models/food_consumption.dart';
 import 'package:read_the_label/models/food_item.dart';
-import 'package:read_the_label/providers/UiProvider.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class NutritionProvider extends ChangeNotifier {
+class NutritionViewModel extends ChangeNotifier {
   String _generatedText = "";
   File? _frontImage;
   File? _nutritionLabelImage;
@@ -35,7 +33,7 @@ class NutritionProvider extends ChangeNotifier {
   List<FoodConsumption> get foodHistory => _foodHistory;
   final ValueNotifier<String> mealNameNotifier = ValueNotifier<String>("");
   final dailyIntakeNotifier = ValueNotifier<Map<String, double>>({});
-  late UiProvider uiProvider;
+  late UiViewModel uiProvider;
 
   List<Map<String, dynamic>> getGoodNutrients() => goodNutrients;
   List<Map<String, dynamic>> getBadNutrients() => badNutrients;
@@ -44,6 +42,7 @@ class NutritionProvider extends ChangeNotifier {
   static GlobalKey<NavigatorState> getNavKey() => navKey;
 
   String get mealName => mealNameNotifier.value;
+
   set _mealName(String value) {
     mealNameNotifier.value = value;
   }
