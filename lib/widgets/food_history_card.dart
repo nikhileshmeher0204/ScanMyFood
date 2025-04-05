@@ -93,9 +93,10 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: context.read<NutritionProvider>().foodHistory.length,
+            itemCount: context.watch<NutritionProvider>().foodHistory.length,
             itemBuilder: (context, index) {
-              final item = context.read<NutritionProvider>().foodHistory[index];
+              final item =
+                  context.watch<NutritionProvider>().foodHistory[index];
               // Only show items from selected date
               if (isSameDay(item.dateTime, widget.selectedDate)) {
                 return Container(

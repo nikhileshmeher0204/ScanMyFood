@@ -24,54 +24,59 @@ class AskAiPage extends StatefulWidget {
 }
 
 class _AskAiPageState extends State<AskAiPage> {
-  late final GeminiProvider _provider;
-  late String nutritionContext;
-  String? _currentMealName;
-
-  final apiKey = kIsWeb
-      ? const String.fromEnvironment('GEMINI_API_KEY')
-      : dotenv.env['GEMINI_API_KEY'];
+  late GeminiProvider _provider;
+  String? nutritionContext;
+  String? apiKey;
+  bool _isProviderInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _currentMealName = widget.mealName;
-    _provider = _createProvider();
-    context
-        .read<NutritionProvider>()
-        .mealNameNotifier
-        .addListener(_onMealNameChange);
+    apiKey = kIsWeb
+        ? const String.fromEnvironment('GEMINI_API_KEY')
+        : dotenv.env['GEMINI_API_KEY'];
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeProvider();
+    });
   }
 
-  void _onMealNameChange() {
-    if (context.read<NutritionProvider>().mealName != _currentMealName) {
-      setState(() {
-        _currentMealName = context.read<NutritionProvider>().mealName;
-        // Create new provider with empty history
-        _provider = _createProvider();
-      });
-    }
+  void _initializeProvider() {
+    if (!mounted) return;
+
+    setState(() {
+      _provider = _createProvider();
+      _isProviderInitialized = true;
+    });
   }
 
   @override
   void dispose() {
-    context
-        .read<NutritionProvider>()
-        .mealNameNotifier
-        .removeListener(_onMealNameChange);
     super.dispose();
   }
 
   GeminiProvider _createProvider([List<ChatMessage>? history]) {
+    // Safe provider access - only after widget is built
+    final nutritionProvider =
+        Provider.of<NutritionProvider>(context, listen: false);
+
+    // Add null safety for all accessed values
+    final calories = nutritionProvider.totalPlateNutrients['calories'] ?? 0;
+    final protein = nutritionProvider.totalPlateNutrients['protein'] ?? 0;
+    final carbs = nutritionProvider.totalPlateNutrients['carbohydrates'] ?? 0;
+    final fat = nutritionProvider.totalPlateNutrients['fat'] ?? 0;
+    final fiber = nutritionProvider.totalPlateNutrients['fiber'] ?? 0;
+
     nutritionContext = '''
       Meal: ${widget.mealName}
       Nutritional Information:
-      - Calories: ${context.read<NutritionProvider>().totalPlateNutrients['calories']} kcal
-      - Protein: ${context.read<NutritionProvider>().totalPlateNutrients['protein']}g
-      - Carbohydrates: ${context.read<NutritionProvider>().totalPlateNutrients['carbohydrates']}g
-      - Fat: ${context.read<NutritionProvider>().totalPlateNutrients['fat']}g
-      - Fiber: ${context.read<NutritionProvider>().totalPlateNutrients['fiber']}g
+      - Calories: $calories kcal
+      - Protein: ${protein}g
+      - Carbohydrates: ${carbs}g
+      - Fat: ${fat}g
+      - Fiber: ${fiber}g
     ''';
+
+    print('🍊Nutrition Context: $nutritionContext');
 
     return GeminiProvider(
       history: history,
@@ -93,6 +98,50 @@ class _AskAiPageState extends State<AskAiPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_isProviderInitialized) {
+      return Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          flexibleSpace: ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+              child: Container(
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+          title: const Text('Ask AI'),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    void _updateProvider() {
+      if (!mounted) return;
+
+      setState(() {
+        _provider = _createProvider();
+      });
+    }
+
+    final mealName = context.watch<NutritionProvider>().mealName;
+    if (mealName != widget.mealName) {
+      widget.mealName = mealName;
+      // Schedule update for next frame to avoid rebuild during build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _updateProvider();
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,

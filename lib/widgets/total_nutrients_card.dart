@@ -45,7 +45,7 @@ class TotalNutrientsCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${context.read<NutritionProvider>().analyzedFoodItems.length} items',
+                        '${context.watch<NutritionProvider>().analyzedFoodItems.length} items',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
                           fontSize: 16,
@@ -131,7 +131,7 @@ class TotalNutrientsCard extends StatelessWidget {
                   onPressed: () {
                     print("Add to today's intake button pressed");
                     print(
-                        "Current total nutrients: ${context.read<NutritionProvider>().totalPlateNutrients}");
+                        "Current total nutrients: ${context.watch<NutritionProvider>().totalPlateNutrients}");
                     context
                         .read<NutritionProvider>()
                         .addToDailyIntake(context, updateIndex, 'food');

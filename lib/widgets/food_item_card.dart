@@ -205,7 +205,7 @@ class FoodItemCard extends StatelessWidget {
               double? newQuantity = double.tryParse(controller.text);
               if (newQuantity != null) {
                 item.quantity = newQuantity;
-                context.read<NutritionProvider>().updateTotalNutrients();
+                context.watch<NutritionProvider>().updateTotalNutrients();
               }
               Navigator.of(context).pop();
             },
