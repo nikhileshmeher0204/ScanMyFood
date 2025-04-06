@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
-import '../logic.dart';
+import 'package:read_the_label/theme/app_theme.dart';
+import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
+import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class TotalNutrientsCard extends StatelessWidget {
-  final Logic logic;
-  final Function(int) updateIndex;
-
   const TotalNutrientsCard({
     super.key,
-    required this.logic,
-    required this.updateIndex,
   });
 
   @override
@@ -46,7 +45,7 @@ class TotalNutrientsCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${logic.analyzedFoodItems.length} items',
+                        '${context.watch<MealAnalysisViewModel>().analyzedFoodItems.length} items',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
                           fontSize: 16,
@@ -85,40 +84,69 @@ class TotalNutrientsCard extends StatelessWidget {
                 _buildNutrientRow(
                     context,
                     'Calories',
-                    logic.totalPlateNutrients['calories'] ?? 0,
+                    context
+                            .read<MealAnalysisViewModel>()
+                            .totalPlateNutrients['calories'] ??
+                        0,
                     'kcal',
                     Icons.local_fire_department_outlined),
                 _buildNutrientRow(
                     context,
                     'Protein',
-                    logic.totalPlateNutrients['protein'] ?? 0,
+                    context
+                            .read<MealAnalysisViewModel>()
+                            .totalPlateNutrients['protein'] ??
+                        0,
                     'g',
                     Icons.fitness_center_outlined),
                 _buildNutrientRow(
                     context,
                     'Carbohydrates',
-                    logic.totalPlateNutrients['carbohydrates'] ?? 0,
+                    context
+                            .read<MealAnalysisViewModel>()
+                            .totalPlateNutrients['carbohydrates'] ??
+                        0,
                     'g',
                     Icons.grain_outlined),
                 _buildNutrientRow(
                     context,
                     'Fat',
-                    logic.totalPlateNutrients['fat'] ?? 0,
+                    context
+                            .read<MealAnalysisViewModel>()
+                            .totalPlateNutrients['fat'] ??
+                        0,
                     'g',
                     Icons.opacity_outlined),
                 _buildNutrientRow(
                     context,
                     'Fiber',
-                    logic.totalPlateNutrients['fiber'] ?? 0,
+                    context
+                            .read<MealAnalysisViewModel>()
+                            .totalPlateNutrients['fiber'] ??
+                        0,
                     'g',
                     Icons.grass_outlined,
                     isLast: true),
                 ElevatedButton.icon(
                   onPressed: () {
+                    final uiProvider =
+                        Provider.of<UiViewModel>(context, listen: false);
+                    final mealAnalysisProvider =
+                        Provider.of<MealAnalysisViewModel>(context,
+                            listen: false);
+                    final dailyIntakeProvider =
+                        Provider.of<DailyIntakeViewModel>(context,
+                            listen: false);
                     print("Add to today's intake button pressed");
                     print(
-                        "Current total nutrients: ${logic.totalPlateNutrients}");
-                    logic.addToDailyIntake(context, updateIndex, 'food');
+                        "Current total nutrients: ${mealAnalysisProvider.totalPlateNutrients}");
+                    dailyIntakeProvider.addMealToDailyIntake(
+                      mealName: mealAnalysisProvider.mealName,
+                      totalPlateNutrients:
+                          mealAnalysisProvider.totalPlateNutrients,
+                      foodImage: mealAnalysisProvider.foodImage,
+                    );
+                    uiProvider.updateCurrentIndex(2);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Added to daily intake'),

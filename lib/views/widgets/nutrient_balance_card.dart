@@ -74,7 +74,7 @@ class NutrientBalanceCard extends StatelessWidget {
                 Text(
                   'Recommendations:',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'Poppins',

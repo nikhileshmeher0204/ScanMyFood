@@ -51,6 +51,7 @@ dependencies:
   path_provider: ^2.1.5
   flutter_ai_toolkit: ^0.6.7
   flutter_markdown: ^0.7.5
+  provider: ^6.1.2
 
 
 flutter_launcher_icons:

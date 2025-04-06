@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:read_the_label/main.dart';
-import 'package:read_the_label/screens/ask_AI_page.dart';
+import 'package:read_the_label/theme/app_theme.dart';
 
 class AskAiWidget extends StatefulWidget {
   const AskAiWidget({super.key});
