@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:read_the_label/data/dv_values.dart';
+import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/repositories/ai_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';

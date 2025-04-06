@@ -4,17 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
-import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
 import 'package:read_the_label/views/widgets/food_item_card.dart';
 import 'package:read_the_label/views/widgets/total_nutrients_card.dart';
 import '../widgets/food_item_card_shimmer.dart';
 import '../widgets/total_nutrients_card_shimmer.dart';
 
 class FoodAnalysisScreen extends StatefulWidget {
-  final Function(int) updateIndex;
-
   const FoodAnalysisScreen({
-    required this.updateIndex,
     super.key,
   });
 
@@ -58,8 +54,7 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (uiViewModel.loading &&
-                      mealViewModel.analyzedFoodItems.isEmpty)
+                  if (uiViewModel.loading)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

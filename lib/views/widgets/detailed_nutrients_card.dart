@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:read_the_label/data/dv_values.dart';
+import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/views/widgets/nutrient_card.dart';
 
 Widget DetailedNutrientsCard(

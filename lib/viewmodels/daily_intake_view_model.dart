@@ -3,16 +3,17 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:read_the_label/data/dv_values.dart';
+import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/models/food_consumption.dart';
 import 'package:read_the_label/repositories/storage_repository.dart';
+import 'package:read_the_label/repositories/storage_repository_interface.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'base_view_model.dart';
 
 class DailyIntakeViewModel extends BaseViewModel {
   // Dependencies
-  StorageRepository storageRepository;
+  StorageRepositoryInterface storageRepository;
   UiViewModel uiProvider;
 
   // State
@@ -170,8 +171,6 @@ class DailyIntakeViewModel extends BaseViewModel {
     required double consumedAmount,
     required File? imageFile,
   }) async {
-    uiProvider.setLoading(true);
-
     _dailyIntake = {};
     print("Adding to daily intake. Source: $source");
     print("Current daily intake before: $dailyIntake");
@@ -213,8 +212,6 @@ class DailyIntakeViewModel extends BaseViewModel {
     } catch (e) {
       debugPrint("Error adding to daily intake: $e");
       setError("Error adding to daily intake: $e");
-    } finally {
-      uiProvider.setLoading(false);
     }
   }
 
@@ -224,8 +221,6 @@ class DailyIntakeViewModel extends BaseViewModel {
     required Map<String, dynamic> totalPlateNutrients,
     required File? foodImage,
   }) async {
-    uiProvider.setLoading(true);
-
     try {
       // Convert meal nutrients to the format needed for daily intake
       Map<String, double> newNutrients = {
@@ -255,8 +250,6 @@ class DailyIntakeViewModel extends BaseViewModel {
     } catch (e) {
       debugPrint("Error adding meal to daily intake: $e");
       setError("Error adding meal to daily intake: $e");
-    } finally {
-      uiProvider.setLoading(false);
     }
   }
 

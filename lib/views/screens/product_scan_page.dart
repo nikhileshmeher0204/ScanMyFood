@@ -1,217 +1,33 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:ui';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/core/constants/nutrient_insights.dart';
 import 'package:read_the_label/main.dart';
-import 'package:read_the_label/models/food_item.dart';
+import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
-import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
-import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
-import 'package:read_the_label/views/screens/ask_AI_page.dart';
+import 'package:read_the_label/views/screens/ask_ai_page.dart';
 import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
-import 'package:read_the_label/views/widgets/food_item_card_shimmer.dart';
-import 'package:read_the_label/views/widgets/nutrient_info_shimmer.dart';
-import 'package:read_the_label/views/widgets/product_image_capture_buttons.dart';
-import 'package:read_the_label/views/widgets/total_nutrients_card_shimmer.dart';
-import 'package:read_the_label/views/widgets/date_selector.dart';
-import 'package:read_the_label/views/widgets/detailed_nutrients_card.dart';
-import 'package:read_the_label/views/widgets/food_history_card.dart';
-import 'package:read_the_label/views/widgets/food_item_card.dart';
-import 'package:read_the_label/views/widgets/header_widget.dart';
-import 'package:read_the_label/views/widgets/macronutrien_summary_card.dart';
 import 'package:read_the_label/views/widgets/nutrient_balance_card.dart';
+import 'package:read_the_label/views/widgets/nutrient_info_shimmer.dart';
 import 'package:read_the_label/views/widgets/nutrient_tile.dart';
-import 'package:read_the_label/data/nutrient_insights.dart';
-import 'package:read_the_label/views/widgets/total_nutrients_card.dart';
+import 'package:read_the_label/views/widgets/portion_buttons.dart';
+import 'package:read_the_label/views/widgets/product_image_capture_buttons.dart';
 import 'package:rive/rive.dart' as rive;
-import 'package:shared_preferences/shared_preferences.dart';
-import '../widgets/portion_buttons.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class ProductScanPage extends StatefulWidget {
+  const ProductScanPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<ProductScanPage> createState() => _ProductScanPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  File? _selectedFile;
-  final ImagePicker imagePicker = ImagePicker();
-  int _currentIndex = 0;
-  final _duration = const Duration(milliseconds: 300);
-
-  void _handleImageCapture(ImageSource source) async {
-    // First, capture front image
-    final productAnalysisProvider =
-        Provider.of<ProductAnalysisViewModel>(context, listen: false);
-
-    await productAnalysisProvider.captureImage(
-      source: source,
-      isFrontImage: true,
-    );
-
-    if (productAnalysisProvider.frontImage != null) {
-      // Show dialog for nutrition label
-      if (mounted) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => AlertDialog(
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            title: Text(
-              'Now capture nutrition label',
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontFamily: 'Poppins'),
-            ),
-            content: Text(
-              'Please capture or select the nutrition facts label of the product',
-              style: TextStyle(
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                  fontFamily: 'Poppins'),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await productAnalysisProvider.captureImage(
-                    source: source,
-                    isFrontImage: false,
-                  );
-                  if (productAnalysisProvider.canAnalyze()) {
-                    await productAnalysisProvider.analyzeImages();
-                  }
-                },
-                child: const Text('Continue',
-                    style: TextStyle(fontFamily: 'Poppins')),
-              ),
-            ],
-          ),
-        );
-      }
-    }
-  }
-
-  void _switchTab(int index) {
-    Provider.of<UiViewModel>(context, listen: false).updateCurrentIndex(index);
-  }
-
+class _ProductScanPageState extends State<ProductScanPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-            child: Container(
-              color: Colors.transparent,
-            ),
-          ),
-        ),
-        centerTitle: true,
-        title: Text(
-          ['Scan Label', 'Scan Food', 'Daily Intake'][_currentIndex],
-          style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w500),
-        ),
-      ),
-      bottomNavigationBar:
-          Consumer<UiViewModel>(builder: (context, uiProvider, _) {
-        return Container(
-          color: Theme.of(context).colorScheme.cardBackground,
-          child: ClipRect(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-              child: BottomNavigationBar(
-                elevation: 0,
-                selectedLabelStyle: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                unselectedLabelStyle: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                backgroundColor: Colors.transparent,
-                selectedItemColor: Theme.of(context).colorScheme.primary,
-                unselectedItemColor: Colors.grey,
-                currentIndex: uiProvider.currentIndex,
-                onTap: _switchTab,
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.document_scanner),
-                    label: 'Scan Label',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.food_bank),
-                    label: 'Scan Food',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.pie_chart),
-                    label: 'Daily Intake',
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }),
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        color: Theme.of(context).colorScheme.surface,
-        child: AnimatedSwitcher(
-          duration: _duration,
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
-          },
-          child: Consumer<UiViewModel>(builder: (context, uiProvider, _) {
-            return IndexedStack(
-              key: ValueKey<int>(uiProvider.currentIndex),
-              index: uiProvider.currentIndex,
-              children: [
-                AnimatedOpacity(
-                    opacity: uiProvider.currentIndex == 0 ? 1.0 : 0.0,
-                    duration: _duration,
-                    child: _buildHomePage(context)),
-                AnimatedOpacity(
-                  opacity: uiProvider.currentIndex == 1 ? 1.0 : 0.0,
-                  duration: _duration,
-                  child: FoodScanPage(),
-                ),
-                AnimatedOpacity(
-                  opacity: uiProvider.currentIndex == 2 ? 1.0 : 0.0,
-                  duration: _duration,
-                  child: DailyIntakePage(),
-                ),
-              ],
-            );
-          }),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHomePage(BuildContext context) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Padding(
@@ -756,9 +572,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         action: SnackBarAction(
                                           label: 'SHOW',
                                           onPressed: () {
-                                            setState(() {
-                                              _currentIndex = 1;
-                                            });
+                                            uiProvider.updateCurrentIndex(1);
                                           },
                                         ),
                                       ),
@@ -794,273 +608,57 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-}
 
-class FoodScanPage extends StatefulWidget {
-  const FoodScanPage({
-    super.key,
-  });
+  void _handleImageCapture(ImageSource source) async {
+    // First, capture front image
+    final productAnalysisProvider =
+        Provider.of<ProductAnalysisViewModel>(context, listen: false);
 
-  @override
-  State<FoodScanPage> createState() => _FoodScanPageState();
-}
+    await productAnalysisProvider.captureImage(
+      source: source,
+      isFrontImage: true,
+    );
 
-class _FoodScanPageState extends State<FoodScanPage> {
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).padding.bottom + 80,
-        ),
-        child:
-            Consumer3<UiViewModel, MealAnalysisViewModel, DailyIntakeViewModel>(
-                builder: (context, uiProvider, mealAnalysisProvider,
-                    dailyIntakeProvider, _) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 100),
-              // Scanning Section
-              Container(
-                margin: const EdgeInsets.all(20),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.cardBackground,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.transparent),
-                ),
-                child: DottedBorder(
-                  borderPadding: const EdgeInsets.all(-20),
-                  borderType: BorderType.RRect,
-                  radius: const Radius.circular(20),
+    if (productAnalysisProvider.frontImage != null) {
+      // Show dialog for nutrition label
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            title: Text(
+              'Now capture nutrition label',
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontFamily: 'Poppins'),
+            ),
+            content: Text(
+              'Please capture or select the nutrition facts label of the product',
+              style: TextStyle(
                   color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
-                  strokeWidth: 1,
-                  dashPattern: const [6, 4],
-                  child: Column(
-                    children: [
-                      if (mealAnalysisProvider.foodImage != null)
-                        Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: Image(
-                                  image: FileImage(
-                                      mealAnalysisProvider.foodImage!)),
-                            ),
-                            if (uiProvider.loading)
-                              const Positioned.fill(
-                                left: 5,
-                                right: 5,
-                                top: 5,
-                                bottom: 5,
-                                child: rive.RiveAnimation.asset(
-                                  'assets/riveAssets/qr_code_scanner.riv',
-                                  fit: BoxFit.fill,
-                                  artboard: 'scan_board',
-                                  animations: ['anim1'],
-                                  stateMachines: ['State Machine 1'],
-                                ),
-                              )
-                          ],
-                        )
-                      else
-                        Icon(
-                          Icons.restaurant_outlined,
-                          size: 70,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withOpacity(0.5),
-                        ),
-                      const SizedBox(height: 20),
-                      Text(
-                        "Snap a picture of your meal or pick one from your gallery",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 14,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      FoodImageCaptureButtons(
-                        onImageCapturePressed: _handleFoodImageCapture,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              //Loading animation
-
-              if (uiProvider.loading)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Text(
-                        'Analysis Results',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Poppins'),
-                      ),
-                    ),
-                    const FoodItemCardShimmer(),
-                    const FoodItemCardShimmer(),
-                    const TotalNutrientsCardShimmer(),
-                  ],
-                ),
-
-              // Results Section
-              if (mealAnalysisProvider.foodImage != null &&
-                  mealAnalysisProvider.analyzedFoodItems.isNotEmpty)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Text(
-                        'Analysis Results',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ...mealAnalysisProvider.analyzedFoodItems
-                        .asMap()
-                        .entries
-                        .map((entry) => FoodItemCard(
-                              item: entry.value,
-                              index: entry.key,
-                            )),
-                    const TotalNutrientsCard(),
-                    InkWell(
-                      onTap: () {
-                        print("Tap detected!");
-                        Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                            builder: (context) => AskAiPage(
-                              mealName: mealAnalysisProvider.mealName,
-                              foodImage: mealAnalysisProvider.foodImage!,
-                            ),
-                          ),
-                        );
-                      },
-                      child: const AskAiWidget(),
-                    ),
-                  ],
-                ),
-            ],
-          );
-        }),
-      ),
-    );
-  }
-
-  void _handleFoodImageCapture(ImageSource source) async {
-    final mealAnalysisProvider =
-        Provider.of<MealAnalysisViewModel>(context, listen: false);
-    final imagePicker = ImagePicker();
-    final image = await imagePicker.pickImage(source: source);
-
-    if (image != null) {
-      // Use the setter method instead of direct assignment
-      mealAnalysisProvider.setFoodImage(File(image.path));
-
-      await mealAnalysisProvider.analyzeFoodImage(
-        imageFile: mealAnalysisProvider.foodImage!,
-      );
-    }
-  }
-}
-
-class DailyIntakePage extends StatefulWidget {
-  const DailyIntakePage({super.key});
-
-  @override
-  State<DailyIntakePage> createState() => _DailyIntakePageState();
-}
-
-class _DailyIntakePageState extends State<DailyIntakePage> {
-  DateTime _selectedDate = DateTime.now();
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeData();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  Future<void> _initializeData() async {
-    print("Initializing DailyIntakePage data...");
-    final dailyIntakeProvider =
-        Provider.of<DailyIntakeViewModel>(context, listen: false);
-
-    // Debug check storage
-    await dailyIntakeProvider.debugCheckStorage();
-
-    // Load food history first
-    print("Loading food history...");
-    await dailyIntakeProvider.loadFoodHistory();
-
-    // Then load daily intake for selected date
-    print("Loading daily intake for selected date...");
-    await dailyIntakeProvider.loadDailyIntake(DateTime.now());
-
-    setState(() {
-      _selectedDate = DateTime.now();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).padding.bottom + 80,
-          top: MediaQuery.of(context).padding.top + 10,
-        ),
-        child: Consumer<DailyIntakeViewModel>(
-            builder: (context, dailyIntakeProvider, _) {
-          return Column(
-            children: [
-              HeaderCard(context, _selectedDate),
-              DateSelector(
-                context,
-                _selectedDate,
-                (DateTime newDate) {
-                  setState(() {
-                    _selectedDate = newDate;
-                    dailyIntakeProvider.loadDailyIntake(newDate);
-                  });
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  fontFamily: 'Poppins'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await productAnalysisProvider.captureImage(
+                    source: source,
+                    isFrontImage: false,
+                  );
+                  if (productAnalysisProvider.canAnalyze()) {
+                    await productAnalysisProvider.analyzeImages();
+                  }
                 },
+                child: const Text('Continue',
+                    style: TextStyle(fontFamily: 'Poppins')),
               ),
-              MacronutrientSummaryCard(
-                  context, dailyIntakeProvider.dailyIntake),
-              FoodHistoryCard(
-                  context: context,
-                  currentIndex: 2,
-                  selectedDate: _selectedDate),
-              DetailedNutrientsCard(context, dailyIntakeProvider.dailyIntake),
             ],
-          );
-        }),
-      ),
-    );
+          ),
+        );
+      }
+    }
   }
 }

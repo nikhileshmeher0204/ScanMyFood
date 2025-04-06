@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
-import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
 import 'package:read_the_label/views/widgets/food_nutreint_tile.dart';
 import '../../models/food_item.dart';
 
