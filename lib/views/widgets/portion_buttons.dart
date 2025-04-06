@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:read_the_label/logic.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/theme/app_theme.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class PortionButton extends StatelessWidget {
-  final BuildContext context;
   final double portion;
   final String label;
-  final Logic logic;
-  final Function(void Function()) setState;
 
   const PortionButton({
     super.key,
-    required this.context,
     required this.portion,
     required this.label,
-    required this.logic,
-    required this.setState,
   });
 
   @override
   Widget build(BuildContext context) {
-    bool isSelected = (logic.sliderValue / logic.getServingSize()) == portion;
+    final uiProvider = Provider.of<UiViewModel>(context, listen: true);
+    bool isSelected =
+        (uiProvider.sliderValue / uiProvider.servingSize) == portion;
+
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: isSelected
@@ -30,9 +29,9 @@ class PortionButton extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       onPressed: () {
-        setState(() {
-          logic.updateSliderValue(logic.getServingSize() * portion, setState);
-        });
+        print(
+            'Debug: sliderValue=${uiProvider.sliderValue}, servingSize=${uiProvider.servingSize}, portion=$portion, will set to=${uiProvider.servingSize * portion}');
+        uiProvider.updateSliderValue(uiProvider.servingSize * portion);
       },
       child: Text(label,
           style: TextStyle(
@@ -43,17 +42,13 @@ class PortionButton extends StatelessWidget {
 }
 
 class CustomPortionButton extends StatelessWidget {
-  final Logic logic;
-  final Function(void Function()) setState;
-
   const CustomPortionButton({
     super.key,
-    required this.logic,
-    required this.setState,
   });
 
   @override
   Widget build(BuildContext context) {
+    final uiProvider = Provider.of<UiViewModel>(context, listen: true);
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: Theme.of(context).colorScheme.cardBackground,
@@ -82,8 +77,7 @@ class CustomPortionButton extends StatelessWidget {
                 ),
               ),
               onChanged: (value) {
-                logic.updateSliderValue(
-                    double.tryParse(value) ?? 0.0, setState);
+                uiProvider.updateSliderValue(double.tryParse(value) ?? 0.0);
               },
             ),
             actions: [

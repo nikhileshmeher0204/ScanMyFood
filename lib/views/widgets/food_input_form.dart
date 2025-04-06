@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:read_the_label/logic.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
-import 'package:read_the_label/screens/foodAnalysisScreen.dart';
+import 'package:read_the_label/theme/app_theme.dart';
+import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
+import 'package:read_the_label/views/screens/food_analysis_screen.dart';
 
 class FoodInputForm extends StatefulWidget {
-  final Logic logic;
   final VoidCallback onSubmit;
 
   const FoodInputForm({
-    Key? key,
-    required this.logic,
+    super.key,
     required this.onSubmit,
-  }) : super(key: key);
+  });
 
   @override
   State<FoodInputForm> createState() => _FoodInputFormState();
@@ -31,14 +31,6 @@ class _FoodInputFormState extends State<FoodInputForm> {
     _mounted = false;
 
     super.dispose();
-  }
-
-  void _updateState() {
-    if (_mounted) {
-      setState(() {
-        // Update state
-      });
-    }
   }
 
   @override
@@ -208,9 +200,9 @@ class _FoodInputFormState extends State<FoodInputForm> {
                       .join('\n, ');
                   print("Food Items: \n $foodItems");
                   if (foodItems.isNotEmpty) {
-                    widget.logic.logMealViaText(
-                      foodItemsText: foodItems,
-                    );
+                    context.read<MealAnalysisViewModel>().logMealViaText(
+                          foodItemsText: foodItems,
+                        );
                     Navigator.pop(context);
                     widget.onSubmit();
                   }

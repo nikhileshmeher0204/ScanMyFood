@@ -1,20 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:read_the_label/logic.dart';
-import 'package:read_the_label/screens/foodAnalysisScreen.dart';
-import 'package:read_the_label/widgets/food_input_form.dart';
+import 'package:provider/provider.dart';
+import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/views/screens/food_analysis_screen.dart';
+import 'package:read_the_label/views/widgets/food_input_form.dart';
 
 class FoodHistoryCard extends StatefulWidget {
   final BuildContext context;
-  final Logic logic;
   final DateTime selectedDate;
   int currentIndex;
 
   FoodHistoryCard({
     super.key,
     required this.context,
-    required this.logic,
     required this.selectedDate,
     required this.currentIndex,
   });
@@ -24,6 +24,7 @@ class FoodHistoryCard extends StatefulWidget {
 }
 
 class _FoodHistoryCardState extends State<FoodHistoryCard> {
+  @override
   Widget build(context) {
     return Container(
       decoration: BoxDecoration(
@@ -92,9 +93,10 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: widget.logic.foodHistory.length,
+            itemCount: context.watch<DailyIntakeViewModel>().foodHistory.length,
             itemBuilder: (context, index) {
-              final item = widget.logic.foodHistory[index];
+              final item =
+                  context.watch<DailyIntakeViewModel>().foodHistory[index];
               // Only show items from selected date
               if (isSameDay(item.dateTime, widget.selectedDate)) {
                 return Container(
@@ -159,20 +161,13 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                     bottom: MediaQuery.of(context).viewInsets.bottom,
                   ),
                   child: FoodInputForm(
-                    logic: widget.logic,
                     onSubmit: () {
                       Navigator.push(
                         context,
                         CupertinoPageRoute(
-                          builder: (context) => FoodAnalysisScreen(
-                            logic: widget.logic,
-                            updateIndex: (index) {
-                              setState(
-                                () {
-                                  widget.currentIndex = index;
-                                },
-                              );
-                            },
+                          builder: (context) => Consumer<UiViewModel>(
+                            builder: (context, uiProvider, _) =>
+                                const FoodAnalysisScreen(),
                           ),
                         ),
                       );

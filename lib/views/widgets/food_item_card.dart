@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:read_the_label/logic.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
-import 'package:read_the_label/widgets/food_nutreint_tile.dart';
-import '../models/food_item.dart';
-import 'nutrient_tile.dart';
+import 'package:read_the_label/theme/app_theme.dart';
+import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
+import 'package:read_the_label/views/widgets/food_nutreint_tile.dart';
+import '../../models/food_item.dart';
 
 class FoodItemCard extends StatelessWidget {
   final FoodItem item;
-  final Function setState;
-  final Logic logic;
+  final int index;
 
   const FoodItemCard({
     super.key,
     required this.item,
-    required this.setState,
-    required this.logic,
+    required this.index,
   });
 
   @override
@@ -149,7 +148,11 @@ class FoodItemCard extends StatelessWidget {
     );
   }
 
+  // In _showEditDialog method:
+
   void _showEditDialog(BuildContext context) {
+    final controller = TextEditingController(text: item.quantity.toString());
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -162,6 +165,7 @@ class FoodItemCard extends StatelessWidget {
           ),
         ),
         content: TextField(
+          controller: controller,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             hintText: 'Enter quantity in ${item.unit}',
@@ -177,15 +181,6 @@ class FoodItemCard extends StatelessWidget {
             color: Theme.of(context).colorScheme.onSurface,
             fontFamily: 'Poppins',
           ),
-          onChanged: (value) {
-            double? newQuantity = double.tryParse(value);
-            if (newQuantity != null) {
-              setState(() {
-                item.quantity = newQuantity;
-                logic.updateTotalNutrients();
-              });
-            }
-          },
         ),
         actions: [
           TextButton(
@@ -208,9 +203,11 @@ class FoodItemCard extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              setState(() {
-                logic.updateTotalNutrients();
-              });
+              double? newQuantity = double.tryParse(controller.text);
+              if (newQuantity != null) {
+                item.quantity = newQuantity;
+                context.watch<MealAnalysisViewModel>().updateTotalNutrients();
+              }
               Navigator.of(context).pop();
             },
           ),

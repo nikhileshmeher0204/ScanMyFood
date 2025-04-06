@@ -1,23 +1,16 @@
 import 'dart:ui';
 
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:read_the_label/logic.dart';
-import 'package:read_the_label/main.dart';
-import 'package:read_the_label/models/food_item.dart';
-import 'package:read_the_label/widgets/food_item_card.dart';
-import 'package:read_the_label/widgets/total_nutrients_card.dart';
-import 'package:rive/rive.dart' as rive;
+import 'package:provider/provider.dart';
+import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/views/widgets/food_item_card.dart';
+import 'package:read_the_label/views/widgets/total_nutrients_card.dart';
 import '../widgets/food_item_card_shimmer.dart';
 import '../widgets/total_nutrients_card_shimmer.dart';
 
 class FoodAnalysisScreen extends StatefulWidget {
-  final Logic logic;
-  final Function(int) updateIndex;
-
   const FoodAnalysisScreen({
-    required this.logic,
-    required this.updateIndex,
     super.key,
   });
 
@@ -27,6 +20,12 @@ class FoodAnalysisScreen extends StatefulWidget {
 
 class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
   late int currentIndex;
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with a default value or get from provider
+    currentIndex = context.read<UiViewModel>().currentIndex;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,13 +49,12 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).padding.bottom + 80,
           ),
-          child: ValueListenableBuilder<bool>(
-            valueListenable: widget.logic.loadingNotifier,
-            builder: (context, isLoading, child) {
+          child: Consumer2<UiViewModel, MealAnalysisViewModel>(
+            builder: (context, uiViewModel, mealViewModel, _) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (isLoading)
+                  if (uiViewModel.loading)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -78,7 +76,7 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                       ],
                     ),
                   // Results Section
-                  if (!isLoading && widget.logic.analyzedFoodItems.isNotEmpty)
+                  if (mealViewModel.analyzedFoodItems.isNotEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -94,20 +92,43 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        ...widget.logic.analyzedFoodItems.map((item) =>
-                            FoodItemCard(
-                                item: item,
-                                setState: setState,
-                                logic: widget.logic)),
-                        TotalNutrientsCard(
-                          logic: widget.logic,
-                          updateIndex: (index) {
-                            setState(() {
-                              currentIndex = index;
-                            });
-                          },
-                        ),
+                        ...mealViewModel.analyzedFoodItems
+                            .asMap()
+                            .entries
+                            .map((entry) => FoodItemCard(
+                                  item: entry.value,
+                                  index: entry.key,
+                                )),
+                        const TotalNutrientsCard(),
                       ],
+                    ),
+                  // No results state
+                  if (!uiViewModel.loading &&
+                      mealViewModel.analyzedFoodItems.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.search_off,
+                              size: 64,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.5),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No food items analyzed yet',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                 ],
               );

@@ -1,74 +1,84 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
-import 'package:path/path.dart' as path;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:read_the_label/logic.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/theme/app_theme.dart';
+import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 
 class AskAiPage extends StatefulWidget {
   String mealName;
   File? foodImage;
-  final Logic logic;
-  AskAiPage(
-      {super.key,
-      required this.mealName,
-      required this.foodImage,
-      required this.logic});
+  AskAiPage({
+    super.key,
+    required this.mealName,
+    required this.foodImage,
+  });
 
   @override
   State<AskAiPage> createState() => _AskAiPageState();
 }
 
 class _AskAiPageState extends State<AskAiPage> {
-  late final GeminiProvider _provider;
-  late String nutritionContext;
-  String? _currentMealName;
-
-  final apiKey = kIsWeb
-      ? const String.fromEnvironment('GEMINI_API_KEY')
-      : dotenv.env['GEMINI_API_KEY'];
+  late GeminiProvider _provider;
+  String? nutritionContext;
+  String? apiKey;
+  bool _isProviderInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _currentMealName = widget.mealName;
-    _provider = _createProvider();
-    widget.logic.mealNameNotifier.addListener(_onMealNameChange);
+    apiKey = kIsWeb
+        ? const String.fromEnvironment('GEMINI_API_KEY')
+        : dotenv.env['GEMINI_API_KEY'];
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeProvider();
+    });
   }
 
-  void _onMealNameChange() {
-    if (widget.logic.mealName != _currentMealName) {
-      setState(() {
-        _currentMealName = widget.logic.mealName;
-        // Create new provider with empty history
-        _provider = _createProvider();
-      });
-    }
+  void _initializeProvider() {
+    if (!mounted) return;
+
+    setState(() {
+      _provider = _createProvider();
+      _isProviderInitialized = true;
+    });
   }
 
   @override
   void dispose() {
-    widget.logic.mealNameNotifier.removeListener(_onMealNameChange);
     super.dispose();
   }
 
   GeminiProvider _createProvider([List<ChatMessage>? history]) {
+    // Safe provider access - only after widget is built
+    final mealAnalysisProvider =
+        Provider.of<MealAnalysisViewModel>(context, listen: false);
+
+    // Add null safety for all accessed values
+    final calories = mealAnalysisProvider.totalPlateNutrients['calories'] ?? 0;
+    final protein = mealAnalysisProvider.totalPlateNutrients['protein'] ?? 0;
+    final carbs =
+        mealAnalysisProvider.totalPlateNutrients['carbohydrates'] ?? 0;
+    final fat = mealAnalysisProvider.totalPlateNutrients['fat'] ?? 0;
+    final fiber = mealAnalysisProvider.totalPlateNutrients['fiber'] ?? 0;
+
     nutritionContext = '''
       Meal: ${widget.mealName}
       Nutritional Information:
-      - Calories: ${widget.logic.totalPlateNutrients['calories']} kcal
-      - Protein: ${widget.logic.totalPlateNutrients['protein']}g
-      - Carbohydrates: ${widget.logic.totalPlateNutrients['carbohydrates']}g
-      - Fat: ${widget.logic.totalPlateNutrients['fat']}g
-      - Fiber: ${widget.logic.totalPlateNutrients['fiber']}g
+      - Calories: $calories kcal
+      - Protein: ${protein}g
+      - Carbohydrates: ${carbs}g
+      - Fat: ${fat}g
+      - Fiber: ${fiber}g
     ''';
+
+    print('🍊Nutrition Context: $nutritionContext');
 
     return GeminiProvider(
       history: history,
@@ -90,6 +100,50 @@ class _AskAiPageState extends State<AskAiPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_isProviderInitialized) {
+      return Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          flexibleSpace: ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+              child: Container(
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+          title: const Text('Ask AI'),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    void _updateProvider() {
+      if (!mounted) return;
+
+      setState(() {
+        _provider = _createProvider();
+      });
+    }
+
+    final mealName = context.watch<MealAnalysisViewModel>().mealName;
+    if (mealName != widget.mealName) {
+      widget.mealName = mealName;
+      // Schedule update for next frame to avoid rebuild during build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _updateProvider();
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
