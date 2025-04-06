@@ -8,6 +8,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
 
 class AskAiPage extends StatefulWidget {
@@ -56,15 +57,16 @@ class _AskAiPageState extends State<AskAiPage> {
 
   GeminiProvider _createProvider([List<ChatMessage>? history]) {
     // Safe provider access - only after widget is built
-    final nutritionProvider =
-        Provider.of<NutritionViewModel>(context, listen: false);
+    final mealAnalysisProvider =
+        Provider.of<MealAnalysisViewModel>(context, listen: false);
 
     // Add null safety for all accessed values
-    final calories = nutritionProvider.totalPlateNutrients['calories'] ?? 0;
-    final protein = nutritionProvider.totalPlateNutrients['protein'] ?? 0;
-    final carbs = nutritionProvider.totalPlateNutrients['carbohydrates'] ?? 0;
-    final fat = nutritionProvider.totalPlateNutrients['fat'] ?? 0;
-    final fiber = nutritionProvider.totalPlateNutrients['fiber'] ?? 0;
+    final calories = mealAnalysisProvider.totalPlateNutrients['calories'] ?? 0;
+    final protein = mealAnalysisProvider.totalPlateNutrients['protein'] ?? 0;
+    final carbs =
+        mealAnalysisProvider.totalPlateNutrients['carbohydrates'] ?? 0;
+    final fat = mealAnalysisProvider.totalPlateNutrients['fat'] ?? 0;
+    final fiber = mealAnalysisProvider.totalPlateNutrients['fiber'] ?? 0;
 
     nutritionContext = '''
       Meal: ${widget.mealName}
@@ -133,7 +135,7 @@ class _AskAiPageState extends State<AskAiPage> {
       });
     }
 
-    final mealName = context.watch<NutritionViewModel>().mealName;
+    final mealName = context.watch<MealAnalysisViewModel>().mealName;
     if (mealName != widget.mealName) {
       widget.mealName = mealName;
       // Schedule update for next frame to avoid rebuild during build

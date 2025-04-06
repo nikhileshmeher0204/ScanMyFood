@@ -37,6 +37,7 @@ class ProductAnalysisViewModel extends BaseViewModel {
   bool canAnalyze() => _frontImage != null && _nutritionLabelImage != null;
   List<Map<String, dynamic>> getGoodNutrients() => goodNutrients;
   List<Map<String, dynamic>> getBadNutrients() => badNutrients;
+
   // Methods for product analysis
   Future<void> captureImage({
     required ImageSource source,
@@ -63,9 +64,21 @@ class ProductAnalysisViewModel extends BaseViewModel {
       }
       return key;
     } catch (e) {
-      debugPrint('Error loading API key: $e');
+      print('Error loading API key: $e');
       return null;
     }
+  }
+
+  double getCalories() {
+    var energyNutrient = parsedNutrients.firstWhere(
+      (nutrient) => nutrient['name'] == 'Energy',
+      orElse: () => {'quantity': '0.0'},
+    );
+    // Parse the quantity string to remove any non-numeric characters except decimal points
+    var quantity = energyNutrient['quantity']
+        .toString()
+        .replaceAll(RegExp(r'[^0-9\.]'), '');
+    return double.tryParse(quantity) ?? 0.0;
   }
 
   Future<String> analyzeImages() async {
@@ -79,6 +92,10 @@ class ProductAnalysisViewModel extends BaseViewModel {
       // Process response
       _productName = response['product']['name'] ?? "Unknown Product";
       _nutritionAnalysis = response['nutrition_analysis'];
+
+      print("📝 Product: $_productName");
+      print("📊 Good nutrients: ${goodNutrients.length}");
+      print("⚠️ Bad nutrients: ${badNutrients.length}");
 
       // Safe parsing for serving size
       if (_nutritionAnalysis.containsKey("serving_size") &&
@@ -127,11 +144,12 @@ class ProductAnalysisViewModel extends BaseViewModel {
           }
         }
       }
+      return "✅Product Analysis complete";
     } catch (e) {
-      print("Error parsing JSON: $e");
+      print("❌ Error analyzing images: $e");
+      return "Error: $e";
     } finally {
       uiProvider.setLoading(false);
     }
-    return "Analysis complete";
   }
 }

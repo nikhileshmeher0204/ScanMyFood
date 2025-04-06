@@ -31,6 +31,11 @@ class MealAnalysisViewModel extends BaseViewModel {
     required this.uiProvider,
   });
 
+  void setFoodImage(File imageFile) {
+    _foodImage = imageFile;
+    notifyListeners();
+  }
+
   // Image capture method
   Future<void> captureImage({
     required ImageSource source,

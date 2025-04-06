@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
 import 'package:read_the_label/views/widgets/food_nutreint_tile.dart';
 import '../../models/food_item.dart';
@@ -205,7 +206,7 @@ class FoodItemCard extends StatelessWidget {
               double? newQuantity = double.tryParse(controller.text);
               if (newQuantity != null) {
                 item.quantity = newQuantity;
-                context.watch<NutritionViewModel>().updateTotalNutrients();
+                context.watch<MealAnalysisViewModel>().updateTotalNutrients();
               }
               Navigator.of(context).pop();
             },

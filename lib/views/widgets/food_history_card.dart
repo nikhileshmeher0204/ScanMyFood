@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
 import 'package:read_the_label/views/screens/foodAnalysisScreen.dart';
@@ -93,10 +94,10 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: context.watch<NutritionViewModel>().foodHistory.length,
+            itemCount: context.watch<DailyIntakeViewModel>().foodHistory.length,
             itemBuilder: (context, index) {
               final item =
-                  context.watch<NutritionViewModel>().foodHistory[index];
+                  context.watch<DailyIntakeViewModel>().foodHistory[index];
               // Only show items from selected date
               if (isSameDay(item.dateTime, widget.selectedDate)) {
                 return Container(

@@ -172,6 +172,12 @@ class DailyIntakeViewModel extends BaseViewModel {
   }) async {
     uiProvider.setLoading(true);
 
+    _dailyIntake = {};
+    print("Adding to daily intake. Source: $source");
+    print("Current daily intake before: $dailyIntake");
+    print("✅Start of addToDailyIntake()");
+    print("⚡Daily intake at start of addToDailyIntake(): $dailyIntake");
+
     try {
       // Calculate adjustment for portion size
       final ratio = consumedAmount / servingSize;
@@ -212,6 +218,48 @@ class DailyIntakeViewModel extends BaseViewModel {
     }
   }
 
+// Add this new method
+  Future<void> addMealToDailyIntake({
+    required String mealName,
+    required Map<String, dynamic> totalPlateNutrients,
+    required File? foodImage,
+  }) async {
+    uiProvider.setLoading(true);
+
+    try {
+      // Convert meal nutrients to the format needed for daily intake
+      Map<String, double> newNutrients = {
+        'Energy': (totalPlateNutrients['calories'] ?? 0).toDouble(),
+        'Protein': (totalPlateNutrients['protein'] ?? 0).toDouble(),
+        'Carbohydrate': (totalPlateNutrients['carbohydrates'] ?? 0).toDouble(),
+        'Fat': (totalPlateNutrients['fat'] ?? 0).toDouble(),
+        'Fiber': (totalPlateNutrients['fiber'] ?? 0).toDouble(),
+      };
+
+      // Process and save the image
+      String imagePath = '';
+      if (foodImage != null) {
+        imagePath = await _saveImageToStorage(foodImage);
+      }
+
+      // Add to food history
+      await addToFoodHistory(
+        foodName: mealName,
+        nutrients: newNutrients,
+        source: 'food',
+        imagePath: imagePath,
+      );
+
+      // Update and save the daily intake
+      await saveDailyIntake(newNutrients);
+    } catch (e) {
+      debugPrint("Error adding meal to daily intake: $e");
+      setError("Error adding meal to daily intake: $e");
+    } finally {
+      uiProvider.setLoading(false);
+    }
+  }
+
   Future<void> addToFoodHistory({
     required String foodName,
     required Map<String, double> nutrients,
@@ -220,6 +268,8 @@ class DailyIntakeViewModel extends BaseViewModel {
   }) async {
     try {
       debugPrint("Adding to food history: $foodName");
+
+      await loadFoodHistory();
 
       // Create consumption object
       final consumption = FoodConsumption(
