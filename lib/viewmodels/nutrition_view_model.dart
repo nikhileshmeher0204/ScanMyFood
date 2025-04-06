@@ -8,11 +8,22 @@ import 'package:path_provider/path_provider.dart';
 import 'package:read_the_label/data/dv_values.dart';
 import 'package:read_the_label/models/food_consumption.dart';
 import 'package:read_the_label/models/food_item.dart';
+import 'package:read_the_label/repositories/ai_repository.dart';
+import 'package:read_the_label/repositories/storage_repository.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NutritionViewModel extends ChangeNotifier {
-  String _generatedText = "";
+  final AiRepository aiRepository;
+  final StorageRepository storageRepository;
+  UiViewModel uiProvider;
+
+  NutritionViewModel({
+    required this.aiRepository,
+    required this.storageRepository,
+    required this.uiProvider,
+  });
+
   File? _frontImage;
   File? _nutritionLabelImage;
   File? get frontImage => _frontImage;
@@ -21,6 +32,9 @@ class NutritionViewModel extends ChangeNotifier {
   List<Map<String, dynamic>> goodNutrients = [];
   List<Map<String, dynamic>> badNutrients = [];
   File? foodImage;
+
+  String _generatedText = "";
+
   List<FoodItem> analyzedFoodItems = [];
   Map<String, dynamic> totalPlateNutrients = {};
   Map<String, double> dailyIntake = {};
@@ -33,7 +47,6 @@ class NutritionViewModel extends ChangeNotifier {
   List<FoodConsumption> get foodHistory => _foodHistory;
   final ValueNotifier<String> mealNameNotifier = ValueNotifier<String>("");
   final dailyIntakeNotifier = ValueNotifier<Map<String, double>>({});
-  late UiViewModel uiProvider;
 
   List<Map<String, dynamic>> getGoodNutrients() => goodNutrients;
   List<Map<String, dynamic>> getBadNutrients() => badNutrients;
