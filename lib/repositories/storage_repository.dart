@@ -1,16 +1,19 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:read_the_label/models/food_consumption.dart';
+import 'package:read_the_label/repositories/storage_repository_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class StorageRepository {
+class StorageRepository implements StorageRepositoryInterface {
   // Get all keys from SharedPreferences
+  @override
   Future<List<String>> getAllKeys() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getKeys().toList();
   }
 
   // Get daily intake for specified date
+  @override
   Future<Map<String, double>?> getDailyIntake(DateTime date) async {
     final prefs = await SharedPreferences.getInstance();
     final String storageKey = getStorageKey(date);
@@ -35,6 +38,7 @@ class StorageRepository {
   }
 
   // Save daily intake for specified date
+  @override
   Future<void> saveDailyIntake(
       DateTime date, Map<String, double> intake) async {
     final prefs = await SharedPreferences.getInstance();
@@ -49,6 +53,7 @@ class StorageRepository {
   }
 
   // Get food history
+  @override
   Future<List<FoodConsumption>> getFoodHistory() async {
     final prefs = await SharedPreferences.getInstance();
     final String? storedHistory = prefs.getString('food_history');
@@ -66,6 +71,7 @@ class StorageRepository {
   }
 
   // Save food history
+  @override
   Future<void> saveFoodHistory(List<FoodConsumption> history) async {
     final prefs = await SharedPreferences.getInstance();
     final historyJson = history.map((item) => item.toJson()).toList();
@@ -80,6 +86,7 @@ class StorageRepository {
   }
 
   // Remove food item from history
+  @override
   Future<void> removeFoodItemFromHistory(FoodConsumption item) async {
     final history = await getFoodHistory();
     history.removeWhere((element) =>
@@ -95,6 +102,7 @@ class StorageRepository {
   }
 
   // Clear all data (for testing/debugging)
+  @override
   Future<void> clearAllData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();

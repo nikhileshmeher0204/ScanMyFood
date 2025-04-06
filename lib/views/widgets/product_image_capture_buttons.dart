@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/theme/app_theme.dart';
 
 class ProductImageCaptureButtons extends StatelessWidget {
   final Function(ImageSource) onImageCapturePressed;

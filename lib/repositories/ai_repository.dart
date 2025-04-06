@@ -3,9 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:read_the_label/data/dv_values.dart';
+import 'package:read_the_label/core/constants/dv_values.dart';
+import 'package:read_the_label/repositories/AiRepositoryInterface.dart';
 
-class AiRepository {
+class AiRepository implements AiRepositoryInterface {
   // Get API key
   String? getApiKey() {
     try {
@@ -21,6 +22,7 @@ class AiRepository {
   }
 
   // Analyze product images (front + nutrition)
+  @override
   Future<Map<String, dynamic>> analyzeProductImages(
     File frontImage,
     File labelImage,
@@ -128,6 +130,7 @@ class AiRepository {
   }
 
   // Analyze meal/plate image
+  @override
   Future<Map<String, dynamic>> analyzeFoodImage(File imageFile) async {
     final apiKey = getApiKey();
     if (apiKey == null) {
@@ -208,6 +211,7 @@ Consider:
   }
 
   // Text-based meal analysis
+  @override
   Future<Map<String, dynamic>> analyzeFoodDescription(
       String description) async {
     final apiKey = getApiKey();
