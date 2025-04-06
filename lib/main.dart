@@ -41,6 +41,12 @@ Future<void> main() async {
           create: (_) => UiViewModel(),
         ),
         // Keep these changes:
+        ChangeNotifierProvider<ProductAnalysisViewModel>(
+          create: (context) => ProductAnalysisViewModel(
+            aiRepository: context.read<AiRepository>(),
+            uiProvider: context.read<UiViewModel>(),
+          ),
+        ),
         ChangeNotifierProxyProvider<UiViewModel, ProductAnalysisViewModel>(
           create: (context) => ProductAnalysisViewModel(
             aiRepository: context.read<AiRepository>(),

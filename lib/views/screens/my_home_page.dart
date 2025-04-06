@@ -10,6 +10,9 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/models/food_item.dart';
+import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
+import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
+import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
 import 'package:read_the_label/views/screens/ask_AI_page.dart';
@@ -47,14 +50,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _handleImageCapture(ImageSource source) async {
     // First, capture front image
-    final provider = Provider.of<NutritionViewModel>(context, listen: false);
+    final productAnalysisProvider =
+        Provider.of<ProductAnalysisViewModel>(context, listen: false);
 
-    await provider.captureImage(
+    await productAnalysisProvider.captureImage(
       source: source,
       isFrontImage: true,
     );
 
-    if (provider.frontImage != null) {
+    if (productAnalysisProvider.frontImage != null) {
       // Show dialog for nutrition label
       if (mounted) {
         showDialog(
@@ -79,12 +83,12 @@ class _MyHomePageState extends State<MyHomePage> {
               TextButton(
                 onPressed: () async {
                   Navigator.pop(context);
-                  await provider.captureImage(
+                  await productAnalysisProvider.captureImage(
                     source: source,
                     isFrontImage: false,
                   );
-                  if (provider.canAnalyze()) {
-                    await provider.analyzeImages();
+                  if (productAnalysisProvider.canAnalyze()) {
+                    await productAnalysisProvider.analyzeImages();
                   }
                 },
                 child: const Text('Continue',
@@ -213,8 +217,10 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Padding(
         padding:
             EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 80),
-        child: Consumer2<UiViewModel, NutritionViewModel>(
-            builder: (context, uiProvider, nutritionProvider, _) {
+        child: Consumer3<UiViewModel, ProductAnalysisViewModel,
+                DailyIntakeViewModel>(
+            builder: (context, uiProvider, productAnalysisProvider,
+                dailyIntakeProvider, _) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
@@ -239,14 +245,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Builder(builder: (context) {
                     return Column(
                       children: [
-                        if (nutritionProvider.frontImage != null)
+                        if (productAnalysisProvider.frontImage != null)
                           Stack(
                             children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
                                 child: Image(
                                     image: FileImage(
-                                        nutritionProvider.frontImage!)),
+                                        productAnalysisProvider.frontImage!)),
                               ),
                               if (uiProvider.loading)
                                 const Positioned.fill(
@@ -295,7 +301,7 @@ class _MyHomePageState extends State<MyHomePage> {
               if (uiProvider.loading) const NutrientInfoShimmer(),
 
               //Good/Moderate nutrients
-              if (nutritionProvider.getGoodNutrients().isNotEmpty)
+              if (productAnalysisProvider.getGoodNutrients().isNotEmpty)
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 24.0),
                   child: Column(
@@ -304,7 +310,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24.0),
                         child: Text(
-                          nutritionProvider.productName,
+                          productAnalysisProvider.productName,
                           style: const TextStyle(
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.w400,
@@ -347,7 +353,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Wrap(
                           spacing: 12,
                           runSpacing: 12,
-                          children: nutritionProvider
+                          children: productAnalysisProvider
                               .getGoodNutrients()
                               .map((nutrient) => NutrientTile(
                                     nutrient: nutrient['name'],
@@ -364,7 +370,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
 
               //Bad nutrients
-              if (nutritionProvider.getBadNutrients().isNotEmpty)
+              if (productAnalysisProvider.getBadNutrients().isNotEmpty)
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 24.0),
                   child: Column(
@@ -405,7 +411,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Wrap(
                           spacing: 12,
                           runSpacing: 12,
-                          children: nutritionProvider
+                          children: productAnalysisProvider
                               .getBadNutrients()
                               .map((nutrient) => NutrientTile(
                                     nutrient: nutrient['name'],
@@ -420,7 +426,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
-              if (nutritionProvider.getBadNutrients().isNotEmpty)
+              if (productAnalysisProvider.getBadNutrients().isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Row(
@@ -447,9 +453,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
-              if (nutritionProvider.nutritionAnalysis['primary_concerns'] !=
+              if (productAnalysisProvider
+                      .nutritionAnalysis['primary_concerns'] !=
                   null)
-                ...nutritionProvider.nutritionAnalysis['primary_concerns'].map(
+                ...productAnalysisProvider.nutritionAnalysis['primary_concerns']
+                    .map(
                   (concern) => NutrientBalanceCard(
                     issue: concern['issue'] ?? '',
                     explanation: concern['explanation'] ?? '',
@@ -608,8 +616,15 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             );
                           } else {
-                            nutritionProvider.addToDailyIntake(
-                                context, 'label');
+                            dailyIntakeProvider.addToDailyIntake(
+                              source: 'label',
+                              productName: productAnalysisProvider.productName,
+                              nutrients:
+                                  productAnalysisProvider.parsedNutrients,
+                              servingSize: uiProvider.servingSize,
+                              consumedAmount: uiProvider.sliderValue,
+                              imageFile: productAnalysisProvider.frontImage,
+                            );
                             uiProvider.updateCurrentIndex(2);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -653,7 +668,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               ],
                             ),
                             Text(
-                              "${uiProvider.sliderValue.toStringAsFixed(0)} grams, ${(nutritionProvider.getCalories() * (uiProvider.sliderValue / uiProvider.servingSize)).toStringAsFixed(0)} calories",
+                              "${uiProvider.sliderValue.toStringAsFixed(0)} grams, ${(productAnalysisProvider.getCalories() * (uiProvider.sliderValue / uiProvider.servingSize)).toStringAsFixed(0)} calories",
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Theme.of(context).colorScheme.onPrimary,
@@ -668,7 +683,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
 
               if (uiProvider.servingSize == 0 &&
-                  nutritionProvider.parsedNutrients.isNotEmpty)
+                  productAnalysisProvider.parsedNutrients.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -720,8 +735,17 @@ class _MyHomePageState extends State<MyHomePage> {
                                       backgroundColor: WidgetStateProperty.all(
                                           Colors.white10)),
                                   onPressed: () {
-                                    nutritionProvider.addToDailyIntake(
-                                        context, 'label');
+                                    dailyIntakeProvider.addToDailyIntake(
+                                      source: 'label',
+                                      productName:
+                                          productAnalysisProvider.productName,
+                                      nutrients: productAnalysisProvider
+                                          .parsedNutrients,
+                                      servingSize: uiProvider.servingSize,
+                                      consumedAmount: uiProvider.sliderValue,
+                                      imageFile:
+                                          productAnalysisProvider.frontImage,
+                                    );
                                     uiProvider.updateCurrentIndex(2);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -756,8 +780,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       context,
                       CupertinoPageRoute(
                         builder: (context) => AskAiPage(
-                          mealName: nutritionProvider.productName,
-                          foodImage: nutritionProvider.frontImage!,
+                          mealName: productAnalysisProvider.productName,
+                          foodImage: productAnalysisProvider.frontImage!,
                         ),
                       ),
                     );
@@ -790,8 +814,10 @@ class _FoodScanPageState extends State<FoodScanPage> {
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).padding.bottom + 80,
         ),
-        child: Consumer2<UiViewModel, NutritionViewModel>(
-            builder: (context, uiProvider, nutritionProvider, _) {
+        child:
+            Consumer3<UiViewModel, MealAnalysisViewModel, DailyIntakeViewModel>(
+                builder: (context, uiProvider, mealAnalysisProvider,
+                    dailyIntakeProvider, _) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -815,14 +841,14 @@ class _FoodScanPageState extends State<FoodScanPage> {
                   dashPattern: const [6, 4],
                   child: Column(
                     children: [
-                      if (nutritionProvider.foodImage != null)
+                      if (mealAnalysisProvider.foodImage != null)
                         Stack(
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(20),
                               child: Image(
-                                  image:
-                                      FileImage(nutritionProvider.foodImage!)),
+                                  image: FileImage(
+                                      mealAnalysisProvider.foodImage!)),
                             ),
                             if (uiProvider.loading)
                               const Positioned.fill(
@@ -893,8 +919,8 @@ class _FoodScanPageState extends State<FoodScanPage> {
                 ),
 
               // Results Section
-              if (nutritionProvider.foodImage != null &&
-                  nutritionProvider.analyzedFoodItems.isNotEmpty)
+              if (mealAnalysisProvider.foodImage != null &&
+                  mealAnalysisProvider.analyzedFoodItems.isNotEmpty)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -909,7 +935,7 @@ class _FoodScanPageState extends State<FoodScanPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ...nutritionProvider.analyzedFoodItems
+                    ...mealAnalysisProvider.analyzedFoodItems
                         .asMap()
                         .entries
                         .map((entry) => FoodItemCard(
@@ -924,8 +950,8 @@ class _FoodScanPageState extends State<FoodScanPage> {
                           context,
                           CupertinoPageRoute(
                             builder: (context) => AskAiPage(
-                              mealName: nutritionProvider.mealName,
-                              foodImage: nutritionProvider.foodImage!,
+                              mealName: mealAnalysisProvider.mealName,
+                              foodImage: mealAnalysisProvider.foodImage!,
                             ),
                           ),
                         );
@@ -942,18 +968,17 @@ class _FoodScanPageState extends State<FoodScanPage> {
   }
 
   void _handleFoodImageCapture(ImageSource source) async {
-    final provider = Provider.of<NutritionViewModel>(context, listen: false);
+    final mealAnalysisProvider =
+        Provider.of<MealAnalysisViewModel>(context, listen: false);
     final imagePicker = ImagePicker();
     final image = await imagePicker.pickImage(source: source);
 
     if (image != null) {
-      if (mounted) {
-        setState(() {
-          provider.foodImage = File(image.path);
-        });
-      }
-      await provider.analyzeFoodImage(
-        imageFile: provider.foodImage!,
+      // Use the setter method instead of direct assignment
+      mealAnalysisProvider.setFoodImage(File(image.path));
+
+      await mealAnalysisProvider.analyzeFoodImage(
+        imageFile: mealAnalysisProvider.foodImage!,
       );
     }
   }
@@ -967,7 +992,6 @@ class DailyIntakePage extends StatefulWidget {
 }
 
 class _DailyIntakePageState extends State<DailyIntakePage> {
-  Map<String, double> _dailyIntake = {};
   DateTime _selectedDate = DateTime.now();
 
   @override
@@ -983,67 +1007,23 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
 
   Future<void> _initializeData() async {
     print("Initializing DailyIntakePage data...");
-    final provider = Provider.of<NutritionViewModel>(context, listen: false);
+    final dailyIntakeProvider =
+        Provider.of<DailyIntakeViewModel>(context, listen: false);
 
     // Debug check storage
-    await provider.debugCheckStorage();
+    await dailyIntakeProvider.debugCheckStorage();
 
     // Load food history first
     print("Loading food history...");
-    await provider.loadFoodHistory();
+    await dailyIntakeProvider.loadFoodHistory();
 
     // Then load daily intake for selected date
     print("Loading daily intake for selected date...");
-    await _loadDailyIntake(DateTime.now());
+    await dailyIntakeProvider.loadDailyIntake(DateTime.now());
 
-    if (mounted) {
-      setState(() {
-        print("State updated after initialization");
-        print("Current daily intake: $_dailyIntake");
-        print("Current food history: ${provider.foodHistory}");
-      });
-    }
-  }
-
-  Future<void> _loadDailyIntake(DateTime date) async {
-    print("Loading daily intake for date: ${date.toString()}");
-    final provider = Provider.of<NutritionViewModel>(context, listen: false);
-
-    final String storageKey = provider.getStorageKey(date);
-    print("Storage key: $storageKey");
-
-    final prefs = await SharedPreferences.getInstance();
-    final String? storedData = prefs.getString(storageKey);
-    print("Stored data from SharedPreferences: $storedData");
-
-    if (storedData != null) {
-      print("Found stored data, processing...");
-      final Map<String, dynamic> decoded = jsonDecode(storedData);
-      final Map<String, double> dailyIntake = {};
-
-      decoded.forEach((key, value) {
-        print("Converting $key: $value (${value.runtimeType}) to double");
-        dailyIntake[key] = (value as num).toDouble();
-      });
-
-      if (mounted) {
-        setState(() {
-          _selectedDate = date;
-          _dailyIntake = dailyIntake;
-          provider.dailyIntake = dailyIntake;
-          print("State updated with dailyIntake: $_dailyIntake");
-        });
-      }
-    } else {
-      if (mounted) {
-        setState(() {
-          _selectedDate = date;
-          _dailyIntake = {};
-          provider.dailyIntake = {};
-          print("Reset to empty dailyIntake");
-        });
-      }
-    }
+    setState(() {
+      _selectedDate = DateTime.now();
+    });
   }
 
   @override
@@ -1055,8 +1035,8 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
           bottom: MediaQuery.of(context).padding.bottom + 80,
           top: MediaQuery.of(context).padding.top + 10,
         ),
-        child: Consumer<NutritionViewModel>(
-            builder: (context, nutritionProvider, _) {
+        child: Consumer<DailyIntakeViewModel>(
+            builder: (context, dailyIntakeProvider, _) {
           return Column(
             children: [
               HeaderCard(context, _selectedDate),
@@ -1066,16 +1046,17 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
                 (DateTime newDate) {
                   setState(() {
                     _selectedDate = newDate;
-                    _loadDailyIntake(newDate);
+                    dailyIntakeProvider.loadDailyIntake(newDate);
                   });
                 },
               ),
-              MacronutrientSummaryCard(context, _dailyIntake),
+              MacronutrientSummaryCard(
+                  context, dailyIntakeProvider.dailyIntake),
               FoodHistoryCard(
                   context: context,
                   currentIndex: 2,
                   selectedDate: _selectedDate),
-              DetailedNutrientsCard(context, _dailyIntake),
+              DetailedNutrientsCard(context, dailyIntakeProvider.dailyIntake),
             ],
           );
         }),

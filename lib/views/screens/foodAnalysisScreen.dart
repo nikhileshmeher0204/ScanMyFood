@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
 import 'package:read_the_label/views/widgets/food_item_card.dart';
@@ -32,9 +33,6 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final nutritionProvider =
-        Provider.of<NutritionViewModel>(context, listen: false);
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -55,12 +53,13 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).padding.bottom + 80,
           ),
-          child: Consumer<UiViewModel>(
-            builder: (context, uiProvider, _) {
+          child: Consumer2<UiViewModel, MealAnalysisViewModel>(
+            builder: (context, uiViewModel, mealViewModel, _) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (uiProvider.loading)
+                  if (uiViewModel.loading &&
+                      mealViewModel.analyzedFoodItems.isEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -82,8 +81,7 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                       ],
                     ),
                   // Results Section
-                  if (uiProvider.loading &&
-                      nutritionProvider.analyzedFoodItems.isNotEmpty)
+                  if (mealViewModel.analyzedFoodItems.isNotEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -99,9 +97,7 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        ...context
-                            .read<NutritionViewModel>()
-                            .analyzedFoodItems
+                        ...mealViewModel.analyzedFoodItems
                             .asMap()
                             .entries
                             .map((entry) => FoodItemCard(
@@ -110,6 +106,34 @@ class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
                                 )),
                         const TotalNutrientsCard(),
                       ],
+                    ),
+                  // No results state
+                  if (!uiViewModel.loading &&
+                      mealViewModel.analyzedFoodItems.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.search_off,
+                              size: 64,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.5),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No food items analyzed yet',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                 ],
               );

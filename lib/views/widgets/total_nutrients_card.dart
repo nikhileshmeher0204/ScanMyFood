@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
+import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
 
@@ -43,7 +45,7 @@ class TotalNutrientsCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${context.watch<NutritionViewModel>().analyzedFoodItems.length} items',
+                        '${context.watch<MealAnalysisViewModel>().analyzedFoodItems.length} items',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
                           fontSize: 16,
@@ -83,7 +85,7 @@ class TotalNutrientsCard extends StatelessWidget {
                     context,
                     'Calories',
                     context
-                            .read<NutritionViewModel>()
+                            .read<MealAnalysisViewModel>()
                             .totalPlateNutrients['calories'] ??
                         0,
                     'kcal',
@@ -92,7 +94,7 @@ class TotalNutrientsCard extends StatelessWidget {
                     context,
                     'Protein',
                     context
-                            .read<NutritionViewModel>()
+                            .read<MealAnalysisViewModel>()
                             .totalPlateNutrients['protein'] ??
                         0,
                     'g',
@@ -101,7 +103,7 @@ class TotalNutrientsCard extends StatelessWidget {
                     context,
                     'Carbohydrates',
                     context
-                            .read<NutritionViewModel>()
+                            .read<MealAnalysisViewModel>()
                             .totalPlateNutrients['carbohydrates'] ??
                         0,
                     'g',
@@ -110,7 +112,7 @@ class TotalNutrientsCard extends StatelessWidget {
                     context,
                     'Fat',
                     context
-                            .read<NutritionViewModel>()
+                            .read<MealAnalysisViewModel>()
                             .totalPlateNutrients['fat'] ??
                         0,
                     'g',
@@ -119,7 +121,7 @@ class TotalNutrientsCard extends StatelessWidget {
                     context,
                     'Fiber',
                     context
-                            .read<NutritionViewModel>()
+                            .read<MealAnalysisViewModel>()
                             .totalPlateNutrients['fiber'] ??
                         0,
                     'g',
@@ -129,12 +131,21 @@ class TotalNutrientsCard extends StatelessWidget {
                   onPressed: () {
                     final uiProvider =
                         Provider.of<UiViewModel>(context, listen: false);
-                    final nutritionProvider =
-                        Provider.of<NutritionViewModel>(context, listen: false);
+                    final mealAnalysisProvider =
+                        Provider.of<MealAnalysisViewModel>(context,
+                            listen: false);
+                    final dailyIntakeProvider =
+                        Provider.of<DailyIntakeViewModel>(context,
+                            listen: false);
                     print("Add to today's intake button pressed");
                     print(
-                        "Current total nutrients: ${nutritionProvider.totalPlateNutrients}");
-                    nutritionProvider.addToDailyIntake(context, 'food');
+                        "Current total nutrients: ${mealAnalysisProvider.totalPlateNutrients}");
+                    dailyIntakeProvider.addMealToDailyIntake(
+                      mealName: mealAnalysisProvider.mealName,
+                      totalPlateNutrients:
+                          mealAnalysisProvider.totalPlateNutrients,
+                      foodImage: mealAnalysisProvider.foodImage,
+                    );
                     uiProvider.updateCurrentIndex(2);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(

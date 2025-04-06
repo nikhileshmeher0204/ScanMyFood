@@ -137,35 +137,52 @@ class AiRepository {
     final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
     final imageBytes = await imageFile.readAsBytes();
 
-    final prompt =
-        TextPart("""Analyze this food image and identify the items present. 
-    For each food item identified, provide detailed nutritional information.
-    
-    Respond in this JSON format:
-    {
-      "meal_name": "Brief description of the overall meal",
-      "food_items": [
-        {
-          "name": "Name of food item 1",
-          "quantity": "Estimated quantity with units",
-          "calories": 000,
-          "protein": 00,
-          "carbohydrates": 00,
-          "fat": 00,
-          "fiber": 00
-        }
-      ],
-      "total_nutrition": {
-        "calories": 000,
-        "protein": 00,
-        "carbohydrates": 00,
-        "fat": 00,
-        "fiber": 00
-      },
-      "health_score": 0-10,
-      "health_assessment": "Brief analysis of the nutritional balance"
+    final prompt = TextPart(
+        """Analyze this food image and break down each visible food item. 
+Provide response in this strict JSON format:
+{
+  "plate_analysis": {
+  "meal_name": "Name of the meal",
+    "items": [
+      {
+        "food_name": "Name of the food item",
+        "estimated_quantity": {
+          "amount": 0,
+          "unit": "g",
+        },
+        "nutrients_per_100g": {
+          "calories": 0,
+          "protein": {"value": 0, "unit": "g"},
+          "carbohydrates": {"value": 0, "unit": "g"},
+          "fat": {"value": 0, "unit": "g"},
+          "fiber": {"value": 0, "unit": "g"}
+        },
+        "total_nutrients": {
+          "calories": 0,
+          "protein": {"value": 0, "unit": "g"},
+          "carbohydrates": {"value": 0, "unit": "g"},
+          "fat": {"value": 0, "unit": "g"},
+          "fiber": {"value": 0, "unit": "g"}
+        },
+        "visual_cues": ["List of visual indicators used for estimation"],
+        "position": "Description of item location in the image"
+      }
+    ],
+    "total_plate_nutrients": {
+      "calories": 0,
+      "protein": {"value": 0, "unit": "g"},
+      "carbohydrates": {"value": 0, "unit": "g"},
+      "fat": {"value": 0, "unit": "g"},
+      "fiber": {"value": 0, "unit": "g"}
     }
-    """);
+  }
+}
+
+Consider:
+1. Use visual cues to estimate portions (size relative to plate, height of food, etc.)
+2. Provide nutrients both per 100g and for estimated total quantity
+3. Consider common serving sizes and preparation methods
+""");
 
     try {
       final response = await model.generateContent([
@@ -200,39 +217,59 @@ class AiRepository {
 
     final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
 
-    final prompt =
-        """Analyze this food description and provide detailed nutritional information.
-    
-    Food description: $description
-    
-    Respond in this JSON format:
-    {
-      "meal_name": "Brief description of the overall meal",
-      "food_items": [
-        {
-          "name": "Name of food item 1",
-          "quantity": "Estimated quantity with units",
-          "calories": 000,
-          "protein": 00,
-          "carbohydrates": 00,
-          "fat": 00,
-          "fiber": 00
-        }
-      ],
-      "total_nutrition": {
-        "calories": 000,
-        "protein": 00,
-        "carbohydrates": 00,
-        "fat": 00,
-        "fiber": 00
-      },
-      "health_score": 0-10,
-      "health_assessment": "Brief analysis of the nutritional balance"
+    final prompt = TextPart(
+        """You are a nutrition expert. Analyze these food items and their quantities:\n$description\n. Generate nutritional info for each of the mentioned food items and their respective quantities and respond using this JSON schema: 
+{
+  "meal_analysis": {
+  "meal_name": "Name of the meal",
+    "items": [
+      {
+        "food_name": "Name of the food item",
+        "mentioned_quantity": {
+          "amount": 0,
+          "unit": "g",
+        },
+        "nutrients_per_100g": {
+          "calories": 0,
+          "protein": {"value": 0, "unit": "g"},
+          "carbohydrates": {"value": 0, "unit": "g"},
+          "fat": {"value": 0, "unit": "g"},
+          "fiber": {"value": 0, "unit": "g"}
+        },
+        "nutrients_in_mentioned_quantity": {
+          "calories": 0,
+          "protein": {"value": 0, "unit": "g"},
+          "carbohydrates": {"value": 0, "unit": "g"},
+          "fat": {"value": 0, "unit": "g"},
+          "fiber": {"value": 0, "unit": "g"}
+        },
+      }
+    ],
+    "total_nutrients": {
+      "calories": 0,
+      "protein": {"value": 0, "unit": "g"},
+      "carbohydrates": {"value": 0, "unit": "g"},
+      "fat": {"value": 0, "unit": "g"},
+      "fiber": {"value": 0, "unit": "g"}
     }
-    """;
+  }
+}
+
+Important considerations:
+1. Use standard USDA database values when available
+2. Account for common preparation methods
+3. Convert all measurements to standard units
+4. Consider regional variations in portion sizes
+5. Round values to one decimal place
+6. Account for density and volume-to-weight conversions
+
+Provide accurate nutritional data based on the most reliable food databases and scientific sources.
+""");
 
     try {
-      final response = await model.generateContent([Content.text(prompt)]);
+      final response = await model.generateContent([
+        Content.multi([prompt])
+      ]);
 
       final responseText = response.text ?? "";
 
