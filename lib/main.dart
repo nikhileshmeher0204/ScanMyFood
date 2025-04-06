@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/repositories/ai_repository.dart';
+import 'package:read_the_label/repositories/storage_repository.dart';
+import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
+import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
+import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/viewmodels/nutrition_view_model.dart';
 import 'views/screens/my_home_page.dart';
@@ -23,11 +28,54 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => UiViewModel()),
+        // Register repositories first
+        Provider<AiRepository>(
+          create: (_) => AiRepository(),
+        ),
+        Provider<StorageRepository>(
+          create: (_) => StorageRepository(),
+        ),
+
+        // Register ViewModels
+        ChangeNotifierProvider<UiViewModel>(
+          create: (_) => UiViewModel(),
+        ),
+        // Keep these changes:
+        ChangeNotifierProxyProvider<UiViewModel, ProductAnalysisViewModel>(
+          create: (context) => ProductAnalysisViewModel(
+            aiRepository: context.read<AiRepository>(),
+            uiProvider: context.read<UiViewModel>(),
+          ),
+          update: (context, uiViewModel, previous) =>
+              previous!..uiProvider = uiViewModel,
+        ),
+        ChangeNotifierProxyProvider<UiViewModel, MealAnalysisViewModel>(
+          create: (context) => MealAnalysisViewModel(
+            aiRepository: context.read<AiRepository>(),
+            uiProvider: context.read<UiViewModel>(),
+          ),
+          update: (context, uiViewModel, previous) =>
+              previous!..uiProvider = uiViewModel,
+        ),
+        ChangeNotifierProxyProvider2<UiViewModel, StorageRepository,
+            DailyIntakeViewModel>(
+          create: (context) => DailyIntakeViewModel(
+            storageRepository: context.read<StorageRepository>(),
+            uiProvider: context.read<UiViewModel>(),
+          ),
+          update: (context, uiViewModel, storageRepository, previous) =>
+              previous!
+                ..uiProvider = uiViewModel
+                ..storageRepository = storageRepository,
+        ),
         ChangeNotifierProxyProvider<UiViewModel, NutritionViewModel>(
-          create: (_) => NutritionViewModel(),
-          update: (_, uiProvider, nutritionProvider) =>
-              nutritionProvider!..uiProvider = uiProvider,
+          create: (context) => NutritionViewModel(
+            aiRepository: context.read<AiRepository>(),
+            uiProvider: context.read<UiViewModel>(),
+            storageRepository: context.read<StorageRepository>(),
+          ),
+          update: (context, uiViewModel, previous) =>
+              previous!..uiProvider = uiViewModel,
         ),
       ],
       child: const MyApp(),
