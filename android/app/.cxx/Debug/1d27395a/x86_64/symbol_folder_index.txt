@@ -1,0 +1,1 @@
+C:\Flutter Project\FoodScanAI\build\app\intermediates\cxx\Debug\1d27395a\obj\x86_64

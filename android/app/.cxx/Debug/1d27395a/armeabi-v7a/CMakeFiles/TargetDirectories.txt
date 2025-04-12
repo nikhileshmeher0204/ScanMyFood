@@ -1,0 +1,2 @@
+C:/Flutter Project/FoodScanAI/android/app/.cxx/Debug/1d27395a/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Flutter Project/FoodScanAI/android/app/.cxx/Debug/1d27395a/armeabi-v7a/CMakeFiles/rebuild_cache.dir
