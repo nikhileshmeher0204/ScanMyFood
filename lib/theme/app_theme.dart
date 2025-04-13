@@ -4,12 +4,12 @@ import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 
 class AppTheme {
-  static ThemeData darkTheme() {
+  static ThemeData lightTheme() {
     return ThemeData(
       fontFamily: AppTextStyles.fontFamily,
       useMaterial3: true,
-      colorScheme: const ColorScheme(
-        brightness: Brightness.dark,
+      colorScheme: ColorScheme(
+        brightness: Brightness.light,
         primary: AppColors.primary,
         onPrimary: AppColors.onPrimary,
         secondary: AppColors.secondary,
@@ -22,13 +22,34 @@ class AppTheme {
         onSurface: AppColors.onSurface,
       ),
       textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: Colors.white),
-        bodyMedium: TextStyle(color: Colors.white),
-        titleLarge: TextStyle(color: Colors.white),
-        titleMedium: TextStyle(color: Colors.white),
-        titleSmall: TextStyle(color: Colors.white),
-        labelLarge: TextStyle(color: Colors.black),
-        labelMedium: TextStyle(color: Colors.black),
+        titleLarge: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: AppColors.onSurface,
+        ),
+        titleMedium: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: AppColors.onSurface,
+        ),
+        titleSmall: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: AppColors.onSurface,
+        ),
+        bodyLarge: TextStyle(
+          fontSize: 16,
+          color: AppColors.onSurface,
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14,
+          color: AppColors.onSurface,
+        ),
+        labelLarge: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: AppColors.onSurface,
+        ),
       ),
     );
   }
@@ -36,12 +57,13 @@ class AppTheme {
 
 // Extension for custom colors
 extension CustomColors on ColorScheme {
-  Color get accent => const Color(0xFF61DAFB);
-  Color get neutral => const Color(0xFF808080);
-  Color get success => const Color(0xFF4CAF50);
-  Color get warning => const Color(0xFFFFA726);
-  Color get info => const Color(0xFF29B6F6);
-  Color get background => const Color(0xFF121212);
-  Color get cardBackground => const Color(0xFF1E1E1E);
-  Color get divider => const Color(0xFF2D2D2D);
+  Color get accent => AppColors.accent;
+  Color get neutral => AppColors.iconColor;
+  Color get success => AppColors.success;
+  Color get warning => AppColors.warning;
+  Color get info => AppColors.info;
+  Color get cardBackground => AppColors.cardBackground;
+  Color get divider => AppColors.divider;
+  Color get inputBackground => AppColors.inputBackground;
+  Color get inputBorder => AppColors.inputBorder;
 }

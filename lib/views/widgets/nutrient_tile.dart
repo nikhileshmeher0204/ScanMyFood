@@ -1,6 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:read_the_label/gen/assets.gen.dart';
+import 'package:read_the_label/theme/app_colors.dart';
+import 'package:read_the_label/views/common/primary_svg_picture.dart';
 
 class NutrientGrid extends StatefulWidget {
   final List<NutrientData> nutrients;
@@ -76,22 +79,20 @@ class _NutrientTileState extends State<NutrientTile>
   @override
   Widget build(BuildContext context) {
     Color backgroundColor;
-    IconData statusIcon;
+    String statusIcon;
 
     switch (widget.healthSign) {
       case "Good":
-        backgroundColor =
-            Theme.of(context).colorScheme.secondary.withOpacity(0.15);
-        statusIcon = Icons.check_circle_outline;
+        backgroundColor = AppColors.green.withOpacity(0.1);
+        statusIcon = Assets.icons.icGood.path;
         break;
       case "Bad":
-        backgroundColor = Theme.of(context).colorScheme.error.withOpacity(0.15);
-        statusIcon = Icons.warning_outlined;
+        backgroundColor = AppColors.red.withOpacity(0.1);
+        statusIcon = Assets.icons.icBad.path;
         break;
       default: // "Moderate"
-        backgroundColor =
-            Theme.of(context).colorScheme.primary.withOpacity(0.15);
-        statusIcon = Icons.info_outline;
+        backgroundColor = backgroundColor = AppColors.yellow.withOpacity(0.1);
+        statusIcon = Assets.icons.icWarning.path;
     }
 
     return Container(
@@ -107,163 +108,132 @@ class _NutrientTileState extends State<NutrientTile>
             }
           });
         },
-        child: ClipRRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.fastOutSlowIn,
-              width:
-                  _isExpanded ? MediaQuery.of(context).size.width - 32 : null,
-              constraints: BoxConstraints(
-                maxWidth: _isExpanded ? double.infinity : 170,
-                minWidth: 140,
-                minHeight: 70, // Add minimum height
-                maxHeight: _isExpanded ? 300 : 70,
-              ),
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: BorderRadius.circular(16.0),
-                border: Border.all(
-                  color: widget.healthSign == "Good"
-                      ? const Color(0xFF4CAF50).withValues(alpha: 0.3)
-                      : widget.healthSign == "Bad"
-                          ? const Color(0xFFFF5252).withValues(alpha: 0.3)
-                          : const Color(0xFFFFC107).withValues(alpha: 0.3),
-                  width: 1,
-                ),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16.0),
-                child: SingleChildScrollView(
-                  child: AnimatedSize(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.fastOutSlowIn,
-                    alignment: Alignment.topCenter,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 14.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    statusIcon,
-                                    size: 20,
-                                    color: widget.healthSign == "Good"
-                                        ? const Color(0xFF4CAF50)
-                                        : widget.healthSign == "Bad"
-                                            ? const Color(0xFFFF5252)
-                                            : const Color(0xFFFFC107),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Flexible(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              widget.nutrient,
-                                              style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium!
-                                                    .color,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: 'Poppins',
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Container(),
-                                            ),
-                                            RotationTransition(
-                                              turns: Tween(begin: 0.0, end: 0.5)
-                                                  .animate(
-                                                      _animationController),
-                                              child: Icon(
-                                                Icons.keyboard_arrow_down,
-                                                color: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium!
-                                                    .color,
-                                                size: 20,
-                                              ),
-                                            ),
-                                          ],
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.fastOutSlowIn,
+          width: _isExpanded ? MediaQuery.of(context).size.width - 32 : null,
+          constraints: BoxConstraints(
+            maxWidth: _isExpanded ? double.infinity : 170,
+            minWidth: 140,
+            minHeight: 80, // Add minimum height
+            maxHeight: _isExpanded ? 300 : 80,
+          ),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12.0),
+            child: SingleChildScrollView(
+              child: AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.fastOutSlowIn,
+                alignment: Alignment.topCenter,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: RotationTransition(
+                              turns: Tween(begin: 0.0, end: 0.5)
+                                  .animate(_animationController),
+                              child: PrimarySvgPicture(
+                                Assets.icons.icArrowDown.path,
+                                width: 20,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                PrimarySvgPicture(statusIcon, width: 20),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      Text(
+                                        widget.nutrient,
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium!
+                                              .color,
+                                          fontFamily: 'Poppins',
                                         ),
-                                        Row(
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      RichText(
+                                        text: TextSpan(
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            fontFamily: 'Poppins',
+                                          ),
                                           children: [
-                                            Text(
-                                              widget.quantity,
-                                              style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium!
-                                                    .color,
-                                                fontSize: 11,
-                                                fontFamily: 'Poppins',
+                                            TextSpan(
+                                              text: widget.quantity,
+                                              style: const TextStyle(
+                                                color: AppColors.grey,
                                               ),
                                             ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              "| ${widget.dailyValue} DV",
+                                            TextSpan(
+                                              text:
+                                                  ' | ${widget.dailyValue} DV',
                                               style: TextStyle(
                                                 color: widget.healthSign ==
                                                         "Good"
-                                                    ? const Color(0xFF4CAF50)
+                                                    ? AppColors.green
                                                     : widget.healthSign == "Bad"
-                                                        ? const Color(
-                                                            0xFFFF5252)
-                                                        : const Color(
-                                                            0xFFFFC107),
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: 'Poppins',
+                                                        ? AppColors.red
+                                                        : AppColors.yellow,
                                               ),
                                             ),
                                           ],
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              if (_isExpanded && widget.insight != null)
-                                AnimatedOpacity(
-                                  duration: const Duration(milliseconds: 300),
-                                  opacity: _isExpanded ? 1.0 : 0.0,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(top: 12.0),
-                                    child: Text(
-                                      widget.insight!,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium!
-                                            .color,
-                                        height: 1.5,
-                                        fontFamily: 'Poppins',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ),
+                                    ],
                                   ),
                                 ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                          if (_isExpanded && widget.insight != null)
+                            AnimatedOpacity(
+                              duration: const Duration(milliseconds: 300),
+                              opacity: _isExpanded ? 1.0 : 0.0,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 12.0),
+                                child: Text(
+                                  widget.insight!,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .color,
+                                    height: 1.5,
+                                    fontFamily: 'Poppins',
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),

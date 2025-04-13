@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:read_the_label/gen/assets.gen.dart';
+import 'package:read_the_label/theme/app_colors.dart';
+import 'package:read_the_label/views/common/primary_svg_picture.dart';
 
-class NutrientBalanceCard extends StatelessWidget {
+class NutrientBalanceCard extends StatefulWidget {
   final String issue;
   final String explanation;
   final List<Map<String, dynamic>> recommendations;
@@ -13,83 +16,132 @@ class NutrientBalanceCard extends StatelessWidget {
   });
 
   @override
+  State<NutrientBalanceCard> createState() => _NutrientBalanceCardState();
+}
+
+class _NutrientBalanceCardState extends State<NutrientBalanceCard>
+    with SingleTickerProviderStateMixin {
+  bool _isExpanded = false;
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.secondary.withOpacity(0.2),
-            Colors.transparent,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: ExpansionTile(
-        backgroundColor: Colors.transparent,
-        collapsedBackgroundColor: Colors.transparent,
-        title: Row(
-          children: [
-            Icon(
-              Icons.warning_amber_rounded,
-              color: Theme.of(context).colorScheme.error,
-              size: 24,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                issue,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Poppins',
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _isExpanded = !_isExpanded;
+            if (_isExpanded) {
+              _animationController.forward();
+            } else {
+              _animationController.reverse();
+            }
+          });
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.fastOutSlowIn,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: AppColors.red.withOpacity(0.1),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    RotationTransition(
+                      turns: Tween(begin: 0.0, end: 0.5)
+                          .animate(_animationController),
+                      child: PrimarySvgPicture(
+                        Assets.icons.icArrowDown.path,
+                        width: 20,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                      child: Row(
+                        children: [
+                          PrimarySvgPicture(Assets.icons.icBad.path, width: 24),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              widget.issue,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize: 14,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
-        ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  explanation,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 14,
-                    height: 1.5,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Recommendations:',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ...recommendations.map((rec) => _RecommendationItem(
-                      food: rec['food'] ?? '',
-                      quantity: rec['quantity'] ?? '',
-                      reasoning: rec['reasoning'] ?? '',
-                    )),
-              ],
-            ),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.fastOutSlowIn,
+                child: _isExpanded
+                    ? Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.explanation,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize: 14,
+                                height: 1.5,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Recommendations:',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize: 14,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ...widget.recommendations
+                                .map((rec) => _RecommendationItem(
+                                      food: rec['food'] ?? '',
+                                      quantity: rec['quantity'] ?? '',
+                                      reasoning: rec['reasoning'] ?? '',
+                                    )),
+                          ],
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

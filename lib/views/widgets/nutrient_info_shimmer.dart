@@ -7,7 +7,7 @@ class NutrientInfoShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
@@ -20,8 +20,8 @@ class NutrientInfoShimmer extends StatelessWidget {
         ],
       ),
       child: Shimmer.fromColors(
-        baseColor: Colors.grey[800]!,
-        highlightColor: Colors.grey[700]!,
+        baseColor: Colors.grey[600]!,
+        highlightColor: Colors.grey[400]!,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

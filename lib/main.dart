@@ -14,6 +14,7 @@ import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'views/screens/home_page.dart';
 
+final GlobalKey<NavigatorState> navKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -39,7 +40,8 @@ class MyApp extends StatelessWidget {
       providers: _registerProviders(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.darkTheme(),
+        navigatorKey: navKey,
+        theme: AppTheme.lightTheme(),
         home: const HomePage(),
       ),
     );

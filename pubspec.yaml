@@ -52,7 +52,7 @@ dependencies:
   flutter_ai_toolkit: ^0.6.7
   flutter_markdown: ^0.7.5
   provider: ^6.1.2
-
+  flutter_svg: ^2.0.16
 
 flutter_launcher_icons:
   android: true
@@ -72,42 +72,32 @@ flutter_launcher_icons:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^3.0.0
+  build_runner:
+  flutter_gen_runner:
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
+flutter_gen:
+  output: lib/gen/ # Optional (default: lib/gen/)
+  line_length: 80 # Optional (default: 80)
+  
+  integrations:
+    image: true
+    flutter_svg: true
+    rive: true
+    lottie: true
 
-# The following section is specific to Flutter packages.
 flutter:
 
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
   assets:
     - assets/fonts/
+    - assets/icons/
+    - assets/images/
     - assets/riveAssets/ai_generate_loading.riv
     - assets/riveAssets/qr_code_scanner.riv
     - .env
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware
 
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
-
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
   fonts:
     - family: Poppins
       fonts:
