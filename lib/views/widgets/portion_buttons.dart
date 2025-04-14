@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/main.dart';
+import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
@@ -20,8 +20,8 @@ class PortionButton extends StatelessWidget {
     bool isSelected =
         (uiProvider.sliderValue / uiProvider.servingSize) == portion;
 
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
+    return TextButton(
+      style: TextButton.styleFrom(
         backgroundColor: isSelected
             ? Theme.of(context).colorScheme.primary
             : Theme.of(context).colorScheme.cardBackground,
@@ -34,9 +34,8 @@ class PortionButton extends StatelessWidget {
         uiProvider.updateSliderValue(uiProvider.servingSize * portion);
       },
       child: Text(label,
-          style: TextStyle(
-              color: Theme.of(context).textTheme.bodyMedium!.color,
-              fontFamily: 'Poppins')),
+          style: const TextStyle(
+              fontSize: 10, color: AppColors.grey, fontFamily: 'Poppins')),
     );
   }
 }
@@ -49,8 +48,8 @@ class CustomPortionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final uiProvider = Provider.of<UiViewModel>(context, listen: true);
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
+    return TextButton(
+      style: TextButton.styleFrom(
         backgroundColor: Theme.of(context).colorScheme.cardBackground,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -59,7 +58,7 @@ class CustomPortionButton extends StatelessWidget {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: Colors.white,
             title: Text('Enter Custom Amount',
                 style: TextStyle(
                     color: Theme.of(context).textTheme.bodyMedium!.color,
@@ -92,10 +91,11 @@ class CustomPortionButton extends StatelessWidget {
           ),
         );
       },
-      child: Text("Custom",
+      child: const Text("Custom",
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
-              color: Theme.of(context).textTheme.bodyMedium!.color,
-              fontFamily: 'Poppins')),
+              fontSize: 10, color: AppColors.grey, fontFamily: 'Poppins')),
     );
   }
 }

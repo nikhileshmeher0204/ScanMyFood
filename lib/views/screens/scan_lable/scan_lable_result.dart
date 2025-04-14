@@ -1,4 +1,3 @@
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +15,7 @@ import 'package:read_the_label/views/widgets/nutrient_tile.dart';
 import 'package:read_the_label/views/widgets/portion_buttons.dart';
 import 'package:rive/rive.dart' as rive;
 
+import '../../../theme/app_colors.dart';
 import '../../../viewmodels/daily_intake_view_model.dart';
 import '../../../viewmodels/product_analysis_view_model.dart';
 import '../../../viewmodels/ui_view_model.dart';
@@ -364,21 +364,33 @@ class _ScanLableResultPageState extends State<ScanLableResultPage> {
                     children: [
                       PortionButton(
                         portion: 0.25,
-                        label: "¼",
+                        label: "1/4",
+                      ),
+                      SizedBox(
+                        width: 8,
                       ),
                       PortionButton(
                         portion: 0.5,
-                        label: "½",
+                        label: "1/2",
+                      ),
+                      SizedBox(
+                        width: 8,
                       ),
                       PortionButton(
                         portion: 0.75,
-                        label: "¾",
+                        label: "3/4",
+                      ),
+                      SizedBox(
+                        width: 8,
                       ),
                       PortionButton(
                         portion: 1.0,
                         label: "1",
                       ),
-                      CustomPortionButton(),
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Expanded(child: CustomPortionButton()),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -390,10 +402,10 @@ class _ScanLableResultPageState extends State<ScanLableResultPage> {
                       foregroundColor: Theme.of(context).colorScheme.onSurface,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
-                        vertical: 16,
+                        vertical: 12,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(40),
                       ),
                       elevation: 2,
                       minimumSize:
@@ -432,35 +444,37 @@ class _ScanLableResultPageState extends State<ScanLableResultPage> {
                         );
                       }
                     },
-                    child: Column(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
+                        PrimarySvgPicture(
+                          Assets.icons.icAdd.path,
+                          width: 20,
+                        ),
+                        const SizedBox(
+                          width: 12,
+                        ),
+                        Column(
                           children: [
-                            Icon(
-                              Icons.add_circle_outline,
-                              size: 20,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                            const SizedBox(width: 8),
                             Text(
                               "Add to today's intake",
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'Poppins',
                                 color: Theme.of(context).colorScheme.onPrimary,
                               ),
                             ),
+                            Text(
+                              "${uiProvider.sliderValue.toStringAsFixed(0)} grams, ${(productAnalysisProvider.getCalories() * (uiProvider.sliderValue / uiProvider.servingSize)).toStringAsFixed(0)} calories",
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
                           ],
-                        ),
-                        Text(
-                          "${uiProvider.sliderValue.toStringAsFixed(0)} grams, ${(productAnalysisProvider.getCalories() * (uiProvider.sliderValue / uiProvider.servingSize)).toStringAsFixed(0)} calories",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            fontFamily: 'Poppins',
-                          ),
                         ),
                       ],
                     ),
@@ -477,7 +491,7 @@ class _ScanLableResultPageState extends State<ScanLableResultPage> {
                 children: [
                   const Text(
                     'Serving size not found, please enter it manually',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    style: TextStyle(color: Colors.black, fontSize: 16),
                   ),
                   TextField(
                     keyboardType: TextInputType.number,
@@ -487,8 +501,8 @@ class _ScanLableResultPageState extends State<ScanLableResultPage> {
                     },
                     decoration: const InputDecoration(
                         hintText: "Enter serving size in grams or ml",
-                        hintStyle: TextStyle(color: Colors.white54)),
-                    style: const TextStyle(color: Colors.white),
+                        hintStyle: TextStyle(color: AppColors.grey)),
+                    style: const TextStyle(color: Colors.black),
                   ),
                   if (uiProvider.servingSize > 0)
                     Padding(
