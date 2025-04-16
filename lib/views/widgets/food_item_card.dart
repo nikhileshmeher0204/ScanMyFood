@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/main.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/views/widgets/food_nutreint_tile.dart';
@@ -37,9 +36,13 @@ class FoodItemCard extends StatelessWidget {
         children: [
           // Header
           Container(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+            decoration: const BoxDecoration(
+                color: Color(0xffC5E3D1),
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16))),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

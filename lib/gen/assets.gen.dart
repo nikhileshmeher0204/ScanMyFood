@@ -86,6 +86,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/ic_bad.svg
   SvgGenImage get icBad => const SvgGenImage('assets/icons/ic_bad.svg');
 
+  /// File path: assets/icons/ic_camera.svg
+  SvgGenImage get icCamera => const SvgGenImage('assets/icons/ic_camera.svg');
+
   /// File path: assets/icons/ic_daily_intake.svg
   SvgGenImage get icDailyIntake =>
       const SvgGenImage('assets/icons/ic_daily_intake.svg');
@@ -141,6 +144,7 @@ class $AssetsIconsGen {
     icArrowDown,
     icBack,
     icBad,
+    icCamera,
     icDailyIntake,
     icEdit,
     icGallery,

@@ -6,7 +6,7 @@ import 'package:read_the_label/gen/assets.gen.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/views/common/primary_appbar.dart';
 import 'package:read_the_label/views/common/primary_svg_picture.dart';
-import 'package:read_the_label/views/screens/scan_lable/corner_painter.dart';
+import 'package:read_the_label/views/common/corner_painter.dart';
 import 'package:read_the_label/views/screens/ask_AI_page.dart';
 import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
 import 'package:read_the_label/views/widgets/nutrient_balance_card.dart';
