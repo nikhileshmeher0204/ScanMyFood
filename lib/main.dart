@@ -12,6 +12,7 @@ import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/views/screens/user_info_page.dart';
 import 'views/screens/home_page.dart';
 
 final GlobalKey<NavigatorState> navKey = GlobalKey<NavigatorState>();
@@ -42,7 +43,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         navigatorKey: navKey,
         theme: AppTheme.lightTheme(),
-        home: const HomePage(),
+        home: const UserInfoPage(),
       ),
     );
   }

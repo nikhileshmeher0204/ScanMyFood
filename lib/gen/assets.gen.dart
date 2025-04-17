@@ -86,6 +86,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/ic_bad.svg
   SvgGenImage get icBad => const SvgGenImage('assets/icons/ic_bad.svg');
 
+  /// File path: assets/icons/ic_calcium.svg
+  SvgGenImage get icCalcium => const SvgGenImage('assets/icons/ic_calcium.svg');
+
   /// File path: assets/icons/ic_calendar.svg
   SvgGenImage get icCalendar =>
       const SvgGenImage('assets/icons/ic_calendar.svg');
@@ -120,6 +123,12 @@ class $AssetsIconsGen {
   /// File path: assets/icons/ic_good.svg
   SvgGenImage get icGood => const SvgGenImage('assets/icons/ic_good.svg');
 
+  /// File path: assets/icons/ic_info.svg
+  SvgGenImage get icInfo => const SvgGenImage('assets/icons/ic_info.svg');
+
+  /// File path: assets/icons/ic_iron.svg
+  SvgGenImage get icIron => const SvgGenImage('assets/icons/ic_iron.svg');
+
   /// File path: assets/icons/ic_launcher.png
   AssetGenImage get icLauncher =>
       const AssetGenImage('assets/icons/ic_launcher.png');
@@ -145,8 +154,17 @@ class $AssetsIconsGen {
   SvgGenImage get icScanLable =>
       const SvgGenImage('assets/icons/ic_scan_lable.svg');
 
+  /// File path: assets/icons/ic_science.svg
+  SvgGenImage get icScience => const SvgGenImage('assets/icons/ic_science.svg');
+
   /// File path: assets/icons/ic_setting.svg
   SvgGenImage get icSetting => const SvgGenImage('assets/icons/ic_setting.svg');
+
+  /// File path: assets/icons/ic_sodium.svg
+  SvgGenImage get icSodium => const SvgGenImage('assets/icons/ic_sodium.svg');
+
+  /// File path: assets/icons/ic_vitamin.svg
+  SvgGenImage get icVitamin => const SvgGenImage('assets/icons/ic_vitamin.svg');
 
   /// File path: assets/icons/ic_warning.svg
   SvgGenImage get icWarning => const SvgGenImage('assets/icons/ic_warning.svg');
@@ -165,6 +183,7 @@ class $AssetsIconsGen {
     icArrowDown,
     icBack,
     icBad,
+    icCalcium,
     icCalendar,
     icCalories,
     icCamera,
@@ -175,6 +194,8 @@ class $AssetsIconsGen {
     icFiber,
     icGallery,
     icGood,
+    icInfo,
+    icIron,
     icLauncher,
     icLauncherForeground,
     icLeaf,
@@ -182,7 +203,10 @@ class $AssetsIconsGen {
     icScan,
     icScanFood,
     icScanLable,
+    icScience,
     icSetting,
+    icSodium,
+    icVitamin,
     icWarning,
     iosLauncher,
     webLauncher,

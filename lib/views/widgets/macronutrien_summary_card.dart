@@ -1,182 +1,172 @@
 import 'package:flutter/material.dart';
+import 'package:read_the_label/gen/assets.gen.dart';
+import 'package:read_the_label/theme/app_colors.dart';
+import 'package:read_the_label/views/common/primary_svg_picture.dart';
 
-Widget MacronutrientSummaryCard(
-    BuildContext context, Map<String, double> dailyIntake) {
-  final calories = dailyIntake['Energy'] ?? 0.0;
-  const calorieGoal = 2000.0;
-  final caloriePercent = (calories / calorieGoal);
-  return Container(
-    margin: const EdgeInsets.symmetric(horizontal: 20),
-    padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        colors: [
-          Theme.of(context).colorScheme.primary,
-          Theme.of(context).colorScheme.primary.withOpacity(0.3),
-        ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
+class MacronutrientSummaryCard extends StatelessWidget {
+  final Map<String, double> dailyIntake;
+
+  const MacronutrientSummaryCard({
+    super.key,
+    required this.dailyIntake,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final calories = dailyIntake['Energy'] ?? 0.0;
+    const calorieGoal = 2000.0;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
       ),
-      borderRadius: BorderRadius.circular(24),
-      boxShadow: [
-        BoxShadow(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-          blurRadius: 20,
-          offset: const Offset(5, 5),
-        ),
-      ],
-    ),
-    child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Calories',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    fontSize: 20,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-                Text(
-                  '${calories.toStringAsFixed(0)} / ${calorieGoal.toStringAsFixed(0)} kcal',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-              ],
-            ),
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                SizedBox(
-                  width: 75,
-                  height: 75,
-                  child: CircularProgressIndicator(
-                    value: caloriePercent,
-                    backgroundColor: Colors.white24,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).colorScheme.onPrimary,
-                    ),
-                    strokeWidth: 10,
-                    strokeCap: StrokeCap.round,
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    '${(caloriePercent * 100).toStringAsFixed(0)}%',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildMacronutrientIndicator(
-              'Protein',
-              dailyIntake['Protein'] ?? 0.0,
-              50.0,
-              Icons.fitness_center,
-            ),
-            _buildMacronutrientIndicator(
-              'Carbs',
-              dailyIntake['Carbohydrate'] ?? 0.0,
-              275.0,
-              Icons.grain,
-            ),
-            _buildMacronutrientIndicator(
-              'Fat',
-              dailyIntake['Fat'] ?? 0.0,
-              78.0,
-              Icons.opacity,
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
+      child: Column(
+        children: [
+          Row(
+            children: [
+              _buildNutrientTile(
+                'Calories',
+                calories,
+                calorieGoal,
+                'kcal',
+                const Color(0xff6BDE36),
+                Assets.icons.icCalories.path,
+              ),
+              const SizedBox(width: 12),
+              _buildNutrientTile(
+                'Protein',
+                dailyIntake['Protein'] ?? 0.0,
+                50.0,
+                'g',
+                const Color(0xffFFAF40),
+                Assets.icons.icProtein.path,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _buildNutrientTile(
+                'Carbohydrates',
+                dailyIntake['Carbohydrate'] ?? 0.0,
+                275.0,
+                'g',
+                const Color(0xff6B25F6),
+                Assets.icons.icCarbonHydrates.path,
+              ),
+              const SizedBox(width: 12),
+              _buildNutrientTile(
+                'Fat',
+                dailyIntake['Fat'] ?? 0.0,
+                78.0,
+                'g',
+                const Color(0xffFF3F42),
+                Assets.icons.icFat.path,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _buildNutrientTile(
+                'Fiber',
+                dailyIntake['Fiber'] ?? 0.0,
+                78.0,
+                'g',
+                const Color(0xff1CAE54),
+                Assets.icons.icFiber.path,
+              ),
+              const Expanded(child: SizedBox()),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-Widget _buildMacronutrientIndicator(
-  String label,
-  double value,
-  double goal,
-  IconData icon,
-) {
-  final percent = (value / goal).clamp(0.0, 1.0);
-  return Column(
-    spacing: 4,
-    children: [
-      Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white24,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(
-          icon,
-          color: Colors.white,
-          size: 32,
-        ),
+Widget _buildNutrientTile(String label, double value, double goal, String unit,
+    Color color, String iconPath) {
+  return Expanded(
+    child: Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
       ),
-      Text(
-        label,
-        style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w500),
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '${value.toStringAsFixed(1)}g',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              fontFamily: 'Poppins',
-            ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: PrimarySvgPicture(
+                  iconPath,
+                  color: Colors.white,
+                  width: 20,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FittedBox(
+                      child: RichText(
+                        maxLines: 1,
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '$value/$goal',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
+                            ),
+                            TextSpan(
+                              text: unit,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    FittedBox(
+                      child: Text(
+                        label,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.grey,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          Text(
-            ' / ${goal.toStringAsFixed(1)}g',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 10,
-              fontWeight: FontWeight.w400,
-              fontFamily: 'Poppins',
-            ),
+          const SizedBox(height: 8),
+          LinearProgressIndicator(
+            value: (value / goal).clamp(0.0, 1.0),
+            backgroundColor: color.withOpacity(0.2),
+            valueColor: AlwaysStoppedAnimation<Color>(color),
+            minHeight: 4,
+            borderRadius: BorderRadius.circular(2),
           ),
         ],
       ),
-      SizedBox(
-        height: 6,
-        width: 80,
-        child: LinearProgressIndicator(
-          value: percent,
-          backgroundColor: Colors.white24,
-          valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-          minHeight: 5,
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-    ],
+    ),
   );
 }

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/views/widgets/add_to_today_intake.dart';
+import 'package:read_the_label/views/widgets/title_section_widget.dart';
 import 'package:rive/rive.dart' as rive;
 
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
@@ -94,6 +95,7 @@ class _ScanLableResultPageState extends State<ScanLableResultPage> {
                   ],
                 ),
               ),
+              const SizedBox(height: 32),
               buildFoodInfomation(
                   uiProvider, productAnalysisProvider, dailyIntakeProvider)
             ],
@@ -114,154 +116,81 @@ class _ScanLableResultPageState extends State<ScanLableResultPage> {
         children: [
           //Good/Moderate nutrients
           if (productAnalysisProvider.getGoodNutrients().isNotEmpty)
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Text(
-                      productAnalysisProvider.productName,
-                      style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w400,
-                          fontSize: 18),
-                      textAlign: TextAlign.start,
-                    ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Text(
+                    productAnalysisProvider.productName,
+                    style: const TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w400,
+                        fontSize: 18),
+                    textAlign: TextAlign.start,
                   ),
-                  const SizedBox(height: 24),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 4,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF4CAF50),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          "Optimal Nutrients",
-                          style: TextStyle(
-                            color:
-                                Theme.of(context).textTheme.titleLarge!.color,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                      ],
-                    ),
+                ),
+                const SizedBox(height: 8),
+                const TitleSectionWidget(
+                  title: "Optimal Nutrients",
+                ),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: productAnalysisProvider
+                        .getGoodNutrients()
+                        .map((nutrient) => NutrientTile(
+                              nutrient: nutrient['name'],
+                              healthSign: nutrient['health_impact'],
+                              quantity: nutrient['quantity'],
+                              insight: nutrientInsights[nutrient['name']],
+                              dailyValue: nutrient['daily_value'],
+                            ))
+                        .toList(),
                   ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: productAnalysisProvider
-                          .getGoodNutrients()
-                          .map((nutrient) => NutrientTile(
-                                nutrient: nutrient['name'],
-                                healthSign: nutrient['health_impact'],
-                                quantity: nutrient['quantity'],
-                                insight: nutrientInsights[nutrient['name']],
-                                dailyValue: nutrient['daily_value'],
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-
+          const SizedBox(height: 8),
           //Bad nutrients
           if (productAnalysisProvider.getBadNutrients().isNotEmpty)
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 4,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFF5252), // Red accent bar
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          "Watch Out",
-                          style: TextStyle(
-                            color:
-                                Theme.of(context).textTheme.titleLarge!.color,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                      ],
-                    ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const TitleSectionWidget(
+                  title: "Watch Out",
+                  color: Color(0xFFFF5252),
+                ),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: productAnalysisProvider
+                        .getBadNutrients()
+                        .map((nutrient) => NutrientTile(
+                              nutrient: nutrient['name'],
+                              healthSign: nutrient['health_impact'],
+                              quantity: nutrient['quantity'],
+                              insight: nutrientInsights[nutrient['name']],
+                              dailyValue: nutrient['daily_value'],
+                            ))
+                        .toList(),
                   ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: productAnalysisProvider
-                          .getBadNutrients()
-                          .map((nutrient) => NutrientTile(
-                                nutrient: nutrient['name'],
-                                healthSign: nutrient['health_impact'],
-                                quantity: nutrient['quantity'],
-                                insight: nutrientInsights[nutrient['name']],
-                                dailyValue: nutrient['daily_value'],
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
+          const SizedBox(height: 8),
           if (productAnalysisProvider.nutritionAnalysis['primary_concerns'] !=
               null)
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8),
-              child: Row(
-                children: [
-                  Container(
-                    width: 4,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(
-                          255, 94, 255, 82), // Red accent bar
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    "Recommendations",
-                    style: TextStyle(
-                      color: Theme.of(context).textTheme.titleLarge!.color,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                ],
-              ),
+            const TitleSectionWidget(
+              title: "Recommendations",
             ),
+
           if (productAnalysisProvider.nutritionAnalysis['primary_concerns'] !=
               null)
             ...productAnalysisProvider.nutritionAnalysis['primary_concerns']

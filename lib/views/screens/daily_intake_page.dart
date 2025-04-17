@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/gen/assets.gen.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
+import 'package:read_the_label/views/common/primary_svg_picture.dart';
 import 'package:read_the_label/views/widgets/date_selector.dart';
 import 'package:read_the_label/views/widgets/detailed_nutrients_card.dart';
 import 'package:read_the_label/views/widgets/food_history_card.dart';
 import 'package:read_the_label/views/widgets/macronutrien_summary_card.dart';
+import 'package:read_the_label/views/widgets/title_section_widget.dart';
 
 class DailyIntakePage extends StatefulWidget {
   const DailyIntakePage({super.key});
@@ -70,13 +73,59 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
                   });
                 },
               ),
+              TitleSectionWidget(
+                title: "Daily Nutrition",
+              ),
               MacronutrientSummaryCard(
-                  context, dailyIntakeProvider.dailyIntake),
+                  dailyIntake: dailyIntakeProvider.dailyIntake),
+              TitleSectionWidget(
+                title: "Today Intake",
+                onTapInfoButton: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      title: const Text('Food Items History'),
+                      content: const Text(
+                        'This section shows all the food items you have consumed today, along with their caloric values and timestamps.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Got it'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
               FoodHistoryCard(
                   context: context,
                   currentIndex: 2,
                   selectedDate: _selectedDate),
-              DetailedNutrientsCard(context, dailyIntakeProvider.dailyIntake),
+              TitleSectionWidget(
+                title: "Detailed Nutrients",
+                onTapInfoButton: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      title: const Text('About Nutrients'),
+                      content: const Text(
+                        'This section shows detailed breakdown of your nutrient intake. Values are shown as percentage of daily recommended intake.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Got it'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              DetailedNutrientsCard(
+                  dailyIntake: dailyIntakeProvider.dailyIntake),
             ],
           );
         }),

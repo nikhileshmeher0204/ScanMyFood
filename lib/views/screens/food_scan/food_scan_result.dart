@@ -1,18 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/gen/assets.gen.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/common/primary_appbar.dart';
-import 'package:read_the_label/views/common/primary_svg_picture.dart';
 import 'package:read_the_label/views/screens/ask_AI_page.dart';
 import 'package:read_the_label/views/common/corner_painter.dart';
-import 'package:read_the_label/views/widgets/add_to_today_intake.dart';
 import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
 import 'package:read_the_label/views/widgets/food_item_card.dart';
 import 'package:read_the_label/views/widgets/food_item_card_shimmer.dart';
+import 'package:read_the_label/views/widgets/title_section_widget.dart';
 import 'package:read_the_label/views/widgets/total_nutrients_card.dart';
 import 'package:read_the_label/views/widgets/total_nutrients_card_shimmer.dart';
 import 'package:rive/rive.dart' as rive;
@@ -102,34 +100,8 @@ class _FoodScanResultPageState extends State<FoodScanResultPage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24.0, vertical: 12),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 4,
-                              height: 24,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF4CAF50),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              "Analysis Results",
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .color,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                          ],
-                        ),
+                      const TitleSectionWidget(
+                        title: "Analysis Results",
                       ),
                       ...mealAnalysisProvider.analyzedFoodItems
                           .asMap()
@@ -138,35 +110,10 @@ class _FoodScanResultPageState extends State<FoodScanResultPage> {
                                 item: entry.value,
                                 index: entry.key,
                               )),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24.0, vertical: 20),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 4,
-                              height: 24,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF4CAF50),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              "Total Nutrients",
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .color,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                          ],
-                        ),
+                      const TitleSectionWidget(
+                        title: "Total Nutrients",
                       ),
+
                       const TotalNutrientsCard(),
                       // const SizedBox(height: 16),
                       // AddToTodayIntakeButton(

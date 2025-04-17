@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:read_the_label/gen/assets.gen.dart';
+import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
+import 'dart:math' as math;
 
 class UiViewModel extends BaseViewModel {
   // UI state
@@ -43,28 +46,51 @@ class UiViewModel extends BaseViewModel {
     return Colors.green; // Low
   }
 
-  IconData getNutrientIcon(String nutrient) {
+  String getNutrientIcon(String nutrient) {
     switch (nutrient.toLowerCase()) {
       case 'energy':
-        return Icons.bolt;
+        return Assets.icons.icCalories.path;
       case 'protein':
-        return Icons.fitness_center;
+        return Assets.icons.icProtein.path;
       case 'carbohydrate':
-        return Icons.grain;
+        return Assets.icons.icCarbonHydrates.path;
       case 'fat':
-        return Icons.opacity;
+        return Assets.icons.icFat.path;
       case 'fiber':
-        return Icons.grass;
+        return Assets.icons.icFiber.path;
       case 'sodium':
-        return Icons.water_drop;
+        return Assets.icons.icSodium.path;
       case 'calcium':
-        return Icons.shield;
+        return Assets.icons.icCalcium.path;
       case 'iron':
-        return Icons.architecture;
+        return Assets.icons.icIron.path;
       case 'vitamin':
-        return Icons.brightness_high;
+        return Assets.icons.icVitamin.path;
       default:
-        return Icons.science;
+        return Assets.icons.icScience.path;
+    }
+  }
+
+  Color getNutrientColor(String nutrient) {
+    switch (nutrient.toLowerCase()) {
+      case 'energy':
+        return const Color(0xff6BDE36);
+      case 'protein':
+        return const Color(0xffFFAF40);
+      case 'carbohydrate':
+        return const Color(0xff6B25F6);
+      case 'fat':
+        return const Color(0xffFF3F42);
+      case 'fiber':
+        return AppColors.green;
+      default:
+        final random = math.Random();
+        return Color.fromRGBO(
+          random.nextInt(200) + 55, // Red (55-255)
+          random.nextInt(200) + 55, // Green (55-255)
+          random.nextInt(200) + 55, // Blue (55-255)
+          1, // Alpha
+        );
     }
   }
 

@@ -1,99 +1,107 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/views/common/primary_svg_picture.dart';
 
-Widget NutrientCard(BuildContext context, Map<String, dynamic> nutrient,
-    Map<String, double> dailyIntake) {
-  final uiProvider = Provider.of<UiViewModel>(context, listen: false);
-  final name = nutrient['Nutrient'];
-  final current = dailyIntake[name] ?? 0.0;
-  final total = double.tryParse(nutrient['Current Daily Value']
-          .replaceAll(RegExp(r'[^0-9\.]'), '')) ??
-      0.0;
-  final percent = current / total;
+class NutrientCard extends StatelessWidget {
+  final Map<String, dynamic> nutrient;
+  final Map<String, double> dailyIntake;
 
-  final unit = uiProvider.getUnit(name);
+  const NutrientCard({
+    super.key,
+    required this.nutrient,
+    required this.dailyIntake,
+  });
 
-  return Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: Colors.white24,
-      borderRadius: BorderRadius.circular(20),
-      border: Border.all(
-        color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+  @override
+  Widget build(BuildContext context) {
+    final uiProvider = Provider.of<UiViewModel>(context, listen: false);
+    final name = nutrient['Nutrient'];
+    final current = dailyIntake[name] ?? 0.0;
+    final total = double.tryParse(nutrient['Current Daily Value']
+            .replaceAll(RegExp(r'[^0-9\.]'), '')) ??
+        0.0;
+    final unit = uiProvider.getUnit(name);
+    // final color = uiProvider.getColorForPercent(current / total);
+    final color = uiProvider.getNutrientColor(name);
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
       ),
-      boxShadow: [
-        BoxShadow(
-          color: uiProvider.getColorForPercent(percent).withOpacity(0.1),
-          blurRadius: 8,
-          offset: const Offset(0, 2),
-        ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Nutrient Name and Icon
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                name,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onTertiary,
-                  fontFamily: 'Poppins',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                child: PrimarySvgPicture(
+                  uiProvider.getNutrientIcon(name),
+                  color: Colors.white,
+                  width: 24,
+                ),
               ),
-            ),
-            Icon(
-              uiProvider.getNutrientIcon(name),
-              color: uiProvider.getColorForPercent(percent),
-              size: 20,
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-
-        // Progress Indicator
-        LinearProgressIndicator(
-          value: percent,
-          backgroundColor:
-              Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
-          valueColor: AlwaysStoppedAnimation<Color>(
-              uiProvider.getColorForPercent(percent)),
-          minHeight: 6,
-          borderRadius: BorderRadius.circular(3),
-        ),
-
-        // Values
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '${current.toStringAsFixed(1)}$unit',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurface,
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FittedBox(
+                      child: Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.grey,
+                        ),
+                      ),
+                    ),
+                    FittedBox(
+                      child: RichText(
+                        maxLines: 1,
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '$current/$total',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
+                            ),
+                            TextSpan(
+                              text: unit,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Text(
-              '${(percent * 100).toStringAsFixed(0)}%',
-              style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: uiProvider.getColorForPercent(percent)),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
+            ],
+          ),
+          const SizedBox(height: 8),
+          LinearProgressIndicator(
+            value: (current / total).clamp(0.0, 1.0),
+            backgroundColor: color.withOpacity(0.2),
+            valueColor: AlwaysStoppedAnimation<Color>(color),
+            minHeight: 4,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ],
+      ),
+    );
+  }
 }

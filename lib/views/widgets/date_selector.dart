@@ -17,6 +17,24 @@ class DateSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<DateTime> dates = List.generate(
         7, (index) => DateTime.now().subtract(Duration(days: 6 - index)));
+
+    // Tìm index của Today
+    final todayIndex =
+        dates.indexWhere((date) => date.day == DateTime.now().day);
+
+    // Tạo ScrollController
+    final scrollController = ScrollController();
+
+    // Nếu Today nằm ở nửa sau của list, scroll đến cuối
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (todayIndex > dates.length ~/ 2) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
     return Container(
       height: 80,
       margin: const EdgeInsets.symmetric(vertical: 10),
@@ -25,6 +43,7 @@ class DateSelector extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
+              controller: scrollController,
               itemCount: dates.length,
               itemBuilder: (context, index) {
                 final date = dates[index];
