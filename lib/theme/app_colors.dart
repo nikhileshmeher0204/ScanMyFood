@@ -15,6 +15,7 @@ class AppColors {
   static const Color yellow = Color(0xFFFFAF40);
   static const Color red = Color(0xFFFF1919);
   static const Color grey = Color(0xFF6B6B6B);
+  static const Color black = Color(0xFF161616);
 
   // Semantic colors
   static Color success =

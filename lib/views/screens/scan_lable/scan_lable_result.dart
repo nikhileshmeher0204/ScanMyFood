@@ -1,19 +1,22 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/views/widgets/add_to_today_intake.dart';
+import 'package:rive/rive.dart' as rive;
+
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
 import 'package:read_the_label/gen/assets.gen.dart';
 import 'package:read_the_label/theme/app_theme.dart';
+import 'package:read_the_label/views/common/corner_painter.dart';
 import 'package:read_the_label/views/common/primary_appbar.dart';
 import 'package:read_the_label/views/common/primary_svg_picture.dart';
-import 'package:read_the_label/views/common/corner_painter.dart';
 import 'package:read_the_label/views/screens/ask_AI_page.dart';
 import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
 import 'package:read_the_label/views/widgets/nutrient_balance_card.dart';
 import 'package:read_the_label/views/widgets/nutrient_info_shimmer.dart';
 import 'package:read_the_label/views/widgets/nutrient_tile.dart';
 import 'package:read_the_label/views/widgets/portion_buttons.dart';
-import 'package:rive/rive.dart' as rive;
 
 import '../../../theme/app_colors.dart';
 import '../../../viewmodels/daily_intake_view_model.dart';
@@ -146,8 +149,8 @@ class _ScanLableResultPageState extends State<ScanLableResultPage> {
                           style: TextStyle(
                             color:
                                 Theme.of(context).textTheme.titleLarge!.color,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
                             fontFamily: 'Poppins',
                           ),
                         ),
@@ -394,90 +397,10 @@ class _ScanLableResultPageState extends State<ScanLableResultPage> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: uiProvider.sliderValue == 0
-                          ? Colors.grey
-                          : Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onSurface,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                      elevation: 2,
-                      minimumSize:
-                          const Size(200, 50), // Set minimum width and height
-                    ),
-                    onPressed: () {
-                      if (uiProvider.sliderValue == 0) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                'Please select your consumption to continue'), // Updated message
-                          ),
-                        );
-                      } else {
-                        dailyIntakeProvider.addToDailyIntake(
-                          source: 'label',
-                          productName: productAnalysisProvider.productName,
-                          nutrients: productAnalysisProvider.parsedNutrients,
-                          servingSize: uiProvider.servingSize,
-                          consumedAmount: uiProvider.sliderValue,
-                          imageFile: productAnalysisProvider.frontImage,
-                        );
-                        uiProvider.updateCurrentIndex(2);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text(
-                                'Added to today\'s intake!'), // Updated message
-                            action: SnackBarAction(
-                              label: 'VIEW', // Changed from 'SHOW' to 'VIEW'
-                              onPressed: () {
-                                Provider.of<UiViewModel>(context, listen: false)
-                                    .updateCurrentIndex(2);
-                              },
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        PrimarySvgPicture(
-                          Assets.icons.icAdd.path,
-                          width: 20,
-                        ),
-                        const SizedBox(
-                          width: 12,
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              "Add to today's intake",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'Poppins',
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
-                            ),
-                            Text(
-                              "${uiProvider.sliderValue.toStringAsFixed(0)} grams, ${(productAnalysisProvider.getCalories() * (uiProvider.sliderValue / uiProvider.servingSize)).toStringAsFixed(0)} calories",
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                  AddToTodayIntakeButton(
+                    uiProvider: uiProvider,
+                    productAnalysisProvider: productAnalysisProvider,
+                    dailyIntakeProvider: dailyIntakeProvider,
                   )
                 ],
               ),

@@ -86,8 +86,20 @@ class $AssetsIconsGen {
   /// File path: assets/icons/ic_bad.svg
   SvgGenImage get icBad => const SvgGenImage('assets/icons/ic_bad.svg');
 
+  /// File path: assets/icons/ic_calendar.svg
+  SvgGenImage get icCalendar =>
+      const SvgGenImage('assets/icons/ic_calendar.svg');
+
+  /// File path: assets/icons/ic_calories.svg
+  SvgGenImage get icCalories =>
+      const SvgGenImage('assets/icons/ic_calories.svg');
+
   /// File path: assets/icons/ic_camera.svg
   SvgGenImage get icCamera => const SvgGenImage('assets/icons/ic_camera.svg');
+
+  /// File path: assets/icons/ic_carbon_hydrates.svg
+  SvgGenImage get icCarbonHydrates =>
+      const SvgGenImage('assets/icons/ic_carbon_hydrates.svg');
 
   /// File path: assets/icons/ic_daily_intake.svg
   SvgGenImage get icDailyIntake =>
@@ -95,6 +107,12 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/ic_edit.svg
   SvgGenImage get icEdit => const SvgGenImage('assets/icons/ic_edit.svg');
+
+  /// File path: assets/icons/ic_fat.svg
+  SvgGenImage get icFat => const SvgGenImage('assets/icons/ic_fat.svg');
+
+  /// File path: assets/icons/ic_fiber.svg
+  SvgGenImage get icFiber => const SvgGenImage('assets/icons/ic_fiber.svg');
 
   /// File path: assets/icons/ic_gallery.svg
   SvgGenImage get icGallery => const SvgGenImage('assets/icons/ic_gallery.svg');
@@ -112,6 +130,9 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/ic_leaf.svg
   SvgGenImage get icLeaf => const SvgGenImage('assets/icons/ic_leaf.svg');
+
+  /// File path: assets/icons/ic_protein.svg
+  SvgGenImage get icProtein => const SvgGenImage('assets/icons/ic_protein.svg');
 
   /// File path: assets/icons/ic_scan.svg
   SvgGenImage get icScan => const SvgGenImage('assets/icons/ic_scan.svg');
@@ -144,14 +165,20 @@ class $AssetsIconsGen {
     icArrowDown,
     icBack,
     icBad,
+    icCalendar,
+    icCalories,
     icCamera,
+    icCarbonHydrates,
     icDailyIntake,
     icEdit,
+    icFat,
+    icFiber,
     icGallery,
     icGood,
     icLauncher,
     icLauncherForeground,
     icLeaf,
+    icProtein,
     icScan,
     icScanFood,
     icScanLable,

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:read_the_label/theme/app_colors.dart';
+import 'package:read_the_label/views/common/primary_svg_picture.dart';
 
 class FoodNutrientTile extends StatelessWidget {
   final String label;
   final String value;
   final String unit;
-  final IconData icon;
+  final String icon;
+  final Color color;
 
   const FoodNutrientTile({
     super.key,
@@ -12,31 +15,24 @@ class FoodNutrientTile extends StatelessWidget {
     required this.value,
     required this.unit,
     required this.icon,
+    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              color: color,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
+            child: PrimarySvgPicture(
               icon,
-              color: Theme.of(context).colorScheme.primary,
-              size: 16,
+              width: 32,
             ),
           ),
           const SizedBox(width: 8),
@@ -48,20 +44,17 @@ class FoodNutrientTile extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withOpacity(0.6),
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppColors.grey,
                   ),
                 ),
                 Text(
                   '$value$unit',
                   style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.black),
                 ),
               ],
             ),

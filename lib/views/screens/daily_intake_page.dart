@@ -4,7 +4,6 @@ import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/views/widgets/date_selector.dart';
 import 'package:read_the_label/views/widgets/detailed_nutrients_card.dart';
 import 'package:read_the_label/views/widgets/food_history_card.dart';
-import 'package:read_the_label/views/widgets/header_widget.dart';
 import 'package:read_the_label/views/widgets/macronutrien_summary_card.dart';
 
 class DailyIntakePage extends StatefulWidget {
@@ -62,11 +61,9 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
             builder: (context, dailyIntakeProvider, _) {
           return Column(
             children: [
-              HeaderCard(context, _selectedDate),
               DateSelector(
-                context,
-                _selectedDate,
-                (DateTime newDate) {
+                selectedDate: _selectedDate,
+                onDateSelected: (DateTime newDate) {
                   setState(() {
                     _selectedDate = newDate;
                     dailyIntakeProvider.loadDailyIntake(newDate);
