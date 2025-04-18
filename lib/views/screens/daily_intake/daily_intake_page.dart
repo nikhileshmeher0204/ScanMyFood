@@ -1,8 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/gen/assets.gen.dart';
+import 'package:read_the_label/models/user_info.dart';
+import 'package:read_the_label/repositories/storage_repository.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
-import 'package:read_the_label/views/common/primary_svg_picture.dart';
 import 'package:read_the_label/views/widgets/date_selector.dart';
 import 'package:read_the_label/views/widgets/detailed_nutrients_card.dart';
 import 'package:read_the_label/views/widgets/food_history_card.dart';
@@ -18,11 +19,28 @@ class DailyIntakePage extends StatefulWidget {
 
 class _DailyIntakePageState extends State<DailyIntakePage> {
   DateTime _selectedDate = DateTime.now();
+  UserInfo _userInfo = UserInfo(
+      name: "",
+      gender: "",
+      age: 0,
+      energy: 2200,
+      protein: 50,
+      carbohydrate: 280,
+      fat: 80,
+      fiber: 30);
 
   @override
   void initState() {
     super.initState();
     _initializeData();
+    _loadUserInfo();
+  }
+
+  Future<void> _loadUserInfo() async {
+    final userInfo = await context.read<StorageRepository>().getUserInfo();
+    if (userInfo != null) {
+      _userInfo = userInfo;
+    }
   }
 
   @override
@@ -36,11 +54,12 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
         Provider.of<DailyIntakeViewModel>(context, listen: false);
 
     // Debug check storage
-    await dailyIntakeProvider.debugCheckStorage();
-
-    // Load food history first
-    print("Loading food history...");
-    await dailyIntakeProvider.loadFoodHistory();
+    if (kDebugMode) {
+      await dailyIntakeProvider.debugCheckStorage();
+      // Load food history first
+      print("Loading food history...");
+      await dailyIntakeProvider.loadFoodHistory();
+    }
 
     // Then load daily intake for selected date
     print("Loading daily intake for selected date...");
@@ -73,11 +92,13 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
                   });
                 },
               ),
-              TitleSectionWidget(
+              const TitleSectionWidget(
                 title: "Daily Nutrition",
               ),
               MacronutrientSummaryCard(
-                  dailyIntake: dailyIntakeProvider.dailyIntake),
+                dailyIntake: dailyIntakeProvider.dailyIntake,
+                userInfo: _userInfo,
+              ),
               TitleSectionWidget(
                 title: "Today Intake",
                 onTapInfoButton: () {
@@ -103,29 +124,31 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
                   context: context,
                   currentIndex: 2,
                   selectedDate: _selectedDate),
-              TitleSectionWidget(
+              const TitleSectionWidget(
                 title: "Detailed Nutrients",
-                onTapInfoButton: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      title: const Text('About Nutrients'),
-                      content: const Text(
-                        'This section shows detailed breakdown of your nutrient intake. Values are shown as percentage of daily recommended intake.',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Got it'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                // onTapInfoButton: () {
+                //   showDialog(
+                //     context: context,
+                //     builder: (context) => AlertDialog(
+                //       backgroundColor: Theme.of(context).colorScheme.surface,
+                //       title: const Text('About Nutrients'),
+                //       content: const Text(
+                //         'This section shows detailed breakdown of your nutrient intake. Values are shown as percentage of daily recommended intake.',
+                //       ),
+                //       actions: [
+                //         TextButton(
+                //           onPressed: () => Navigator.pop(context),
+                //           child: const Text('Got it'),
+                //         ),
+                //       ],
+                //     ),
+                //   );
+                // },
               ),
               DetailedNutrientsCard(
-                  dailyIntake: dailyIntakeProvider.dailyIntake),
+                dailyIntake: dailyIntakeProvider.dailyIntake,
+                userInfo: _userInfo,
+              ),
             ],
           );
         }),

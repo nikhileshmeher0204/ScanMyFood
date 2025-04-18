@@ -7,7 +7,7 @@ import 'package:read_the_label/views/common/logo_appbar.dart';
 import 'package:read_the_label/views/common/primary_svg_picture.dart';
 import 'package:read_the_label/views/screens/scan_lable/product_scan_page.dart';
 import 'package:read_the_label/views/screens/food_scan/food_scan_page.dart';
-import 'package:read_the_label/views/screens/daily_intake_page.dart';
+import 'package:read_the_label/views/screens/daily_intake/daily_intake_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});

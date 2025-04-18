@@ -16,6 +16,14 @@ import 'package:vector_graphics/vector_graphics.dart' as _vg;
 class $AssetsFontsGen {
   const $AssetsFontsGen();
 
+  /// File path: assets/fonts/Inter-Italic-VariableFont_opsz,wght.ttf
+  String get interItalicVariableFontOpszWght =>
+      'assets/fonts/Inter-Italic-VariableFont_opsz,wght.ttf';
+
+  /// File path: assets/fonts/Inter-VariableFont_opsz,wght.ttf
+  String get interVariableFontOpszWght =>
+      'assets/fonts/Inter-VariableFont_opsz,wght.ttf';
+
   /// File path: assets/fonts/Poppins-Bold.ttf
   String get poppinsBold => 'assets/fonts/Poppins-Bold.ttf';
 
@@ -55,6 +63,8 @@ class $AssetsFontsGen {
 
   /// List of all assets
   List<String> get values => [
+    interItalicVariableFontOpszWght,
+    interVariableFontOpszWght,
     poppinsBold,
     poppinsExtraLight,
     poppinsExtraLightItalic,
@@ -79,6 +89,14 @@ class $AssetsIconsGen {
   /// File path: assets/icons/ic_arrow_down.svg
   SvgGenImage get icArrowDown =>
       const SvgGenImage('assets/icons/ic_arrow_down.svg');
+
+  /// File path: assets/icons/ic_arrow_left.svg
+  SvgGenImage get icArrowLeft =>
+      const SvgGenImage('assets/icons/ic_arrow_left.svg');
+
+  /// File path: assets/icons/ic_arrow_right.svg
+  SvgGenImage get icArrowRight =>
+      const SvgGenImage('assets/icons/ic_arrow_right.svg');
 
   /// File path: assets/icons/ic_back.svg
   SvgGenImage get icBack => const SvgGenImage('assets/icons/ic_back.svg');
@@ -181,6 +199,8 @@ class $AssetsIconsGen {
   List<dynamic> get values => [
     icAdd,
     icArrowDown,
+    icArrowLeft,
+    icArrowRight,
     icBack,
     icBad,
     icCalcium,
@@ -216,6 +236,22 @@ class $AssetsIconsGen {
 class $AssetsImagesGen {
   const $AssetsImagesGen();
 
+  /// File path: assets/images/im_bg_splash.webp
+  AssetGenImage get imBgSplash =>
+      const AssetGenImage('assets/images/im_bg_splash.webp');
+
+  /// File path: assets/images/im_onboarding_1.webp
+  AssetGenImage get imOnboarding1 =>
+      const AssetGenImage('assets/images/im_onboarding_1.webp');
+
+  /// File path: assets/images/im_onboarding_2.webp
+  AssetGenImage get imOnboarding2 =>
+      const AssetGenImage('assets/images/im_onboarding_2.webp');
+
+  /// File path: assets/images/im_onboarding_3.webp
+  AssetGenImage get imOnboarding3 =>
+      const AssetGenImage('assets/images/im_onboarding_3.webp');
+
   /// File path: assets/images/im_scan_food.webp
   AssetGenImage get imScanFood =>
       const AssetGenImage('assets/images/im_scan_food.webp');
@@ -225,7 +261,14 @@ class $AssetsImagesGen {
       const AssetGenImage('assets/images/im_scan_lable.webp');
 
   /// List of all assets
-  List<AssetGenImage> get values => [imScanFood, imScanLable];
+  List<AssetGenImage> get values => [
+    imBgSplash,
+    imOnboarding1,
+    imOnboarding2,
+    imOnboarding3,
+    imScanFood,
+    imScanLable,
+  ];
 }
 
 class $AssetsRiveAssetsGen {

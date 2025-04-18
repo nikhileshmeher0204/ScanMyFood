@@ -1,14 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/models/food_consumption.dart';
-import 'package:read_the_label/repositories/storage_repository.dart';
 import 'package:read_the_label/repositories/storage_repository_interface.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'base_view_model.dart';
 
 class DailyIntakeViewModel extends BaseViewModel {
@@ -54,31 +51,32 @@ class DailyIntakeViewModel extends BaseViewModel {
   }
 
   Future<void> debugCheckStorage() async {
-    uiProvider.setLoading(true);
+    // uiProvider.setLoading(true);
 
     try {
       // Get all keys
-      final keys = await storageRepository.getAllKeys();
+      final keys = storageRepository.getAllKeys();
       debugPrint("All SharedPreferences keys: $keys");
 
       // Print food history
-      final foodHistoryData = await storageRepository.getFoodHistory();
+      final foodHistoryData = storageRepository.getFoodHistory();
       debugPrint("Stored food history: ${foodHistoryData.length} items");
 
       // Print daily intakes for last 7 days
       final now = DateTime.now();
       for (int i = 0; i < 7; i++) {
         final date = now.subtract(Duration(days: i));
-        final key = getStorageKey(date);
-        final data = await storageRepository.getDailyIntake(date);
+        getStorageKey(date);
+        final data = storageRepository.getDailyIntake(date);
         debugPrint("Daily intake for ${date.toString().split(' ')[0]}: $data");
       }
     } catch (e) {
       debugPrint("Error checking storage: $e");
       setError("Error checking storage: $e");
-    } finally {
-      uiProvider.setLoading(false);
     }
+    // finally {
+    //   uiProvider.setLoading(false);
+    // }
   }
 
   Future<void> loadDailyIntake(DateTime date) async {
@@ -87,7 +85,7 @@ class DailyIntakeViewModel extends BaseViewModel {
     try {
       debugPrint("Loading daily intake for date: ${date.toString()}");
 
-      final data = await storageRepository.getDailyIntake(date);
+      final data = storageRepository.getDailyIntake(date);
 
       if (data != null && data.isNotEmpty) {
         debugPrint("Found stored data for $date");
@@ -118,7 +116,7 @@ class DailyIntakeViewModel extends BaseViewModel {
 
     try {
       debugPrint("Loading food history from storage...");
-      _foodHistory = await storageRepository.getFoodHistory();
+      _foodHistory = storageRepository.getFoodHistory();
       debugPrint("Successfully loaded ${_foodHistory.length} food items");
 
       notifyListeners();
@@ -135,7 +133,7 @@ class DailyIntakeViewModel extends BaseViewModel {
     uiProvider.setLoading(true);
 
     try {
-      debugPrint("Saving daily intake for ${_selectedDate}");
+      debugPrint("Saving daily intake for $_selectedDate");
       debugPrint("Current daily intake: $_dailyIntake");
       debugPrint("New intake to add: $newIntake");
 
@@ -147,7 +145,7 @@ class DailyIntakeViewModel extends BaseViewModel {
       });
 
       // Save to repository
-      await storageRepository.saveDailyIntake(_selectedDate, updatedIntake);
+      storageRepository.saveDailyIntake(_selectedDate, updatedIntake);
 
       // Update local state
       _dailyIntake = updatedIntake;
@@ -277,7 +275,7 @@ class DailyIntakeViewModel extends BaseViewModel {
       _foodHistory.add(consumption);
 
       // Save to repository
-      await storageRepository.saveFoodHistory(_foodHistory);
+      storageRepository.saveFoodHistory(_foodHistory);
 
       debugPrint("Successfully added to food history");
       notifyListeners();
@@ -321,7 +319,7 @@ class DailyIntakeViewModel extends BaseViewModel {
   // Clear the daily intake for testing
   Future<void> clearDailyIntake() async {
     try {
-      await storageRepository.saveDailyIntake(_selectedDate, {});
+      storageRepository.saveDailyIntake(_selectedDate, {});
       _dailyIntake = {};
       dailyIntakeNotifier.value = {};
       notifyListeners();

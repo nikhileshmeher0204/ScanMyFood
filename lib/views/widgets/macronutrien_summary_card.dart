@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:read_the_label/gen/assets.gen.dart';
+import 'package:read_the_label/models/user_info.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/views/common/primary_svg_picture.dart';
 
 class MacronutrientSummaryCard extends StatelessWidget {
   final Map<String, double> dailyIntake;
+  final UserInfo userInfo;
 
   const MacronutrientSummaryCard({
     super.key,
     required this.dailyIntake,
+    required this.userInfo,
   });
 
   @override
   Widget build(BuildContext context) {
-    final calories = dailyIntake['Energy'] ?? 0.0;
-    const calorieGoal = 2000.0;
-
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(20),
@@ -29,8 +29,8 @@ class MacronutrientSummaryCard extends StatelessWidget {
             children: [
               _buildNutrientTile(
                 'Calories',
-                calories,
-                calorieGoal,
+                dailyIntake['Energy'] ?? 0.0,
+                userInfo.energy,
                 'kcal',
                 const Color(0xff6BDE36),
                 Assets.icons.icCalories.path,
@@ -39,7 +39,7 @@ class MacronutrientSummaryCard extends StatelessWidget {
               _buildNutrientTile(
                 'Protein',
                 dailyIntake['Protein'] ?? 0.0,
-                50.0,
+                userInfo.protein,
                 'g',
                 const Color(0xffFFAF40),
                 Assets.icons.icProtein.path,
@@ -52,7 +52,7 @@ class MacronutrientSummaryCard extends StatelessWidget {
               _buildNutrientTile(
                 'Carbohydrates',
                 dailyIntake['Carbohydrate'] ?? 0.0,
-                275.0,
+                userInfo.carbohydrate,
                 'g',
                 const Color(0xff6B25F6),
                 Assets.icons.icCarbonHydrates.path,
@@ -61,7 +61,7 @@ class MacronutrientSummaryCard extends StatelessWidget {
               _buildNutrientTile(
                 'Fat',
                 dailyIntake['Fat'] ?? 0.0,
-                78.0,
+                userInfo.fat,
                 'g',
                 const Color(0xffFF3F42),
                 Assets.icons.icFat.path,
@@ -74,7 +74,7 @@ class MacronutrientSummaryCard extends StatelessWidget {
               _buildNutrientTile(
                 'Fiber',
                 dailyIntake['Fiber'] ?? 0.0,
-                78.0,
+                userInfo.fiber,
                 'g',
                 const Color(0xff1CAE54),
                 Assets.icons.icFiber.path,
@@ -124,7 +124,7 @@ Widget _buildNutrientTile(String label, double value, double goal, String unit,
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: '$value/$goal',
+                              text: '${value.toInt()}/${goal.toInt()}',
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,

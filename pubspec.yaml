@@ -53,6 +53,7 @@ dependencies:
   flutter_markdown: ^0.7.5
   provider: ^6.1.2
   flutter_svg: ^2.0.16
+  calendar_date_picker2: ^2.0.0
 
 flutter_launcher_icons:
   android: true
@@ -105,6 +106,12 @@ flutter:
         - asset: assets/fonts/Poppins-Medium.ttf
         - asset: assets/fonts/Poppins-ExtraLight.ttf
         - asset: assets/fonts/Poppins-SemiBold.ttf
+
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Italic-VariableFont_opsz,wght.ttf
+        - asset: assets/fonts/Inter-VariableFont_opsz,wght.ttf
+    
 
 
   # For details regarding fonts from package dependencies,

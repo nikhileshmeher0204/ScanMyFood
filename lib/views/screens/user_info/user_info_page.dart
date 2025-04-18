@@ -1,12 +1,12 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/gen/assets.gen.dart';
 import 'package:read_the_label/models/user_info.dart';
+import 'package:read_the_label/repositories/storage_repository.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/views/common/logo_appbar.dart';
 import 'package:read_the_label/views/common/primary_svg_picture.dart';
-import 'package:read_the_label/views/screens/home_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:read_the_label/views/screens/home/home_page.dart';
 import 'package:read_the_label/views/widgets/title_section_widget.dart';
 
 class UserInfoPage extends StatefulWidget {
@@ -20,20 +20,35 @@ class _UserInfoPageState extends State<UserInfoPage> {
   final _nameController = TextEditingController();
   String _selectedGender = '';
   final _ageController = TextEditingController();
-  final Map<String, TextEditingController> _targetControllers = {
-    'Energy': TextEditingController(),
-    'Protein': TextEditingController(),
-    'Carbohydrate': TextEditingController(),
-    'Fat': TextEditingController(),
-    'Fiber': TextEditingController(),
-  };
+  final _energyController = TextEditingController();
+  final _proteinController = TextEditingController();
+  final _carbonHydrateController = TextEditingController();
+  final _fatController = TextEditingController();
+  final _fiberController = TextEditingController();
 
-  bool get _isFormValid {
-    return _nameController.text.isNotEmpty &&
+  final _formValidNotifier = ValueNotifier<bool>(false);
+
+  void _updateFormValidation() {
+    _formValidNotifier.value = _nameController.text.isNotEmpty &&
         _selectedGender.isNotEmpty &&
         _ageController.text.isNotEmpty &&
-        _targetControllers.values
-            .every((controller) => controller.text.isNotEmpty);
+        _energyController.text.isNotEmpty &&
+        _proteinController.text.isNotEmpty &&
+        _carbonHydrateController.text.isNotEmpty &&
+        _fatController.text.isNotEmpty &&
+        _fiberController.text.isNotEmpty;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.addListener(_updateFormValidation);
+    _ageController.addListener(_updateFormValidation);
+    _energyController.addListener(_updateFormValidation);
+    _proteinController.addListener(_updateFormValidation);
+    _carbonHydrateController.addListener(_updateFormValidation);
+    _fatController.addListener(_updateFormValidation);
+    _fiberController.addListener(_updateFormValidation);
   }
 
   @override
@@ -94,9 +109,9 @@ class _UserInfoPageState extends State<UserInfoPage> {
               title: 'Daily Target',
               padding: EdgeInsets.zero,
             ),
-            const SizedBox(height: 20),
-            ..._buildNutrientInputs(),
             const SizedBox(height: 32),
+            _buildNutrientInputs(),
+            const SizedBox(height: 8),
             _buildContinueButton(),
           ],
         ),
@@ -104,23 +119,42 @@ class _UserInfoPageState extends State<UserInfoPage> {
     );
   }
 
-  Widget _buildTextField({
-    required String label,
-    required TextEditingController controller,
-    TextAlign? textAlign,
-    TextInputType? keyboardType,
-    String? hintText,
-  }) {
+  Widget _buildTextField(
+      {required String label,
+      required TextEditingController controller,
+      TextAlign? textAlign,
+      TextInputType? keyboardType,
+      String? hintText,
+      Color? backgroundIconColor,
+      String? icon}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: AppColors.grey,
-            fontFamily: 'Poppins',
-          ),
+        Row(
+          children: [
+            if (icon != null)
+              Container(
+                padding: const EdgeInsets.all(4),
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: backgroundIconColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: PrimarySvgPicture(
+                  icon,
+                  width: 12,
+                  color: Colors.white,
+                ),
+              ),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.grey,
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         TextField(
@@ -133,28 +167,27 @@ class _UserInfoPageState extends State<UserInfoPage> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
               borderSide: const BorderSide(
-                color: Color(0xFF9F9F9F),
+                color: Color(0xffe3e3e3),
                 width: 1,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
               borderSide: const BorderSide(
-                color: Color(0xFF9F9F9F),
+                color: Color(0xffe3e3e3),
                 width: 1,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
               borderSide: const BorderSide(
-                color: Color(0xFF9F9F9F),
+                color: Color(0xffe3e3e3),
                 width: 1,
               ),
             ),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
-          onChanged: (_) => setState(() {}),
         ),
       ],
     );
@@ -177,14 +210,14 @@ class _UserInfoPageState extends State<UserInfoPage> {
                     topRight: Radius.circular(30),
                     bottomRight: Radius.circular(30)),
             border: Border(
-              top: const BorderSide(color: Color(0xFF9F9F9F), width: 1),
-              bottom: const BorderSide(color: Color(0xFF9F9F9F), width: 1),
+              top: const BorderSide(color: Color(0xFFe3e3e3), width: 1),
+              bottom: const BorderSide(color: Color(0xFFe3e3e3), width: 1),
               left: BorderSide(
-                color: const Color(0xFF9F9F9F),
+                color: const Color(0xFFe3e3e3),
                 width: gender == "Male" ? 1 : 0.1,
               ),
               right: BorderSide(
-                color: const Color(0xFF9F9F9F),
+                color: const Color(0xFFe3e3e3),
                 width: gender == "Male" ? 0.1 : 1,
               ),
             ),
@@ -203,84 +236,97 @@ class _UserInfoPageState extends State<UserInfoPage> {
     );
   }
 
-  List<Widget> _buildNutrientInputs() {
+  Widget _buildNutrientInputs() {
     final nutrients = {
-      'Energy': ['Calories', 'kcal', Assets.icons.icCalories.path],
-      'Protein': ['Protein', 'g', Assets.icons.icProtein.path],
+      'Energy': [
+        'Calories',
+        'kcal',
+        Assets.icons.icCalories.path,
+        _energyController,
+        const Color(0xff6BDE36)
+      ],
+      'Protein': [
+        'Protein',
+        'g',
+        Assets.icons.icProtein.path,
+        _proteinController,
+        const Color(0xffFFAF40)
+      ],
       'Carbohydrate': [
         'Carbohydrates',
         'g',
-        Assets.icons.icCarbonHydrates.path
+        Assets.icons.icCarbonHydrates.path,
+        _carbonHydrateController,
+        const Color(0xff6B25F6)
       ],
-      'Fat': ['Fat', 'g', Assets.icons.icFat.path],
-      'Fiber': ['Fiber', 'g', Assets.icons.icFiber.path],
+      'Fat': [
+        'Fat',
+        'g',
+        Assets.icons.icFat.path,
+        _fatController,
+        const Color(0xffFF3F42)
+      ],
+      'Fiber': [
+        'Fiber',
+        'g',
+        Assets.icons.icFiber.path,
+        _fiberController,
+        const Color(0xff1CAE54)
+      ],
     };
 
-    return nutrients.entries.map((entry) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.green.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: PrimarySvgPicture(
-                entry.value[2],
-                width: 24,
-                color: AppColors.green,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: TextField(
-                controller: _targetControllers[entry.key],
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  hintText: entry.value[0],
-                  suffixText: entry.value[1],
-                ),
-                onChanged: (_) => setState(() {}),
-              ),
-            ),
-          ],
-        ),
-      );
-    }).toList();
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 0,
+        childAspectRatio: 1.7,
+      ),
+      itemCount: nutrients.length,
+      itemBuilder: (context, index) {
+        final entry = nutrients.entries.elementAt(index);
+        return _buildTextField(
+          label: entry.value[0].toString(),
+          controller: entry.value[3] as TextEditingController,
+          hintText: "0 ${entry.value[1]}",
+          icon: entry.value[2].toString(),
+          backgroundIconColor: entry.value[4] as Color,
+          textAlign: TextAlign.start,
+          keyboardType: TextInputType.number,
+        );
+      },
+    );
   }
 
   Widget _buildContinueButton() {
-    return GestureDetector(
-      onTap: _isFormValid ? _saveUserInfo : null,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        margin: const EdgeInsets.symmetric(horizontal: 30),
-        decoration: BoxDecoration(
-          color: _isFormValid ? AppColors.green : AppColors.grey,
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: const Text(
-          'Continue',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            fontFamily: 'Poppins',
+    return ValueListenableBuilder<bool>(
+      valueListenable: _formValidNotifier,
+      builder: (context, isValid, child) {
+        return GestureDetector(
+          onTap: isValid ? _saveUserInfo : null,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            margin: const EdgeInsets.symmetric(horizontal: 30),
+            decoration: BoxDecoration(
+              color: isValid ? AppColors.green : AppColors.grey,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: const Text(
+              'Continue',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Poppins',
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -289,12 +335,14 @@ class _UserInfoPageState extends State<UserInfoPage> {
       name: _nameController.text,
       gender: _selectedGender,
       age: int.parse(_ageController.text),
-      dailyTarget: _targetControllers.map(
-          (key, controller) => MapEntry(key, double.parse(controller.text))),
+      energy: double.parse(_energyController.text),
+      protein: double.parse(_proteinController.text),
+      carbohydrate: double.parse(_carbonHydrateController.text),
+      fat: double.parse(_fatController.text),
+      fiber: double.parse(_fiberController.text),
     );
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_info', jsonEncode(userInfo.toJson()));
+    context.read<StorageRepository>().saveUserInfo(userInfo);
 
     if (mounted) {
       Navigator.pushReplacement(
@@ -306,11 +354,16 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
   @override
   void dispose() {
+    _formValidNotifier.dispose();
     _nameController.dispose();
     _ageController.dispose();
-    for (var controller in _targetControllers.values) {
-      controller.dispose();
-    }
+    _energyController.dispose();
+    _carbonHydrateController.dispose();
+    _fatController.dispose();
+    _ageController.dispose();
+    _ageController.dispose();
+    _ageController.dispose();
+
     super.dispose();
   }
 }

@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
+import 'package:read_the_label/models/user_info.dart';
 import 'package:read_the_label/views/widgets/nutrient_card.dart';
 
 class DetailedNutrientsCard extends StatelessWidget {
   final Map<String, double> dailyIntake;
+  final UserInfo userInfo;
 
   const DetailedNutrientsCard({
     super.key,
     required this.dailyIntake,
+    required this.userInfo,
   });
 
   @override

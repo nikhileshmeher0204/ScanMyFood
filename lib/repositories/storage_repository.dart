@@ -1,33 +1,34 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:read_the_label/models/food_consumption.dart';
+import 'package:read_the_label/models/user_info.dart';
 import 'package:read_the_label/repositories/storage_repository_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StorageRepository implements StorageRepositoryInterface {
-  // Get all keys from SharedPreferences
-  @override
-  Future<List<String>> getAllKeys() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getKeys().toList();
+  late final SharedPreferences _prefs;
+
+  Future<void> initStorageRepository() async {
+    _prefs = await SharedPreferences.getInstance();
   }
 
-  // Get daily intake for specified date
   @override
-  Future<Map<String, double>?> getDailyIntake(DateTime date) async {
-    final prefs = await SharedPreferences.getInstance();
+  List<String> getAllKeys() {
+    return _prefs.getKeys().toList();
+  }
+
+  @override
+  Map<String, double>? getDailyIntake(DateTime date) {
     final String storageKey = getStorageKey(date);
-    final String? storedData = prefs.getString(storageKey);
+    final String? storedData = _prefs.getString(storageKey);
 
     if (storedData != null) {
       try {
         final Map<String, dynamic> decoded = jsonDecode(storedData);
         final Map<String, double> dailyIntake = {};
-
         decoded.forEach((key, value) {
           dailyIntake[key] = (value as num).toDouble();
         });
-
         return dailyIntake;
       } catch (e) {
         debugPrint("Error parsing daily intake data: $e");
@@ -37,27 +38,19 @@ class StorageRepository implements StorageRepositoryInterface {
     return null;
   }
 
-  // Save daily intake for specified date
   @override
   Future<void> saveDailyIntake(
       DateTime date, Map<String, double> intake) async {
-    final prefs = await SharedPreferences.getInstance();
     final String storageKey = getStorageKey(date);
-
-    await prefs.setString(storageKey, jsonEncode(intake));
-
-    // Verify the save
-    final savedData = prefs.getString(storageKey);
+    await _prefs.setString(storageKey, jsonEncode(intake));
+    final savedData = _prefs.getString(storageKey);
     debugPrint(
         "Verification - Saved daily intake data length: ${savedData?.length ?? 0}");
   }
 
-  // Get food history
   @override
-  Future<List<FoodConsumption>> getFoodHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? storedHistory = prefs.getString('food_history');
-
+  List<FoodConsumption> getFoodHistory() {
+    final String? storedHistory = _prefs.getString('food_history');
     if (storedHistory != null) {
       try {
         final List<dynamic> decoded = jsonDecode(storedHistory);
@@ -70,41 +63,56 @@ class StorageRepository implements StorageRepositoryInterface {
     return [];
   }
 
-  // Save food history
   @override
-  Future<void> saveFoodHistory(List<FoodConsumption> history) async {
-    final prefs = await SharedPreferences.getInstance();
+  void saveFoodHistory(List<FoodConsumption> history) {
     final historyJson = history.map((item) => item.toJson()).toList();
-
-    await prefs.setString('food_history', jsonEncode(historyJson));
-
-    // Verify the save
-    final savedData = prefs.getString('food_history');
+    _prefs.setString('food_history', jsonEncode(historyJson));
+    final savedData = _prefs.getString('food_history');
     final decodedSave = savedData != null ? jsonDecode(savedData) as List : [];
     debugPrint(
         "Verification - Saved food history items: ${decodedSave.length}");
   }
 
-  // Remove food item from history
   @override
-  Future<void> removeFoodItemFromHistory(FoodConsumption item) async {
-    final history = await getFoodHistory();
+  void removeFoodItemFromHistory(FoodConsumption item) {
+    final history = getFoodHistory();
     history.removeWhere((element) =>
         element.foodName == item.foodName &&
         element.dateTime.millisecondsSinceEpoch ==
             item.dateTime.millisecondsSinceEpoch);
-    await saveFoodHistory(history);
+    saveFoodHistory(history);
   }
 
-  // Helper method to get storage key for a specific date
   String getStorageKey(DateTime date) {
     return 'dailyIntake_${date.year}-${date.month}-${date.day}';
   }
 
-  // Clear all data (for testing/debugging)
+  UserInfo? getUserInfo() {
+    final userInfoJson = _prefs.getString('user_info');
+    if (userInfoJson != null) {
+      try {
+        return UserInfo.fromJson(jsonDecode(userInfoJson));
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  void saveUserInfo(UserInfo userInfo) {
+    _prefs.setString('user_info', jsonEncode(userInfo.toJson()));
+  }
+
+  bool isShowOnboarding() {
+    return _prefs.getBool('show_onboarding') ?? false;
+  }
+
+  void setShowOnboarding() {
+    _prefs.setBool('show_onboarding', true);
+  }
+
   @override
   Future<void> clearAllData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await _prefs.clear();
   }
 }
