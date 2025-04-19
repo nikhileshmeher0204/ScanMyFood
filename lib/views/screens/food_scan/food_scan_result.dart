@@ -7,6 +7,7 @@ import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/common/primary_appbar.dart';
 import 'package:read_the_label/views/screens/ask_AI_page.dart';
 import 'package:read_the_label/views/common/corner_painter.dart';
+import 'package:read_the_label/views/widgets/add_to_today_intake_button.dart';
 import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
 import 'package:read_the_label/views/widgets/food_item_card.dart';
 import 'package:read_the_label/views/widgets/food_item_card_shimmer.dart';
@@ -98,7 +99,7 @@ class _FoodScanResultPageState extends State<FoodScanResultPage> {
                 if (mealAnalysisProvider.foodImage != null &&
                     mealAnalysisProvider.analyzedFoodItems.isNotEmpty)
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const TitleSectionWidget(
                         title: "Analysis Results",
@@ -113,14 +114,16 @@ class _FoodScanResultPageState extends State<FoodScanResultPage> {
                       const TitleSectionWidget(
                         title: "Total Nutrients",
                       ),
-
                       const TotalNutrientsCard(),
-                      // const SizedBox(height: 16),
-                      // AddToTodayIntakeButton(
-                      //   uiProvider: uiProvider,
-                      //   productAnalysisProvider: productAnalysisProvider,
-                      //   dailyIntakeProvider: dailyIntakeProvider,
-                      // ),
+                      const SizedBox(height: 16),
+                      AddToTodayIntakeButton(
+                        uiProvider: uiProvider,
+                        dailyIntakeProvider: dailyIntakeProvider,
+                        productName: mealAnalysisProvider.mealName,
+                        totalPlateNutrients:
+                            mealAnalysisProvider.totalPlateNutrients,
+                        imageFile: mealAnalysisProvider.foodImage,
+                      ),
                       InkWell(
                         onTap: () {
                           Navigator.push(

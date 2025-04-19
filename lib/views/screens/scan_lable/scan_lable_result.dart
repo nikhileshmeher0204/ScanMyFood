@@ -2,7 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/views/widgets/add_to_today_intake.dart';
+import 'package:read_the_label/views/widgets/add_to_today_intake_button.dart';
 import 'package:read_the_label/views/widgets/title_section_widget.dart';
 import 'package:rive/rive.dart' as rive;
 
@@ -226,56 +226,7 @@ class _ScanLableResultPageState extends State<ScanLableResultPage> {
                       IconButton(
                         icon: PrimarySvgPicture(Assets.icons.icEdit.path,
                             width: 24),
-                        onPressed: () {
-                          // Show edit dialog
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.cardBackground,
-                              title: Text('Edit Serving Size',
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge!
-                                          .color,
-                                      fontFamily: 'Poppins')),
-                              content: TextField(
-                                keyboardType: TextInputType.number,
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge!
-                                        .color),
-                                decoration: InputDecoration(
-                                  hintText: 'Enter serving size in grams',
-                                  hintStyle: TextStyle(
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge!
-                                          .color,
-                                      fontFamily: 'Poppins'),
-                                ),
-                                onChanged: (value) {
-                                  context.read<UiViewModel>().updateServingSize(
-                                      double.tryParse(value) ?? 0.0);
-                                },
-                              ),
-                              actions: [
-                                TextButton(
-                                  child: Text('OK',
-                                      style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          color: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium!
-                                              .color)),
-                                  onPressed: () => Navigator.of(context).pop(),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                        onPressed: () => _showEditServingSizeDialog(context),
                       ),
                     ],
                   ),
@@ -328,100 +279,16 @@ class _ScanLableResultPageState extends State<ScanLableResultPage> {
                   const SizedBox(height: 16),
                   AddToTodayIntakeButton(
                     uiProvider: uiProvider,
-                    productAnalysisProvider: productAnalysisProvider,
                     dailyIntakeProvider: dailyIntakeProvider,
+                    productName: productAnalysisProvider.productName,
+                    nutrients: productAnalysisProvider.parsedNutrients,
+                    calories: productAnalysisProvider.getCalories(),
+                    imageFile: productAnalysisProvider.frontImage,
                   )
                 ],
               ),
             ),
 
-          if (uiProvider.servingSize == 0 &&
-              productAnalysisProvider.parsedNutrients.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  const Text(
-                    'Serving size not found, please enter it manually',
-                    style: TextStyle(color: Colors.black, fontSize: 16),
-                  ),
-                  TextField(
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      uiProvider
-                          .updateSliderValue(double.tryParse(value) ?? 0.0);
-                    },
-                    decoration: const InputDecoration(
-                        hintText: "Enter serving size in grams or ml",
-                        hintStyle: TextStyle(color: AppColors.grey)),
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                  if (uiProvider.servingSize > 0)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Slider(
-                          value: uiProvider.sliderValue,
-                          min: 0,
-                          max: uiProvider.servingSize,
-                          onChanged: (newValue) {
-                            uiProvider.updateSliderValue(newValue);
-                          }),
-                    ),
-                  if (uiProvider.servingSize > 0)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        "Serving Size: ${uiProvider.servingSize.round()} g",
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontFamily: 'Poppins'),
-                      ),
-                    ),
-                  if (uiProvider.servingSize > 0)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Builder(
-                        builder: (context) {
-                          return ElevatedButton(
-                              style: ButtonStyle(
-                                  backgroundColor:
-                                      WidgetStateProperty.all(Colors.white10)),
-                              onPressed: () {
-                                dailyIntakeProvider.addToDailyIntake(
-                                  source: 'label',
-                                  productName:
-                                      productAnalysisProvider.productName,
-                                  nutrients:
-                                      productAnalysisProvider.parsedNutrients,
-                                  servingSize: uiProvider.servingSize,
-                                  consumedAmount: uiProvider.sliderValue,
-                                  imageFile: productAnalysisProvider.frontImage,
-                                );
-                                uiProvider.updateCurrentIndex(2);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: const Text(
-                                        'Added to today\'s intake!',
-                                        style:
-                                            TextStyle(fontFamily: 'Poppins')),
-                                    action: SnackBarAction(
-                                      label: 'SHOW',
-                                      onPressed: () {
-                                        uiProvider.updateCurrentIndex(1);
-                                      },
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: const Text("Add to today's intake",
-                                  style: TextStyle(fontFamily: 'Poppins')));
-                        },
-                      ),
-                    ),
-                ],
-              ),
-            ),
           if (uiProvider.servingSize > 0)
             InkWell(
               onTap: () {
@@ -441,5 +308,116 @@ class _ScanLableResultPageState extends State<ScanLableResultPage> {
         ],
       );
     }
+  }
+
+  void _showEditServingSizeDialog(BuildContext context) {
+    final controller = TextEditingController(
+        text: context.read<UiViewModel>().servingSize.toInt().toString());
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        backgroundColor: Colors.white,
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Edit Serving Size',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.black,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: 'Enter serving size in grams',
+                  hintStyle: const TextStyle(
+                    color: Color(0xff6B6B6B),
+                    fontSize: 12,
+                    fontFamily: 'Poppins',
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: const BorderSide(color: Color(0xff6b6b6b)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: const BorderSide(color: AppColors.green),
+                  ),
+                  filled: true,
+                  fillColor: const Color(0xfff4f4f4),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                ),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w400,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  TextButton(
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(
+                        color: AppColors.green,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      double? newSize = double.tryParse(controller.text);
+                      if (newSize != null && newSize <= 0) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Serving size must be greater than 0',
+                              style: TextStyle(fontFamily: 'Poppins'),
+                            ),
+                          ),
+                        );
+                        context.read<UiViewModel>().updateServingSize(100);
+                      } else if (newSize != null) {
+                        context.read<UiViewModel>().updateServingSize(newSize);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

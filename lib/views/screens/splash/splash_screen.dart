@@ -82,7 +82,6 @@ class _SplashScreenState extends State<SplashScreen> {
                             fontSize: 24,
                             fontWeight: FontWeight.w700,
                             color: AppColors.green,
-                            letterSpacing: 1.3,
                             fontFamily: 'Poppins',
                           ),
                         ),
@@ -92,7 +91,6 @@ class _SplashScreenState extends State<SplashScreen> {
                             fontSize: 24,
                             fontWeight: FontWeight.w700,
                             color: AppColors.black,
-                            letterSpacing: 1.3,
                             fontFamily: 'Poppins',
                           ),
                         ),
@@ -101,17 +99,20 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 40),
 
               // Progress Bar
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: LinearProgressIndicator(
-                  backgroundColor: AppColors.green.withOpacity(0.2),
-                  valueColor:
-                      const AlwaysStoppedAnimation<Color>(AppColors.green),
-                ),
-              ),
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: const LinearProgressIndicator(
+                      minHeight: 6,
+                      backgroundColor: Color(0xffD9D9D9),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(AppColors.green),
+                    ),
+                  )),
               const SizedBox(height: 80),
             ],
           ),

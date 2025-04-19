@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -182,6 +183,7 @@ class DailyIntakeViewModel extends BaseViewModel {
       // Convert nutrients to the format needed for daily intake
       Map<String, double> newNutrients = {};
       for (var nutrient in nutrients) {
+        log(nutrient.toString());
         final name = nutrient['name'];
         final quantity = double.tryParse(nutrient['quantity']
                 .toString()

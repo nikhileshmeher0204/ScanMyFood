@@ -51,6 +51,43 @@ class _UserInfoPageState extends State<UserInfoPage> {
     _fiberController.addListener(_updateFormValidation);
   }
 
+  void _calculateDailyNutrients() {
+    if (_selectedGender.isNotEmpty && _ageController.text.isNotEmpty) {
+      final age = int.tryParse(_ageController.text) ?? 0;
+
+      // Base values
+      double calories;
+      if (_selectedGender == 'Male') {
+        calories = age < 30 ? 2700 : (age < 50 ? 2600 : 2400);
+      } else {
+        calories = age < 30 ? 2200 : (age < 50 ? 2000 : 1800);
+      }
+
+      // Calculate other nutrients based on calories
+      double protein = calories * 0.15 / 4; // 15% of calories, 4 cal per gram
+      double carbs = calories * 0.55 / 4; // 55% of calories, 4 cal per gram
+      double fat = calories * 0.30 / 9; // 30% of calories, 9 cal per gram
+      double fiber = calories / 1000 * 14; // 14g per 1000 calories
+
+      // Only set values if fields are empty
+      if (_energyController.text.isEmpty) {
+        _energyController.text = calories.round().toString();
+      }
+      if (_proteinController.text.isEmpty) {
+        _proteinController.text = protein.round().toString();
+      }
+      if (_carbonHydrateController.text.isEmpty) {
+        _carbonHydrateController.text = carbs.round().toString();
+      }
+      if (_fatController.text.isEmpty) {
+        _fatController.text = fat.round().toString();
+      }
+      if (_fiberController.text.isEmpty) {
+        _fiberController.text = fiber.round().toString();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,6 +164,11 @@ class _UserInfoPageState extends State<UserInfoPage> {
       String? hintText,
       Color? backgroundIconColor,
       String? icon}) {
+    if (label == 'Age') {
+      controller.addListener(() {
+        _calculateDailyNutrients();
+      });
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -197,7 +239,12 @@ class _UserInfoPageState extends State<UserInfoPage> {
     final isSelected = _selectedGender == gender;
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() => _selectedGender = gender),
+        onTap: () {
+          setState(() {
+            _selectedGender = gender;
+            _calculateDailyNutrients();
+          });
+        },
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
@@ -354,16 +401,14 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
   @override
   void dispose() {
+    super.dispose();
+
     _formValidNotifier.dispose();
     _nameController.dispose();
     _ageController.dispose();
     _energyController.dispose();
     _carbonHydrateController.dispose();
     _fatController.dispose();
-    _ageController.dispose();
-    _ageController.dispose();
-    _ageController.dispose();
-
-    super.dispose();
+    _fiberController.dispose();
   }
 }

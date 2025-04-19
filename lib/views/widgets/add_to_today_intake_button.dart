@@ -1,8 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/gen/assets.gen.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
-import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/common/primary_svg_picture.dart';
 
@@ -10,13 +11,22 @@ class AddToTodayIntakeButton extends StatelessWidget {
   const AddToTodayIntakeButton({
     super.key,
     required this.uiProvider,
-    required this.productAnalysisProvider,
     required this.dailyIntakeProvider,
+    required this.productName,
+    this.nutrients,
+    this.calories,
+    required this.imageFile,
+    this.totalPlateNutrients,
   });
 
   final UiViewModel uiProvider;
-  final ProductAnalysisViewModel productAnalysisProvider;
   final DailyIntakeViewModel dailyIntakeProvider;
+  final String productName;
+  final List<Map<String, dynamic>>? nutrients;
+  final Map<String, dynamic>? totalPlateNutrients;
+
+  final double? calories;
+  final File? imageFile;
 
   @override
   Widget build(BuildContext context) {
@@ -34,32 +44,39 @@ class AddToTodayIntakeButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(40),
         ),
         elevation: 2,
-        minimumSize: const Size(200, 50), // Set minimum width and height
+        minimumSize: const Size(200, 50),
       ),
       onPressed: () {
         if (uiProvider.sliderValue == 0) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text(
-                  'Please select your consumption to continue'), // Updated message
+              content: Text('Please select your consumption to continue'),
             ),
           );
         } else {
-          dailyIntakeProvider.addToDailyIntake(
-            source: 'label',
-            productName: productAnalysisProvider.productName,
-            nutrients: productAnalysisProvider.parsedNutrients,
-            servingSize: uiProvider.servingSize,
-            consumedAmount: uiProvider.sliderValue,
-            imageFile: productAnalysisProvider.frontImage,
-          );
+          if (totalPlateNutrients != null) {
+            dailyIntakeProvider.addMealToDailyIntake(
+              mealName: productName,
+              totalPlateNutrients: totalPlateNutrients!,
+              foodImage: imageFile,
+            );
+          } else if (nutrients != null) {
+            dailyIntakeProvider.addToDailyIntake(
+              source: 'label',
+              productName: productName,
+              nutrients: nutrients!,
+              servingSize: uiProvider.servingSize,
+              consumedAmount: uiProvider.sliderValue,
+              imageFile: imageFile,
+            );
+          }
+
           uiProvider.updateCurrentIndex(2);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content:
-                  const Text('Added to today\'s intake!'), // Updated message
+              content: const Text('Added to today\'s intake!'),
               action: SnackBarAction(
-                label: 'VIEW', // Changed from 'SHOW' to 'VIEW'
+                label: 'VIEW',
                 onPressed: () {
                   Provider.of<UiViewModel>(context, listen: false)
                       .updateCurrentIndex(2);
@@ -77,9 +94,7 @@ class AddToTodayIntakeButton extends StatelessWidget {
             Assets.icons.icAdd.path,
             width: 20,
           ),
-          const SizedBox(
-            width: 12,
-          ),
+          const SizedBox(width: 12),
           Column(
             children: [
               Text(
@@ -91,14 +106,15 @@ class AddToTodayIntakeButton extends StatelessWidget {
                   color: Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
-              Text(
-                "${uiProvider.sliderValue.toStringAsFixed(0)} grams, ${(productAnalysisProvider.getCalories() * (uiProvider.sliderValue / uiProvider.servingSize)).toStringAsFixed(0)} calories",
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontFamily: 'Poppins',
+              if (calories != null)
+                Text(
+                  "${uiProvider.sliderValue.toStringAsFixed(0)} grams, ${(calories! * (uiProvider.sliderValue / uiProvider.servingSize)).toStringAsFixed(0)} calories",
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontFamily: 'Poppins',
+                  ),
                 ),
-              ),
             ],
           ),
         ],
