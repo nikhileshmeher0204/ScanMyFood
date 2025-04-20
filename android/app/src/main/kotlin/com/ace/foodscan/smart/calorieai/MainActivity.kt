@@ -1,4 +1,4 @@
-package com.example.read_the_label
+package com.ace.foodscan.smart.calorieai
 
 import io.flutter.embedding.android.FlutterActivity
 

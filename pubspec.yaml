@@ -38,13 +38,9 @@ dependencies:
   google_generative_ai: ^0.4.6
   image_picker: ^1.1.2
   flutter_dotenv: ^5.2.1
-  flutter_animate: ^4.5.2
   shared_preferences: ^2.3.3
   percent_indicator: ^4.2.4
-  pie_chart: ^5.4.0
   intl: ^0.20.1
-  dotted_border: ^2.1.0
-  fl_chart: ^0.70.0
   rive: ^0.13.20
   flutter_launcher_icons: ^0.14.2
   shimmer: ^3.0.0
