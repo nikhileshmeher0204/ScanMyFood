@@ -72,25 +72,28 @@ class UiViewModel extends BaseViewModel {
   }
 
   Color getNutrientColor(String nutrient) {
+    final List<Color> predefinedColors = [
+      const Color(0xff6BDE36), // energy
+      const Color(0xffFFAF40), // protein
+      const Color(0xff6B25F6), // carbohydrate
+      const Color(0xffFF3F42), // fat
+      AppColors.green, // fiber
+    ];
+
     switch (nutrient.toLowerCase()) {
       case 'energy':
-        return const Color(0xff6BDE36);
+        return predefinedColors[0];
       case 'protein':
-        return const Color(0xffFFAF40);
+        return predefinedColors[1];
       case 'carbohydrate':
-        return const Color(0xff6B25F6);
+        return predefinedColors[2];
       case 'fat':
-        return const Color(0xffFF3F42);
+        return predefinedColors[3];
       case 'fiber':
-        return AppColors.green;
+        return predefinedColors[4];
       default:
         final random = math.Random();
-        return Color.fromRGBO(
-          random.nextInt(200) + 55, // Red (55-255)
-          random.nextInt(200) + 55, // Green (55-255)
-          random.nextInt(200) + 55, // Blue (55-255)
-          1, // Alpha
-        );
+        return predefinedColors[random.nextInt(predefinedColors.length)];
     }
   }
 

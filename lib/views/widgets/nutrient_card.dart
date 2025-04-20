@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,14 +20,12 @@ class NutrientCard extends StatelessWidget {
     final uiProvider = Provider.of<UiViewModel>(context, listen: false);
     final name = nutrient['Nutrient'];
     final current = dailyIntake[name] ?? 0.0;
-    final total = double.tryParse(nutrient['Current Daily Value']
-            .replaceAll(RegExp(r'[^0-9\.]'), '')) ??
-        0.0;
+    // final total = double.tryParse(nutrient['Current Daily Value']
+    //         .replaceAll(RegExp(r'[^0-9\.]'), '')) ??
+    0.0;
     final unit = uiProvider.getUnit(name);
     // final color = uiProvider.getColorForPercent(current / total);
     final color = uiProvider.getNutrientColor(name);
-
-    log(nutrient.toString());
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -70,7 +67,8 @@ class NutrientCard extends StatelessWidget {
                     text: TextSpan(
                       children: [
                         TextSpan(
-                          text: '${current.toInt()}/${total.toInt()}',
+                          // text: '${current.toInt()}/${total.toInt()}',
+                          text: '${current.toInt()}',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:read_the_label/main.dart';
+import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 
 class AskAiWidget extends StatefulWidget {
@@ -80,7 +80,7 @@ class _AskAiWidgetState extends State<AskAiWidget>
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.cardBackground,
           border: Border.all(
-            color: const Color.fromARGB(255, 255, 119, 0),
+            color: AppColors.primary,
           ),
           borderRadius: BorderRadius.circular(28),
           boxShadow: const [
@@ -99,7 +99,7 @@ class _AskAiWidgetState extends State<AskAiWidget>
               children: [
                 const Icon(
                   Icons.auto_awesome,
-                  color: Color.fromARGB(255, 0, 21, 255),
+                  color: AppColors.primary,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -115,25 +115,26 @@ class _AskAiWidgetState extends State<AskAiWidget>
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w500,
                             fontSize: 16,
-                            foreground: Paint()
-                              ..shader = const LinearGradient(
-                                colors: <Color>[
-                                  Color.fromARGB(255, 0, 21, 255),
-                                  Color.fromARGB(255, 255, 0, 85),
-                                  Color.fromARGB(255, 255, 119, 0),
-                                  Color.fromARGB(255, 250, 220, 194),
-                                ],
-                                stops: [
-                                  0.1,
-                                  0.5,
-                                  0.7,
-                                  1.0,
-                                ], // Four stops for four colors
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                              ).createShader(
-                                const Rect.fromLTWH(0.0, 0.0, 250.0, 16.0),
-                              ),
+                            color: AppColors.primary,
+                            // foreground: Paint()
+                            //   ..shader = const LinearGradient(
+                            //     colors: <Color>[
+                            //       Color.fromARGB(255, 0, 21, 255),
+                            //       Color.fromARGB(255, 255, 0, 85),
+                            //       Color.fromARGB(255, 255, 119, 0),
+                            //       Color.fromARGB(255, 250, 220, 194),
+                            //     ],
+                            //     stops: [
+                            //       0.1,
+                            //       0.5,
+                            //       0.7,
+                            //       1.0,
+                            //     ], // Four stops for four colors
+                            //     begin: Alignment.centerLeft,
+                            //     end: Alignment.centerRight,
+                            //   ).createShader(
+                            //     const Rect.fromLTWH(0.0, 0.0, 250.0, 16.0),
+                            //   ),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

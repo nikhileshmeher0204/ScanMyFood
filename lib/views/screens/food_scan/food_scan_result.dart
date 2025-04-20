@@ -1,13 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/gen/assets.gen.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/common/primary_appbar.dart';
-import 'package:read_the_label/views/screens/ask_AI_page.dart';
+import 'package:read_the_label/views/common/primary_svg_picture.dart';
+import 'package:read_the_label/views/screens/ai_chat/ask_AI_page.dart';
 import 'package:read_the_label/views/common/corner_painter.dart';
-import 'package:read_the_label/views/widgets/add_to_today_intake_button.dart';
 import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
 import 'package:read_the_label/views/widgets/food_item_card.dart';
 import 'package:read_the_label/views/widgets/food_item_card_shimmer.dart';
@@ -116,7 +119,7 @@ class _FoodScanResultPageState extends State<FoodScanResultPage> {
                       ),
                       const TotalNutrientsCard(),
                       const SizedBox(height: 16),
-                      AddToTodayIntakeButton(
+                      FoodScanAddToTodayIntakeButton(
                         uiProvider: uiProvider,
                         dailyIntakeProvider: dailyIntakeProvider,
                         productName: mealAnalysisProvider.mealName,
@@ -124,6 +127,7 @@ class _FoodScanResultPageState extends State<FoodScanResultPage> {
                             mealAnalysisProvider.totalPlateNutrients,
                         imageFile: mealAnalysisProvider.foodImage,
                       ),
+                      const SizedBox(height: 8),
                       InkWell(
                         onTap: () {
                           Navigator.push(
@@ -144,6 +148,86 @@ class _FoodScanResultPageState extends State<FoodScanResultPage> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class FoodScanAddToTodayIntakeButton extends StatelessWidget {
+  const FoodScanAddToTodayIntakeButton({
+    super.key,
+    required this.uiProvider,
+    required this.dailyIntakeProvider,
+    required this.productName,
+    required this.totalPlateNutrients,
+    this.imageFile,
+  });
+
+  final UiViewModel uiProvider;
+  final DailyIntakeViewModel dailyIntakeProvider;
+  final String productName;
+  final Map<String, dynamic> totalPlateNutrients;
+  final File? imageFile;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 12,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(40),
+        ),
+        elevation: 2,
+        minimumSize: const Size(200, 50),
+      ),
+      onPressed: () {
+        dailyIntakeProvider.addMealToDailyIntake(
+          mealName: productName,
+          totalPlateNutrients: totalPlateNutrients,
+          foodImage: imageFile,
+        );
+
+        uiProvider.updateCurrentIndex(2);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Added to today\'s intake!'),
+            action: SnackBarAction(
+              label: 'VIEW',
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        );
+      },
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          PrimarySvgPicture(
+            Assets.icons.icAdd.path,
+            width: 20,
+          ),
+          const SizedBox(width: 12),
+          Column(
+            children: [
+              Text(
+                "Add to today's intake",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Poppins',
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

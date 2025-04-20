@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +14,7 @@ class MealAnalysisViewModel extends BaseViewModel {
 
   // Properties
   File? _foodImage;
-  List<FoodItem> _analyzedFoodItems = [];
+  final List<FoodItem> _analyzedFoodItems = [];
   Map<String, dynamic> _totalPlateNutrients = {};
   String _mealName = "Unknown Meal";
 
@@ -83,6 +82,11 @@ class MealAnalysisViewModel extends BaseViewModel {
                   ['value'],
               'fat': item['nutrients_per_100g']['fat']['value'],
               'fiber': item['nutrients_per_100g']['fiber']['value'],
+              'sodium': item['nutrients_per_100g']['sodium']['value'],
+              'sugar': item['nutrients_per_100g']['sugar']['value'],
+              'calcium': item['nutrients_per_100g']['calcium']['value'],
+              'cholesterol': item['nutrients_per_100g']['cholesterol']['value'],
+              'iron': item['nutrients_per_100g']['iron']['value'],
             },
           ));
         }
@@ -96,6 +100,12 @@ class MealAnalysisViewModel extends BaseViewModel {
             ['value'],
         'fat': plateAnalysis['total_plate_nutrients']['fat']['value'],
         'fiber': plateAnalysis['total_plate_nutrients']['fiber']['value'],
+        'sodium': plateAnalysis['total_plate_nutrients']['sodium']['value'],
+        'sugar': plateAnalysis['total_plate_nutrients']['sugar']['value'],
+        'calcium': plateAnalysis['total_plate_nutrients']['calcium']['value'],
+        'cholesterol': plateAnalysis['total_plate_nutrients']['cholesterol']
+            ['value'],
+        'iron': plateAnalysis['total_plate_nutrients']['iron']['value'],
       };
 
       debugPrint("Total Plate Nutrients:");
@@ -104,6 +114,11 @@ class MealAnalysisViewModel extends BaseViewModel {
       debugPrint("Carbohydrates: ${_totalPlateNutrients['carbohydrates']}");
       debugPrint("Fat: ${_totalPlateNutrients['fat']}");
       debugPrint("Fiber: ${_totalPlateNutrients['fiber']}");
+      debugPrint("Sodium: ${_totalPlateNutrients['sodium']}");
+      debugPrint("Sugar: ${_totalPlateNutrients['sugar']}");
+      debugPrint("Calcium: ${_totalPlateNutrients['calcium']}");
+      debugPrint("Cholesterol: ${_totalPlateNutrients['cholesterol']}");
+      debugPrint("Iron: ${_totalPlateNutrients['iron']}");
 
       notifyListeners();
       return "Analysis complete";
@@ -148,6 +163,11 @@ class MealAnalysisViewModel extends BaseViewModel {
                   ['value'],
               'fat': item['nutrients_per_100g']['fat']['value'],
               'fiber': item['nutrients_per_100g']['fiber']['value'],
+              'sodium': item['nutrients_per_100g']['sodium']['value'],
+              'sugar': item['nutrients_per_100g']['sugar']['value'],
+              'calcium': item['nutrients_per_100g']['calcium']['value'],
+              'cholesterol': item['nutrients_per_100g']['cholesterol']['value'],
+              'iron': item['nutrients_per_100g']['iron']['value'],
             },
           ));
         }
@@ -161,6 +181,11 @@ class MealAnalysisViewModel extends BaseViewModel {
             ['value'],
         'fat': plateAnalysis['total_nutrients']['fat']['value'],
         'fiber': plateAnalysis['total_nutrients']['fiber']['value'],
+        'sodium': plateAnalysis['total_nutrients']['sodium']['value'],
+        'sugar': plateAnalysis['total_nutrients']['sugar']['value'],
+        'calcium': plateAnalysis['total_nutrients']['calcium']['value'],
+        'cholesterol': plateAnalysis['total_nutrients']['cholesterol']['value'],
+        'iron': plateAnalysis['total_nutrients']['iron']['value'],
       };
 
       notifyListeners();
@@ -182,6 +207,11 @@ class MealAnalysisViewModel extends BaseViewModel {
       'carbohydrates': 0.0,
       'fat': 0.0,
       'fiber': 0.0,
+      'sodium': 0.0,
+      'sugar': 0.0,
+      'calcium': 0.0,
+      'cholesterol': 0.0,
+      'iron': 0.0,
     };
 
     for (var item in _analyzedFoodItems) {
@@ -199,6 +229,18 @@ class MealAnalysisViewModel extends BaseViewModel {
           (_totalPlateNutrients['fat'] ?? 0.0) + (itemNutrients['fat'] ?? 0.0);
       _totalPlateNutrients['fiber'] = (_totalPlateNutrients['fiber'] ?? 0.0) +
           (itemNutrients['fiber'] ?? 0.0);
+      _totalPlateNutrients['sodium'] = (_totalPlateNutrients['sodium'] ?? 0.0) +
+          (itemNutrients['sodium'] ?? 0.0);
+      _totalPlateNutrients['sugar'] = (_totalPlateNutrients['sugar'] ?? 0.0) +
+          (itemNutrients['sugar'] ?? 0.0);
+      _totalPlateNutrients['calcium'] =
+          (_totalPlateNutrients['calcium'] ?? 0.0) +
+              (itemNutrients['calcium'] ?? 0.0);
+      _totalPlateNutrients['cholesterol'] =
+          (_totalPlateNutrients['cholesterol'] ?? 0.0) +
+              (itemNutrients['cholesterol'] ?? 0.0);
+      _totalPlateNutrients['iron'] = (_totalPlateNutrients['iron'] ?? 0.0) +
+          (itemNutrients['iron'] ?? 0.0);
     }
 
     notifyListeners();

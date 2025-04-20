@@ -158,14 +158,24 @@ Provide response in this strict JSON format:
           "protein": {"value": 0, "unit": "g"},
           "carbohydrates": {"value": 0, "unit": "g"},
           "fat": {"value": 0, "unit": "g"},
-          "fiber": {"value": 0, "unit": "g"}
+          "fiber": {"value": 0, "unit": "g"},
+          "sodium": {"value": 0, "unit": "mg"},
+          "sugar": {"value": 0, "unit": "g"},
+          "calcium": {"value": 0, "unit": "mg"},
+          "cholesterol": {"value": 0, "unit": "mg"},
+          "iron": {"value": 0, "unit": "mg"}
         },
         "total_nutrients": {
           "calories": 0,
           "protein": {"value": 0, "unit": "g"},
           "carbohydrates": {"value": 0, "unit": "g"},
           "fat": {"value": 0, "unit": "g"},
-          "fiber": {"value": 0, "unit": "g"}
+          "fiber": {"value": 0, "unit": "g"},
+          "sodium": {"value": 0, "unit": "mg"},
+          "sugar": {"value": 0, "unit": "g"},
+          "calcium": {"value": 0, "unit": "mg"},
+          "cholesterol": {"value": 0, "unit": "mg"},
+          "iron": {"value": 0, "unit": "mg"}
         },
         "visual_cues": ["List of visual indicators used for estimation"],
         "position": "Description of item location in the image"
@@ -176,7 +186,12 @@ Provide response in this strict JSON format:
       "protein": {"value": 0, "unit": "g"},
       "carbohydrates": {"value": 0, "unit": "g"},
       "fat": {"value": 0, "unit": "g"},
-      "fiber": {"value": 0, "unit": "g"}
+      "fiber": {"value": 0, "unit": "g"},
+      "sodium": {"value": 0, "unit": "mg"},
+      "sugar": {"value": 0, "unit": "g"},
+      "calcium": {"value": 0, "unit": "mg"},
+      "cholesterol": {"value": 0, "unit": "mg"},
+      "iron": {"value": 0, "unit": "mg"}
     }
   }
 }
@@ -238,14 +253,24 @@ Consider:
           "protein": {"value": 0, "unit": "g"},
           "carbohydrates": {"value": 0, "unit": "g"},
           "fat": {"value": 0, "unit": "g"},
-          "fiber": {"value": 0, "unit": "g"}
+          "fiber": {"value": 0, "unit": "g"},
+          "sodium": {"value": 0, "unit": "mg"},
+          "sugar": {"value": 0, "unit": "g"},
+          "calcium": {"value": 0, "unit": "mg"},
+          "cholesterol": {"value": 0, "unit": "mg"},
+          "iron": {"value": 0, "unit": "mg"}
         },
         "nutrients_in_mentioned_quantity": {
           "calories": 0,
           "protein": {"value": 0, "unit": "g"},
           "carbohydrates": {"value": 0, "unit": "g"},
           "fat": {"value": 0, "unit": "g"},
-          "fiber": {"value": 0, "unit": "g"}
+          "fiber": {"value": 0, "unit": "g"},
+          "sodium": {"value": 0, "unit": "mg"},
+          "sugar": {"value": 0, "unit": "g"},
+          "calcium": {"value": 0, "unit": "mg"},
+          "cholesterol": {"value": 0, "unit": "mg"},
+          "iron": {"value": 0, "unit": "mg"}
         },
       }
     ],
@@ -254,7 +279,12 @@ Consider:
       "protein": {"value": 0, "unit": "g"},
       "carbohydrates": {"value": 0, "unit": "g"},
       "fat": {"value": 0, "unit": "g"},
-      "fiber": {"value": 0, "unit": "g"}
+      "fiber": {"value": 0, "unit": "g"},
+      "sodium": {"value": 0, "unit": "mg"},
+      "sugar": {"value": 0, "unit": "g"},
+      "calcium": {"value": 0, "unit": "mg"},
+      "cholesterol": {"value": 0, "unit": "mg"},
+      "iron": {"value": 0, "unit": "mg"}
     }
   }
 }

@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -183,7 +182,6 @@ class DailyIntakeViewModel extends BaseViewModel {
       // Convert nutrients to the format needed for daily intake
       Map<String, double> newNutrients = {};
       for (var nutrient in nutrients) {
-        log(nutrient.toString());
         final name = nutrient['name'];
         final quantity = double.tryParse(nutrient['quantity']
                 .toString()
@@ -219,7 +217,7 @@ class DailyIntakeViewModel extends BaseViewModel {
   Future<void> addMealToDailyIntake({
     required String mealName,
     required Map<String, dynamic> totalPlateNutrients,
-    required File? foodImage,
+    File? foodImage,
   }) async {
     try {
       // Convert meal nutrients to the format needed for daily intake
@@ -229,6 +227,11 @@ class DailyIntakeViewModel extends BaseViewModel {
         'Carbohydrate': (totalPlateNutrients['carbohydrates'] ?? 0).toDouble(),
         'Fat': (totalPlateNutrients['fat'] ?? 0).toDouble(),
         'Fiber': (totalPlateNutrients['fiber'] ?? 0).toDouble(),
+        'Sodium': (totalPlateNutrients['sodium'] ?? 0).toDouble(),
+        'Sugar': (totalPlateNutrients['sugar'] ?? 0).toDouble(),
+        'Calcium': (totalPlateNutrients['calcium'] ?? 0).toDouble(),
+        'Cholesterol': (totalPlateNutrients['cholesterol'] ?? 0).toDouble(),
+        'Iron': (totalPlateNutrients['iron'] ?? 0).toDouble(),
       };
 
       // Process and save the image

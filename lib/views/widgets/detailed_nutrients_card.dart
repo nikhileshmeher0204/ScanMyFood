@@ -54,8 +54,7 @@ class DetailedNutrientsCard extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
-              childAspectRatio: 1.5,
-              mainAxisSpacing: 16,
+              childAspectRatio: 2.2,
               crossAxisSpacing: 16,
               children: nutrientData
                   .where((nutrient) {
@@ -71,7 +70,6 @@ class DetailedNutrientsCard extends StatelessWidget {
                   .toList(),
             ),
           ),
-          const SizedBox(height: 20),
         ],
       ),
     );

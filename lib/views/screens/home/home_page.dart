@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/gen/assets.gen.dart';
@@ -5,6 +6,7 @@ import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/common/logo_appbar.dart';
 import 'package:read_the_label/views/common/primary_svg_picture.dart';
+import 'package:read_the_label/views/screens/ai_chat/ai_chat_page.dart';
 import 'package:read_the_label/views/screens/scan_lable/product_scan_page.dart';
 import 'package:read_the_label/views/screens/food_scan/food_scan_page.dart';
 import 'package:read_the_label/views/screens/daily_intake/daily_intake_page.dart';
@@ -20,6 +22,21 @@ class HomePage extends StatelessWidget {
       backgroundColor: Colors.transparent,
       appBar: const LogoAppbar(),
       bottomNavigationBar: _buildBottomNavigationBar(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (context) => const AiChatPage(),
+            ),
+          );
+        },
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: PrimarySvgPicture(
+          Assets.icons.icChatbot.path,
+          color: Colors.white,
+        ),
+      ),
       body: SafeArea(
         child: Container(
           color: Theme.of(context).colorScheme.surface,

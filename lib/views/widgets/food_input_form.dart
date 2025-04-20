@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/main.dart';
+import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
-import 'package:read_the_label/views/screens/food_analysis_screen.dart';
 
 class FoodInputForm extends StatefulWidget {
   final VoidCallback onSubmit;
@@ -21,14 +20,12 @@ class _FoodInputFormState extends State<FoodInputForm> {
   final List<TextEditingController> _foodItemControllers = [
     TextEditingController()
   ];
-  bool _mounted = true;
 
   @override
   void dispose() {
     for (var controller in _foodItemControllers) {
       controller.dispose();
     }
-    _mounted = false;
 
     super.dispose();
   }
@@ -65,7 +62,7 @@ class _FoodInputFormState extends State<FoodInputForm> {
                   "Log your meal!",
                   style: TextStyle(
                     fontFamily: 'Poppins',
-                    fontSize: 24,
+                    fontSize: 18,
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
@@ -89,36 +86,28 @@ class _FoodInputFormState extends State<FoodInputForm> {
                             hintText: 'e.g., Rice 200g or 2 Rotis',
                             filled: true,
                             labelStyle: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.5),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.5),
+                                fontSize: 14,
+                                fontFamily: "Poppins"),
+                            hintStyle: const TextStyle(
+                              color: Color(0xff6B6B6B),
+                              fontSize: 12,
+                              fontFamily: 'Poppins',
                             ),
                             fillColor:
                                 Theme.of(context).colorScheme.cardBackground,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(6),
-                              borderSide: BorderSide(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .cardBackground,
-                              ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide:
+                                  const BorderSide(color: Color(0xff6b6b6b)),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(6),
-                              borderSide: BorderSide(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .cardBackground,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(6),
-                              borderSide: BorderSide(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .cardBackground,
-                              ),
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide:
+                                  const BorderSide(color: AppColors.green),
                             ),
                           ),
                         ),
@@ -173,71 +162,51 @@ class _FoodInputFormState extends State<FoodInputForm> {
               ],
             ),
             const SizedBox(height: 20),
-            Container(
-              width: 150,
-              height: 45,
-              margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 100),
-              decoration: BoxDecoration(
-                // color: Theme.of(context).colorScheme.cardBackground,
-                gradient: const LinearGradient(
-                  colors: [
-                    Color.fromARGB(255, 237, 202, 149),
-                    Color.fromARGB(255, 253, 142, 81),
-                    Color.fromARGB(255, 255, 0, 85),
-                    Color.fromARGB(255, 0, 21, 255),
-                  ],
-                  stops: [0.2, 0.4, 0.6, 1.0],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+            GestureDetector(
+              onTap: () {
+                final foodItems = _foodItemControllers
+                    .where((controller) => controller.text.isNotEmpty)
+                    .map((controller) => controller.text)
+                    .join('\n, ');
+                print("Food Items: \n $foodItems");
+                if (foodItems.isNotEmpty) {
+                  context.read<MealAnalysisViewModel>().logMealViaText(
+                        foodItemsText: foodItems,
+                      );
+                  Navigator.pop(context);
+                  widget.onSubmit();
+                }
+              },
+              child: Container(
+                width: double.infinity,
+                margin: const EdgeInsets.symmetric(horizontal: 28),
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                decoration: BoxDecoration(
+                  color: AppColors.green,
+                  borderRadius: BorderRadius.circular(50),
                 ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: MaterialButton(
-                onPressed: () {
-                  final foodItems = _foodItemControllers
-                      .where((controller) => controller.text.isNotEmpty)
-                      .map((controller) => controller.text)
-                      .join('\n, ');
-                  print("Food Items: \n $foodItems");
-                  if (foodItems.isNotEmpty) {
-                    context.read<MealAnalysisViewModel>().logMealViaText(
-                          foodItemsText: foodItems,
-                        );
-                    Navigator.pop(context);
-                    widget.onSubmit();
-                  }
-                },
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
                       Icons.auto_awesome,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.8),
+                      color: Colors.white,
                       size: 24,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
                       "Analyze",
                       style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
                         fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 20,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.8),
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
+            )
           ],
         ),
       ),

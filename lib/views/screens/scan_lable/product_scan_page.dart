@@ -80,46 +80,103 @@ class _ProductScanPageState extends State<ProductScanPage> {
       // Show dialog for nutrition label
       if (mounted) {
         showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => AlertDialog(
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            title: Text(
+            context: context,
+            builder: (context) => scanLableDialog(productAnalysisProvider));
+      }
+    }
+  }
+
+  void imageCapture(
+      {required ImageSource source,
+      required ProductAnalysisViewModel productAnalysisProvider}) async {
+    await productAnalysisProvider.captureImage(
+      source: source,
+      isFrontImage: false,
+    );
+    if (productAnalysisProvider.canAnalyze()) {
+      Navigator.push(
+          navKey.currentContext!,
+          MaterialPageRoute(
+            builder: (context) => const ScanLableResultPage(),
+          ));
+    }
+  }
+
+  Widget scanLableDialog(ProductAnalysisViewModel productAnalysisProvider) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      backgroundColor: Colors.white,
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
               'Now capture nutrition label',
               style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
                   fontFamily: 'Poppins'),
             ),
-            content: Text(
+            const SizedBox(
+              height: 8,
+            ),
+            Text(
               'Please capture or select the nutrition facts label of the product',
               style: TextStyle(
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                  fontFamily: 'Poppins'),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await productAnalysisProvider.captureImage(
-                    source: source,
-                    isFrontImage: false,
-                  );
-                  if (productAnalysisProvider.canAnalyze()) {
-                    Navigator.push(
-                        navKey.currentContext!,
-                        MaterialPageRoute(
-                          builder: (context) => const ScanLableResultPage(),
-                        ));
-                  }
-                },
-                child: const Text('Continue',
-                    style: TextStyle(fontFamily: 'Poppins')),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                fontFamily: 'Poppins',
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
               ),
-            ],
-          ),
-        );
-      }
-    }
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(
+              height: 32,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: PrimaryButton(
+                    text: 'Camera',
+                    textStyle: TextStyle(fontSize: 12),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      imageCapture(
+                          productAnalysisProvider: productAnalysisProvider,
+                          source: ImageSource.camera);
+                    },
+                    // iconPath: Assets.icons.icScan.path,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    borderRadius: 30,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: PrimaryButton(
+                    text: 'Gallery',
+                    textStyle: TextStyle(fontSize: 12),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      imageCapture(
+                          productAnalysisProvider: productAnalysisProvider,
+                          source: ImageSource.gallery);
+                    },
+                    // iconPath: Assets.icons.icGallery.path,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    borderRadius: 30,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

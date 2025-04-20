@@ -1,9 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/models/user_info.dart';
 import 'package:read_the_label/repositories/storage_repository.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
+import 'package:read_the_label/views/screens/ai_chat/ai_chat_page.dart';
+import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
 import 'package:read_the_label/views/widgets/date_selector.dart';
 import 'package:read_the_label/views/widgets/detailed_nutrients_card.dart';
 import 'package:read_the_label/views/widgets/food_history_card.dart';
@@ -37,7 +40,7 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
   }
 
   Future<void> _loadUserInfo() async {
-    final userInfo = await context.read<StorageRepository>().getUserInfo();
+    final userInfo = context.read<StorageRepository>().getUserInfo();
     if (userInfo != null) {
       _userInfo = userInfo;
     }
@@ -148,6 +151,20 @@ class _DailyIntakePageState extends State<DailyIntakePage> {
               DetailedNutrientsCard(
                 dailyIntake: dailyIntakeProvider.dailyIntake,
                 userInfo: _userInfo,
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => const AiChatPage(),
+                    ),
+                  );
+                },
+                child: const AskAiWidget(),
               ),
             ],
           );

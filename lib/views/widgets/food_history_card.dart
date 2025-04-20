@@ -7,7 +7,7 @@ import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/common/primary_svg_picture.dart';
-import 'package:read_the_label/views/screens/food_analysis_screen.dart';
+import 'package:read_the_label/views/screens/food_scan/food_lable_analysis_screen.dart';
 import 'package:read_the_label/views/widgets/food_input_form.dart';
 
 class FoodHistoryCard extends StatefulWidget {
@@ -39,23 +39,33 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: context.watch<DailyIntakeViewModel>().foodHistory.length,
-            itemBuilder: (context, index) {
-              final item =
-                  context.watch<DailyIntakeViewModel>().foodHistory[index];
-              // Only show items from selected date
-              if (isSameDay(item.dateTime, widget.selectedDate)) {
-                return FoodHistoryItem(
-                  foodName: item.foodName,
-                  dateTime: item.dateTime,
-                  nutrients: item.nutrients,
-                );
+          Builder(
+            builder: (context) {
+              final allItems =
+                  context.watch<DailyIntakeViewModel>().foodHistory;
+              final todayItems = allItems
+                  .where(
+                      (item) => isSameDay(item.dateTime, widget.selectedDate))
+                  .toList();
+
+              if (todayItems.isEmpty) {
+                return const FoodHistoryItem();
               }
-              return const FoodHistoryItem();
+
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: todayItems.length,
+                itemBuilder: (context, index) {
+                  final item = todayItems[index];
+                  return FoodHistoryItem(
+                    foodName: item.foodName,
+                    dateTime: item.dateTime,
+                    nutrients: item.nutrients,
+                  );
+                },
+              );
             },
           ),
           const SizedBox(
@@ -81,7 +91,7 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                         CupertinoPageRoute(
                           builder: (context) => Consumer<UiViewModel>(
                             builder: (context, uiProvider, _) =>
-                                const FoodAnalysisScreen(),
+                                const FoodLableAnalysisScreen(),
                           ),
                         ),
                       );

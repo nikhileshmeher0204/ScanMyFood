@@ -19,6 +19,11 @@ class FoodItem {
       'carbohydrates': nutrientsPer100g['carbohydrates'] * factor,
       'fat': nutrientsPer100g['fat'] * factor,
       'fiber': nutrientsPer100g['fiber'] * factor,
+      'sodium': nutrientsPer100g['sodium'] * factor,
+      'sugar': nutrientsPer100g['sugar'] * factor,
+      'calcium': nutrientsPer100g['calcium'] * factor,
+      'cholesterol': nutrientsPer100g['cholesterol'] * factor,
+      'iron': nutrientsPer100g['iron'] * factor,
     };
   }
 

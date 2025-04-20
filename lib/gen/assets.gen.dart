@@ -122,6 +122,9 @@ class $AssetsIconsGen {
   SvgGenImage get icCarbonHydrates =>
       const SvgGenImage('assets/icons/ic_carbon_hydrates.svg');
 
+  /// File path: assets/icons/ic_chatbot.svg
+  SvgGenImage get icChatbot => const SvgGenImage('assets/icons/ic_chatbot.svg');
+
   /// File path: assets/icons/ic_daily_intake.svg
   SvgGenImage get icDailyIntake =>
       const SvgGenImage('assets/icons/ic_daily_intake.svg');
@@ -208,6 +211,7 @@ class $AssetsIconsGen {
     icCalories,
     icCamera,
     icCarbonHydrates,
+    icChatbot,
     icDailyIntake,
     icEdit,
     icFat,

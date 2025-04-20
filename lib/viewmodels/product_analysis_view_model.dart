@@ -1,11 +1,7 @@
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/repositories/ai_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
@@ -37,23 +33,25 @@ class ProductAnalysisViewModel extends BaseViewModel {
   bool canAnalyze() => _frontImage != null && _nutritionLabelImage != null;
   List<Map<String, dynamic>> getGoodNutrients() => goodNutrients;
   List<Map<String, dynamic>> getBadNutrients() => badNutrients;
+  final imagePicker = ImagePicker();
 
   // Methods for product analysis
   Future<void> captureImage({
     required ImageSource source,
     required bool isFrontImage,
   }) async {
-    final imagePicker = ImagePicker();
-    final image = await imagePicker.pickImage(source: source);
+    try {
+      final image = await imagePicker.pickImage(source: source);
 
-    if (image != null) {
-      if (isFrontImage) {
-        _frontImage = File(image.path);
-      } else {
-        _nutritionLabelImage = File(image.path);
+      if (image != null) {
+        if (isFrontImage) {
+          _frontImage = File(image.path);
+        } else {
+          _nutritionLabelImage = File(image.path);
+        }
+        notifyListeners();
       }
-      notifyListeners();
-    }
+    } catch (_) {}
   }
 
   String? getApiKey() {
