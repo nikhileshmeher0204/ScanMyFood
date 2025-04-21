@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:read_the_label/gen/assets.gen.dart';
 import 'package:read_the_label/views/common/primary_svg_picture.dart';
+import 'package:read_the_label/views/screens/setting/setting_screen.dart';
 
 class LogoAppbar extends StatelessWidget implements PreferredSizeWidget {
   const LogoAppbar({super.key});
@@ -53,7 +54,11 @@ class LogoAppbar extends StatelessWidget implements PreferredSizeWidget {
             height: 24,
           ),
           onPressed: () {
-            // Handle settings button press
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingScreen(),
+                ));
           },
         ),
         const SizedBox(width: 8),

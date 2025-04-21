@@ -111,6 +111,14 @@ class StorageRepository implements StorageRepositoryInterface {
     _prefs.setBool('show_onboarding', true);
   }
 
+  bool isSRated() {
+    return _prefs.getBool('rate') ?? false;
+  }
+
+  void setRate() {
+    _prefs.setBool('rate', true);
+  }
+
   @override
   Future<void> clearAllData() async {
     await _prefs.clear();

@@ -150,6 +150,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/ic_iron.svg
   SvgGenImage get icIron => const SvgGenImage('assets/icons/ic_iron.svg');
 
+  /// File path: assets/icons/ic_langauge.svg
+  SvgGenImage get icLangauge =>
+      const SvgGenImage('assets/icons/ic_langauge.svg');
+
   /// File path: assets/icons/ic_launcher.png
   AssetGenImage get icLauncher =>
       const AssetGenImage('assets/icons/ic_launcher.png');
@@ -161,8 +165,15 @@ class $AssetsIconsGen {
   /// File path: assets/icons/ic_leaf.svg
   SvgGenImage get icLeaf => const SvgGenImage('assets/icons/ic_leaf.svg');
 
+  /// File path: assets/icons/ic_privacy.svg
+  SvgGenImage get icPrivacy => const SvgGenImage('assets/icons/ic_privacy.svg');
+
   /// File path: assets/icons/ic_protein.svg
   SvgGenImage get icProtein => const SvgGenImage('assets/icons/ic_protein.svg');
+
+  /// File path: assets/icons/ic_rate_app.svg
+  SvgGenImage get icRateApp =>
+      const SvgGenImage('assets/icons/ic_rate_app.svg');
 
   /// File path: assets/icons/ic_scan.svg
   SvgGenImage get icScan => const SvgGenImage('assets/icons/ic_scan.svg');
@@ -181,8 +192,18 @@ class $AssetsIconsGen {
   /// File path: assets/icons/ic_setting.svg
   SvgGenImage get icSetting => const SvgGenImage('assets/icons/ic_setting.svg');
 
+  /// File path: assets/icons/ic_share.svg
+  SvgGenImage get icShare => const SvgGenImage('assets/icons/ic_share.svg');
+
   /// File path: assets/icons/ic_sodium.svg
   SvgGenImage get icSodium => const SvgGenImage('assets/icons/ic_sodium.svg');
+
+  /// File path: assets/icons/ic_star.svg
+  SvgGenImage get icStar => const SvgGenImage('assets/icons/ic_star.svg');
+
+  /// File path: assets/icons/ic_star_non.svg
+  SvgGenImage get icStarNon =>
+      const SvgGenImage('assets/icons/ic_star_non.svg');
 
   /// File path: assets/icons/ic_vitamin.svg
   SvgGenImage get icVitamin => const SvgGenImage('assets/icons/ic_vitamin.svg');
@@ -220,16 +241,22 @@ class $AssetsIconsGen {
     icGood,
     icInfo,
     icIron,
+    icLangauge,
     icLauncher,
     icLauncherForeground,
     icLeaf,
+    icPrivacy,
     icProtein,
+    icRateApp,
     icScan,
     icScanFood,
     icScanLable,
     icScience,
     icSetting,
+    icShare,
     icSodium,
+    icStar,
+    icStarNon,
     icVitamin,
     icWarning,
     iosLauncher,
