@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "76641454680",
+    "project_id": "foodai-f2580",
+    "storage_bucket": "foodai-f2580.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:76641454680:android:72b632a21ef0f08b4d182d",
+        "android_client_info": {
+          "package_name": "com.food.ai.calories.tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwG1iYXKNOsqKMyl5ZPboEx2eMSFmbriY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

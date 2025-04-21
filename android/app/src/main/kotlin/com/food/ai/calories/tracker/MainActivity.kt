@@ -1,4 +1,4 @@
-package com.ace.foodscan.smart.calorieai
+package com.food.ai.calories.tracker
 
 import io.flutter.embedding.android.FlutterActivity
 

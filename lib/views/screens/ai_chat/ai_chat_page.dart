@@ -1,10 +1,9 @@
-import 'package:flutter/foundation.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:read_the_label/theme/app_colors.dart';
+import 'package:read_the_label/core/constants/constans.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/views/common/primary_appbar.dart';
 
@@ -23,9 +22,8 @@ class _AiChatPageState extends State<AiChatPage> {
   @override
   void initState() {
     super.initState();
-    apiKey = kIsWeb
-        ? const String.fromEnvironment('GEMINI_API_KEY')
-        : dotenv.env['GEMINI_API_KEY'];
+    apiKey = FirebaseRemoteConfig.instance
+        .getString(RemoteConfigVariables.geminiKey);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeProvider();
     });
@@ -67,7 +65,8 @@ class _AiChatPageState extends State<AiChatPage> {
   Widget _buildChatSection() {
     return LlmChatView(
       provider: _provider,
-      welcomeMessage: "👋 Hello! I'm your nutrition and health assistant. How can I help you today? 🍎",
+      welcomeMessage:
+          "👋 Hello! I'm your nutrition and health assistant. How can I help you today? 🍎",
       style: _buildChatViewStyle(),
     );
   }

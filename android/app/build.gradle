@@ -19,8 +19,10 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+apply plugin: 'com.google.gms.google-services'
+
 android {
-    namespace = "com.example.read_the_label"
+    namespace = "com.food.ai.calories.tracker"
     compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
@@ -34,7 +36,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.ace.foodscan.smart.calorieai"
+        applicationId = "com.food.ai.calories.tracker"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdk = 23

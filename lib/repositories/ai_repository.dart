@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:read_the_label/core/constants/constans.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/repositories/AiRepositoryInterface.dart';
 
@@ -10,8 +11,9 @@ class AiRepository implements AiRepositoryInterface {
   // Get API key
   String? getApiKey() {
     try {
-      final key = dotenv.env['GEMINI_API_KEY'];
-      if (key == null || key.isEmpty) {
+      final key = FirebaseRemoteConfig.instance
+          .getString(RemoteConfigVariables.geminiKey);
+      if (key.isEmpty) {
         throw Exception('GEMINI_API_KEY not found in .env file');
       }
       return key;

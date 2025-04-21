@@ -1,7 +1,8 @@
 import 'dart:io';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:read_the_label/core/constants/constans.dart';
 import 'package:read_the_label/repositories/ai_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
@@ -56,8 +57,9 @@ class ProductAnalysisViewModel extends BaseViewModel {
 
   String? getApiKey() {
     try {
-      final key = dotenv.env['GEMINI_API_KEY'];
-      if (key == null || key.isEmpty) {
+      final key = FirebaseRemoteConfig.instance
+          .getString(RemoteConfigVariables.geminiKey);
+      if (key.isEmpty) {
         throw Exception('GEMINI_API_KEY not found in .env file');
       }
       return key;

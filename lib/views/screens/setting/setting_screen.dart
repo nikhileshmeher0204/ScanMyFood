@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:read_the_label/gen/assets.gen.dart';
@@ -70,12 +72,16 @@ class SettingScreen extends StatelessWidget {
               title: "Privacy Policy",
               onTap: () async {
                 final Uri url = Uri.parse(
-                    "https://sites.google.com/view/artix-ai-photo-editor/privacy-policy");
+                    "https://sites.google.com/view/foodscan-calorieai");
                 try {
                   if (await canLaunchUrl(url)) {
                     await launchUrl(url);
+                  } else {
+                    log("fail");
                   }
-                } catch (_) {}
+                } catch (e) {
+                  log(e.toString());
+                }
               },
             ),
           ],

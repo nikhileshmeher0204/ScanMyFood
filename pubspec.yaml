@@ -37,7 +37,6 @@ dependencies:
   cupertino_icons: ^1.0.6
   google_generative_ai: ^0.4.6
   image_picker: ^1.1.2
-  flutter_dotenv: ^5.2.1
   shared_preferences: ^2.3.3
   percent_indicator: ^4.2.4
   intl: ^0.20.1
@@ -56,6 +55,10 @@ dependencies:
   package_info_plus: "8.1.2"
   permission_handler: "11.3.1"
   device_info_plus: "11.2.0"
+  firebase_remote_config: "5.4.0"
+  firebase_analytics: "11.4.2"
+  firebase_core: "3.11.0"
+  firebase_crashlytics: "4.3.2"
 
 flutter_launcher_icons:
   android: true
@@ -99,7 +102,6 @@ flutter:
     - assets/images/
     - assets/riveAssets/ai_generate_loading.riv
     - assets/riveAssets/qr_code_scanner.riv
-    - .env
 
   fonts:
     - family: Poppins

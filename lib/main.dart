@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
-import 'package:read_the_label/config/env_config.dart';
 import 'package:read_the_label/repositories/ai_repository.dart';
 import 'package:read_the_label/repositories/storage_repository.dart';
 import 'package:read_the_label/theme/app_theme.dart';
+import 'package:read_the_label/utils/analystic_helper.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
@@ -15,14 +15,13 @@ import 'package:read_the_label/views/screens/splash/splash_screen.dart';
 final GlobalKey<NavigatorState> navKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AnalysticHelper.instance.initialize();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent,
     statusBarColor: Colors.transparent,
   ));
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
       overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]);
-
-  await EnvConfig.initialize();
 
   runApp(
     const MyApp(),

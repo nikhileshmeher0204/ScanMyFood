@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'dart:ui';
-import 'package:flutter/foundation.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/core/constants/constans.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
@@ -36,9 +36,8 @@ class _AskAiPageState extends State<AskAiPage> {
   void initState() {
     super.initState();
     _currentMealName = widget.mealName;
-    apiKey = kIsWeb
-        ? const String.fromEnvironment('GEMINI_API_KEY')
-        : dotenv.env['GEMINI_API_KEY'];
+    apiKey = FirebaseRemoteConfig.instance
+        .getString(RemoteConfigVariables.geminiKey);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeProvider();
     });
