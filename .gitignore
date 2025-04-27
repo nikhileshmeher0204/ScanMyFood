@@ -1,100 +1,84 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
+# General
 .DS_Store
-.atom/
-.buildlog/
-.history
-.svn/
-migrate_working_dir/
+*.tmp
+*.temp
+*.bak
 
-# Environment files
-.env
-*.env
-**/*.env
+# Flutter/Dart specific
+flutter-app/.dart_tool/
+flutter-app/.flutter-plugins
+flutter-app/.flutter-plugins-dependencies
+flutter-app/.pub-cache/
+flutter-app/.pub/
+flutter-app/build/
+flutter-app/*.lock
+flutter-app/flutter_*.png
+flutter-app/lib/firebase_options.dart
+flutter-app/firebase.json
 
 
-# IntelliJ related
+# Flutter environment files
+flutter-app/.env
+flutter-app/*.env
+flutter-app/**/*.env
+
+# Android specific
+flutter-app/android/app/debug
+flutter-app/android/app/profile
+flutter-app/android/app/release
+flutter-app/android/**/gradle-wrapper.jar
+flutter-app/android/.gradle
+flutter-app/android/captures/
+flutter-app/android/local.properties
+flutter-app/android/key.properties
+flutter-app/android/**/GeneratedPluginRegistrant.*
+flutter-app/android/app/google-services.json
+
+# iOS specific
+flutter-app/ios/Flutter/.last_build_id
+flutter-app/ios/Flutter/flutter_export_environment.sh
+flutter-app/ios/Flutter/Generated.xcconfig
+flutter-app/ios/**/*.moved-aside
+flutter-app/ios/**/*.pbxuser
+flutter-app/ios/**/*.perspectivev3
+flutter-app/ios/**/*sync/
+flutter-app/ios/**/.sconsign.dblite
+flutter-app/ios/**/.tags*
+flutter-app/ios/**/.vagrant/
+flutter-app/ios/**/DerivedData/
+flutter-app/ios/**/Icon?
+flutter-app/ios/**/Pods/
+flutter-app/ios/**/.symlinks/
+flutter-app/ios/**/profile
+flutter-app/ios/**/xcuserdata
+flutter-app/ios/**/GoogleService-Info.plist
+
+# Spring Boot specific
+spring-backend/target/
+!spring-backend/.mvn/wrapper/maven-wrapper.jar
+!spring-backend/src/main/**/target/
+!spring-backend/src/test/**/target/
+spring-backend/.apt_generated
+spring-backend/.classpath
+spring-backend/.factorypath
+spring-backend/.project
+spring-backend/.settings
+spring-backend/.springBeans
+spring-backend/.sts4-cache
+spring-backend/src/main/resources/application-local.properties
+spring-backend/src/main/resources/application-local.yml
+spring-backend/src/main/resources/firebase-service-account.json
+
+# IDE specific
+.idea/
+*.iws
 *.iml
 *.ipr
-*.iws
-.idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-*.lock
-flutter_*.png
-linked_*.ds
-unlinked.ds
-unlinked_spec.ds
-.fvm/
-
-
-# VS Code related
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 
-
-# iOS/XCode related extras
-**/ios/Flutter/flutter_export_environment.sh
-**/ios/Flutter/Generated.xcconfig
-**/ios/**/*.moved-aside
-**/ios/**/*.pbxuser
-**/ios/**/*.perspectivev3
-**/ios/**/*sync/
-**/ios/**/.sconsign.dblite
-**/ios/**/.tags*
-**/ios/**/.vagrant/
-**/ios/**/DerivedData/
-**/ios/**/Icon?
-**/ios/**/Pods/
-**/ios/**/.symlinks/
-**/ios/**/profile
-**/ios/**/xcuserdata
-**/ios/**/GoogleService-Info.plist
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-
-# Android related extras
-**/android/**/gradle-wrapper.jar
-**/android/.gradle
-**/android/captures/
-**/android/local.properties
-**/android/key.properties
-**/android/**/GeneratedPluginRegistrant.*
-**/android/app/google-services.json
-
-
-# Exclude firebase_options.dart
-lib/firebase_options.dart
-
-# Temporary files
-*.tmp
-*.temp
-*.bak
+# Documentation and help files (optional)
+HELP.md

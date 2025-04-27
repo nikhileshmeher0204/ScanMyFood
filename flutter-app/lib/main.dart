@@ -5,9 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:read_the_label/config/env_config.dart';
+import 'package:read_the_label/views/backend_test_screen.dart';
 import 'firebase_options.dart';
 import 'package:read_the_label/repositories/ai_repository.dart';
 import 'package:read_the_label/repositories/storage_repository.dart';
+import 'package:read_the_label/repositories/spring_backend_repository.dart';
+import 'package:read_the_label/repositories/api_client.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
@@ -49,7 +52,7 @@ class MyApp extends StatelessWidget {
         home: Consumer<User?>(builder: (context, user, _) {
           // If user is already signed in, go to homepage
           if (user != null) {
-            return const HomePage();
+            return const BackendTestScreen();
           }
           // Otherwise, show sign-in screen
           return const SignInScreen();
@@ -68,6 +71,18 @@ class MyApp extends StatelessWidget {
         create: (context) =>
             Provider.of<AuthService>(context, listen: false).authStateChanges(),
         initialData: null,
+      ),
+
+      // API Client
+      Provider<ApiClient>(
+        create: (_) => ApiClient(),
+      ),
+
+      // Spring Backend Repository
+      Provider<SpringBackendRepository>(
+        create: (context) => SpringBackendRepository(
+          context.read<ApiClient>(),
+        ),
       ),
 
       // Register repositories first

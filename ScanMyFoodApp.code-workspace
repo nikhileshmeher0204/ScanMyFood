@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"name": "read_the_label",
+			"path": "."
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "automatic",
+		"java.compile.nullAnalysis.mode": "automatic"
+	}
+}

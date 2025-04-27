@@ -1,4 +1,4 @@
-package com.scanmyfood.backend.config;
+package com.scanmyfood.backend.configurations;
 
 
 import org.springframework.context.annotation.Configuration;
