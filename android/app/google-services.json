@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "110563853503",
+    "project_id": "foodscanai-d28bc",
+    "storage_bucket": "foodscanai-d28bc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:110563853503:android:27e50ed4e0920d9917f20a",
+        "android_client_info": {
+          "package_name": "com.example.read_the_label"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgOpZ27iYehuF7NxlrYEupvPnc4ETqbAE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

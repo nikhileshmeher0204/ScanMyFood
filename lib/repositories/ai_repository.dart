@@ -2,9 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
+// import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/repositories/AiRepositoryInterface.dart';
+import 'package:firebase_vertexai/firebase_vertexai.dart';
+import 'package:firebase_core/firebase_core.dart';
+// import 'firebase_options.dart';
 
 class AiRepository implements AiRepositoryInterface {
   // Get API key
@@ -27,19 +30,28 @@ class AiRepository implements AiRepositoryInterface {
     File frontImage,
     File labelImage,
   ) async {
-    final apiKey = getApiKey();
-    if (apiKey == null) {
-      throw Exception('API key is null');
-    }
+    // final apiKey = getApiKey();
+    // if (apiKey == null) {
+    //   throw Exception('API key is null');
+    // }
 
-    final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+    // final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+
+    //Using Vertex AI
+    final model =
+        FirebaseVertexAI.instance.generativeModel(model: 'gemini-2.0-flash');
 
     final frontImageBytes = await frontImage.readAsBytes();
     final labelImageBytes = await labelImage.readAsBytes();
 
+    // final imageParts = [
+    //   DataPart('image/jpeg', frontImageBytes),
+    //   DataPart('image/jpeg', labelImageBytes),
+    // ];
+
     final imageParts = [
-      DataPart('image/jpeg', frontImageBytes),
-      DataPart('image/jpeg', labelImageBytes),
+      InlineDataPart('image/jpeg', frontImageBytes),
+      InlineDataPart('image/jpeg', labelImageBytes),
     ];
 
     final nutrientParts = nutrientData
@@ -136,8 +148,12 @@ class AiRepository implements AiRepositoryInterface {
     if (apiKey == null) {
       throw Exception('API key is null');
     }
+    //using Google AI SDK
+    // final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
 
-    final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+    //Using Vertex AI
+    final model =
+        FirebaseVertexAI.instance.generativeModel(model: 'gemini-2.0-flash');
     final imageBytes = await imageFile.readAsBytes();
 
     final prompt = TextPart(
@@ -183,13 +199,17 @@ Provide response in this strict JSON format:
 
 Consider:
 1. Use visual cues to estimate portions (size relative to plate, height of food, etc.)
-2. Provide nutrients both per 100g and for estimated total quantity
-3. Consider common serving sizes and preparation methods
+2. Take a deeper look into the container size of food, don't consider a zoomed in container to be a big container
+3. Provide nutrients both per 100g and for estimated total quantity
+4. Prioritize using values from the USDA FoodData Central database. If data is unavailable in the USDA database, use other reputable sources like the EFSA (European Food Safety Authority) Comprehensive Food Consumption Database or national food composition databases, ensuring data reliability and scientific validity.
+5. Consider common serving sizes and preparation methods
+6. Account for density and volume-to-weight conversions
+
 """);
 
     try {
       final response = await model.generateContent([
-        Content.multi([prompt, DataPart('image/jpeg', imageBytes)])
+        Content.multi([prompt, InlineDataPart('image/jpeg', imageBytes)])
       ]);
 
       final responseText = response.text ?? "";
@@ -218,11 +238,15 @@ Consider:
     if (apiKey == null) {
       throw Exception('API key is null');
     }
+    //using Google AI SDK
+    // final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
 
-    final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+    //Using Vertex AI
+    final model =
+        FirebaseVertexAI.instance.generativeModel(model: 'gemini-2.0-flash');
 
     final prompt = TextPart(
-        """You are a nutrition expert. Analyze these food items and their quantities:\n$description\n. Generate nutritional info for each of the mentioned food items and their respective quantities and respond using this JSON schema: 
+        """ You are a highly qualified and experienced nutritionist specializing in providing accurate nutritional information based on reliable food databases and scientific sources. Your task is to analyze food items and their quantities to generate comprehensive nutritional data. Analyze these food items and their quantities:\n$description\n. Generate nutritional info for each of the mentioned food items and their respective quantities and respond using this JSON schema: 
 {
   "meal_analysis": {
   "meal_name": "Name of the meal",
@@ -260,12 +284,15 @@ Consider:
 }
 
 Important considerations:
-1. Use standard USDA database values when available
-2. Account for common preparation methods
-3. Convert all measurements to standard units
-4. Consider regional variations in portion sizes
-5. Round values to one decimal place
-6. Account for density and volume-to-weight conversions
+1. Analyze the provided food items and their quantities in the meal description.
+2. Generate nutritional information for each food item and the total meal, adhering to the provided JSON schema.
+3. Prioritize using values from the USDA FoodData Central database. If data is unavailable in the USDA database, use other reputable sources like the EFSA (European Food Safety Authority) Comprehensive Food Consumption Database or national food composition databases, ensuring data reliability and scientific validity.
+4. Account for common preparation methods (e.g., boiled, fried, baked) when calculating nutritional values. If the preparation method is not specified, assume the most common method for that food item.
+5. Convert all measurements to grams (g) or milliliters (ml) as appropriate. If only volume is provided, use standard density values to convert to weight.  If a unit is not specified, assume grams (g).
+6. Consider regional variations in portion sizes when interpreting quantities. If the description is ambiguous, use standard serving sizes.
+7. Round all nutritional values to one decimal place.
+8. Account for density and volume-to-weight conversions
+9. Take a deeper look into the container size of food, don't consider a zoomed in container to be a big container
 
 Provide accurate nutritional data based on the most reliable food databases and scientific sources.
 """);

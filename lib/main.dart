@@ -1,21 +1,27 @@
-import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:read_the_label/config/env_config.dart';
+import 'package:read_the_label/firebase_options.dart';
 import 'package:read_the_label/repositories/ai_repository.dart';
 import 'package:read_the_label/repositories/storage_repository.dart';
+import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/views/screens/sign_in_screen.dart';
 import 'views/screens/home_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent,
     statusBarColor: Colors.transparent,
@@ -40,13 +46,30 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: AppTheme.darkTheme(),
-        home: const HomePage(),
+        home: Consumer<User?>(builder: (context, user, _) {
+          // If user is already signed in, go to homepage
+          if (user != null) {
+            return const HomePage();
+          }
+          // Otherwise, show sign-in screen
+          return const SignInScreen();
+        }),
       ),
     );
   }
 
   List<SingleChildWidget> _registerProviders() {
     return [
+      Provider<AuthService>(
+        create: (_) => AuthService(),
+        dispose: (_, service) => service.dispose(),
+      ),
+      StreamProvider<User?>(
+        create: (context) =>
+            Provider.of<AuthService>(context, listen: false).authStateChanges(),
+        initialData: null,
+      ),
+
       // Register repositories first
       Provider<AiRepository>(
         create: (_) => AiRepository(),
