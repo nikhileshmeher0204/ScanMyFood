@@ -36,6 +36,39 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+*.lock
+flutter_*.png
+linked_*.ds
+unlinked.ds
+unlinked_spec.ds
+.fvm/
+
+
+# VS Code related
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+
+# iOS/XCode related extras
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/Generated.xcconfig
+**/ios/**/*.moved-aside
+**/ios/**/*.pbxuser
+**/ios/**/*.perspectivev3
+**/ios/**/*sync/
+**/ios/**/.sconsign.dblite
+**/ios/**/.tags*
+**/ios/**/.vagrant/
+**/ios/**/DerivedData/
+**/ios/**/Icon?
+**/ios/**/Pods/
+**/ios/**/.symlinks/
+**/ios/**/profile
+**/ios/**/xcuserdata
+**/ios/**/GoogleService-Info.plist
 
 # Symbolication related
 app.*.symbols
@@ -48,5 +81,20 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Android related extras
+**/android/**/gradle-wrapper.jar
+**/android/.gradle
+**/android/captures/
+**/android/local.properties
+**/android/key.properties
+**/android/**/GeneratedPluginRegistrant.*
+**/android/app/google-services.json
+
+
 # Exclude firebase_options.dart
 lib/firebase_options.dart
+
+# Temporary files
+*.tmp
+*.temp
+*.bak

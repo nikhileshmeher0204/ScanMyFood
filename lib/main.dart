@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:read_the_label/config/env_config.dart';
-import 'package:read_the_label/firebase_options.dart';
+import 'firebase_options.dart';
 import 'package:read_the_label/repositories/ai_repository.dart';
 import 'package:read_the_label/repositories/storage_repository.dart';
 import 'package:read_the_label/services/auth_service.dart';
