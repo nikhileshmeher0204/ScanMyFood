@@ -80,5 +80,7 @@ spring-backend/src/main/resources/firebase-service-account.json
 !.vscode/launch.json
 !.vscode/extensions.json
 
+# VS Code workspace files
+*.code-workspace
 # Documentation and help files (optional)
 HELP.md
