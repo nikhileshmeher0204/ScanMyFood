@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
-import 'package:read_the_label/views/screens/product_scan_page.dart';
-import 'package:read_the_label/views/screens/food_scan_page.dart';
-import 'package:read_the_label/views/screens/daily_intake_page.dart';
+import 'package:read_the_label/views/screens/product_analysis_view.dart';
+import 'package:read_the_label/views/screens/food_analysis_view.dart';
+import 'package:read_the_label/views/screens/daily_intake_view.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -64,17 +64,17 @@ class HomePage extends StatelessWidget {
                   AnimatedOpacity(
                     opacity: uiProvider.currentIndex == 0 ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 300),
-                    child: const ProductScanPage(),
+                    child: const ProductAnalysisView(),
                   ),
                   AnimatedOpacity(
                     opacity: uiProvider.currentIndex == 1 ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 300),
-                    child: const FoodScanPage(),
+                    child: const FoodAnalysisView(),
                   ),
                   AnimatedOpacity(
                     opacity: uiProvider.currentIndex == 2 ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 300),
-                    child: const DailyIntakePage(),
+                    child: const DailyIntakeView(),
                   ),
                 ],
               );

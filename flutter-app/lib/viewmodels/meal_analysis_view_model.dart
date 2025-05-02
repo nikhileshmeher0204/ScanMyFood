@@ -3,14 +3,15 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_item.dart';
-import 'package:read_the_label/repositories/ai_repository.dart';
+import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class MealAnalysisViewModel extends BaseViewModel {
   // Dependencies
-  AiRepository aiRepository;
+  SpringBackendRepository aiRepository;
   UiViewModel uiProvider;
 
   // Properties
@@ -62,41 +63,12 @@ class MealAnalysisViewModel extends BaseViewModel {
       // Use repository for AI analysis
       final response = await aiRepository.analyzeFoodImage(imageFile);
 
-      // Process the analysis results
-      final plateAnalysis = response['plate_analysis'];
-      _mealName = plateAnalysis['meal_name'] ?? 'Unknown Meal';
-
-      // Clear previous analysis
       _analyzedFoodItems.clear();
+      _totalPlateNutrients.clear();
 
-      // Process each food item
-      if (plateAnalysis['items'] != null) {
-        for (var item in plateAnalysis['items']) {
-          _analyzedFoodItems.add(FoodItem(
-            name: item['food_name'],
-            quantity: item['estimated_quantity']['amount'].toDouble(),
-            unit: item['estimated_quantity']['unit'],
-            nutrientsPer100g: {
-              'calories': item['nutrients_per_100g']['calories'],
-              'protein': item['nutrients_per_100g']['protein']['value'],
-              'carbohydrates': item['nutrients_per_100g']['carbohydrates']
-                  ['value'],
-              'fat': item['nutrients_per_100g']['fat']['value'],
-              'fiber': item['nutrients_per_100g']['fiber']['value'],
-            },
-          ));
-        }
-      }
-
-      // Store total nutrients
-      _totalPlateNutrients = {
-        'calories': plateAnalysis['total_plate_nutrients']['calories'],
-        'protein': plateAnalysis['total_plate_nutrients']['protein']['value'],
-        'carbohydrates': plateAnalysis['total_plate_nutrients']['carbohydrates']
-            ['value'],
-        'fat': plateAnalysis['total_plate_nutrients']['fat']['value'],
-        'fiber': plateAnalysis['total_plate_nutrients']['fiber']['value'],
-      };
+      _mealName = response.mealName;
+      _analyzedFoodItems = response.analyzedFoodItems;
+      _totalPlateNutrients = response.getSimpleTotalNutrients();
 
       debugPrint("Total Plate Nutrients:");
       debugPrint("Calories: ${_totalPlateNutrients['calories']}");
@@ -126,42 +98,22 @@ class MealAnalysisViewModel extends BaseViewModel {
       debugPrint("Processing food items via text: \n$foodItemsText");
 
       // Use repository for text-based analysis
-      final response = await aiRepository.analyzeFoodDescription(foodItemsText);
-
-      final plateAnalysis = response['meal_analysis'];
-      _mealName = plateAnalysis['meal_name'] ?? 'Unknown Meal';
-
+      final FoodAnalysisResponse response =
+          await aiRepository.analyzeFoodDescription(foodItemsText);
       // Clear previous analysis
       _analyzedFoodItems.clear();
+      _totalPlateNutrients.clear();
 
-      // Process each food item
-      if (plateAnalysis['items'] != null) {
-        for (var item in plateAnalysis['items']) {
-          _analyzedFoodItems.add(FoodItem(
-            name: item['food_name'],
-            quantity: item['mentioned_quantity']['amount'].toDouble(),
-            unit: item['mentioned_quantity']['unit'],
-            nutrientsPer100g: {
-              'calories': item['nutrients_per_100g']['calories'],
-              'protein': item['nutrients_per_100g']['protein']['value'],
-              'carbohydrates': item['nutrients_per_100g']['carbohydrates']
-                  ['value'],
-              'fat': item['nutrients_per_100g']['fat']['value'],
-              'fiber': item['nutrients_per_100g']['fiber']['value'],
-            },
-          ));
-        }
-      }
+      _mealName = response.mealName;
+      _analyzedFoodItems = response.analyzedFoodItems;
+      _totalPlateNutrients = response.getSimpleTotalNutrients();
 
-      // Store total nutrients
-      _totalPlateNutrients = {
-        'calories': plateAnalysis['total_nutrients']['calories'],
-        'protein': plateAnalysis['total_nutrients']['protein']['value'],
-        'carbohydrates': plateAnalysis['total_nutrients']['carbohydrates']
-            ['value'],
-        'fat': plateAnalysis['total_nutrients']['fat']['value'],
-        'fiber': plateAnalysis['total_nutrients']['fiber']['value'],
-      };
+      debugPrint("Total Plate Nutrients:");
+      debugPrint("Calories: ${_totalPlateNutrients['calories']}");
+      debugPrint("Protein: ${_totalPlateNutrients['protein']}");
+      debugPrint("Carbohydrates: ${_totalPlateNutrients['carbohydrates']}");
+      debugPrint("Fat: ${_totalPlateNutrients['fat']}");
+      debugPrint("Fiber: ${_totalPlateNutrients['fiber']}");
 
       notifyListeners();
       return "Analysis complete";

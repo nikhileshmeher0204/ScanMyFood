@@ -6,7 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
-import 'package:read_the_label/repositories/ai_repository.dart';
+import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
@@ -19,9 +19,10 @@ class ProductAnalysisViewModel extends BaseViewModel {
   List<Map<String, dynamic>> parsedNutrients = [];
   List<Map<String, dynamic>> goodNutrients = [];
   List<Map<String, dynamic>> badNutrients = [];
+  List<Map<String, dynamic>> _primaryConcerns = [];
 
 // Dependencies
-  AiRepository aiRepository;
+  SpringBackendRepository aiRepository;
   UiViewModel uiProvider;
 
   ProductAnalysisViewModel({
@@ -37,6 +38,7 @@ class ProductAnalysisViewModel extends BaseViewModel {
   bool canAnalyze() => _frontImage != null && _nutritionLabelImage != null;
   List<Map<String, dynamic>> getGoodNutrients() => goodNutrients;
   List<Map<String, dynamic>> getBadNutrients() => badNutrients;
+  List<Map<String, dynamic>> get primaryConcerns => _primaryConcerns;
 
   // Methods for product analysis
   Future<void> captureImage({
@@ -85,65 +87,73 @@ class ProductAnalysisViewModel extends BaseViewModel {
     uiProvider.setLoading(true);
 
     try {
-      // Use the repository instead of direct API calls
+      // Use the repository to get structured response
       final response = await aiRepository.analyzeProductImages(
           _frontImage!, _nutritionLabelImage!);
 
-      // Process response
-      _productName = response['product']['name'] ?? "Unknown Product";
-      _nutritionAnalysis = response['nutrition_analysis'];
+      // Process response (much simpler now!)
+      _productName = response.product.name;
+
+      _nutritionAnalysis = {};
+      // Process nutrients
+      parsedNutrients = [];
+      goodNutrients = [];
+      badNutrients = [];
+      _primaryConcerns = []; // Clear primary concerns
+
+      for (var nutrient in response.nutritionAnalysis.nutrients) {
+        final nutrientMap = {
+          'name': nutrient.name,
+          'quantity': nutrient.quantity,
+          'daily_value': nutrient.dailyValue,
+          'status': nutrient.status,
+          'health_impact': nutrient.healthImpact,
+        };
+        parsedNutrients.add(nutrientMap);
+
+        if (nutrient.healthImpact == "Good" ||
+            nutrient.healthImpact == "Moderate") {
+          goodNutrients.add(nutrientMap);
+        } else {
+          badNutrients.add(nutrientMap);
+        }
+      }
+
+      // Process primary concerns
+      if (response.nutritionAnalysis.primaryConcerns.isNotEmpty) {
+        for (var concern in response.nutritionAnalysis.primaryConcerns) {
+          final recommendationsList = concern.recommendations
+              .map((rec) => {
+                    'food': rec.food,
+                    'quantity': rec.quantity,
+                    'reasoning': rec.reasoning,
+                  })
+              .toList();
+
+          _primaryConcerns.add({
+            'issue': concern.issue,
+            'explanation': concern.explanation,
+            'recommendations': recommendationsList,
+          });
+        }
+      }
+
+      // Handle serving size
+      final servingSizeStr = response.nutritionAnalysis.servingSize;
+      final servingSizeNum =
+          double.tryParse(servingSizeStr.replaceAll(RegExp(r'[^0-9\.]'), '')) ??
+              0.0;
+
+      if (servingSizeNum > 0) {
+        print("Setting serving size to: $servingSizeNum");
+        uiProvider.updateServingSize(servingSizeNum);
+      }
 
       print("📝 Product: $_productName");
       print("📊 Good nutrients: ${goodNutrients.length}");
       print("⚠️ Bad nutrients: ${badNutrients.length}");
 
-      // Safe parsing for serving size
-      if (_nutritionAnalysis.containsKey("serving_size") &&
-          _nutritionAnalysis["serving_size"] != null) {
-        final servingSizeStr = _nutritionAnalysis["serving_size"].toString();
-        final servingSizeNum = double.tryParse(
-                servingSizeStr.replaceAll(RegExp(r'[^0-9\.]'), '')) ??
-            0.0;
-
-        if (servingSizeNum > 0) {
-          print("Setting serving size to: $servingSizeNum");
-          uiProvider.updateServingSize(servingSizeNum);
-        }
-      }
-
-      // Safe parsing for nutrients with more defensive code
-      if (_nutritionAnalysis.containsKey('nutrients') &&
-          _nutritionAnalysis['nutrients'] is List) {
-        // Create a clean copy - don't assign directly
-        parsedNutrients = [];
-
-        for (var nutrient in _nutritionAnalysis['nutrients']) {
-          // Skip null entries
-          if (nutrient == null) continue;
-
-          // Create safe entry with defaults for all fields
-          parsedNutrients.add({
-            'name': nutrient['name'] ?? 'Unknown',
-            'quantity': nutrient['quantity'] ?? '0',
-            'daily_value': nutrient['daily_value'] ?? '0%',
-            'status': nutrient['status'] ?? 'Moderate',
-            'health_impact': nutrient['health_impact'] ?? 'Moderate',
-          });
-        }
-
-        // Clear and update good/bad nutrients
-        goodNutrients.clear();
-        badNutrients.clear();
-
-        for (var nutrient in parsedNutrients) {
-          if (nutrient["health_impact"] == "Good" ||
-              nutrient["health_impact"] == "Moderate") {
-            goodNutrients.add(nutrient);
-          } else {
-            badNutrients.add(nutrient);
-          }
-        }
-      }
+      notifyListeners();
       return "✅Product Analysis complete";
     } catch (e) {
       print("❌ Error analyzing images: $e");

@@ -1,16 +1,15 @@
 import 'dart:io';
 import 'package:read_the_label/theme/app_theme.dart';
+import 'package:read_the_label/views/screens/ask_ai_view.dart';
 import 'package:rive/rive.dart' as rive;
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/main.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
-import 'package:read_the_label/views/screens/ask_ai_page.dart';
 import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
 import 'package:read_the_label/views/widgets/food_item_card.dart';
 import 'package:read_the_label/views/widgets/food_item_card_shimmer.dart';
@@ -18,16 +17,16 @@ import 'package:read_the_label/views/widgets/product_image_capture_buttons.dart'
 import 'package:read_the_label/views/widgets/total_nutrients_card.dart';
 import 'package:read_the_label/views/widgets/total_nutrients_card_shimmer.dart';
 
-class FoodScanPage extends StatefulWidget {
-  const FoodScanPage({
+class FoodAnalysisView extends StatefulWidget {
+  const FoodAnalysisView({
     super.key,
   });
 
   @override
-  State<FoodScanPage> createState() => _FoodScanPageState();
+  State<FoodAnalysisView> createState() => _FoodAnalysisViewState();
 }
 
-class _FoodScanPageState extends State<FoodScanPage> {
+class _FoodAnalysisViewState extends State<FoodAnalysisView> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -171,7 +170,7 @@ class _FoodScanPageState extends State<FoodScanPage> {
                         Navigator.push(
                           context,
                           CupertinoPageRoute(
-                            builder: (context) => AskAiPage(
+                            builder: (context) => AskAiView(
                               mealName: mealAnalysisProvider.mealName,
                               foodImage: mealAnalysisProvider.foodImage!,
                             ),

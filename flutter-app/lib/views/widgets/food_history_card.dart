@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
-import 'package:read_the_label/views/screens/food_analysis_screen.dart';
+import 'package:read_the_label/views/screens/meal_description_analysis_view.dart';
 import 'package:read_the_label/views/widgets/food_input_form.dart';
 
 class FoodHistoryCard extends StatefulWidget {
@@ -167,7 +167,7 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                         CupertinoPageRoute(
                           builder: (context) => Consumer<UiViewModel>(
                             builder: (context, uiProvider, _) =>
-                                const FoodAnalysisScreen(),
+                                const MealDescriptionAnalysisView(),
                           ),
                         ),
                       );

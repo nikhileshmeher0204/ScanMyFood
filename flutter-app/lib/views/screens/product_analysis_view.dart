@@ -4,12 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
-import 'package:read_the_label/main.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
-import 'package:read_the_label/views/screens/ask_ai_page.dart';
+import 'package:read_the_label/views/screens/ask_ai_view.dart';
 import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
 import 'package:read_the_label/views/widgets/nutrient_balance_card.dart';
 import 'package:read_the_label/views/widgets/nutrient_info_shimmer.dart';
@@ -18,14 +17,14 @@ import 'package:read_the_label/views/widgets/portion_buttons.dart';
 import 'package:read_the_label/views/widgets/product_image_capture_buttons.dart';
 import 'package:rive/rive.dart' as rive;
 
-class ProductScanPage extends StatefulWidget {
-  const ProductScanPage({super.key});
+class ProductAnalysisView extends StatefulWidget {
+  const ProductAnalysisView({super.key});
 
   @override
-  State<ProductScanPage> createState() => _ProductScanPageState();
+  State<ProductAnalysisView> createState() => _ProductAnalysisViewState();
 }
 
-class _ProductScanPageState extends State<ProductScanPage> {
+class _ProductAnalysisViewState extends State<ProductAnalysisView> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -269,21 +268,13 @@ class _ProductScanPageState extends State<ProductScanPage> {
                     ],
                   ),
                 ),
-              if (productAnalysisProvider
-                      .nutritionAnalysis['primary_concerns'] !=
-                  null)
-                ...productAnalysisProvider.nutritionAnalysis['primary_concerns']
-                    .map(
+              if (productAnalysisProvider.primaryConcerns.isNotEmpty)
+                ...productAnalysisProvider.primaryConcerns.map(
                   (concern) => NutrientBalanceCard(
                     issue: concern['issue'] ?? '',
                     explanation: concern['explanation'] ?? '',
-                    recommendations: (concern['recommendations'] as List?)
-                            ?.map((rec) => {
-                                  'food': rec['food'] ?? '',
-                                  'quantity': rec['quantity'] ?? '',
-                                  'reasoning': rec['reasoning'] ?? '',
-                                })
-                            .toList() ??
+                    recommendations: (concern['recommendations']
+                            as List<Map<String, dynamic>>) ??
                         [],
                   ),
                 ),
@@ -593,7 +584,7 @@ class _ProductScanPageState extends State<ProductScanPage> {
                     Navigator.push(
                       context,
                       CupertinoPageRoute(
-                        builder: (context) => AskAiPage(
+                        builder: (context) => AskAiView(
                           mealName: productAnalysisProvider.productName,
                           foodImage: productAnalysisProvider.frontImage!,
                         ),

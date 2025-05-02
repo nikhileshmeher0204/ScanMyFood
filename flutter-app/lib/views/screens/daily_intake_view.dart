@@ -7,14 +7,14 @@ import 'package:read_the_label/views/widgets/food_history_card.dart';
 import 'package:read_the_label/views/widgets/header_widget.dart';
 import 'package:read_the_label/views/widgets/macronutrien_summary_card.dart';
 
-class DailyIntakePage extends StatefulWidget {
-  const DailyIntakePage({super.key});
+class DailyIntakeView extends StatefulWidget {
+  const DailyIntakeView({super.key});
 
   @override
-  State<DailyIntakePage> createState() => _DailyIntakePageState();
+  State<DailyIntakeView> createState() => _DailyIntakeViewState();
 }
 
-class _DailyIntakePageState extends State<DailyIntakePage> {
+class _DailyIntakeViewState extends State<DailyIntakeView> {
   DateTime _selectedDate = DateTime.now();
 
   @override

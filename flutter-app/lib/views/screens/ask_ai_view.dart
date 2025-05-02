@@ -11,20 +11,20 @@ import 'package:read_the_label/main.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 
-class AskAiPage extends StatefulWidget {
+class AskAiView extends StatefulWidget {
   String mealName;
   File? foodImage;
-  AskAiPage({
+  AskAiView({
     super.key,
     required this.mealName,
     required this.foodImage,
   });
 
   @override
-  State<AskAiPage> createState() => _AskAiPageState();
+  State<AskAiView> createState() => _AskAiViewState();
 }
 
-class _AskAiPageState extends State<AskAiPage> {
+class _AskAiViewState extends State<AskAiView> {
   late GeminiProvider _provider;
   String? nutritionContext;
   String? apiKey;

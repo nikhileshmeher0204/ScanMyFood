@@ -10,7 +10,7 @@ class ApiClient {
   ApiClient({this.baseUrl = 'http://10.0.2.2:8080/api'});
 
   // Get auth token from Firebase
-  Future<String?> _getAuthToken() async {
+  Future<String?> getAuthToken() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
@@ -26,7 +26,7 @@ class ApiClient {
   // Helper method for GET requests
   Future<dynamic> get(String endpoint) async {
     try {
-      final token = await _getAuthToken();
+      final token = await getAuthToken();
       final response = await http.get(
         Uri.parse('$baseUrl$endpoint'),
         headers: {
@@ -56,22 +56,37 @@ class ApiClient {
     }
   }
 
-  // Helper method for POST requests
-  Future<Map<String, dynamic>> post(String endpoint, dynamic data) async {
-    final token = await _getAuthToken();
-    final response = await http.post(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: {
-        'Content-Type': 'application/json',
-        if (token != null) 'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode(data),
-    );
+  Future<Map<String, dynamic>> post(
+      String endpoint, Map<String, dynamic> data) async {
+    try {
+      final token = await getAuthToken();
+      final response = await http.post(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(data),
+      );
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to post data: ${response.statusCode}');
+      print("POST Response status code: ${response.statusCode}");
+      print("POST Response body: ${response.body}");
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        if (response.body.isEmpty) {
+          return {};
+        }
+        try {
+          return jsonDecode(response.body);
+        } catch (e) {
+          return {"rawResponse": response.body};
+        }
+      } else {
+        throw Exception('POST failed with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print("API POST call error: $e");
+      rethrow;
     }
   }
 

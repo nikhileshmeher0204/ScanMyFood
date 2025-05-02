@@ -9,16 +9,18 @@ import 'package:read_the_label/views/widgets/total_nutrients_card.dart';
 import '../widgets/food_item_card_shimmer.dart';
 import '../widgets/total_nutrients_card_shimmer.dart';
 
-class FoodAnalysisScreen extends StatefulWidget {
-  const FoodAnalysisScreen({
+class MealDescriptionAnalysisView extends StatefulWidget {
+  const MealDescriptionAnalysisView({
     super.key,
   });
 
   @override
-  _FoodAnalysisScreenState createState() => _FoodAnalysisScreenState();
+  _MealDescriptionAnalysisViewState createState() =>
+      _MealDescriptionAnalysisViewState();
 }
 
-class _FoodAnalysisScreenState extends State<FoodAnalysisScreen> {
+class _MealDescriptionAnalysisViewState
+    extends State<MealDescriptionAnalysisView> {
   late int currentIndex;
   @override
   void initState() {

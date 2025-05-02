@@ -5,9 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:read_the_label/config/env_config.dart';
-import 'package:read_the_label/views/backend_test_screen.dart';
 import 'firebase_options.dart';
-import 'package:read_the_label/repositories/ai_repository.dart';
 import 'package:read_the_label/repositories/storage_repository.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/repositories/api_client.dart';
@@ -52,7 +50,7 @@ class MyApp extends StatelessWidget {
         home: Consumer<User?>(builder: (context, user, _) {
           // If user is already signed in, go to homepage
           if (user != null) {
-            return const BackendTestScreen();
+            return const HomePage();
           }
           // Otherwise, show sign-in screen
           return const SignInScreen();
@@ -86,9 +84,9 @@ class MyApp extends StatelessWidget {
       ),
 
       // Register repositories first
-      Provider<AiRepository>(
-        create: (_) => AiRepository(),
-      ),
+      // Provider<AiRepository>(
+      //   create: (_) => AiRepository(),
+      // ),
       Provider<StorageRepository>(
         create: (_) => StorageRepository(),
       ),
@@ -100,7 +98,7 @@ class MyApp extends StatelessWidget {
       // Keep these changes:
       ChangeNotifierProxyProvider<UiViewModel, ProductAnalysisViewModel>(
         create: (context) => ProductAnalysisViewModel(
-          aiRepository: context.read<AiRepository>(),
+          aiRepository: context.read<SpringBackendRepository>(),
           uiProvider: context.read<UiViewModel>(),
         ),
         update: (context, uiViewModel, previous) =>
@@ -108,7 +106,7 @@ class MyApp extends StatelessWidget {
       ),
       ChangeNotifierProxyProvider<UiViewModel, MealAnalysisViewModel>(
         create: (context) => MealAnalysisViewModel(
-          aiRepository: context.read<AiRepository>(),
+          aiRepository: context.read<SpringBackendRepository>(),
           uiProvider: context.read<UiViewModel>(),
         ),
         update: (context, uiViewModel, previous) =>
