@@ -1,21 +1,24 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:firebase_vertexai/firebase_vertexai.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/main.dart';
 import 'package:read_the_label/theme/app_theme.dart';
+import 'package:read_the_label/utils/app_logger.dart';
+import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 
 class AskAiView extends StatefulWidget {
+  String foodContext;
   String mealName;
   File? foodImage;
   AskAiView({
     super.key,
+    required this.foodContext,
     required this.mealName,
     required this.foodImage,
   });
@@ -25,10 +28,11 @@ class AskAiView extends StatefulWidget {
 }
 
 class _AskAiViewState extends State<AskAiView> {
-  late GeminiProvider _provider;
+  late VertexProvider _provider;
   String? nutritionContext;
   String? apiKey;
   bool _isProviderInitialized = false;
+  final logger = AppLogger();
 
   @override
   void initState() {
@@ -47,6 +51,7 @@ class _AskAiViewState extends State<AskAiView> {
     setState(() {
       _provider = _createProvider();
       _isProviderInitialized = true;
+      logger.d("✅_isProviderInitialized $_isProviderInitialized)");
     });
   }
 
@@ -55,18 +60,40 @@ class _AskAiViewState extends State<AskAiView> {
     super.dispose();
   }
 
-  GeminiProvider _createProvider([List<ChatMessage>? history]) {
+  VertexProvider _createProvider([List<ChatMessage>? history]) {
+    logger.d("🔄_createProvider() called");
     // Safe provider access - only after widget is built
     final mealAnalysisProvider =
         Provider.of<MealAnalysisViewModel>(context, listen: false);
+    final descriptionAnalysisProvider =
+        Provider.of<DescriptionAnalysisViewModel>(context, listen: false);
 
-    // Add null safety for all accessed values
-    final calories = mealAnalysisProvider.totalPlateNutrients['calories'] ?? 0;
-    final protein = mealAnalysisProvider.totalPlateNutrients['protein'] ?? 0;
-    final carbs =
-        mealAnalysisProvider.totalPlateNutrients['carbohydrates'] ?? 0;
-    final fat = mealAnalysisProvider.totalPlateNutrients['fat'] ?? 0;
-    final fiber = mealAnalysisProvider.totalPlateNutrients['fiber'] ?? 0;
+    final Map<String, dynamic> nutrientData;
+    logger.d("foodContext: ${widget.foodContext}");
+    switch (widget.foodContext) {
+      case "food":
+        // Use meal analysis data
+        nutrientData = mealAnalysisProvider.totalScannedPlateNutrients;
+        break;
+      case "description":
+        // Use description analysis data
+        nutrientData = descriptionAnalysisProvider.totalPlateNutrients;
+        break;
+      case "product":
+        // Use meal analysis data
+        nutrientData = mealAnalysisProvider.totalScannedPlateNutrients;
+        break;
+      default:
+        // Default to empty history if context is unknown
+        nutrientData = {};
+    }
+    logger.d("nutrientData: $nutrientData");
+    // Extract individual nutrients with null safety
+    final calories = nutrientData['calories'] ?? 0;
+    final protein = nutrientData['protein'] ?? 0;
+    final carbs = nutrientData['carbohydrates'] ?? 0;
+    final fat = nutrientData['fat'] ?? 0;
+    final fiber = nutrientData['fiber'] ?? 0;
 
     nutritionContext = '''
       Meal: ${widget.mealName}
@@ -78,14 +105,13 @@ class _AskAiViewState extends State<AskAiView> {
       - Fiber: ${fiber}g
     ''';
 
-    print('🍊Nutrition Context: $nutritionContext');
+    logger.d('🍊Nutrition Context: $nutritionContext');
 
-    return GeminiProvider(
-      history: history,
-      model: GenerativeModel(
-        model: 'gemini-1.5-flash',
-        apiKey: apiKey!,
-        systemInstruction: Content.system('''
+    return VertexProvider(
+        history: history,
+        model: FirebaseVertexAI.instance.generativeModel(
+          model: 'gemini-2.0-flash',
+          systemInstruction: Content.system('''
           You are a helpful friendly assistant specialized in providing nutritional information and guidance about meals.
           
           Current meal context:
@@ -94,8 +120,7 @@ class _AskAiViewState extends State<AskAiView> {
           Base your answers on this specific nutritional data when discussing this meal.
             Answer questions clearly, with relevant icons, and keep responses concise. Use emojis to make the text more user-friendly and engaging.
         '''),
-      ),
-    );
+        ));
   }
 
   @override
@@ -135,7 +160,7 @@ class _AskAiViewState extends State<AskAiView> {
       });
     }
 
-    final mealName = context.watch<MealAnalysisViewModel>().mealName;
+    final mealName = context.watch<MealAnalysisViewModel>().scannedMealName;
     if (mealName != widget.mealName) {
       widget.mealName = mealName;
       // Schedule update for next frame to avoid rebuild during build

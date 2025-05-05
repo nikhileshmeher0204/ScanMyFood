@@ -150,16 +150,4 @@ class SpringBackendRepository implements AiRepositoryInterface {
       throw Exception('Error analyzing food description: $e');
     }
   }
-
-  // Helper to determine content type from file extension
-  String _getContentTypeString(String path) {
-    if (path.toLowerCase().endsWith('.jpg') ||
-        path.toLowerCase().endsWith('.jpeg')) {
-      return 'image/jpeg';
-    } else if (path.toLowerCase().endsWith('.png')) {
-      return 'image/png';
-    } else {
-      return 'image/jpeg'; // Default to JPEG
-    }
-  }
 }

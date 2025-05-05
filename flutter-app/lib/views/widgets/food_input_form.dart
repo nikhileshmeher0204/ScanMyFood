@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/main.dart';
 import 'package:read_the_label/theme/app_theme.dart';
+import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
-import 'package:read_the_label/views/screens/meal_description_analysis_view.dart';
 
 class FoodInputForm extends StatefulWidget {
   final VoidCallback onSubmit;
@@ -21,15 +20,12 @@ class _FoodInputFormState extends State<FoodInputForm> {
   final List<TextEditingController> _foodItemControllers = [
     TextEditingController()
   ];
-  bool _mounted = true;
 
   @override
   void dispose() {
     for (var controller in _foodItemControllers) {
       controller.dispose();
     }
-    _mounted = false;
-
     super.dispose();
   }
 
@@ -200,7 +196,7 @@ class _FoodInputFormState extends State<FoodInputForm> {
                       .join('\n, ');
                   print("Food Items: \n $foodItems");
                   if (foodItems.isNotEmpty) {
-                    context.read<MealAnalysisViewModel>().logMealViaText(
+                    context.read<DescriptionAnalysisViewModel>().logMealViaText(
                           foodItemsText: foodItems,
                         );
                     Navigator.pop(context);

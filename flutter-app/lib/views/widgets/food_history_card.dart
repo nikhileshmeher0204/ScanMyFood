@@ -10,9 +10,9 @@ import 'package:read_the_label/views/widgets/food_input_form.dart';
 class FoodHistoryCard extends StatefulWidget {
   final BuildContext context;
   final DateTime selectedDate;
-  int currentIndex;
+  final int currentIndex;
 
-  FoodHistoryCard({
+  const FoodHistoryCard({
     super.key,
     required this.context,
     required this.selectedDate,

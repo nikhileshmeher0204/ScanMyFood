@@ -274,8 +274,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                     issue: concern['issue'] ?? '',
                     explanation: concern['explanation'] ?? '',
                     recommendations: (concern['recommendations']
-                            as List<Map<String, dynamic>>) ??
-                        [],
+                        as List<Map<String, dynamic>>),
                   ),
                 ),
 
@@ -585,6 +584,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                       context,
                       CupertinoPageRoute(
                         builder: (context) => AskAiView(
+                          foodContext: "product",
                           mealName: productAnalysisProvider.productName,
                           foodImage: productAnalysisProvider.frontImage!,
                         ),

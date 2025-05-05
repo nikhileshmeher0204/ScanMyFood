@@ -141,7 +141,7 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
 
               // Results Section
               if (mealAnalysisProvider.foodImage != null &&
-                  mealAnalysisProvider.analyzedFoodItems.isNotEmpty)
+                  mealAnalysisProvider.analyzedScannedFoodItems.isNotEmpty)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -156,14 +156,19 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ...mealAnalysisProvider.analyzedFoodItems
+                    ...mealAnalysisProvider.analyzedScannedFoodItems
                         .asMap()
                         .entries
                         .map((entry) => FoodItemCard(
                               item: entry.value,
                               index: entry.key,
                             )),
-                    const TotalNutrientsCard(),
+                    TotalNutrientsCard(
+                        mealName: mealAnalysisProvider.scannedMealName,
+                        analyzedFoodItems:
+                            mealAnalysisProvider.analyzedScannedFoodItems,
+                        totalPlateNutrients:
+                            mealAnalysisProvider.totalScannedPlateNutrients),
                     InkWell(
                       onTap: () {
                         print("Tap detected!");
@@ -171,7 +176,8 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                           context,
                           CupertinoPageRoute(
                             builder: (context) => AskAiView(
-                              mealName: mealAnalysisProvider.mealName,
+                              foodContext: "food",
+                              mealName: mealAnalysisProvider.scannedMealName,
                               foodImage: mealAnalysisProvider.foodImage!,
                             ),
                           ),

@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/services/auth_service.dart';
-import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/views/screens/home_page.dart';
 
 class SignInScreen extends StatelessWidget {
@@ -122,7 +121,7 @@ class SignInScreen extends StatelessWidget {
               // Show success message
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(
+                  content: const Text(
                     'Sign in successful!',
                     style: TextStyle(fontFamily: 'Poppins'),
                   ),
@@ -143,7 +142,7 @@ class SignInScreen extends StatelessWidget {
               SnackBar(
                 content: Text(
                   'Failed to sign in: ${e.toString()}',
-                  style: TextStyle(fontFamily: 'Poppins'),
+                  style: const TextStyle(fontFamily: 'Poppins'),
                 ),
                 backgroundColor: Theme.of(context).colorScheme.error,
               ),
@@ -177,7 +176,7 @@ class SignInScreen extends StatelessWidget {
       onPressed: () {
         // You can implement email sign in later
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text(
               'Email sign in coming soon!',
               style: TextStyle(fontFamily: 'Poppins'),

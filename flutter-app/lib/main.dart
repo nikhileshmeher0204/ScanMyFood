@@ -1,10 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'dart:io' as io;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:read_the_label/config/env_config.dart';
+import 'package:read_the_label/utils/app_logger.dart';
+import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
 import 'firebase_options.dart';
 import 'package:read_the_label/repositories/storage_repository.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
@@ -18,11 +21,18 @@ import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/screens/sign_in_screen.dart';
 import 'views/screens/home_page.dart';
 
+final logger = AppLogger();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  logger.i('Application starting...');
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  logger.d('Firebase initialized');
+
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent,
     statusBarColor: Colors.transparent,
@@ -31,6 +41,7 @@ Future<void> main() async {
       overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]);
 
   await EnvConfig.initialize();
+  logger.i('Environment configuration loaded');
 
   runApp(
     const MyApp(),
@@ -106,6 +117,14 @@ class MyApp extends StatelessWidget {
       ),
       ChangeNotifierProxyProvider<UiViewModel, MealAnalysisViewModel>(
         create: (context) => MealAnalysisViewModel(
+          aiRepository: context.read<SpringBackendRepository>(),
+          uiProvider: context.read<UiViewModel>(),
+        ),
+        update: (context, uiViewModel, previous) =>
+            previous!..uiProvider = uiViewModel,
+      ),
+      ChangeNotifierProxyProvider<UiViewModel, DescriptionAnalysisViewModel>(
+        create: (context) => DescriptionAnalysisViewModel(
           aiRepository: context.read<SpringBackendRepository>(),
           uiProvider: context.read<UiViewModel>(),
         ),

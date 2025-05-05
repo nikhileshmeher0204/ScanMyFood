@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/widgets/food_item_card.dart';
@@ -51,8 +52,8 @@ class _MealDescriptionAnalysisViewState
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).padding.bottom + 80,
           ),
-          child: Consumer2<UiViewModel, MealAnalysisViewModel>(
-            builder: (context, uiViewModel, mealViewModel, _) {
+          child: Consumer2<UiViewModel, DescriptionAnalysisViewModel>(
+            builder: (context, uiViewModel, descriptionViewModel, _) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -78,7 +79,7 @@ class _MealDescriptionAnalysisViewState
                       ],
                     ),
                   // Results Section
-                  if (mealViewModel.analyzedFoodItems.isNotEmpty)
+                  if (descriptionViewModel.analyzedFoodItems.isNotEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -94,19 +95,25 @@ class _MealDescriptionAnalysisViewState
                           ),
                         ),
                         const SizedBox(height: 16),
-                        ...mealViewModel.analyzedFoodItems
+                        ...descriptionViewModel.analyzedFoodItems
                             .asMap()
                             .entries
                             .map((entry) => FoodItemCard(
                                   item: entry.value,
                                   index: entry.key,
                                 )),
-                        const TotalNutrientsCard(),
+                        TotalNutrientsCard(
+                          mealName: descriptionViewModel.mealName,
+                          analyzedFoodItems:
+                              descriptionViewModel.analyzedFoodItems,
+                          totalPlateNutrients:
+                              descriptionViewModel.totalPlateNutrients,
+                        ),
                       ],
                     ),
                   // No results state
                   if (!uiViewModel.loading &&
-                      mealViewModel.analyzedFoodItems.isEmpty)
+                      descriptionViewModel.analyzedFoodItems.isEmpty)
                     Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Center(

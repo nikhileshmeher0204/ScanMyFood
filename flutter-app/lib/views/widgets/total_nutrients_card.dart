@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/main.dart';
+import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class TotalNutrientsCard extends StatelessWidget {
+  final String mealName;
+  final List<FoodItem> analyzedFoodItems;
+  final Map<String, dynamic> totalPlateNutrients;
+
   const TotalNutrientsCard({
     super.key,
+    required this.mealName,
+    required this.analyzedFoodItems,
+    required this.totalPlateNutrients,
   });
 
   @override
@@ -45,7 +52,7 @@ class TotalNutrientsCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${context.watch<MealAnalysisViewModel>().analyzedFoodItems.length} items',
+                        '${analyzedFoodItems.length} items',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
                           fontSize: 16,
@@ -84,46 +91,31 @@ class TotalNutrientsCard extends StatelessWidget {
                 _buildNutrientRow(
                     context,
                     'Calories',
-                    context
-                            .read<MealAnalysisViewModel>()
-                            .totalPlateNutrients['calories'] ??
-                        0,
+                    totalPlateNutrients['calories'] ?? 0,
                     'kcal',
                     Icons.local_fire_department_outlined),
                 _buildNutrientRow(
                     context,
                     'Protein',
-                    context
-                            .read<MealAnalysisViewModel>()
-                            .totalPlateNutrients['protein'] ??
-                        0,
+                    totalPlateNutrients['protein'] ?? 0,
                     'g',
                     Icons.fitness_center_outlined),
                 _buildNutrientRow(
                     context,
                     'Carbohydrates',
-                    context
-                            .read<MealAnalysisViewModel>()
-                            .totalPlateNutrients['carbohydrates'] ??
-                        0,
+                    totalPlateNutrients['carbohydrates'] ?? 0,
                     'g',
                     Icons.grain_outlined),
                 _buildNutrientRow(
                     context,
                     'Fat',
-                    context
-                            .read<MealAnalysisViewModel>()
-                            .totalPlateNutrients['fat'] ??
-                        0,
+                    totalPlateNutrients['fat'] ?? 0,
                     'g',
                     Icons.opacity_outlined),
                 _buildNutrientRow(
                     context,
                     'Fiber',
-                    context
-                            .read<MealAnalysisViewModel>()
-                            .totalPlateNutrients['fiber'] ??
-                        0,
+                    totalPlateNutrients['fiber'] ?? 0,
                     'g',
                     Icons.grass_outlined,
                     isLast: true),
@@ -138,12 +130,10 @@ class TotalNutrientsCard extends StatelessWidget {
                         Provider.of<DailyIntakeViewModel>(context,
                             listen: false);
                     print("Add to today's intake button pressed");
-                    print(
-                        "Current total nutrients: ${mealAnalysisProvider.totalPlateNutrients}");
+                    print("Current total nutrients: $totalPlateNutrients");
                     dailyIntakeProvider.addMealToDailyIntake(
-                      mealName: mealAnalysisProvider.mealName,
-                      totalPlateNutrients:
-                          mealAnalysisProvider.totalPlateNutrients,
+                      mealName: mealName,
+                      totalPlateNutrients: totalPlateNutrients,
                       foodImage: mealAnalysisProvider.foodImage,
                     );
                     uiProvider.updateCurrentIndex(2);

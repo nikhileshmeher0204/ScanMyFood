@@ -1,14 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/models/food_consumption.dart';
-import 'package:read_the_label/repositories/storage_repository.dart';
 import 'package:read_the_label/repositories/storage_repository_interface.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'base_view_model.dart';
 
 class DailyIntakeViewModel extends BaseViewModel {
@@ -69,7 +66,6 @@ class DailyIntakeViewModel extends BaseViewModel {
       final now = DateTime.now();
       for (int i = 0; i < 7; i++) {
         final date = now.subtract(Duration(days: i));
-        final key = getStorageKey(date);
         final data = await storageRepository.getDailyIntake(date);
         debugPrint("Daily intake for ${date.toString().split(' ')[0]}: $data");
       }
