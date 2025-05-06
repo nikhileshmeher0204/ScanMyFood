@@ -36,7 +36,7 @@ class HomePage extends StatelessWidget {
               ][uiProvider.currentIndex],
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
-                fontFamily: 'Poppins',
+                fontFamily: 'Inter',
                 fontWeight: FontWeight.w500,
               ),
             );
@@ -96,12 +96,12 @@ class HomePage extends StatelessWidget {
               child: BottomNavigationBar(
                 elevation: 0,
                 selectedLabelStyle: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Inter',
                   fontWeight: FontWeight.w400,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 unselectedLabelStyle: TextStyle(
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Inter',
                   fontWeight: FontWeight.w400,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),

@@ -35,7 +35,7 @@ class PortionButton extends StatelessWidget {
       child: Text(label,
           style: TextStyle(
               color: Theme.of(context).textTheme.bodyMedium!.color,
-              fontFamily: 'Poppins')),
+              fontFamily: 'Inter')),
     );
   }
 }
@@ -62,12 +62,12 @@ class CustomPortionButton extends StatelessWidget {
             title: Text('Enter Custom Amount',
                 style: TextStyle(
                     color: Theme.of(context).textTheme.bodyMedium!.color,
-                    fontFamily: 'Poppins')),
+                    fontFamily: 'Inter')),
             content: TextField(
               keyboardType: TextInputType.number,
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyMedium!.color,
-                fontFamily: 'Poppins',
+                fontFamily: 'Inter',
               ),
               decoration: InputDecoration(
                 hintText: 'Enter amount in grams',
@@ -84,7 +84,7 @@ class CustomPortionButton extends StatelessWidget {
                 child: Text('OK',
                     style: TextStyle(
                         color: Theme.of(context).textTheme.bodyMedium!.color,
-                        fontFamily: 'Poppins')),
+                        fontFamily: 'Inter')),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],
@@ -94,7 +94,7 @@ class CustomPortionButton extends StatelessWidget {
       child: Text("Custom",
           style: TextStyle(
               color: Theme.of(context).textTheme.bodyMedium!.color,
-              fontFamily: 'Poppins')),
+              fontFamily: 'Inter')),
     );
   }
 }

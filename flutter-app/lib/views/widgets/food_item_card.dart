@@ -160,7 +160,7 @@ class FoodItemCard extends StatelessWidget {
           'Edit Quantity',
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
-            fontFamily: 'Poppins',
+            fontFamily: 'Inter',
           ),
         ),
         content: TextField(
@@ -170,7 +170,7 @@ class FoodItemCard extends StatelessWidget {
             hintText: 'Enter quantity in ${item.unit}',
             hintStyle: TextStyle(
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-              fontFamily: 'Poppins',
+              fontFamily: 'Inter',
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
@@ -178,7 +178,7 @@ class FoodItemCard extends StatelessWidget {
           ),
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
-            fontFamily: 'Poppins',
+            fontFamily: 'Inter',
           ),
         ),
         actions: [
@@ -187,7 +187,7 @@ class FoodItemCard extends StatelessWidget {
               'Cancel',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.primary,
-                fontFamily: 'Poppins',
+                fontFamily: 'Inter',
               ),
             ),
             onPressed: () => Navigator.of(context).pop(),
@@ -197,7 +197,7 @@ class FoodItemCard extends StatelessWidget {
               'Save',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.primary,
-                fontFamily: 'Poppins',
+                fontFamily: 'Inter',
                 fontWeight: FontWeight.bold,
               ),
             ),

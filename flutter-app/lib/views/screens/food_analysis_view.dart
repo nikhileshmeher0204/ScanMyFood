@@ -103,7 +103,7 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 14,
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Inter',
                           fontWeight: FontWeight.w400,
                         ),
                       ),
@@ -130,7 +130,7 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                             color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'Poppins'),
+                            fontFamily: 'Inter'),
                       ),
                     ),
                     const FoodItemCardShimmer(),
@@ -150,7 +150,7 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                       child: Text(
                         'Analysis Results',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Inter',
                               fontWeight: FontWeight.w600,
                             ),
                       ),

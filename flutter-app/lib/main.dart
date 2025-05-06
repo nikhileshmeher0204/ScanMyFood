@@ -8,6 +8,7 @@ import 'package:provider/single_child_widget.dart';
 import 'package:read_the_label/config/env_config.dart';
 import 'package:read_the_label/utils/app_logger.dart';
 import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
+import 'package:read_the_label/views/screens/onboarding_getstarted_screen.dart';
 import 'firebase_options.dart';
 import 'package:read_the_label/repositories/storage_repository.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
@@ -61,7 +62,7 @@ class MyApp extends StatelessWidget {
         home: Consumer<User?>(builder: (context, user, _) {
           // If user is already signed in, go to homepage
           if (user != null) {
-            return const HomePage();
+            return const OnboardingGetstartedScreen();
           }
           // Otherwise, show sign-in screen
           return const SignInScreen();

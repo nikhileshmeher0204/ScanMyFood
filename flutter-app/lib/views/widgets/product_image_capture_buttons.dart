@@ -18,8 +18,8 @@ class ProductImageCaptureButtons extends StatelessWidget {
         ElevatedButton.icon(
           icon: const Icon(Icons.qr_code_scanner_outlined, color: Colors.white),
           label: const Text("Scan Now",
-              style: TextStyle(
-                  fontFamily: 'Poppins', fontWeight: FontWeight.w400)),
+              style:
+                  TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w400)),
           style: ElevatedButton.styleFrom(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -34,8 +34,8 @@ class ProductImageCaptureButtons extends StatelessWidget {
           icon: Icon(Icons.photo_library,
               color: Theme.of(context).colorScheme.onSurface),
           label: const Text("Gallery",
-              style: TextStyle(
-                  fontFamily: 'Poppins', fontWeight: FontWeight.w400)),
+              style:
+                  TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w400)),
           style: ElevatedButton.styleFrom(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -68,8 +68,7 @@ class FoodImageCaptureButtons extends StatelessWidget {
               color: Theme.of(context).colorScheme.onPrimary),
           label: const Text(
             "Take Photo",
-            style:
-                TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w400),
+            style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w400),
           ),
           style: ElevatedButton.styleFrom(
             shape:
@@ -86,8 +85,7 @@ class FoodImageCaptureButtons extends StatelessWidget {
               color: Theme.of(context).colorScheme.onPrimary),
           label: const Text(
             "Gallery",
-            style:
-                TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w400),
+            style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w400),
           ),
           style: ElevatedButton.styleFrom(
             shape:

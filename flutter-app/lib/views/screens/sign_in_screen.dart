@@ -60,7 +60,7 @@ class SignInScreen extends StatelessWidget {
                       Text(
                         'Food Scan AI',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Inter',
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.onSurface,
@@ -72,7 +72,7 @@ class SignInScreen extends StatelessWidget {
                       Text(
                         'Understand your nutrition with AI',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Inter',
                           fontSize: 16,
                           color: Theme.of(context)
                               .colorScheme
@@ -123,7 +123,7 @@ class SignInScreen extends StatelessWidget {
                 SnackBar(
                   content: const Text(
                     'Sign in successful!',
-                    style: TextStyle(fontFamily: 'Poppins'),
+                    style: TextStyle(fontFamily: 'Inter'),
                   ),
                   backgroundColor: Theme.of(context).colorScheme.secondary,
                 ),
@@ -142,7 +142,7 @@ class SignInScreen extends StatelessWidget {
               SnackBar(
                 content: Text(
                   'Failed to sign in: ${e.toString()}',
-                  style: const TextStyle(fontFamily: 'Poppins'),
+                  style: const TextStyle(fontFamily: 'Inter'),
                 ),
                 backgroundColor: Theme.of(context).colorScheme.error,
               ),
@@ -161,7 +161,7 @@ class SignInScreen extends StatelessWidget {
           const Text(
             'Sign in with Google',
             style: TextStyle(
-              fontFamily: 'Poppins',
+              fontFamily: 'Inter',
               fontWeight: FontWeight.w500,
               fontSize: 16,
             ),
@@ -179,7 +179,7 @@ class SignInScreen extends StatelessWidget {
           const SnackBar(
             content: Text(
               'Email sign in coming soon!',
-              style: TextStyle(fontFamily: 'Poppins'),
+              style: TextStyle(fontFamily: 'Inter'),
             ),
           ),
         );
@@ -191,7 +191,7 @@ class SignInScreen extends StatelessWidget {
       child: const Text(
         'Sign in with Email',
         style: TextStyle(
-          fontFamily: 'Poppins',
+          fontFamily: 'Inter',
           fontSize: 16,
         ),
       ),

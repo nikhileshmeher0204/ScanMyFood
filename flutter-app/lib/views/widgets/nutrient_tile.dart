@@ -180,7 +180,7 @@ class _NutrientTileState extends State<NutrientTile>
                                                     .color,
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w600,
-                                                fontFamily: 'Poppins',
+                                                fontFamily: 'Inter',
                                               ),
                                             ),
                                             Expanded(
@@ -211,7 +211,7 @@ class _NutrientTileState extends State<NutrientTile>
                                                     .bodyMedium!
                                                     .color,
                                                 fontSize: 11,
-                                                fontFamily: 'Poppins',
+                                                fontFamily: 'Inter',
                                               ),
                                             ),
                                             const SizedBox(width: 4),
@@ -228,7 +228,7 @@ class _NutrientTileState extends State<NutrientTile>
                                                             0xFFFFC107),
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w600,
-                                                fontFamily: 'Poppins',
+                                                fontFamily: 'Inter',
                                               ),
                                             ),
                                           ],
@@ -253,7 +253,7 @@ class _NutrientTileState extends State<NutrientTile>
                                             .bodyMedium!
                                             .color,
                                         height: 1.5,
-                                        fontFamily: 'Poppins',
+                                        fontFamily: 'Inter',
                                       ),
                                     ),
                                   ),

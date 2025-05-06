@@ -101,7 +101,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                           style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 14,
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Inter',
                               fontWeight: FontWeight.w400),
                         ),
                         const SizedBox(height: 20),
@@ -127,7 +127,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                         child: Text(
                           productAnalysisProvider.productName,
                           style: const TextStyle(
-                              fontFamily: 'Poppins',
+                              fontFamily: 'Inter',
                               fontWeight: FontWeight.w400,
                               fontSize: 24),
                           textAlign: TextAlign.start,
@@ -156,7 +156,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                     .color,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w400,
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Inter',
                               ),
                             ),
                           ],
@@ -214,7 +214,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                     .color,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w400,
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Inter',
                               ),
                             ),
                           ],
@@ -262,7 +262,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                           color: Theme.of(context).textTheme.titleLarge!.color,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
-                          fontFamily: 'Poppins',
+                          fontFamily: 'Inter',
                         ),
                       ),
                     ],
@@ -293,7 +293,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                     .bodyLarge!
                                     .color,
                                 fontSize: 16,
-                                fontFamily: 'Poppins'),
+                                fontFamily: 'Inter'),
                           ),
                           IconButton(
                             icon: Icon(Icons.edit,
@@ -316,7 +316,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                               .textTheme
                                               .titleLarge!
                                               .color,
-                                          fontFamily: 'Poppins')),
+                                          fontFamily: 'Inter')),
                                   content: TextField(
                                     keyboardType: TextInputType.number,
                                     style: TextStyle(
@@ -331,7 +331,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                               .textTheme
                                               .titleLarge!
                                               .color,
-                                          fontFamily: 'Poppins'),
+                                          fontFamily: 'Inter'),
                                     ),
                                     onChanged: (value) {
                                       context
@@ -344,7 +344,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                     TextButton(
                                       child: Text('OK',
                                           style: TextStyle(
-                                              fontFamily: 'Poppins',
+                                              fontFamily: 'Inter',
                                               color: Theme.of(context)
                                                   .textTheme
                                                   .titleMedium!
@@ -368,7 +368,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                               color:
                                   Theme.of(context).textTheme.bodyMedium!.color,
                               fontSize: 16,
-                              fontFamily: 'Poppins'),
+                              fontFamily: 'Inter'),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -466,7 +466,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Inter',
                                     color:
                                         Theme.of(context).colorScheme.onPrimary,
                                   ),
@@ -478,7 +478,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Theme.of(context).colorScheme.onPrimary,
-                                fontFamily: 'Poppins',
+                                fontFamily: 'Inter',
                               ),
                             ),
                           ],
@@ -528,7 +528,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
-                                fontFamily: 'Poppins'),
+                                fontFamily: 'Inter'),
                           ),
                         ),
                       if (uiProvider.servingSize > 0)
@@ -557,8 +557,8 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                       SnackBar(
                                         content: const Text(
                                             'Added to today\'s intake!',
-                                            style: TextStyle(
-                                                fontFamily: 'Poppins')),
+                                            style:
+                                                TextStyle(fontFamily: 'Inter')),
                                         action: SnackBarAction(
                                           label: 'SHOW',
                                           onPressed: () {
@@ -569,7 +569,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                     );
                                   },
                                   child: const Text("Add to today's intake",
-                                      style: TextStyle(fontFamily: 'Poppins')));
+                                      style: TextStyle(fontFamily: 'Inter')));
                             },
                           ),
                         ),
@@ -622,14 +622,14 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
               'Now capture nutrition label',
               style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
-                  fontFamily: 'Poppins'),
+                  fontFamily: 'Inter'),
             ),
             content: Text(
               'Please capture or select the nutrition facts label of the product',
               style: TextStyle(
                   color:
                       Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                  fontFamily: 'Poppins'),
+                  fontFamily: 'Inter'),
             ),
             actions: [
               TextButton(
@@ -644,7 +644,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                   }
                 },
                 child: const Text('Continue',
-                    style: TextStyle(fontFamily: 'Poppins')),
+                    style: TextStyle(fontFamily: 'Inter')),
               ),
             ],
           ),

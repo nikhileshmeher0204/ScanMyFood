@@ -59,7 +59,7 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
                   color: Theme.of(context).colorScheme.onPrimary,
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Inter',
                 ),
               ),
               IconButton(
@@ -117,7 +117,7 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                     title: Text(
                       item.foodName,
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Inter',
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -128,7 +128,7 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                             .colorScheme
                             .onSurface
                             .withOpacity(0.6),
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Inter',
                       ),
                     ),
                     trailing: Text(
@@ -137,7 +137,7 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                         color: Theme.of(context).colorScheme.onPrimary,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Inter',
                       ),
                     ),
                   ),
@@ -201,7 +201,7 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                   Text(
                     "Add Food Item",
                     style: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Inter',
                       fontWeight: FontWeight.w500,
                       foreground: Paint()
                         ..shader = const LinearGradient(

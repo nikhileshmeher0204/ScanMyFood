@@ -39,7 +39,7 @@ Widget DetailedNutrientsCard(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
                   color: Theme.of(context).colorScheme.onTertiary,
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Inter',
                 ),
               ),
               IconButton(
@@ -86,7 +86,7 @@ Widget DetailedNutrientsCard(
                     style: TextStyle(
                       fontSize: 16,
                       color: Theme.of(context).colorScheme.onTertiary,
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Inter',
                     ),
                   ),
                 ),

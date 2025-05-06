@@ -39,7 +39,7 @@ Widget MacronutrientSummaryCard(
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onPrimary,
                     fontSize: 20,
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Inter',
                   ),
                 ),
                 Text(
@@ -48,7 +48,7 @@ Widget MacronutrientSummaryCard(
                     color: Theme.of(context).colorScheme.onPrimary,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Inter',
                   ),
                 ),
               ],
@@ -76,7 +76,7 @@ Widget MacronutrientSummaryCard(
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Inter',
                     ),
                   ),
                 ),
@@ -140,7 +140,7 @@ Widget _buildMacronutrientIndicator(
         style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
-            fontFamily: 'Poppins',
+            fontFamily: 'Inter',
             fontWeight: FontWeight.w500),
       ),
       Row(
@@ -152,7 +152,7 @@ Widget _buildMacronutrientIndicator(
               color: Colors.white,
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              fontFamily: 'Poppins',
+              fontFamily: 'Inter',
             ),
           ),
           Text(
@@ -161,7 +161,7 @@ Widget _buildMacronutrientIndicator(
               color: Colors.white,
               fontSize: 10,
               fontWeight: FontWeight.w400,
-              fontFamily: 'Poppins',
+              fontFamily: 'Inter',
             ),
           ),
         ],

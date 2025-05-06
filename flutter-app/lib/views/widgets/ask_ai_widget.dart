@@ -111,7 +111,7 @@ class _AskAiWidgetState extends State<AskAiWidget>
                         child: Text(
                           _suggestions[_currentIndex],
                           style: TextStyle(
-                            fontFamily: 'Poppins',
+                            fontFamily: 'Inter',
                             fontWeight: FontWeight.w500,
                             fontSize: 16,
                             foreground: Paint()

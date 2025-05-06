@@ -60,7 +60,7 @@ class _FoodInputFormState extends State<FoodInputForm> {
                 Text(
                   "Log your meal!",
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Inter',
                     fontSize: 24,
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -159,7 +159,7 @@ class _FoodInputFormState extends State<FoodInputForm> {
                 Text(
                   "Add another item",
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Inter',
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
@@ -221,7 +221,7 @@ class _FoodInputFormState extends State<FoodInputForm> {
                     Text(
                       "Analyze",
                       style: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Inter',
                         fontWeight: FontWeight.w500,
                         fontSize: 20,
                         color: Theme.of(context)

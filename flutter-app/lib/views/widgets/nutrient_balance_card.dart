@@ -49,7 +49,7 @@ class NutrientBalanceCard extends StatelessWidget {
                   color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Inter',
                 ),
               ),
             ),
@@ -67,7 +67,7 @@ class NutrientBalanceCard extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 14,
                     height: 1.5,
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Inter',
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -77,7 +77,7 @@ class NutrientBalanceCard extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Inter',
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -131,7 +131,7 @@ class _RecommendationItem extends StatelessWidget {
                   text: TextSpan(
                     style: const TextStyle(
                       fontSize: 14,
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Inter',
                     ),
                     children: [
                       TextSpan(
@@ -160,7 +160,7 @@ class _RecommendationItem extends StatelessWidget {
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 12,
               height: 1.5,
-              fontFamily: 'Poppins',
+              fontFamily: 'Inter',
             ),
           ),
         ],

@@ -16,7 +16,7 @@ Widget HeaderCard(BuildContext context, DateTime selectedDate) {
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.onSurface,
-                fontFamily: 'Poppins',
+                fontFamily: 'Inter',
               ),
             ),
             Text(
@@ -24,7 +24,7 @@ Widget HeaderCard(BuildContext context, DateTime selectedDate) {
               style: TextStyle(
                 fontSize: 16,
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                fontFamily: 'Poppins',
+                fontFamily: 'Inter',
               ),
             ),
           ],

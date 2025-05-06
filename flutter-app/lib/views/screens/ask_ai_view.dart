@@ -254,7 +254,7 @@ class _AskAiViewState extends State<AskAiView> {
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 22,
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -283,7 +283,7 @@ class _AskAiViewState extends State<AskAiView> {
                         borderRadius: BorderRadius.circular(28),
                       ),
                       textStyle: TextStyle(
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Inter',
                         foreground: Paint()
                           ..shader = const LinearGradient(
                             colors: <Color>[
@@ -328,7 +328,7 @@ class _AskAiViewState extends State<AskAiView> {
                   ),
                   chatInputStyle: ChatInputStyle(
                     textStyle: const TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Inter',
                     ),
                     backgroundColor:
                         Theme.of(context).colorScheme.cardBackground,
@@ -355,7 +355,7 @@ class _AskAiViewState extends State<AskAiView> {
                       borderRadius: BorderRadius.circular(28),
                     ),
                     textStyle: TextStyle(
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Inter',
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
