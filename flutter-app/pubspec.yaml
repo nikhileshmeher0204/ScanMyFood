@@ -101,6 +101,7 @@ flutter:
   assets:
     - assets/fonts/
     - assets/images/
+    - assets/icons/
     - assets/riveAssets/ai_generate_loading.riv
     - assets/riveAssets/qr_code_scanner.riv
     - .env

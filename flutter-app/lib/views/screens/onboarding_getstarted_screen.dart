@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
@@ -35,8 +36,8 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
     );
 
     _heightAnimation = Tween<double>(
-      begin: 0.35, // Height factor when collapsed
-      end: 0.6, // Height factor when expanded
+      begin: 0.30, // Height factor when collapsed
+      end: 0.55, // Height factor when expanded
     ).animate(
       CurvedAnimation(
         parent: _animationController,
@@ -104,7 +105,7 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.primaryBlack,
       body: Stack(
         children: [
           // Background image
@@ -132,11 +133,10 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                     maxHeight: size.height * 0.8,
                   ),
                   decoration: const BoxDecoration(
-                    color: Colors.black,
+                    color: AppColors.primaryBlack,
                     borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30)),
                   ),
                   child: SingleChildScrollView(
                     physics: _expanded
@@ -163,38 +163,26 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                 ? Column(
                                     children: [
                                       RichText(
-                                        text: const TextSpan(
-                                          style: TextStyle(
-                                            fontFamily: 'Inter',
-                                            fontSize: 30,
-                                            fontWeight: FontWeight.w200,
-                                            letterSpacing: -2.5,
-                                            height: 1.0,
-                                            color: Colors.white,
-                                          ),
+                                        text: TextSpan(
+                                          style: AppTextStyles.onboardingTitle,
                                           children: [
-                                            TextSpan(
+                                            const TextSpan(
                                                 text:
                                                     "Let's make healthy food choices.\n"),
                                             TextSpan(
                                               text: "Together.",
-                                              style: TextStyle(
-                                                  color: Color(0xFF9ACD32),
-                                                  fontWeight: FontWeight.w400),
+                                              style: AppTextStyles
+                                                  .onboardingAccent,
                                             ),
                                           ],
                                         ),
                                       ),
                                       const SizedBox(height: 16),
-                                      const Text(
+                                      Text(
                                         "Helping people understand what they eat, one scan at a time. Make informed choices for better nutrition.",
-                                        style: TextStyle(
-                                          fontFamily: 'Inter',
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w400,
-                                          color: Colors.white70,
-                                          height: 1.5,
-                                          letterSpacing: -0.2,
+                                        style: AppTextStyles.withColor(
+                                          AppTextStyles.bodyMedium,
+                                          Colors.white70,
                                         ),
                                       ),
                                       const SizedBox(height: 32),
@@ -204,8 +192,10 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                             child: ElevatedButton(
                                               onPressed: _toggleExpansion,
                                               style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.white,
-                                                foregroundColor: Colors.black,
+                                                backgroundColor:
+                                                    AppColors.primaryWhite,
+                                                foregroundColor:
+                                                    AppColors.primaryBlack,
                                                 elevation: 0,
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:
@@ -213,17 +203,13 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                                 ),
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                        vertical: 16),
-                                              ),
-                                              child: const Text(
-                                                "Get Started",
-                                                style: TextStyle(
-                                                  fontFamily: 'Inter',
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black,
-                                                  letterSpacing: -0.3,
+                                                  vertical: 16,
                                                 ),
+                                              ),
+                                              child: Text(
+                                                "Get Started",
+                                                style: AppTextStyles
+                                                    .buttonTextBlack,
                                               ),
                                             ),
                                           ),
@@ -245,16 +231,8 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                               },
                               child: Column(
                                 children: [
-                                  const Text(
-                                    "Sign In",
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontSize: 26,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                      letterSpacing: -1.0,
-                                    ),
-                                  ),
+                                  Text("Sign In",
+                                      style: AppTextStyles.heading1),
                                   const SizedBox(height: 20),
                                   Form(
                                     key: _formKey,
@@ -266,13 +244,15 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                           keyboardType:
                                               TextInputType.emailAddress,
                                           style: const TextStyle(
-                                            fontFamily: 'Inter',
-                                            color: Colors.white,
+                                            fontFamily:
+                                                AppTextStyles.fontFamily,
+                                            color: AppColors.primaryWhite,
                                           ),
                                           decoration: InputDecoration(
                                             labelText: 'Email',
-                                            labelStyle: const TextStyle(
-                                              fontFamily: 'Inter',
+                                            labelStyle: TextStyle(
+                                              fontFamily:
+                                                  AppTextStyles.fontFamily,
                                               color: Colors.white70,
                                             ),
                                             prefixIcon: const Icon(
@@ -292,8 +272,8 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                                   color: Color(0xFF9ACD32)),
                                             ),
                                             filled: true,
-                                            fillColor:
-                                                Colors.white.withOpacity(0.1),
+                                            fillColor: AppColors.primaryWhite
+                                                .withOpacity(0.1),
                                           ),
                                           validator: (value) {
                                             if (value == null ||
@@ -309,13 +289,15 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                           controller: _passwordController,
                                           obscureText: true,
                                           style: const TextStyle(
-                                            fontFamily: 'Inter',
-                                            color: Colors.white,
+                                            fontFamily:
+                                                AppTextStyles.fontFamily,
+                                            color: AppColors.primaryWhite,
                                           ),
                                           decoration: InputDecoration(
                                             labelText: 'Password',
-                                            labelStyle: const TextStyle(
-                                              fontFamily: 'Inter',
+                                            labelStyle: TextStyle(
+                                              fontFamily:
+                                                  AppTextStyles.fontFamily,
                                               color: Colors.white70,
                                             ),
                                             prefixIcon: const Icon(
@@ -335,8 +317,8 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                                   color: Color(0xFF9ACD32)),
                                             ),
                                             filled: true,
-                                            fillColor:
-                                                Colors.white.withOpacity(0.1),
+                                            fillColor: AppColors.primaryWhite
+                                                .withOpacity(0.1),
                                           ),
                                           validator: (value) {
                                             if (value == null ||
@@ -365,31 +347,25 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                                 },
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: !_isLogin
-                                                      ? Colors.white
-                                                      : Colors.white
-                                                          .withOpacity(0.3),
-                                                  foregroundColor: Colors.black,
+                                                      ? AppColors.primaryWhite
+                                                      : AppColors.primaryBlack,
+                                                  foregroundColor:
+                                                      AppColors.primaryBlack,
                                                   elevation: 0,
                                                   shape: RoundedRectangleBorder(
+                                                    side: const BorderSide(
+                                                        color: AppColors
+                                                            .primaryWhite),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             30),
                                                   ),
                                                   padding: const EdgeInsets
-                                                      .symmetric(vertical: 16),
+                                                      .symmetric(vertical: 12),
                                                 ),
-                                                child: Text(
-                                                  "Register",
-                                                  style: TextStyle(
-                                                    fontFamily: 'Inter',
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: !_isLogin
-                                                        ? Colors.black
-                                                        : Colors.white,
-                                                    letterSpacing: -0.3,
-                                                  ),
-                                                ),
+                                                child: Text("Register",
+                                                    style: AppTextStyles
+                                                        .buttonTextWhite),
                                               ),
                                             ),
 
@@ -406,10 +382,11 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                                 },
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: _isLogin
-                                                      ? Colors.white
-                                                      : Colors.white
+                                                      ? AppColors.primaryWhite
+                                                      : AppColors.primaryWhite
                                                           .withOpacity(0.3),
-                                                  foregroundColor: Colors.black,
+                                                  foregroundColor:
+                                                      AppColors.primaryBlack,
                                                   elevation: 0,
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
@@ -417,19 +394,12 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                                             30),
                                                   ),
                                                   padding: const EdgeInsets
-                                                      .symmetric(vertical: 16),
+                                                      .symmetric(vertical: 12),
                                                 ),
                                                 child: Text(
                                                   "Login",
-                                                  style: TextStyle(
-                                                    fontFamily: 'Inter',
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: _isLogin
-                                                        ? Colors.black
-                                                        : Colors.white,
-                                                    letterSpacing: -0.3,
-                                                  ),
+                                                  style: AppTextStyles
+                                                      .buttonTextBlack,
                                                 ),
                                               ),
                                             ),
@@ -469,42 +439,38 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                         const SizedBox(height: 24),
 
                                         // Google sign-in button
-                                        OutlinedButton.icon(
+                                        ElevatedButton.icon(
+                                          icon: Image.asset(
+                                            'assets/images/google_icon.png',
+                                            height: 20,
+                                          ),
                                           onPressed: () {
                                             // Implement Google Sign-In
-                                            final uiProvider =
-                                                Provider.of<UiViewModel>(
-                                                    context,
-                                                    listen: false);
-                                            uiProvider.setLoading(true);
-
-                                            // Simulate loading
-                                            Future.delayed(
-                                                const Duration(seconds: 2), () {
-                                              uiProvider.setLoading(false);
-                                              // Navigate to home page or next screen
-                                            });
+                                            //Navigate to the next screen
+                                            Navigator.pushNamed(context,
+                                                '/onboarding-food-preference');
                                           },
-                                          style: OutlinedButton.styleFrom(
-                                            side: const BorderSide(
-                                                color: Colors.white, width: 1),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                AppColors.primaryWhite,
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(30),
                                             ),
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 12),
+                                            padding: const EdgeInsets.all(12),
                                           ),
-                                          label: const Text(
-                                            "Sign in with Google",
-                                            style: TextStyle(
-                                              fontFamily: 'Inter',
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.white,
-                                              letterSpacing: -0.3,
-                                            ),
+                                          label: Text("Sign in with Google",
+                                              style: AppTextStyles
+                                                  .buttonTextBlack),
+                                        ),
+                                        const SizedBox(height: 24),
+                                        Text(
+                                          "By continuing, you agree to our Terms of Service and Privacy Policy",
+                                          style: AppTextStyles.withColor(
+                                            AppTextStyles.bodySmall,
+                                            Colors.white60,
                                           ),
+                                          textAlign: TextAlign.center,
                                         ),
                                       ],
                                     ),
@@ -525,10 +491,10 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
             builder: (context, uiViewModel, child) {
               return uiViewModel.loading
                   ? Container(
-                      color: Colors.black.withOpacity(0.7),
+                      color: AppColors.primaryBlack.withOpacity(0.7),
                       child: const Center(
                         child: CircularProgressIndicator(
-                          color: Color(0xFF9ACD32),
+                          color: AppColors.secondaryGreen,
                         ),
                       ),
                     )

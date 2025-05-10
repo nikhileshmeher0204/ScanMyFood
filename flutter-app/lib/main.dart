@@ -8,7 +8,14 @@ import 'package:provider/single_child_widget.dart';
 import 'package:read_the_label/config/env_config.dart';
 import 'package:read_the_label/utils/app_logger.dart';
 import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
+import 'package:read_the_label/views/screens/ask_ai_view.dart';
+import 'package:read_the_label/views/screens/daily_intake_view.dart';
+import 'package:read_the_label/views/screens/food_analysis_view.dart';
+import 'package:read_the_label/views/screens/meal_description_analysis_view.dart';
+import 'package:read_the_label/views/screens/onboarding_foodpreference_screen.dart';
 import 'package:read_the_label/views/screens/onboarding_getstarted_screen.dart';
+import 'package:read_the_label/views/screens/onboarding_health_metrics_screen.dart';
+import 'package:read_the_label/views/screens/product_analysis_view.dart';
 import 'firebase_options.dart';
 import 'package:read_the_label/repositories/storage_repository.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
@@ -59,14 +66,32 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: AppTheme.darkTheme(),
-        home: Consumer<User?>(builder: (context, user, _) {
-          // If user is already signed in, go to homepage
-          if (user != null) {
-            return const OnboardingGetstartedScreen();
-          }
-          // Otherwise, show sign-in screen
-          return const SignInScreen();
-        }),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => Consumer<User?>(builder: (context, user, _) {
+                if (user != null) {
+                  return const OnboardingGetstartedScreen();
+                }
+                return const SignInScreen();
+              }),
+          '/sign-in': (context) => const SignInScreen(),
+
+          // Onboarding flow
+          '/onboarding-getstarted': (context) =>
+              const OnboardingGetstartedScreen(),
+          '/onboarding-food-preference': (context) =>
+              const OnboardingFoodPreferenceScreen(),
+          '/onboarding-health-metrics': (context) =>
+              const OnboardingHealthMetricsScreen(),
+
+          // Main app screens
+          '/home': (context) => const HomePage(),
+
+          '/product-analysis': (context) => const ProductAnalysisView(),
+          '/food-analysis': (context) => const FoodAnalysisView(),
+          '/meal-analysis': (context) => const MealDescriptionAnalysisView(),
+          '/daily-intake': (context) => const DailyIntakeView(),
+        },
       ),
     );
   }

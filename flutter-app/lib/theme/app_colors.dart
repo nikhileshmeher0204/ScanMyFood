@@ -1,24 +1,42 @@
 import 'package:flutter/material.dart';
 
+/// Application color palette
 class AppColors {
-  // Primary colors
-  static const Color primary = Color(0xFF4E7BFF);
-  static const Color secondary = Color(0xFF9C72FF);
-  static const Color accent = Color(0xFF61DAFB);
+  // Primary Colors
+  static const Color primaryWhite = Color(0xFFFFFFFF);
+  static const Color primaryBlack = Color(0xFF000000);
 
-  // Surface colors
-  static const Color surface = Color(0xFF121212);
-  static const Color cardBackground = Color(0xFF1E1E1E);
-  static const Color divider = Color(0xFF2D2D2D);
+  // Material Theme mappings
+  static const Color primary = primaryBlack;
+  static const Color onPrimary = primaryWhite;
+  static const Color secondary = secondaryGreen;
+  static const Color onSecondary = primaryBlack;
+  static const Color error = secondaryRed;
+  static const Color onError = primaryWhite;
+  static const Color onBackground = primaryWhite;
+  static const Color onSurface = primaryWhite;
 
-  // Semantic colors
-  static const Color success = Color(0xFF4CAF50);
-  static const Color error = Color(0xFFFF5C5C);
-  static const Color warning = Color(0xFFFFA726);
-  static const Color info = Color(0xFF29B6F6);
+  // Secondary Colors
+  static const Color secondaryYellow = Color(0xFFECCD01);
+  static const Color secondaryGreen =
+      Color(0xFF9ACD32); // Using green instead of blue #4F5EDB
+  static const Color secondaryRed = Color(0xFFDF303A);
 
-  // Text colors
-  static const Color onPrimary = Colors.white;
-  static const Color onSurface = Colors.white;
-  static const Color onBackground = Colors.white;
+  // UI Colors - derived from primary/secondary
+  static const Color background = primaryBlack;
+  static const Color surface = primaryBlack;
+  static const Color textPrimary = primaryWhite;
+  static const Color textSecondary = Color(0xB3FFFFFF); // White with opacity
+
+  // Accent/Brand Color
+  static const Color accent = secondaryGreen;
+
+  // State Colors
+  static const Color success = secondaryGreen;
+  static const Color warning = secondaryYellow;
+
+  // Additional UI element colors
+  static const Color divider = Color(0xFF2C2C2C);
+  static const Color cardBackground = Color(0xFF1A1A1A);
+  static const Color inputBackground = Color(0xFF1A1A1A);
 }
