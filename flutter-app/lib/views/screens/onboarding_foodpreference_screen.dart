@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
+import 'package:read_the_label/viewmodels/nboarding_view_model.dart';
 
 class OnboardingFoodPreferenceScreen extends StatefulWidget {
   const OnboardingFoodPreferenceScreen({super.key});
@@ -30,6 +32,9 @@ class _OnboardingFoodpreferenceScreenState
 
   @override
   Widget build(BuildContext context) {
+    final onboardingViewModel =
+        Provider.of<OnboardingViewModel>(context, listen: false);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
@@ -266,9 +271,10 @@ class _OnboardingFoodpreferenceScreenState
                     initialItem: _countries.indexOf(_selectedCountry),
                   ),
                   onSelectedItemChanged: (int index) {
-                    setState(() {
-                      _selectedCountry = _countries[index];
-                    });
+                    final onboardingViewModel =
+                        Provider.of<OnboardingViewModel>(context,
+                            listen: false);
+                    onboardingViewModel.setCountry(_countries[index]);
                   },
                   children: _countries.map((String country) {
                     return Center(
@@ -291,8 +297,8 @@ class _OnboardingFoodpreferenceScreenState
   }
 
   Widget _buildPreferenceButton(String label, int index) {
-    final isSelected = _selectedDietIndex == index;
-
+    final onboardingViewModel = Provider.of<OnboardingViewModel>(context);
+    final isSelected = onboardingViewModel.getDietaryPreferenceIndex() == index;
     IconData getIconForIndex() {
       switch (index) {
         case 0: // Veg
@@ -308,9 +314,21 @@ class _OnboardingFoodpreferenceScreenState
 
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedDietIndex = index;
-        });
+        DietaryPreference preference;
+        switch (index) {
+          case 0:
+            preference = DietaryPreference.vegetarian;
+            break;
+          case 1:
+            preference = DietaryPreference.nonVegetarian;
+            break;
+          case 2:
+            preference = DietaryPreference.vegan;
+            break;
+          default:
+            preference = DietaryPreference.none;
+        }
+        onboardingViewModel.setDietaryPreference(preference);
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),

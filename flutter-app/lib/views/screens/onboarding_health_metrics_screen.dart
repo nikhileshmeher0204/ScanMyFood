@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:read_the_label/repositories/user_repository.dart';
+import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
+import 'package:read_the_label/viewmodels/nboarding_view_model.dart';
 import 'package:read_the_label/views/widgets/goal_button.dart';
 
 class OnboardingHealthMetricsScreen extends StatefulWidget {
@@ -25,6 +29,8 @@ class _OnboardingHealthMetricsScreenState
 
   @override
   Widget build(BuildContext context) {
+    final onboardingViewModel = Provider.of<OnboardingViewModel>(context);
+    final userRepo = Provider.of<UserRepository>(context, listen: false);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
@@ -116,13 +122,13 @@ class _OnboardingHealthMetricsScreenState
                               child: GoalButton(
                                 title: "Balanced\nDiet",
                                 iconPath: "assets/icons/balanced_diet_icon.png",
-                                isSelected: _selectedGoalIndex == 0,
+                                isSelected: onboardingViewModel.fitnessGoal ==
+                                    FitnessGoal.balancedDiet,
                                 accentColor:
                                     AppColors.secondaryGreen.withOpacity(0.9),
                                 onTap: () {
-                                  setState(() {
-                                    _selectedGoalIndex = 0;
-                                  });
+                                  onboardingViewModel
+                                      .setFitnessGoal(FitnessGoal.balancedDiet);
                                 },
                               ),
                             ),
@@ -131,12 +137,12 @@ class _OnboardingHealthMetricsScreenState
                               child: GoalButton(
                                 title: "Muscle\nGain",
                                 iconPath: "assets/icons/muscle_gain_icon.png",
-                                isSelected: _selectedGoalIndex == 1,
+                                isSelected: onboardingViewModel.fitnessGoal ==
+                                    FitnessGoal.muscleGain,
                                 accentColor: const Color(0xFF9370DB), // Purple
                                 onTap: () {
-                                  setState(() {
-                                    _selectedGoalIndex = 1;
-                                  });
+                                  onboardingViewModel
+                                      .setFitnessGoal(FitnessGoal.muscleGain);
                                 },
                               ),
                             ),
@@ -145,12 +151,12 @@ class _OnboardingHealthMetricsScreenState
                               child: GoalButton(
                                 title: "Weight\nLoss",
                                 iconPath: "assets/icons/weight_loss_icon.png",
-                                isSelected: _selectedGoalIndex == 2,
+                                isSelected: onboardingViewModel.fitnessGoal ==
+                                    FitnessGoal.weightLoss,
                                 accentColor: const Color(0xFFFFA500), // Orange
                                 onTap: () {
-                                  setState(() {
-                                    _selectedGoalIndex = 2;
-                                  });
+                                  onboardingViewModel
+                                      .setFitnessGoal(FitnessGoal.weightLoss);
                                 },
                               ),
                             ),
@@ -175,13 +181,41 @@ class _OnboardingHealthMetricsScreenState
                           children: [
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () {
-                                  // Navigate to the next screen
+                                onPressed: () async {
+                                  final authService = Provider.of<AuthService>(
+                                      context,
+                                      listen: false);
+                                  final user = authService.currentUser;
+                                  // Save preferences (assuming you've stored these in your state)
+                                  await userRepo.saveUserPreferences(
+                                    firebaseUid: user!.uid,
+                                    dietaryPreference: onboardingViewModel
+                                        .getDietaryPreferenceString(),
+                                    country:
+                                        onboardingViewModel.selectedCountry,
+                                  );
+
+                                  // Save health metrics
+                                  await userRepo.saveHealthMetrics(
+                                    firebaseUid: user.uid,
+                                    heightFeet:
+                                        onboardingViewModel.selectedHeightFeet,
+                                    heightInches: onboardingViewModel
+                                        .selectedHeightInches,
+                                    weightKg: onboardingViewModel.selectedWeight
+                                        .toDouble(),
+                                    goal: onboardingViewModel.getGoalString(),
+                                  );
+
+                                  // Mark onboarding as complete
+                                  await userRepo
+                                      .markOnboardingComplete(user.uid);
+
+                                  // Navigate to home
                                   Navigator.pushNamedAndRemoveUntil(
                                     context,
                                     '/home',
-                                    (route) =>
-                                        false, // This removes all previous routes
+                                    (route) => false,
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(

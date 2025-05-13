@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/main.dart';
+import 'package:read_the_label/repositories/user_repository.dart';
+import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/views/screens/home_page.dart';
 
 class OnboardingGetstartedScreen extends StatefulWidget {
   const OnboardingGetstartedScreen({super.key});
@@ -444,11 +448,139 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                             'assets/images/google_icon.png',
                                             height: 20,
                                           ),
-                                          onPressed: () {
-                                            // Implement Google Sign-In
-                                            //Navigate to the next screen
-                                            Navigator.pushNamed(context,
-                                                '/onboarding-food-preference');
+                                          onPressed: () async {
+                                            final uiViewModel =
+                                                Provider.of<UiViewModel>(
+                                                    context,
+                                                    listen: false);
+
+                                            try {
+                                              uiViewModel.setLoading(true);
+
+                                              final authService =
+                                                  Provider.of<AuthService>(
+                                                      context,
+                                                      listen: false);
+                                              final result = await authService
+                                                  .signInWithGoogle();
+
+                                              if (result != null) {
+                                                if (context.mounted) {
+                                                  final user =
+                                                      authService.currentUser;
+                                                  if (user == null) {
+                                                    logger.e(
+                                                        "Authentication successful but user is null");
+                                                    throw Exception(
+                                                        "Authentication failed");
+                                                  }
+
+                                                  logger.i(
+                                                      "Successfully signed in with Google: ${user.email}");
+
+                                                  final userRepository =
+                                                      Provider.of<
+                                                              UserRepository>(
+                                                          context,
+                                                          listen: false);
+                                                  final isNewUser =
+                                                      await userRepository
+                                                          .isNewUser();
+                                                  logger.i(
+                                                      "Is new user: $isNewUser");
+
+                                                  if (isNewUser) {
+                                                    await userRepository
+                                                        .createUser(
+                                                      user.uid,
+                                                      user.email ?? "",
+                                                      user.displayName ?? "",
+                                                    );
+                                                    // New user - go through onboarding
+                                                    logger.i(
+                                                        "Navigating to onboarding flow");
+                                                    if (context.mounted) {
+                                                      Navigator.pushNamed(
+                                                          context,
+                                                          '/onboarding-food-preference');
+                                                    }
+                                                  } else {
+                                                    // Check if User onboarding completed
+                                                    logger.i(
+                                                        "Checking if onboarding is completed");
+                                                    final onboardingCompleted =
+                                                        await userRepository
+                                                            .isOnboardingComplete(
+                                                      firebaseUid: user.uid,
+                                                    );
+
+                                                    if (!onboardingCompleted) {
+                                                      logger.i(
+                                                          "User onboarding not completed");
+                                                      logger.i(
+                                                          "Navigating to onboarding flow");
+                                                      if (context.mounted) {
+                                                        Navigator.pushNamed(
+                                                            context,
+                                                            '/onboarding-food-preference');
+                                                      }
+                                                    } else {
+                                                      logger.i(
+                                                          "User onboarding completed");
+                                                      await userRepository
+                                                          .markOnboardingComplete(
+                                                        user.uid,
+                                                      );
+                                                    }
+                                                    // Existing user - straight to home
+                                                    logger.i(
+                                                        "Navigating directly to home");
+
+                                                    if (context.mounted) {
+                                                      // Get user data here if needed (preferences, etc.)
+                                                      // await userRepository.getUserDetails();
+
+                                                      Navigator
+                                                          .pushNamedAndRemoveUntil(
+                                                        context,
+                                                        '/home',
+                                                        (route) => false,
+                                                      );
+                                                    }
+                                                  }
+                                                }
+                                              } else {
+                                                // User cancelled the sign-in flow
+                                                logger.w(
+                                                    "Sign-in was cancelled by user");
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        "Sign-in was cancelled"),
+                                                  ),
+                                                );
+                                              }
+                                            } catch (e) {
+                                              // Handle errors
+                                              logger.e(
+                                                  "Error during Google sign-in: $e");
+                                              if (context.mounted) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                        "Sign-in error: ${e.toString().split('\n')[0]}"),
+                                                    backgroundColor: Colors.red,
+                                                  ),
+                                                );
+                                              }
+                                            } finally {
+                                              // Hide loading indicator
+                                              if (context.mounted) {
+                                                uiViewModel.setLoading(false);
+                                              }
+                                            }
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor:

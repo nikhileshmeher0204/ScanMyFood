@@ -6,8 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:read_the_label/config/env_config.dart';
+import 'package:read_the_label/repositories/user_repository.dart';
 import 'package:read_the_label/utils/app_logger.dart';
 import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
+import 'package:read_the_label/viewmodels/nboarding_view_model.dart';
 import 'package:read_the_label/views/screens/ask_ai_view.dart';
 import 'package:read_the_label/views/screens/daily_intake_view.dart';
 import 'package:read_the_label/views/screens/food_analysis_view.dart';
@@ -127,8 +129,13 @@ class MyApp extends StatelessWidget {
       Provider<StorageRepository>(
         create: (_) => StorageRepository(),
       ),
-
+      Provider<UserRepository>(
+        create: (context) => UserRepository(context.read<ApiClient>()),
+      ),
       // Register ViewModels
+      ChangeNotifierProvider<OnboardingViewModel>(
+        create: (_) => OnboardingViewModel(),
+      ),
       ChangeNotifierProvider<UiViewModel>(
         create: (_) => UiViewModel(),
       ),

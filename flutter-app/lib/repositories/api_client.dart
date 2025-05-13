@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:read_the_label/main.dart';
 
 class ApiClient {
   final String baseUrl;
@@ -23,20 +24,29 @@ class ApiClient {
     }
   }
 
+  // Get the current user's UID
+  String? getCurrentUid() {
+    final user = FirebaseAuth.instance.currentUser;
+    return user?.uid;
+  }
+
   // Helper method for GET requests
   Future<dynamic> get(String endpoint) async {
     try {
+      final uri = Uri.parse('$baseUrl$endpoint');
+      logger.d("Making GET request to: $uri");
+
       final token = await getAuthToken();
       final response = await http.get(
-        Uri.parse('$baseUrl$endpoint'),
+        uri,
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
         },
-      );
+      ).timeout(const Duration(seconds: 15)); // Add timeout
 
-      print("Response status code: ${response.statusCode}");
-      print("Response body: ${response.body}");
+      logger.d("Response status code: ${response.statusCode}");
+      logger.d("Response body: ${response.body}");
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         if (response.body.isEmpty) {
@@ -51,7 +61,12 @@ class ApiClient {
         throw Exception('Failed with status code: ${response.statusCode}');
       }
     } catch (e) {
-      print("API call error: $e");
+      logger.d("API call error with details: $e");
+      if (e.toString().contains("SocketException") ||
+          e.toString().contains("Connection refused")) {
+        logger.d(
+            "Connection error - check that your server is running and accessible");
+      }
       rethrow;
     }
   }
@@ -59,9 +74,12 @@ class ApiClient {
   Future<Map<String, dynamic>> post(
       String endpoint, Map<String, dynamic> data) async {
     try {
+      final uri = Uri.parse('$baseUrl$endpoint');
+      logger.d("Making POST request to: $uri");
       final token = await getAuthToken();
+
       final response = await http.post(
-        Uri.parse('$baseUrl$endpoint'),
+        uri,
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
@@ -69,8 +87,8 @@ class ApiClient {
         body: jsonEncode(data),
       );
 
-      print("POST Response status code: ${response.statusCode}");
-      print("POST Response body: ${response.body}");
+      logger.d("POST Response status code: ${response.statusCode}");
+      logger.d("POST Response body: ${response.body}");
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         if (response.body.isEmpty) {
@@ -85,10 +103,8 @@ class ApiClient {
         throw Exception('POST failed with status code: ${response.statusCode}');
       }
     } catch (e) {
-      print("API POST call error: $e");
+      logger.d("API POST call error: $e");
       rethrow;
     }
   }
-
-  // Add more methods for PUT, DELETE, etc. as needed
 }

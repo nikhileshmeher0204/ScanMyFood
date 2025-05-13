@@ -9,6 +9,8 @@ class AuthService {
     return _auth.authStateChanges();
   }
 
+  User? get currentUser => _auth.currentUser;
+
   Future<UserCredential?> signInWithGoogle() async {
     try {
       //begin interactive sign-in process
