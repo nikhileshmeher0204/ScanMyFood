@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
 
 enum DietaryPreference { vegetarian, nonVegetarian, vegan, none }

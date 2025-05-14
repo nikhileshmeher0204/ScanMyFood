@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
@@ -50,19 +49,6 @@ class ProductAnalysisViewModel extends BaseViewModel {
         _nutritionLabelImage = File(image.path);
       }
       notifyListeners();
-    }
-  }
-
-  String? getApiKey() {
-    try {
-      final key = dotenv.env['GEMINI_API_KEY'];
-      if (key == null || key.isEmpty) {
-        throw Exception('GEMINI_API_KEY not found in .env file');
-      }
-      return key;
-    } catch (e) {
-      print('Error loading API key: $e');
-      return null;
     }
   }
 

@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'dart:io' as io;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +9,6 @@ import 'package:read_the_label/repositories/user_repository.dart';
 import 'package:read_the_label/utils/app_logger.dart';
 import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/nboarding_view_model.dart';
-import 'package:read_the_label/views/screens/ask_ai_view.dart';
 import 'package:read_the_label/views/screens/daily_intake_view.dart';
 import 'package:read_the_label/views/screens/food_analysis_view.dart';
 import 'package:read_the_label/views/screens/meal_description_analysis_view.dart';
@@ -72,9 +70,9 @@ class MyApp extends StatelessWidget {
         routes: {
           '/': (context) => Consumer<User?>(builder: (context, user, _) {
                 if (user != null) {
-                  return const OnboardingGetstartedScreen();
+                  return const HomePage();
                 }
-                return const SignInScreen();
+                return const OnboardingGetstartedScreen();
               }),
           '/sign-in': (context) => const SignInScreen(),
 
