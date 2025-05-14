@@ -107,6 +107,24 @@ This application uses Provider for state management:
   - `flutter_dotenv` for environment variables
   - `fl_chart` for data visualization
   - `rive` for animations
+<<<<<<< Updated upstream
+=======
+  - `http` for API communication
+
+### Backend
+- **Spring Boot 3.4.5** for RESTful API development
+- **Spring Data JPA** for database operations
+- **PostgreSQL** for data persistence
+- **Google Cloud Vertex AI** for AI-powered analysis
+- **Firebase Admin SDK** for authentication verification
+- **Maven** for dependency management
+
+### Infrastructure
+- **Google Cloud Platform**:
+  - Vertex AI (Gemini 2.0 Flash model)
+  - Firebase Authentication
+  - Cloud Storage (optional for production)
+>>>>>>> Stashed changes
 
 ## Future Enhancements
 
