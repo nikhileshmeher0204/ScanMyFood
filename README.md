@@ -107,8 +107,6 @@ This application uses Provider for state management:
   - `flutter_dotenv` for environment variables
   - `fl_chart` for data visualization
   - `rive` for animations
-<<<<<<< Updated upstream
-=======
   - `http` for API communication
 
 ### Backend
@@ -124,7 +122,6 @@ This application uses Provider for state management:
   - Vertex AI (Gemini 2.0 Flash model)
   - Firebase Authentication
   - Cloud Storage (optional for production)
->>>>>>> Stashed changes
 
 ## Future Enhancements
 
