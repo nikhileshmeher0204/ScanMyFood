@@ -36,6 +36,7 @@ public class UserService {
                     newUser.setFirebaseUid(firebaseUid);
                     newUser.setEmail(email);
                     newUser.setDisplayName(displayName);
+                    newUser.setOnboardingComplete(false);
                     return userRepository.save(newUser);
                 });
     }
@@ -48,21 +49,11 @@ public class UserService {
         return userRepository.findByFirebaseUid(firebaseUid)
                 .map(
                 user -> {
-                    boolean hasPreferences = user.getUserPreference() != null;
-                    boolean hasHealthMetrics = user.getHealthMetric() != null;
                     boolean isMarkedComplete = user.isOnboardingComplete();
-                    log.info("User {} onboarding status: preferences={}, healthMetrics={}, markedComplete={}",
-                            firebaseUid, hasPreferences, hasHealthMetrics, isMarkedComplete);
-                    return isMarkedComplete || (hasPreferences && hasHealthMetrics);
+                    log.info("User {} onboarding status: markedComplete={}",
+                            firebaseUid, isMarkedComplete);
+                    return isMarkedComplete;
                 }).orElse(false);
-    }
-
-    @Transactional
-    public void markOnboardingComplete(String firebaseUid) {
-        User user = getUserByFirebaseUid(firebaseUid);
-        user.setOnboardingComplete(true);
-        userRepository.save(user);
-        log.info("User {} onboarding marked as complete", firebaseUid);
     }
 
 
@@ -99,5 +90,36 @@ public class UserService {
         preference.setCountry(country);
 
         userPreferenceRepository.save(preference);
+    }
+
+    public void completeUserOnboarding(String firebaseUid, String dietaryPreference, String country, Integer heightFeet, Integer heightInches, Double weightKg, String goal) {
+        User user = getUserByFirebaseUid(firebaseUid);
+        // Save preferences
+        UserPreference preference = user.getUserPreference();
+        if (preference == null) {
+            preference = new UserPreference();
+            preference.setUser(user);
+        }
+        preference.setDietaryPreference(UserPreference.DietType.valueOf(dietaryPreference));
+        preference.setCountry(country);
+        userPreferenceRepository.save(preference);
+
+        // Save health metrics
+        HealthMetric healthMetric = user.getHealthMetric();
+        if (healthMetric == null) {
+            healthMetric = new HealthMetric();
+            healthMetric.setUser(user);
+        }
+        healthMetric.setHeightFeet(heightFeet);
+        healthMetric.setHeightInches(heightInches);
+        healthMetric.setWeightKg(weightKg);
+        healthMetric.setGoal(HealthMetric.Goal.valueOf(goal));
+        healthMetricRepository.save(healthMetric);
+
+        // Mark onboarding complete
+        user.setOnboardingComplete(true);
+        userRepository.save(user);
+
+        log.info("User {} onboarding completed successfully", firebaseUid);
     }
 }

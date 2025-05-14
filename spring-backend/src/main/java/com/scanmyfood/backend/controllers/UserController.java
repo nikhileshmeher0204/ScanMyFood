@@ -44,6 +44,33 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    @PostMapping("/complete-onboarding")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> completeOnboarding(@RequestBody Map<String, Object> onboardingData) {
+        String firebaseUid = (String) onboardingData.get("firebaseUid");
+        log.info("Completing onboarding for user {}", firebaseUid);
+
+        // Extract preferences
+        Map<String, String> preferences = (Map<String, String>) onboardingData.get("preferences");
+
+        // Extract health metrics
+        Map<String, Object> healthMetrics = (Map<String, Object>) onboardingData.get("healthMetrics");
+
+        userService.completeUserOnboarding(
+                firebaseUid,
+                preferences.get("dietaryPreference"),
+                preferences.get("country"),
+                (Integer) healthMetrics.get("heightFeet"),
+                (Integer) healthMetrics.get("heightInches"),
+                Double.valueOf(healthMetrics.get("weightKg").toString()),
+                (String) healthMetrics.get("goal")
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(Map.of(
+                "success", true,
+                "message", "Onboarding completed successfully"
+        )));
+    }
+
     @GetMapping("/check/onboarding-status/{firebaseUid}")
     public ResponseEntity <ApiResponse<Map<String, Object>>> checkIfOnboardingComplete(@PathVariable String firebaseUid) {
         log.info("Checking if user with uid {} is onboarding complete", firebaseUid);
@@ -54,17 +81,6 @@ public class UserController {
         log.info("User {} onboarding complete status: {}", firebaseUid, isOnboardingComplete);
 
         return ResponseEntity.ok(ApiResponse.success(response));
-    }
-
-    @PostMapping("/complete-onboarding/{firebaseUid}")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> markOnboardingComplete(@PathVariable String firebaseUid) {
-        log.info("Marking onboarding as complete for user {}", firebaseUid);
-        userService.markOnboardingComplete(firebaseUid);
-
-        return ResponseEntity.ok(ApiResponse.success(Map.of(
-                "success", true,
-                "message", "Onboarding marked as complete"
-        )));
     }
 
     @PostMapping("/preferences")

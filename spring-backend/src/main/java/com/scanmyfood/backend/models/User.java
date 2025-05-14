@@ -26,7 +26,7 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private boolean isOnboardingComplete = false;
+    private boolean isOnboardingComplete;
 
     private String displayName;
 

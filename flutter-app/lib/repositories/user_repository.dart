@@ -54,9 +54,35 @@ class UserRepository implements UserRepositoryInterface {
   }
 
   @override
-  Future<void> markOnboardingComplete(String firebaseUid) async {
-    logger.d('Marking onboarding complete...');
-    await _apiClient.post('users/complete-onboarding/$firebaseUid', {});
+  Future<void> completeOnboarding({
+    required String firebaseUid,
+    required String dietaryPreference,
+    required String country,
+    required int heightFeet,
+    required int heightInches,
+    required double weightKg,
+    required String goal,
+  }) async {
+    logger.d('Completing onboarding...');
+    try {
+      await _apiClient.post('/users/complete-onboarding', {
+        'firebaseUid': firebaseUid,
+        'preferences': {
+          'dietaryPreference': dietaryPreference,
+          'country': country,
+        },
+        'healthMetrics': {
+          'heightFeet': heightFeet,
+          'heightInches': heightInches,
+          'weightKg': weightKg,
+          'goal': goal,
+        }
+      });
+      logger.d('Onboarding completed successfully');
+    } catch (e) {
+      logger.e('Failed to complete onboarding: $e');
+      rethrow;
+    }
   }
 
   @override

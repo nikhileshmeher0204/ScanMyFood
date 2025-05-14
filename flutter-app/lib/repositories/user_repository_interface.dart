@@ -12,15 +12,33 @@ abstract class UserRepositoryInterface {
   /// - displayName: The user's display name
   Future<void> createUser(String firebaseUid, String email, String displayName);
 
-  /// Marks the onboarding process as complete
-  Future<void> markOnboardingComplete(String firebaseUid);
-
   /// Checks if the onboarding process is complete
   ///
   /// Parameters:
   /// - firebaseUid: The user's Firebase UID
   Future<bool> isOnboardingComplete({
     required String firebaseUid,
+  });
+
+  /// Completes the onboarding process
+  ///
+  /// Parameters:
+  /// - firebaseUid: The user's Firebase UID
+  /// - dietaryPreference: The user's dietary preference
+  /// - country: The user's country
+  /// - heightFeet: Height in feet
+  /// - heightInches: Height in inches
+  /// - weightKg: Weight in kilograms
+  /// - goal: Health goal
+  /// Returns a Future that completes when the onboarding is complete
+  Future<void> completeOnboarding({
+    required String firebaseUid,
+    required String dietaryPreference,
+    required String country,
+    required int heightFeet,
+    required int heightInches,
+    required double weightKg,
+    required String goal,
   });
 
   /// Saves the user's dietary preferences and country

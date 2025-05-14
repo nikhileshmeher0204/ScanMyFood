@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/main.dart';
 import 'package:read_the_label/repositories/user_repository.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
@@ -182,41 +183,56 @@ class _OnboardingHealthMetricsScreenState
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () async {
-                                  final authService = Provider.of<AuthService>(
-                                      context,
-                                      listen: false);
-                                  final user = authService.currentUser;
-                                  // Save preferences (assuming you've stored these in your state)
-                                  await userRepo.saveUserPreferences(
-                                    firebaseUid: user!.uid,
-                                    dietaryPreference: onboardingViewModel
-                                        .getDietaryPreferenceString(),
-                                    country:
-                                        onboardingViewModel.selectedCountry,
-                                  );
+                                  try {
+                                    final authService =
+                                        Provider.of<AuthService>(context,
+                                            listen: false);
+                                    final user = authService.currentUser;
+                                    if (user == null) {
+                                      logger.e(
+                                          'User is null, cannot complete onboarding');
+                                      return;
+                                    }
 
-                                  // Save health metrics
-                                  await userRepo.saveHealthMetrics(
-                                    firebaseUid: user.uid,
-                                    heightFeet:
-                                        onboardingViewModel.selectedHeightFeet,
-                                    heightInches: onboardingViewModel
-                                        .selectedHeightInches,
-                                    weightKg: onboardingViewModel.selectedWeight
-                                        .toDouble(),
-                                    goal: onboardingViewModel.getGoalString(),
-                                  );
+                                    // Single API call to complete all onboarding data
+                                    await userRepo.completeOnboarding(
+                                      firebaseUid: user.uid,
+                                      dietaryPreference: onboardingViewModel
+                                          .getDietaryPreferenceString(),
+                                      country:
+                                          onboardingViewModel.selectedCountry,
+                                      heightFeet: onboardingViewModel
+                                          .selectedHeightFeet,
+                                      heightInches: onboardingViewModel
+                                          .selectedHeightInches,
+                                      weightKg: onboardingViewModel
+                                          .selectedWeight
+                                          .toDouble(),
+                                      goal: onboardingViewModel.getGoalString(),
+                                    );
 
-                                  // Mark onboarding as complete
-                                  await userRepo
-                                      .markOnboardingComplete(user.uid);
-
-                                  // Navigate to home
-                                  Navigator.pushNamedAndRemoveUntil(
-                                    context,
-                                    '/home',
-                                    (route) => false,
-                                  );
+                                    // Navigate to home screen
+                                    if (context.mounted) {
+                                      Navigator.pushNamedAndRemoveUntil(
+                                        context,
+                                        '/home',
+                                        (route) => false,
+                                      );
+                                    }
+                                  } catch (e) {
+                                    logger.e('Error completing onboarding: $e');
+                                    // Show error to user
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              'Error saving information: ${e.toString()}'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primaryWhite,

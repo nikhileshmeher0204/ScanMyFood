@@ -527,25 +527,21 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                                     } else {
                                                       logger.i(
                                                           "User onboarding completed");
-                                                      await userRepository
-                                                          .markOnboardingComplete(
-                                                        user.uid,
-                                                      );
-                                                    }
-                                                    // Existing user - straight to home
-                                                    logger.i(
-                                                        "Navigating directly to home");
+                                                      // Existing user - straight to home
+                                                      logger.i(
+                                                          "Navigating directly to home");
 
-                                                    if (context.mounted) {
-                                                      // Get user data here if needed (preferences, etc.)
-                                                      // await userRepository.getUserDetails();
+                                                      if (context.mounted) {
+                                                        // Get user data here if needed (preferences, etc.)
+                                                        // await userRepository.getUserDetails();
 
-                                                      Navigator
-                                                          .pushNamedAndRemoveUntil(
-                                                        context,
-                                                        '/home',
-                                                        (route) => false,
-                                                      );
+                                                        Navigator
+                                                            .pushNamedAndRemoveUntil(
+                                                          context,
+                                                          '/home',
+                                                          (route) => false,
+                                                        );
+                                                      }
                                                     }
                                                   }
                                                 }
