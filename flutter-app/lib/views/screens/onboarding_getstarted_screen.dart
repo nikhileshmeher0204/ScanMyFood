@@ -6,7 +6,6 @@ import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
-import 'package:read_the_label/views/screens/home_page.dart';
 
 class OnboardingGetstartedScreen extends StatefulWidget {
   const OnboardingGetstartedScreen({super.key});
