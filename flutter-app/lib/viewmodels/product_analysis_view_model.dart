@@ -14,6 +14,7 @@ class ProductAnalysisViewModel extends BaseViewModel {
   List<Map<String, dynamic>> goodNutrients = [];
   List<Map<String, dynamic>> badNutrients = [];
   List<Map<String, dynamic>> _primaryConcerns = [];
+  Map<String, dynamic> totalPlateNutrients = {};
 
 // Dependencies
   SpringBackendRepository aiRepository;

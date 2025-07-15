@@ -13,7 +13,6 @@ import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
 import 'package:read_the_label/views/widgets/nutrient_balance_card.dart';
 import 'package:read_the_label/views/widgets/nutrient_info_shimmer.dart';
 import 'package:read_the_label/views/widgets/nutrient_tile.dart';
-import 'package:read_the_label/views/widgets/portion_buttons.dart';
 import 'package:read_the_label/views/widgets/product_image_capture_buttons.dart';
 import 'package:rive/rive.dart' as rive;
 
@@ -372,29 +371,6 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          PortionButton(
-                            portion: 0.25,
-                            label: "¼",
-                          ),
-                          PortionButton(
-                            portion: 0.5,
-                            label: "½",
-                          ),
-                          PortionButton(
-                            portion: 0.75,
-                            label: "¾",
-                          ),
-                          PortionButton(
-                            portion: 1.0,
-                            label: "1",
-                          ),
-                          CustomPortionButton(),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: uiProvider.sliderValue == 0

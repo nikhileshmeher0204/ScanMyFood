@@ -8,7 +8,7 @@ import 'package:read_the_label/config/env_config.dart';
 import 'package:read_the_label/repositories/user_repository.dart';
 import 'package:read_the_label/utils/app_logger.dart';
 import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
-import 'package:read_the_label/viewmodels/nboarding_view_model.dart';
+import 'package:read_the_label/viewmodels/onboarding_view_model.dart';
 import 'package:read_the_label/views/screens/daily_intake_view.dart';
 import 'package:read_the_label/views/screens/food_analysis_view.dart';
 import 'package:read_the_label/views/screens/meal_description_analysis_view.dart';

@@ -103,8 +103,8 @@ class _MealDescriptionAnalysisViewState
                                 )),
                         TotalNutrientsCard(
                           mealName: descriptionViewModel.mealName,
-                          analyzedFoodItems:
-                              descriptionViewModel.analyzedFoodItems,
+                          numberOfFoodItems:
+                              descriptionViewModel.analyzedFoodItems.length,
                           totalPlateNutrients:
                               descriptionViewModel.totalPlateNutrients,
                         ),

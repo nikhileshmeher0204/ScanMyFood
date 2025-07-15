@@ -237,3 +237,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Flutter team for the amazing cross-platform UI toolkit
 - Firebase for seamless authentication
 - PostgreSQL for reliable data storage
+

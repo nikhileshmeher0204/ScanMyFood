@@ -165,8 +165,8 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                             )),
                     TotalNutrientsCard(
                         mealName: mealAnalysisProvider.scannedMealName,
-                        analyzedFoodItems:
-                            mealAnalysisProvider.analyzedScannedFoodItems,
+                        numberOfFoodItems: mealAnalysisProvider
+                            .analyzedScannedFoodItems.length,
                         totalPlateNutrients:
                             mealAnalysisProvider.totalScannedPlateNutrients),
                     InkWell(
