@@ -191,6 +191,22 @@ This application uses a combination of state management approaches:
   - Firebase Authentication
   - Cloud Storage (optional for production)
 
+## Deployment
+
+### Frontend
+- Build the Flutter app for production:
+```bash
+flutter build apk --release  # for Android
+flutter build ios --release  # for iOS
+```
+
+### Backend
+- Package the Spring Boot application:
+```bash
+mvn clean package
+```
+- Deploy the resulting JAR file to your server or cloud provider
+
 ## Future Enhancements
 
 - Real-time data synchronization between devices
@@ -221,3 +237,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Flutter team for the amazing cross-platform UI toolkit
 - Firebase for seamless authentication
 - PostgreSQL for reliable data storage
+
