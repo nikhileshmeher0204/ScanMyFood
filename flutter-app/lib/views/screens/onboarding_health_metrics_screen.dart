@@ -6,7 +6,7 @@ import 'package:read_the_label/repositories/user_repository.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
-import 'package:read_the_label/viewmodels/nboarding_view_model.dart';
+import 'package:read_the_label/viewmodels/onboarding_view_model.dart';
 import 'package:read_the_label/views/widgets/goal_button.dart';
 
 class OnboardingHealthMetricsScreen extends StatefulWidget {

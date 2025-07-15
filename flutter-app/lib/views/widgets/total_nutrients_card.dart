@@ -1,22 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/views/widgets/nutrient_row.dart';
+import 'package:read_the_label/views/widgets/portion_buttons.dart';
 
-class TotalNutrientsCard extends StatelessWidget {
+class TotalNutrientsCard extends StatefulWidget {
   final String mealName;
-  final List<FoodItem> analyzedFoodItems;
+  final int numberOfFoodItems;
   final Map<String, dynamic> totalPlateNutrients;
 
   const TotalNutrientsCard({
     super.key,
     required this.mealName,
-    required this.analyzedFoodItems,
+    required this.numberOfFoodItems,
     required this.totalPlateNutrients,
   });
+
+  @override
+  State<TotalNutrientsCard> createState() => _TotalNutrientsCardState();
+}
+
+class _TotalNutrientsCardState extends State<TotalNutrientsCard> {
+  late double _portionMultiplier;
+  late Map<String, dynamic> _adjustedNutrients;
+  @override
+  void initState() {
+    super.initState();
+    _portionMultiplier = 1.0;
+    _adjustedNutrients = Map<String, dynamic>.from(widget.totalPlateNutrients);
+  }
+
+  void _updatePortion(double multiplier) {
+    setState(() {
+      _portionMultiplier = multiplier;
+      _adjustedNutrients = _calculateAdjustedNutrients(multiplier);
+    });
+  }
+
+  Map<String, dynamic> _calculateAdjustedNutrients(double multiplier) {
+    final Map<String, dynamic> result = {};
+    widget.totalPlateNutrients.forEach((key, value) {
+      if (value is num) {
+        result[key] = value * multiplier;
+      } else {
+        result[key] = value;
+      }
+    });
+    return result;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,13 +85,14 @@ class TotalNutrientsCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        '${analyzedFoodItems.length} items',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                          fontSize: 16,
+                      if (widget.numberOfFoodItems != 0)
+                        Text(
+                          '${widget.numberOfFoodItems} items',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 16,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                   Container(
@@ -88,37 +123,68 @@ class TotalNutrientsCard extends StatelessWidget {
             ),
             child: Column(
               children: [
-                _buildNutrientRow(
-                    context,
-                    'Calories',
-                    totalPlateNutrients['calories'] ?? 0,
-                    'kcal',
-                    Icons.local_fire_department_outlined),
-                _buildNutrientRow(
-                    context,
-                    'Protein',
-                    totalPlateNutrients['protein'] ?? 0,
-                    'g',
-                    Icons.fitness_center_outlined),
-                _buildNutrientRow(
-                    context,
-                    'Carbohydrates',
-                    totalPlateNutrients['carbohydrates'] ?? 0,
-                    'g',
-                    Icons.grain_outlined),
-                _buildNutrientRow(
-                    context,
-                    'Fat',
-                    totalPlateNutrients['fat'] ?? 0,
-                    'g',
-                    Icons.opacity_outlined),
-                _buildNutrientRow(
-                    context,
-                    'Fiber',
-                    totalPlateNutrients['fiber'] ?? 0,
-                    'g',
-                    Icons.grass_outlined,
-                    isLast: true),
+                NutrientRow(
+                  label: 'Calories',
+                  value: _adjustedNutrients['calories'] ?? 0,
+                  unit: 'kcal',
+                  icon: Icons.local_fire_department_outlined,
+                ),
+                NutrientRow(
+                  label: 'Protein',
+                  value: _adjustedNutrients['protein'] ?? 0,
+                  unit: 'g',
+                  icon: Icons.fitness_center_outlined,
+                ),
+                NutrientRow(
+                  label: 'Carbohydrates',
+                  value: _adjustedNutrients['carbohydrates'] ?? 0,
+                  unit: 'g',
+                  icon: Icons.grain_outlined,
+                ),
+                NutrientRow(
+                  label: 'Fat',
+                  value: _adjustedNutrients['fat'] ?? 0,
+                  unit: 'g',
+                  icon: Icons.opacity_outlined,
+                ),
+                NutrientRow(
+                  label: 'Fiber',
+                  value: _adjustedNutrients['fiber'] ?? 0,
+                  unit: 'g',
+                  icon: Icons.grass_outlined,
+                  isLast: true,
+                ),
+                const Divider(),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      PortionButton(
+                        portion: 0.25,
+                        label: "Quarter",
+                        isSelected: _portionMultiplier == 0.25,
+                        onPressed: () => _updatePortion(0.25),
+                      ),
+                      PortionButton(
+                        portion: 0.5,
+                        label: "Half",
+                        isSelected: _portionMultiplier == 0.5,
+                        onPressed: () => _updatePortion(0.5),
+                      ),
+                      PortionButton(
+                        portion: 1.0,
+                        label: "Normal",
+                        isSelected: _portionMultiplier == 1.0,
+                        onPressed: () => _updatePortion(1.0),
+                      ),
+                      CustomPortionButton(
+                        onPortionChanged: _updatePortion,
+                      ),
+                    ],
+                  ),
+                ),
                 ElevatedButton.icon(
                   onPressed: () {
                     final uiProvider =
@@ -130,10 +196,11 @@ class TotalNutrientsCard extends StatelessWidget {
                         Provider.of<DailyIntakeViewModel>(context,
                             listen: false);
                     print("Add to today's intake button pressed");
-                    print("Current total nutrients: $totalPlateNutrients");
+                    print(
+                        "Current total nutrients: ${widget.totalPlateNutrients}");
                     dailyIntakeProvider.addMealToDailyIntake(
-                      mealName: mealName,
-                      totalPlateNutrients: totalPlateNutrients,
+                      mealName: widget.mealName,
+                      totalPlateNutrients: _adjustedNutrients,
                       foodImage: mealAnalysisProvider.foodImage,
                     );
                     uiProvider.updateCurrentIndex(2);
@@ -159,50 +226,6 @@ class TotalNutrientsCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildNutrientRow(
-      BuildContext context, String label, num value, String unit, IconData icon,
-      {bool isLast = false}) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: Theme.of(context).colorScheme.primary),
-              ),
-              const SizedBox(width: 16),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Expanded(child: Container()),
-              Text(
-                '${value.toStringAsFixed(1)}$unit',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (!isLast)
-          Divider(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
-          ),
-      ],
     );
   }
 }

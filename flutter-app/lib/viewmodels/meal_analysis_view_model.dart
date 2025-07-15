@@ -1,7 +1,6 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:read_the_label/main.dart';
 import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
@@ -69,18 +68,18 @@ class MealAnalysisViewModel extends BaseViewModel {
       _analyzedScannedFoodItems = response.analyzedFoodItems;
       _totalScannedPlateNutrients = response.getSimpleTotalNutrients();
 
-      debugPrint("Total Plate Nutrients:");
-      debugPrint("Calories: ${_totalScannedPlateNutrients['calories']}");
-      debugPrint("Protein: ${_totalScannedPlateNutrients['protein']}");
-      debugPrint(
-          "Carbohydrates: ${_totalScannedPlateNutrients['carbohydrates']}");
-      debugPrint("Fat: ${_totalScannedPlateNutrients['fat']}");
-      debugPrint("Fiber: ${_totalScannedPlateNutrients['fiber']}");
+      logger.d("Total Plate Nutrients:");
+      logger.d("Calories: ${_totalScannedPlateNutrients['calories']}");
+      logger.d("Protein: ${_totalScannedPlateNutrients['protein']}");
+      logger
+          .d("Carbohydrates: ${_totalScannedPlateNutrients['carbohydrates']}");
+      logger.d("Fat: ${_totalScannedPlateNutrients['fat']}");
+      logger.d("Fiber: ${_totalScannedPlateNutrients['fiber']}");
 
       notifyListeners();
       return "Analysis complete";
     } catch (e) {
-      debugPrint("Error analyzing food image: $e");
+      logger.d("Error analyzing food image: $e");
       setError("Error analyzing food image: $e");
       return "Error analyzing image";
     } finally {
