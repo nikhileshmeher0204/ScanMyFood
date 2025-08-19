@@ -56,7 +56,7 @@ public class VertexAIConfig {
     }
 
     @Bean
-    public GenerativeModel generativeModel(VertexAI vertexAI) throws IOException {
+    public GenerativeModel generativeModel(VertexAI vertexAI) {
         return new GenerativeModel(MODEL_NAME, vertexAI);
     }
 }
