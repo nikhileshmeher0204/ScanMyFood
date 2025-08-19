@@ -161,7 +161,6 @@ class _NutrientTileState extends State<NutrientTile>
                                       //         .color,
                                       //     size: 20,
                                       //   ),
-                                      // ),
                                     ],
                                   ),
                                   Row(
