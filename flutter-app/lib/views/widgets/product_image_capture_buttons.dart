@@ -62,17 +62,13 @@ class FoodImageCaptureButtons extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ElevatedButton.icon(
-          icon: Icon(Icons.camera_alt_outlined,
-              color: Theme.of(context).colorScheme.onPrimary),
-          label: const Text(
-            "Take Photo",
-            style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w400),
-          ),
+          icon: const Icon(Icons.camera_alt_outlined,
+              color: AppColors.primaryBlack),
+          label: Text("Take Photo", style: AppTextStyles.buttonTextBlack),
           style: ElevatedButton.styleFrom(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            backgroundColor: AppColors.primaryWhite,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           ),
           onPressed: () => onImageCapturePressed(ImageSource.camera),
@@ -81,10 +77,7 @@ class FoodImageCaptureButtons extends StatelessWidget {
         ElevatedButton.icon(
           icon: Icon(Icons.photo_library,
               color: Theme.of(context).colorScheme.onPrimary),
-          label: const Text(
-            "Gallery",
-            style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w400),
-          ),
+          label: Text("Gallery", style: AppTextStyles.buttonTextWhite),
           style: ElevatedButton.styleFrom(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

@@ -64,13 +64,14 @@ flutter_launcher_icons:
   android: true
   ios: true
   remove_alpha_ios: true
-  image_path_android: "assets/icons/ic_launcher.png"
-  image_path_ios: "assets/icons/ios_launcher.png"
+  image_path_android: "assets/icons/app_logo.png"
+  image_path_ios: "assets/icons/app_logo.png"
   adaptive_icon_background: "#ffffff"
-  adaptive_icon_foreground: "assets/icons/ic_launcher_foreground.png"
+  adaptive_icon_foreground: "assets/icons/app_logo.png"
+  adaptive_icon_round: "assets/icons/app_logo.png"
   web:
     generate: true
-    image_path: "assets/icons/web_launcher.png"
+    image_path: "assets/icons/app_logo.png"
     background_color: "#ffffff"
     theme_color: "#ffffff"
 
