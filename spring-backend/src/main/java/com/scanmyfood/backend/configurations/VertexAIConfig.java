@@ -1,6 +1,9 @@
 package com.scanmyfood.backend.configurations;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.vertexai.VertexAI;
+import com.google.cloud.vertexai.generativeai.GenerativeModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +21,9 @@ public class VertexAIConfig {
 
     @Value("${google.cloud.location:us-central1}")
     private String location;
+
+    @Value("${vertex.ai.model.name:gemini-2.0-flash}")
+    private String MODEL_NAME;
 
     @Bean
     public GoogleCredentials googleCredentials() throws IOException {
@@ -41,12 +47,16 @@ public class VertexAIConfig {
     }
 
     @Bean
-    public String projectId() {
-        return projectId;
+    public VertexAI vertexAI(GoogleCredentials credentials) {
+        return new VertexAI.Builder()
+                .setProjectId(projectId)
+                .setLocation(location)
+                .setCredentials(credentials)
+                .build();
     }
 
     @Bean
-    public String location() {
-        return location;
+    public GenerativeModel generativeModel(VertexAI vertexAI) {
+        return new GenerativeModel(MODEL_NAME, vertexAI);
     }
 }

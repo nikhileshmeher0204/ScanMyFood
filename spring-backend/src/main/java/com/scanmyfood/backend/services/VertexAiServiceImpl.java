@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.vertexai.VertexAI;
 import com.google.cloud.vertexai.api.Content;
 import com.google.cloud.vertexai.api.GenerateContentResponse;
@@ -23,57 +22,22 @@ import com.google.cloud.vertexai.generativeai.PartMaker;
 
 @Service
 public class VertexAiServiceImpl implements AiService {
-  private static final Logger logger = LoggerFactory.getLogger(VertexAiServiceImpl.class);
-  private final ObjectMapper objectMapper;
-  private final String projectId;
-  private final String location;
-  private final GoogleCredentials credentials;
 
-  // Vertex AI constants
-  private static final String PROJECT_ID = "foodscanai-d28bc";
-  private static final String LOCATION = "us-central1";
-  private static final String MODEL_NAME = "gemini-2.0-flash";
+  private static final Logger logger = LoggerFactory.getLogger(VertexAiServiceImpl.class);
 
   @Autowired
-  public VertexAiServiceImpl(ObjectMapper objectMapper, String projectId, String location,
-      GoogleCredentials credentials) {
-    this.objectMapper = objectMapper;
-    this.projectId = projectId;
-    this.location = location;
-    this.credentials = credentials;
-  }
+  private ObjectMapper objectMapper;
 
-  /**
-   * Determines appropriate MIME type for an image file
-   */
-  private String determineMimeType(MultipartFile file) {
-    String mimeType = file.getContentType();
-    if (mimeType == null || mimeType.equals("application/octet-stream")) {
-      String filename = file.getOriginalFilename();
-      if (filename != null) {
-        if (filename.toLowerCase().endsWith(".png")) {
-          return "image/png";
-        } else if (filename.toLowerCase().endsWith(".jpg") ||
-            filename.toLowerCase().endsWith(".jpeg")) {
-          return "image/jpeg";
-        }
-      }
-      // Default to JPEG if can't determine
-      return "image/jpeg";
-    }
-    return mimeType;
-  }
+  @Autowired
+  private VertexAI vertexAI;
+
+  @Autowired
+  private GenerativeModel generativeModel;
 
   @Override
   public Map<String, Object> analyzeProductImages(MultipartFile frontImage, MultipartFile labelImage) {
 
-    try (VertexAI vertexAI = new VertexAI.Builder()
-        .setProjectId(projectId)
-        .setLocation(location)
-        .setCredentials(credentials)
-        .build()) {
-
-      GenerativeModel model = new GenerativeModel(MODEL_NAME, vertexAI);
+    try {
       String frontMimeType = determineMimeType(frontImage);
       String labelMimeType = determineMimeType(labelImage);
 
@@ -91,7 +55,7 @@ public class VertexAiServiceImpl implements AiService {
                 {
                   "name": "Nutrient name",
                   "quantity": "Quantity with unit",
-                  "daily_value": "Percentage of daily value",
+                  "daily_value": "daily value percentage with % symbol",
                   "status": "High/Moderate/Low based on DV%",
                   "health_impact": "Good/Bad/Moderate"
                 }
@@ -114,24 +78,26 @@ public class VertexAiServiceImpl implements AiService {
 
           Strictly follow these rules:
           1. Mention Quantity with units in the label
-          2. Do not include any extra characters or formatting outside of the JSON object
-          3. Use accurate escape sequences for any special characters
-          4. Avoid including nutrients that aren't mentioned in the label
-          5. For primary_concerns, focus on major nutritional imbalances
-          6. For recommendations:
+          2. Prioritize calculation of DV% based on quantity per serving data, and don't use available DV% on label unless quantity data is not clear/visible
+          3. Return calculated DV%, and not the ones found in label
+          4. Do not include any extra characters or formatting outside of the JSON object
+          5. Use accurate escape sequences for any special characters
+          6. Avoid including nutrients that aren't mentioned in the label
+          7. For primary_concerns, focus on major nutritional imbalances
+          8. For recommendations:
              - Suggest foods that can be added to complement the product
              - Focus on practical additions
              - Explain how each addition helps balance nutrition
-          7. Use %DV guidelines:
+          9. Use %DV guidelines:
              5% DV or less is considered low
              20% DV or more is considered high
              5% < DV < 20% is considered moderate
-          8. For health_impact determination:
+          10. For health_impact determination:
              "At least" nutrients (like fiber, protein):
                High status → Good health_impact
                Moderate status → Moderate health_impact
                Low status → Bad health_impact
-             "Less than" nutrients (like sodium, saturated fat):
+             "Less than" nutrients (like sodium, saturated fat, trans fat, sugar, cholesterol):
                Low status → Good health_impact
                Moderate status → Moderate health_impact
                High status → Bad health_impact
@@ -144,7 +110,7 @@ public class VertexAiServiceImpl implements AiService {
         PartMaker.fromMimeTypeAndData(labelMimeType, labelImage.getBytes())
 );
       // Generate content
-      GenerateContentResponse response = model.generateContent(content);
+      GenerateContentResponse response = generativeModel.generateContent(content);
 
       // Extract and parse JSON from response
       String responseText = response.getCandidates(0).getContent().getParts(0).getText();
@@ -158,15 +124,7 @@ public class VertexAiServiceImpl implements AiService {
 
   @Override
   public Map<String, Object> analyzeFoodImage(MultipartFile imageFile) {
-    try (VertexAI vertexAI = new VertexAI.Builder()
-            .setProjectId(projectId)
-            .setLocation(location)
-            .setCredentials(credentials)
-            .build()) {
-
-      // Initialize model
-      GenerativeModel model = new GenerativeModel(MODEL_NAME, vertexAI);
-
+    try {
       String foodMimeType = determineMimeType(imageFile);
 
 
@@ -219,7 +177,6 @@ public class VertexAiServiceImpl implements AiService {
               4. Prioritize using values from the USDA FoodData Central database
               5. Consider common serving sizes and preparation methods
               6. Account for density and volume-to-weight conversions
-              7. Take a deeper look into the container size of food, don't consider a zoomed in container to be a big container
               
               """;
 
@@ -229,7 +186,7 @@ public class VertexAiServiceImpl implements AiService {
               PartMaker.fromMimeTypeAndData(foodMimeType, imageFile.getBytes()));
 
       // Generate content
-      GenerateContentResponse response = model.generateContent(content);
+      GenerateContentResponse response = generativeModel.generateContent(content);
 
       // Extract and parse JSON from response
       String responseText = response.getCandidates(0).getContent().getParts(0).getText();
@@ -243,15 +200,7 @@ public class VertexAiServiceImpl implements AiService {
 
   @Override
   public Map<String, Object> analyzeFoodDescription(String description) {
-    try (VertexAI vertexAI = new VertexAI.Builder()
-        .setProjectId(projectId)
-        .setLocation(location)
-        .setCredentials(credentials)
-        .build()) {
-
-      // Initialize model
-      GenerativeModel model = new GenerativeModel(MODEL_NAME, vertexAI);
-
+    try {
       // Create prompt
       String prompt = """
           You are a highly qualified and experienced nutritionist specializing in providing accurate nutritional information.
@@ -315,7 +264,7 @@ public class VertexAiServiceImpl implements AiService {
       Content content = ContentMaker.fromString(prompt);
 
       // Generate content
-      GenerateContentResponse response = model.generateContent(content);
+      GenerateContentResponse response = generativeModel.generateContent(content);
 
       // Extract and parse JSON from response
       String responseText = response.getCandidates(0).getContent().getParts(0).getText();
@@ -325,6 +274,27 @@ public class VertexAiServiceImpl implements AiService {
       logger.error("Error analyzing food description", e);
       throw new RuntimeException("Failed to analyze food description: " + e.getMessage());
     }
+  }
+
+  /**
+   * Determines appropriate MIME type for an image file
+   */
+  private String determineMimeType(MultipartFile file) {
+    String mimeType = file.getContentType();
+    if (mimeType == null || mimeType.equals("application/octet-stream")) {
+      String filename = file.getOriginalFilename();
+      if (filename != null) {
+        if (filename.toLowerCase().endsWith(".png")) {
+          return "image/png";
+        } else if (filename.toLowerCase().endsWith(".jpg") ||
+                filename.toLowerCase().endsWith(".jpeg")) {
+          return "image/jpeg";
+        }
+      }
+      // Default to JPEG if can't determine
+      return "image/jpeg";
+    }
+    return mimeType;
   }
 
   private Map<String, Object> extractJsonFromResponse(String responseText) throws IOException {
