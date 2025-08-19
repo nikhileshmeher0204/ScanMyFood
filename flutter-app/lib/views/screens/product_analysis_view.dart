@@ -369,7 +369,6 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const SizedBox(height: 8),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: uiProvider.sliderValue == 0

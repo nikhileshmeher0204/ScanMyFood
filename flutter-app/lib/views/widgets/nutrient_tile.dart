@@ -150,17 +150,6 @@ class _NutrientTileState extends State<NutrientTile>
                                         widget.quantity,
                                         style: AppTextStyles.bodyLargeBold,
                                       ),
-                                      // RotationTransition(
-                                      //   turns: Tween(begin: 0.0, end: 0.5)
-                                      //       .animate(_animationController),
-                                      //   child: Icon(
-                                      //     Icons.keyboard_arrow_down,
-                                      //     color: Theme.of(context)
-                                      //         .textTheme
-                                      //         .bodyMedium!
-                                      //         .color,
-                                      //     size: 20,
-                                      //   ),
                                     ],
                                   ),
                                   Row(

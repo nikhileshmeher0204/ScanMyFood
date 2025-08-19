@@ -37,7 +37,7 @@ public class VertexAiServiceImpl implements AiService {
   @Override
   public Map<String, Object> analyzeProductImages(MultipartFile frontImage, MultipartFile labelImage) {
 
-    try{
+    try {
       String frontMimeType = determineMimeType(frontImage);
       String labelMimeType = determineMimeType(labelImage);
 
@@ -78,7 +78,7 @@ public class VertexAiServiceImpl implements AiService {
 
           Strictly follow these rules:
           1. Mention Quantity with units in the label
-          2. Prioritize calculation of DV% based on quantity per serving data, and don't available DV% on label unless quantity data is not clear/visible
+          2. Prioritize calculation of DV% based on quantity per serving data, and don't use available DV% on label unless quantity data is not clear/visible
           3. Return calculated DV%, and not the ones found in label
           4. Do not include any extra characters or formatting outside of the JSON object
           5. Use accurate escape sequences for any special characters
@@ -124,7 +124,7 @@ public class VertexAiServiceImpl implements AiService {
 
   @Override
   public Map<String, Object> analyzeFoodImage(MultipartFile imageFile) {
-    try{
+    try {
       String foodMimeType = determineMimeType(imageFile);
 
 
@@ -177,7 +177,6 @@ public class VertexAiServiceImpl implements AiService {
               4. Prioritize using values from the USDA FoodData Central database
               5. Consider common serving sizes and preparation methods
               6. Account for density and volume-to-weight conversions
-              7. Take a deeper look into the container size of food, don't consider a zoomed in container to be a big container
               
               """;
 
@@ -201,7 +200,7 @@ public class VertexAiServiceImpl implements AiService {
 
   @Override
   public Map<String, Object> analyzeFoodDescription(String description) {
-    try{
+    try {
       // Create prompt
       String prompt = """
           You are a highly qualified and experienced nutritionist specializing in providing accurate nutritional information.
