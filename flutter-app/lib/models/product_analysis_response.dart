@@ -59,14 +59,16 @@ class Nutrient {
   final String name;
   final String quantity;
   final String dailyValue;
-  final String status;
+  final String dvStatus;
+  final String goal;
   final String healthImpact;
 
   Nutrient({
     required this.name,
     required this.quantity,
     required this.dailyValue,
-    required this.status,
+    required this.dvStatus,
+    required this.goal,
     required this.healthImpact,
   });
 
@@ -74,8 +76,9 @@ class Nutrient {
     return Nutrient(
       name: json['name'] ?? 'Unknown',
       quantity: json['quantity'] ?? '0',
-      dailyValue: json['dailyValue'] ?? '0%',
-      status: json['status'] ?? 'Moderate',
+      dailyValue: json['dailyValue'] ?? '0',
+      dvStatus: json['dvStatus'] ?? '',
+      goal: json['goal'] ?? 'At least',
       healthImpact: json['healthImpact'] ?? 'Moderate',
     );
   }

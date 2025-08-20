@@ -91,7 +91,8 @@ class ProductAnalysisViewModel extends BaseViewModel {
           'name': nutrient.name,
           'quantity': nutrient.quantity,
           'daily_value': nutrient.dailyValue,
-          'status': nutrient.status,
+          'dv_status': nutrient.dvStatus,
+          'goal': nutrient.goal,
           'health_impact': nutrient.healthImpact,
         };
         parsedNutrients.add(nutrientMap);

@@ -1,7 +1,8 @@
 package com.scanmyfood.backend.models;
 
-import lombok.Data;
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class ProductAnalysisResponse {
@@ -26,7 +27,8 @@ public class ProductAnalysisResponse {
         private String name;
         private String quantity;
         private String dailyValue;
-        private String status;
+        private String dvStatus;
+        private String goal;
         private String healthImpact;
     }
 
