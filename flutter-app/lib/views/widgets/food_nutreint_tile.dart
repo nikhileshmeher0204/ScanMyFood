@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:read_the_label/theme/app_colors.dart';
+import 'package:read_the_label/theme/app_text_styles.dart';
 
 class FoodNutrientTile extends StatelessWidget {
   final String label;
@@ -19,23 +21,20 @@ class FoodNutrientTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
+        color: AppColors.primaryBlack,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-        ),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              color: AppColors.secondaryGreen.withOpacity(0.15),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
-              color: Theme.of(context).colorScheme.primary,
+              color: AppColors.secondaryGreen,
               size: 16,
             ),
           ),
@@ -48,19 +47,20 @@ class FoodNutrientTile extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withOpacity(0.6),
+                  style: AppTextStyles.withColor(
+                    AppTextStyles.bodySmall,
+                    AppColors.textSecondary,
                   ),
                 ),
+                const SizedBox(height: 2),
                 Text(
                   '$value$unit',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.withColor(
+                    AppTextStyles.withWeight(
+                      AppTextStyles.bodyMedium,
+                      FontWeight.w600,
+                    ),
+                    AppColors.primaryWhite,
                   ),
                 ),
               ],

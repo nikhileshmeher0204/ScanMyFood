@@ -182,7 +182,8 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                           numberOfFoodItems: mealAnalysisProvider
                               .analyzedScannedFoodItems.length,
                           totalPlateNutrients:
-                              mealAnalysisProvider.totalScannedPlateNutrients),
+                              mealAnalysisProvider.totalScannedPlateNutrients,
+                          nutrientInfo: mealAnalysisProvider.nutrientInfo),
                       InkWell(
                         onTap: () {
                           print("Tap detected!");

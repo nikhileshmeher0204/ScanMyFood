@@ -212,9 +212,11 @@ class _NutrientTileState extends State<NutrientTile>
                                       Text(
                                         "${widget.dailyValue} DV%",
                                         style: TextStyle(
-                                          color: widget.healthSign == "Good"
+                                          color: displayText == "Good"
                                               ? AppColors.secondaryGreen
-                                              : widget.healthSign == "Bad"
+                                              : displayText == "Limit" ||
+                                                      displayText ==
+                                                          "Insufficient"
                                                   ? AppColors.secondaryRed
                                                   : AppColors.secondaryOrange,
                                           fontSize: 16,

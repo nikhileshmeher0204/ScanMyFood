@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/core/constants/nutrient_insights.dart';
+import 'package:read_the_label/main.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/widgets/nutrient_row.dart';
+import 'package:read_the_label/views/widgets/nutrient_tile.dart';
 import 'package:read_the_label/views/widgets/portion_buttons.dart';
 
 class TotalNutrientsCard extends StatefulWidget {
   final String mealName;
   final int numberOfFoodItems;
   final Map<String, dynamic> totalPlateNutrients;
+  final List<Map<String, dynamic>> nutrientInfo;
 
   const TotalNutrientsCard({
     super.key,
     required this.mealName,
     required this.numberOfFoodItems,
     required this.totalPlateNutrients,
+    required this.nutrientInfo,
   });
 
   @override
@@ -29,6 +34,7 @@ class _TotalNutrientsCardState extends State<TotalNutrientsCard> {
   @override
   void initState() {
     super.initState();
+    logger.i(widget.nutrientInfo.length);
     _portionMultiplier = 1.0;
     _adjustedNutrients = Map<String, dynamic>.from(widget.totalPlateNutrients);
   }
@@ -115,46 +121,29 @@ class _TotalNutrientsCardState extends State<TotalNutrientsCard> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.cardBackground,
+              color: Theme.of(context).colorScheme.primary,
               borderRadius:
                   const BorderRadius.vertical(bottom: Radius.circular(20)),
             ),
             child: Column(
               children: [
-                NutrientRow(
-                  label: 'Calories',
-                  value: _adjustedNutrients['calories'] ?? 0,
-                  unit: 'kcal',
-                  icon: Icons.local_fire_department_outlined,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Column(
+                    children: widget.nutrientInfo
+                        .map((nutrient) => NutrientTile(
+                              nutrient: nutrient['name'],
+                              dvStatus: nutrient['dv_status'],
+                              goal: nutrient['goal'],
+                              healthSign: nutrient['health_impact'],
+                              quantity: nutrient['quantity'],
+                              insight: nutrientInsights[nutrient['name']],
+                              dailyValue: nutrient['daily_value'],
+                            ))
+                        .toList(),
+                  ),
                 ),
-                NutrientRow(
-                  label: 'Protein',
-                  value: _adjustedNutrients['protein'] ?? 0,
-                  unit: 'g',
-                  icon: Icons.fitness_center_outlined,
-                ),
-                NutrientRow(
-                  label: 'Carbohydrates',
-                  value: _adjustedNutrients['carbohydrates'] ?? 0,
-                  unit: 'g',
-                  icon: Icons.grain_outlined,
-                ),
-                NutrientRow(
-                  label: 'Fat',
-                  value: _adjustedNutrients['fat'] ?? 0,
-                  unit: 'g',
-                  icon: Icons.opacity_outlined,
-                ),
-                NutrientRow(
-                  label: 'Fiber',
-                  value: _adjustedNutrients['fiber'] ?? 0,
-                  unit: 'g',
-                  icon: Icons.grass_outlined,
-                  isLast: true,
-                ),
-                const Divider(),
                 const SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),

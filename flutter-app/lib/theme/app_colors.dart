@@ -10,6 +10,8 @@ class AppColors {
   static const Color onPrimary = primaryWhite;
   static const Color secondary = secondaryGreen;
   static const Color onSecondary = primaryBlack;
+  static const Color tertiaryPurple = Color(0xFF6e30b0);
+  static const Color onTertiary = primaryWhite;
   static const Color error = secondaryRed;
   static const Color onError = primaryWhite;
   static const Color onBackground = primaryWhite;
