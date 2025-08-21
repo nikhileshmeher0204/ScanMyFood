@@ -1,13 +1,14 @@
 package com.scanmyfood.backend.services;
 
-import com.scanmyfood.backend.models.FoodAnalysisResponse;
-import com.scanmyfood.backend.models.FoodItem;
-import com.scanmyfood.backend.models.ProductAnalysisResponse;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
+import com.scanmyfood.backend.models.FoodAnalysisResponse;
+import com.scanmyfood.backend.models.FoodItem;
+import com.scanmyfood.backend.models.ProductAnalysisResponse;
 
 @Service
 public class AiResponseProcessingServiceImpl implements AiResponseProcessingService{
@@ -39,7 +40,8 @@ public class AiResponseProcessingServiceImpl implements AiResponseProcessingServ
             nutrient.setName((String) nutrientMap.get("name"));
             nutrient.setQuantity((String) nutrientMap.get("quantity"));
             nutrient.setDailyValue((String) nutrientMap.get("daily_value"));
-            nutrient.setStatus((String) nutrientMap.get("status"));
+            nutrient.setDvStatus((String) nutrientMap.get("dv_status"));
+            nutrient.setGoal((String) nutrientMap.get("goal"));
             nutrient.setHealthImpact((String) nutrientMap.get("health_impact"));
             nutrients.add(nutrient);
         }

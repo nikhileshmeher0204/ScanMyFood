@@ -25,7 +25,8 @@ class NutritionAnalysis {
                     dailyValue: double.tryParse(
                             nutrient['daily_value']?.toString() ?? '0') ??
                         0.0,
-                    status: nutrient['status'] ?? '',
+                    dvStatus: nutrient['dv_status'] ?? '',
+                    goal: nutrient['goal'] ?? '',
                     healthImpact: nutrient['health_impact'] ?? '',
                   ))
               .toList() ??
@@ -53,14 +54,16 @@ class NutrientInfo {
   final String name;
   final String quantity;
   final double dailyValue;
-  final String status;
+  final String dvStatus;
+  final String goal;
   final String healthImpact;
 
   NutrientInfo({
     required this.name,
     required this.quantity,
     required this.dailyValue,
-    required this.status,
+    required this.dvStatus,
+    required this.goal,
     required this.healthImpact,
   });
 }

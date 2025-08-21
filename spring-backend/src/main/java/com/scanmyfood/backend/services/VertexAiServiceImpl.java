@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.scanmyfood.backend.constants.NutrientConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,65 +44,68 @@ public class VertexAiServiceImpl implements AiService {
 
       // Create prompt
       String prompt = """
-          Analyze the food product, product name and its nutrition label. Provide response in this strict JSON format:
-          {
-            "product": {
-              "name": "Product name from front image",
-              "category": "Food category (e.g., snack, beverage, etc.)"
-            },
-            "nutrition_analysis": {
-              "serving_size": "Serving size with unit",
-              "nutrients": [
-                {
-                  "name": "Nutrient name",
-                  "quantity": "Quantity with unit",
-                  "daily_value": "daily value percentage with % symbol",
-                  "status": "High/Moderate/Low based on DV%",
-                  "health_impact": "Good/Bad/Moderate"
-                }
-              ],
-              "primary_concerns": [
-                {
-                  "issue": "Primary nutritional concern",
-                  "explanation": "Brief explanation of health impact",
-                  "recommendations": [
-                    {
-                      "food": "Complementary food to add",
-                      "quantity": "Recommended quantity to add",
-                      "reasoning": "How this helps balance nutrition"
-                    }
-                  ]
-                }
-              ]
-            }
+        %s
+        
+        Analyze the food product, product name and its nutrition label. Provide response in this strict JSON format:
+        {
+          "product": {
+            "name": "Product name from front image",
+            "category": "Food category (e.g., snack, beverage, etc.)"
+          },
+          "nutrition_analysis": {
+            "serving_size": "Serving size with unit",
+            "nutrients": [
+              {
+                "name": "Nutrient name",
+                "quantity": "Quantity with unit",
+                "daily_value": "daily value percentage without %% symbol",
+                "dv_status": "High/Moderate/Low based on DV%%",
+                "goal": "Goal of consumption of a nutrient can be - 'At least' or 'Less than' based on recommended DV%%",
+                "health_impact": "Good/Moderate/Bad"
+              }
+            ],
+            "primary_concerns": [
+              {
+                "issue": "Primary nutritional concern",
+                "explanation": "Brief explanation of health impact",
+                "recommendations": [
+                  {
+                    "food": "Complementary food to add",
+                    "quantity": "Recommended quantity to add",
+                    "reasoning": "How this helps balance nutrition"
+                  }
+                ]
+              }
+            ]
           }
+        }
 
-          Strictly follow these rules:
-          1. Mention Quantity with units in the label
-          2. Prioritize calculation of DV% based on quantity per serving data, and don't use available DV% on label unless quantity data is not clear/visible
-          3. Return calculated DV%, and not the ones found in label
-          4. Do not include any extra characters or formatting outside of the JSON object
-          5. Use accurate escape sequences for any special characters
-          6. Avoid including nutrients that aren't mentioned in the label
-          7. For primary_concerns, focus on major nutritional imbalances
-          8. For recommendations:
-             - Suggest foods that can be added to complement the product
-             - Focus on practical additions
-             - Explain how each addition helps balance nutrition
-          9. Use %DV guidelines:
-             5% DV or less is considered low
-             20% DV or more is considered high
-             5% < DV < 20% is considered moderate
-          10. For health_impact determination:
-             "At least" nutrients (like fiber, protein):
-               High status → Good health_impact
-               Moderate status → Moderate health_impact
-               Low status → Bad health_impact
-             "Less than" nutrients (like sodium, saturated fat, trans fat, sugar, cholesterol):
-               Low status → Good health_impact
-               Moderate status → Moderate health_impact
-               High status → Bad health_impact
-          """;
+        Strictly follow these rules:
+        1. Mention Quantity with units in the label
+        2. Calculate DV%% using the reference values above: (nutrient_quantity_per_serving / daily_value_reference) × 100
+        3. Return calculated DV%%, and not the ones found in label
+        4. Do not include any extra characters or formatting outside of the JSON object
+        5. Use accurate escape sequences for any special characters
+        6. Avoid including nutrients that aren't mentioned in the label
+        7. For primary_concerns, focus on major nutritional imbalances
+        8. For recommendations:
+           - Suggest foods that can be added to complement the product
+           - Focus on practical additions
+           - Explain how each addition helps balance nutrition
+        9. Use %%DV guidelines:
+           5%% DV or less is considered low dv_status
+           20%% DV or more is considered high dv_status
+           5%% < DV < 20%% is considered moderate dv_status
+        10. For health_impact determination:
+           "At least" nutrients (like fiber, protein):
+             High dv_status → Good health_impact
+             Moderate dv_status → Moderate health_impact
+             Low dv_status → Bad health_impact
+           "Less than" nutrients (like sodium, saturated fat, trans fat, sugar, cholesterol):
+             Low dv_status → Good health_impact
+             Moderate dv_status → Moderate health_impact
+             High dv_status → Bad health_impact
+        """.formatted(NutrientConstants.DAILY_VALUES_REFERENCE);
 
       // Use ContentMaker and PartMaker
       Content content = ContentMaker.fromMultiModalData(

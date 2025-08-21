@@ -25,7 +25,8 @@ class _NutrientGridState extends State<NutrientGrid> {
       children: widget.nutrients
           .map((nutrient) => NutrientTile(
                 nutrient: nutrient.name,
-                status: nutrient.status,
+                dvStatus: nutrient.dvStatus,
+                goal: nutrient.goal,
                 healthSign: nutrient.healthSign,
                 quantity: nutrient.quantity,
                 dailyValue: nutrient.dailyValue,
@@ -38,7 +39,8 @@ class _NutrientGridState extends State<NutrientGrid> {
 
 class NutrientTile extends StatefulWidget {
   final String nutrient;
-  final String status;
+  final String dvStatus;
+  final String goal;
   final String healthSign;
   final String quantity;
   final String dailyValue;
@@ -47,7 +49,8 @@ class NutrientTile extends StatefulWidget {
   const NutrientTile({
     super.key,
     required this.nutrient,
-    required this.status,
+    required this.dvStatus,
+    required this.goal,
     required this.healthSign,
     required this.quantity,
     required this.dailyValue,
@@ -82,6 +85,30 @@ class _NutrientTileState extends State<NutrientTile>
   Widget build(BuildContext context) {
     Color backgroundColor = AppColors.cardBackground;
     IconData statusIcon;
+
+    // Debug print to see actual values
+    print('Nutrient: ${widget.nutrient}');
+    print('DV Status: ${widget.dvStatus}');
+    print('Goal: ${widget.goal}');
+    print('Health Sign: ${widget.healthSign}');
+    print('---');
+
+    // Calculate the display text based on your logic
+    String displayText;
+    if ((widget.dvStatus == "High" && widget.goal == "At least") ||
+        (widget.dvStatus == "Low" && widget.goal == "Less than")) {
+      displayText = "Good";
+    } else if (widget.dvStatus == "Low" && widget.goal == "At least") {
+      displayText = "Insufficient";
+    } else if (widget.dvStatus == "High" ||
+        widget.dvStatus == "High" && widget.goal == "Less than") {
+      displayText = "Limit";
+    } else {
+      displayText = "Moderate";
+    }
+
+    print('Calculated displayText: $displayText');
+    print('===================');
 
     switch (widget.healthSign) {
       case "Good":
@@ -157,30 +184,33 @@ class _NutrientTileState extends State<NutrientTile>
                                       Icon(
                                         statusIcon,
                                         size: 16,
-                                        color: widget.healthSign == "Good"
+                                        color: displayText == "Good"
                                             ? AppColors.secondaryGreen
-                                            : widget.healthSign == "Bad"
+                                            : displayText == "Limit" ||
+                                                    displayText ==
+                                                        "Insufficient"
                                                 ? AppColors.secondaryRed
                                                 : AppColors.secondaryOrange,
                                       ),
                                       const SizedBox(width: 4),
-                                      widget.healthSign == "Good"
-                                          ? Text("Good",
-                                              style: AppTextStyles
-                                                  .bodyMediumGreenAccent)
-                                          : widget.healthSign == "Bad" &&
-                                                  widget.status == "Low"
-                                              ? Text("Insufficient",
-                                                  style: AppTextStyles
-                                                      .bodyMediumRedAccent)
-                                              : Text("Limit",
-                                                  style: AppTextStyles
-                                                      .bodyMediumOrangeAccent),
+                                      Text(
+                                        displayText,
+                                        style: displayText == "Good"
+                                            ? AppTextStyles
+                                                .bodyMediumGreenAccent
+                                            : displayText == "Limit" ||
+                                                    displayText ==
+                                                        "Insufficient"
+                                                ? AppTextStyles
+                                                    .bodyMediumRedAccent
+                                                : AppTextStyles
+                                                    .bodyMediumOrangeAccent,
+                                      ),
                                       Expanded(
                                         child: Container(),
                                       ),
                                       Text(
-                                        "${widget.dailyValue} DV",
+                                        "${widget.dailyValue} DV%",
                                         style: TextStyle(
                                           color: widget.healthSign == "Good"
                                               ? AppColors.secondaryGreen
@@ -238,7 +268,8 @@ class _NutrientTileState extends State<NutrientTile>
 class NutrientData {
   final String name;
   final String healthSign;
-  final String status;
+  final String dvStatus;
+  final String goal;
   final String quantity;
   final String dailyValue;
   final String? insight;
@@ -246,7 +277,8 @@ class NutrientData {
   NutrientData({
     required this.name,
     required this.healthSign,
-    required this.status,
+    required this.dvStatus,
+    required this.goal,
     required this.quantity,
     required this.dailyValue,
     this.insight,

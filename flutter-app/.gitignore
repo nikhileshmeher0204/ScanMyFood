@@ -10,6 +10,17 @@
 .history
 .svn/
 .swiftpm/
+*.cpp
+*.cc
+*.c
+*.rc
+*.manifest
+*.json
+*.md
+*.h
+*.txt
+*.ico
+*.cmake
 migrate_working_dir/
 
 # IntelliJ related

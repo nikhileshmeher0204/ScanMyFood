@@ -160,7 +160,8 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                 .getOptimalNutrients()
                                 .map((nutrient) => NutrientTile(
                                       nutrient: nutrient['name'],
-                                      status: nutrient['status'],
+                                      dvStatus: nutrient['dv_status'],
+                                      goal: nutrient['goal'],
                                       healthSign: nutrient['health_impact'],
                                       quantity: nutrient['quantity'],
                                       insight:
@@ -197,7 +198,8 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                 .getModerateNutrients()
                                 .map((nutrient) => NutrientTile(
                                       nutrient: nutrient['name'],
-                                      status: nutrient['status'],
+                                      dvStatus: nutrient['dv_status'],
+                                      goal: nutrient['goal'],
                                       healthSign: nutrient['health_impact'],
                                       quantity: nutrient['quantity'],
                                       insight:
@@ -234,7 +236,8 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                 .getWatchOutNutrients()
                                 .map((nutrient) => NutrientTile(
                                       nutrient: nutrient['name'],
-                                      status: nutrient['status'],
+                                      dvStatus: nutrient['dv_status'],
+                                      goal: nutrient['goal'],
                                       healthSign: nutrient['health_impact'],
                                       quantity: nutrient['quantity'],
                                       insight:
