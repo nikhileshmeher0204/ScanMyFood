@@ -22,6 +22,7 @@ class AppColors {
   static const Color secondaryGreen = Color(0xFF9ACD32);
   static const Color secondaryOrange = Color(0xFFFFA500);
   static const Color secondaryRed = Color(0xFFDF303A);
+  static const Color onSecondaryContainer = Color(0xFF6B990D);
 
   // UI Colors - derived from primary/secondary
   static const Color background = primaryBlack;

@@ -45,24 +45,9 @@ class FoodNutrientTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: AppTextStyles.withColor(
-                    AppTextStyles.bodySmall,
-                    AppColors.textSecondary,
-                  ),
-                ),
+                Text(label, style: AppTextStyles.bodyLarge),
                 const SizedBox(height: 2),
-                Text(
-                  '$value$unit',
-                  style: AppTextStyles.withColor(
-                    AppTextStyles.withWeight(
-                      AppTextStyles.bodyMedium,
-                      FontWeight.w600,
-                    ),
-                    AppColors.primaryWhite,
-                  ),
-                ),
+                Text('$value$unit', style: AppTextStyles.bodyMedium),
               ],
             ),
           ),

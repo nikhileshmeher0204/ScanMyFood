@@ -73,79 +73,84 @@ class _AskAiWidgetState extends State<AskAiWidget>
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.cardBackground,
-          border: Border.all(
-            color: const Color.fromARGB(255, 255, 119, 0),
-          ),
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 10,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.auto_awesome,
-                  color: Color.fromARGB(255, 0, 21, 255),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: AnimatedBuilder(
-                    animation: _animationController,
-                    builder: (context, child) => SlideTransition(
-                      position: _slideAnimation,
-                      child: FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: Text(
-                          _suggestions[_currentIndex],
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            foreground: Paint()
-                              ..shader = const LinearGradient(
-                                colors: <Color>[
-                                  Color.fromARGB(255, 0, 21, 255),
-                                  Color.fromARGB(255, 255, 0, 85),
-                                  Color.fromARGB(255, 255, 119, 0),
-                                  Color.fromARGB(255, 250, 220, 194),
-                                ],
-                                stops: [
-                                  0.1,
-                                  0.5,
-                                  0.7,
-                                  1.0,
-                                ], // Four stops for four colors
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                              ).createShader(
-                                const Rect.fromLTWH(0.0, 0.0, 250.0, 16.0),
-                              ),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+    return Container();
   }
 }
+//   @override
+//   Widget build(BuildContext context) {
+//     return RepaintBoundary(
+//       child: Container(
+//         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+//         decoration: BoxDecoration(
+//           color: Theme.of(context).colorScheme.cardBackground,
+//           border: Border.all(
+//             color: const Color.fromARGB(255, 255, 119, 0),
+//           ),
+//           borderRadius: BorderRadius.circular(28),
+//           boxShadow: const [
+//             BoxShadow(
+//               color: Colors.black12,
+//               blurRadius: 10,
+//               offset: Offset(0, 4),
+//             ),
+//           ],
+//         ),
+//         child: Material(
+//           color: Colors.transparent,
+//           child: Padding(
+//             padding: const EdgeInsets.all(16),
+//             child: Row(
+//               children: [
+//                 const Icon(
+//                   Icons.auto_awesome,
+//                   color: Color.fromARGB(255, 0, 21, 255),
+//                 ),
+//                 const SizedBox(width: 12),
+//                 Expanded(
+//                   child: AnimatedBuilder(
+//                     animation: _animationController,
+//                     builder: (context, child) => SlideTransition(
+//                       position: _slideAnimation,
+//                       child: FadeTransition(
+//                         opacity: _fadeAnimation,
+//                         child: Text(
+//                           _suggestions[_currentIndex],
+//                           style: TextStyle(
+//                             fontFamily: 'Inter',
+//                             fontWeight: FontWeight.w500,
+//                             fontSize: 16,
+//                             foreground: Paint()
+//                               ..shader = const LinearGradient(
+//                                 colors: <Color>[
+//                                   Color.fromARGB(255, 0, 21, 255),
+//                                   Color.fromARGB(255, 255, 0, 85),
+//                                   Color.fromARGB(255, 255, 119, 0),
+//                                   Color.fromARGB(255, 250, 220, 194),
+//                                 ],
+//                                 stops: [
+//                                   0.1,
+//                                   0.5,
+//                                   0.7,
+//                                   1.0,
+//                                 ], // Four stops for four colors
+//                                 begin: Alignment.centerLeft,
+//                                 end: Alignment.centerRight,
+//                               ).createShader(
+//                                 const Rect.fromLTWH(0.0, 0.0, 250.0, 16.0),
+//                               ),
+//                           ),
+//                           maxLines: 1,
+//                           overflow: TextOverflow.ellipsis,
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

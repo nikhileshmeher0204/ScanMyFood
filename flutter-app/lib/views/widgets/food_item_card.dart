@@ -30,7 +30,7 @@ class FoodItemCard extends StatelessWidget {
         children: [
           Container(
             decoration: const BoxDecoration(
-              color: AppColors.tertiaryPurple,
+              color: AppColors.secondary,
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(15),
               ),
@@ -45,7 +45,7 @@ class FoodItemCard extends StatelessWidget {
                       item.name,
                       style: AppTextStyles.withColor(
                         AppTextStyles.heading2,
-                        AppColors.primaryWhite,
+                        AppColors.primaryBlack,
                       ),
                       overflow: TextOverflow.visible,
                       softWrap: true,
@@ -57,24 +57,23 @@ class FoodItemCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.tertiaryPurple.withOpacity(0.1),
+                          color: AppColors.onSecondaryContainer,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           '${item.quantity}${item.unit}',
                           style: AppTextStyles.withColor(
-                            AppTextStyles.bodyMedium,
+                            AppTextStyles.bodyLargeBold,
                             AppColors.primaryBlack,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
                       IconButton(
                         icon: const Icon(
                           Icons.edit_outlined,
                           size: 20,
                         ),
-                        color: AppColors.secondaryGreen,
+                        color: AppColors.primaryBlack,
                         onPressed: () => _showEditDialog(context),
                       ),
                     ],
@@ -92,7 +91,7 @@ class FoodItemCard extends StatelessWidget {
             crossAxisCount: 2,
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
-            childAspectRatio: 2.8,
+            childAspectRatio: 2.5,
             children: [
               FoodNutrientTile(
                 label: 'Calories',
