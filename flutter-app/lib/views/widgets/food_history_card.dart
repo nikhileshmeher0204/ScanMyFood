@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/screens/meal_description_analysis_view.dart';
@@ -149,17 +150,10 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
           ),
           GestureDetector(
             onTap: () {
-              showModalBottomSheet(
+              showCupertinoSheet<void>(
                 context: context,
-                isScrollControlled: true,
-                backgroundColor: Theme.of(context).colorScheme.surface,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                builder: (context) => Padding(
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom,
-                  ),
+                enableDrag: true,
+                builder: (context) => Material(
                   child: FoodInputForm(
                     onSubmit: () {
                       Navigator.push(
@@ -167,7 +161,7 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                         CupertinoPageRoute(
                           builder: (context) => Consumer<UiViewModel>(
                             builder: (context, uiProvider, _) =>
-                                const MealDescriptionAnalysisView(),
+                            const MealDescriptionAnalysisView(),
                           ),
                         ),
                       );
@@ -175,6 +169,32 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                   ),
                 ),
               );
+              // showModalBottomSheet(
+              //   context: context,
+              //   isScrollControlled: true,
+              //   backgroundColor: Theme.of(context).colorScheme.surface,
+              //   shape: const RoundedRectangleBorder(
+              //     borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              //   ),
+              //   builder: (context) => Padding(
+              //     padding: EdgeInsets.only(
+              //       bottom: MediaQuery.of(context).viewInsets.bottom,
+              //     ),
+              //     child: FoodInputForm(
+              //       onSubmit: () {
+              //         Navigator.push(
+              //           context,
+              //           CupertinoPageRoute(
+              //             builder: (context) => Consumer<UiViewModel>(
+              //               builder: (context, uiProvider, _) =>
+              //                   const MealDescriptionAnalysisView(),
+              //             ),
+              //           ),
+              //         );
+              //       },
+              //     ),
+              //   ),
+              // );
             },
             child: Container(
               padding: const EdgeInsets.all(10),
