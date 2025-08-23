@@ -107,6 +107,7 @@ class _MealDescriptionAnalysisViewState
                               descriptionViewModel.analyzedFoodItems.length,
                           totalPlateNutrients:
                               descriptionViewModel.totalPlateNutrients,
+                          nutrientInfo: [],
                         ),
                       ],
                     ),

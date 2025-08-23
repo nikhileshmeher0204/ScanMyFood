@@ -10,6 +10,8 @@ class AppColors {
   static const Color onPrimary = primaryWhite;
   static const Color secondary = secondaryGreen;
   static const Color onSecondary = primaryBlack;
+  static const Color tertiaryPurple = Color(0xFF6e30b0);
+  static const Color onTertiary = primaryWhite;
   static const Color error = secondaryRed;
   static const Color onError = primaryWhite;
   static const Color onBackground = primaryWhite;
@@ -20,6 +22,7 @@ class AppColors {
   static const Color secondaryGreen = Color(0xFF9ACD32);
   static const Color secondaryOrange = Color(0xFFFFA500);
   static const Color secondaryRed = Color(0xFFDF303A);
+  static const Color onSecondaryContainer = Color(0xFF6B990D);
 
   // UI Colors - derived from primary/secondary
   static const Color background = primaryBlack;

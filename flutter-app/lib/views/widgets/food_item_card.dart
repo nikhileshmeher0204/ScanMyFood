@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/theme/app_colors.dart';
+import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/views/widgets/food_nutreint_tile.dart';
@@ -20,23 +22,19 @@ class FoodItemCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.cardBackground,
+        color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           Container(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+            decoration: const BoxDecoration(
+              color: AppColors.secondary,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(15),
+              ),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -45,10 +43,9 @@ class FoodItemCard extends StatelessWidget {
                   Flexible(
                     child: Text(
                       item.name,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.primary,
+                      style: AppTextStyles.withColor(
+                        AppTextStyles.heading2,
+                        AppColors.primaryBlack,
                       ),
                       overflow: TextOverflow.visible,
                       softWrap: true,
@@ -58,25 +55,25 @@ class FoodItemCard extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 4),
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
+                          color: AppColors.onSecondaryContainer,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           '${item.quantity}${item.unit}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
+                          style: AppTextStyles.withColor(
+                            AppTextStyles.bodyLargeBold,
+                            AppColors.primaryBlack,
                           ),
                         ),
                       ),
                       IconButton(
-                        icon: Icon(
-                          Icons.edit,
+                        icon: const Icon(
+                          Icons.edit_outlined,
                           size: 20,
-                          color: Theme.of(context).colorScheme.primary,
                         ),
+                        color: AppColors.primaryBlack,
                         onPressed: () => _showEditDialog(context),
                       ),
                     ],
@@ -88,13 +85,13 @@ class FoodItemCard extends StatelessWidget {
           const SizedBox(height: 8),
           // Nutrient grid
           GridView.count(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             crossAxisCount: 2,
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
-            childAspectRatio: 3.0,
+            childAspectRatio: 2.5,
             children: [
               FoodNutrientTile(
                 label: 'Calories',
@@ -147,47 +144,63 @@ class FoodItemCard extends StatelessWidget {
     );
   }
 
-  // In _showEditDialog method:
-
   void _showEditDialog(BuildContext context) {
     final controller = TextEditingController(text: item.quantity.toString());
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: AppColors.cardBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: AppColors.divider,
+            width: 1,
+          ),
+        ),
         title: Text(
           'Edit Quantity',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontFamily: 'Inter',
+          style: AppTextStyles.withColor(
+            AppTextStyles.heading3,
+            AppColors.primaryWhite,
           ),
         ),
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
+          style: AppTextStyles.withColor(
+            AppTextStyles.bodyLarge,
+            AppColors.primaryWhite,
+          ),
           decoration: InputDecoration(
             hintText: 'Enter quantity in ${item.unit}',
-            hintStyle: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-              fontFamily: 'Inter',
+            hintStyle: AppTextStyles.withColor(
+              AppTextStyles.bodyMedium,
+              AppColors.textSecondary,
             ),
+            filled: true,
+            fillColor: AppColors.inputBackground,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.divider),
             ),
-          ),
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontFamily: 'Inter',
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.divider),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.secondaryGreen, width: 2),
+            ),
           ),
         ),
         actions: [
           TextButton(
             child: Text(
               'Cancel',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontFamily: 'Inter',
+              style: AppTextStyles.withColor(
+                AppTextStyles.bodyMedium,
+                AppColors.textSecondary,
               ),
             ),
             onPressed: () => Navigator.of(context).pop(),
@@ -195,17 +208,17 @@ class FoodItemCard extends StatelessWidget {
           TextButton(
             child: Text(
               'Save',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.bold,
+              style: AppTextStyles.withColor(
+                AppTextStyles.withWeight(
+                    AppTextStyles.bodyMedium, FontWeight.w600),
+                AppColors.secondaryGreen,
               ),
             ),
             onPressed: () {
               double? newQuantity = double.tryParse(controller.text);
               if (newQuantity != null) {
                 item.quantity = newQuantity;
-                context.watch<MealAnalysisViewModel>().updateTotalNutrients();
+                context.read<MealAnalysisViewModel>().updateTotalNutrients();
               }
               Navigator.of(context).pop();
             },

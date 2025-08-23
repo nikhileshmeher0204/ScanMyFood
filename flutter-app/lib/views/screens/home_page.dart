@@ -31,42 +31,31 @@ class HomePage extends StatelessWidget {
       ),
       bottomNavigationBar: Consumer<UiViewModel>(
         builder: (context, uiProvider, _) {
-          return Container(
-            color: Colors.transparent,
-            child: ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: BottomNavigationBar(
-                    elevation: 0,
-                    selectedLabelStyle: AppTextStyles.bodySmallOrangeAccent,
-                    unselectedLabelStyle: AppTextStyles.bodySmall,
-                    backgroundColor: Colors.transparent,
-                    selectedItemColor: AppColors.secondaryOrange,
-                    unselectedItemColor: AppColors.primaryWhite,
-                    currentIndex: uiProvider.currentIndex,
-                    onTap: (index) {
-                      uiProvider.updateCurrentIndex(index);
-                    },
-                    items: const [
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.document_scanner),
-                        label: 'Scan Label',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.food_bank),
-                        label: 'Scan Food',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.pie_chart),
-                        label: 'Daily Intake',
-                      ),
-                    ],
-                  ),
-                ),
+          return BottomNavigationBar(
+            elevation: 0,
+            selectedLabelStyle: AppTextStyles.bodySmallOrangeAccent,
+            unselectedLabelStyle: AppTextStyles.bodySmall,
+            backgroundColor: AppColors.cardBackground,
+            selectedItemColor: AppColors.secondaryOrange,
+            unselectedItemColor: AppColors.primaryWhite,
+            currentIndex: uiProvider.currentIndex,
+            onTap: (index) {
+              uiProvider.updateCurrentIndex(index);
+            },
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.document_scanner),
+                label: 'Scan Label',
               ),
-            ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.food_bank),
+                label: 'Scan Food',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.pie_chart),
+                label: 'Daily Intake',
+              ),
+            ],
           );
         },
       ),
