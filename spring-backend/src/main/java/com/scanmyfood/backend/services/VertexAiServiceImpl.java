@@ -151,14 +151,18 @@ public class VertexAiServiceImpl implements AiService {
                         "protein": {"value": 0, "unit": "g"},
                         "carbohydrates": {"value": 0, "unit": "g"},
                         "fat": {"value": 0, "unit": "g"},
-                        "fiber": {"value": 0, "unit": "g"}
+                        "fiber": {"value": 0, "unit": "g"},
+                        "sugar": {"value": 0, "unit": "g"},
+                        "sodium": {"value": 0, "unit": "mg"},
                       },
                       "total_nutrients": {
                         "calories": 0,
                         "protein": {"value": 0, "unit": "g"},
                         "carbohydrates": {"value": 0, "unit": "g"},
                         "fat": {"value": 0, "unit": "g"},
-                        "fiber": {"value": 0, "unit": "g"}
+                        "fiber": {"value": 0, "unit": "g"},
+                        "sugar": {"value": 0, "unit": "g"},
+                        "sodium": {"value": 0, "unit": "mg"},
                       },
                       "visual_cues": ["List of visual indicators used for estimation"],
                       "position": "Description of item location in the image"
@@ -169,7 +173,9 @@ public class VertexAiServiceImpl implements AiService {
                     "protein": {"value": 0, "unit": "g"},
                     "carbohydrates": {"value": 0, "unit": "g"},
                     "fat": {"value": 0, "unit": "g"},
-                    "fiber": {"value": 0, "unit": "g"}
+                    "fiber": {"value": 0, "unit": "g"},
+                    "sugar": {"value": 0, "unit": "g"},
+                    "sodium": {"value": 0, "unit": "mg"},
                   }
                 }
               }
@@ -181,6 +187,7 @@ public class VertexAiServiceImpl implements AiService {
               4. Prioritize using values from the USDA FoodData Central database
               5. Consider common serving sizes and preparation methods
               6. Account for density and volume-to-weight conversions
+              7. Use Atwater factors (Protein=4 kcal/g, Carb=4, Fat=9) for grams to kcal conversion
               
               """;
 
@@ -228,14 +235,18 @@ public class VertexAiServiceImpl implements AiService {
                     "protein": {"value": 0, "unit": "g"},
                     "carbohydrates": {"value": 0, "unit": "g"},
                     "fat": {"value": 0, "unit": "g"},
-                    "fiber": {"value": 0, "unit": "g"}
+                    "fiber": {"value": 0, "unit": "g"},
+                    "sugar": {"value": 0, "unit": "g"},
+                    "sodium": {"value": 0, "unit": "mg"},
                   },
                   "nutrients_in_mentioned_quantity": {
                     "calories": 0,
                     "protein": {"value": 0, "unit": "g"},
                     "carbohydrates": {"value": 0, "unit": "g"},
                     "fat": {"value": 0, "unit": "g"},
-                    "fiber": {"value": 0, "unit": "g"}
+                    "fiber": {"value": 0, "unit": "g"},
+                    "sugar": {"value": 0, "unit": "g"},
+                    "sodium": {"value": 0, "unit": "mg"},
                   },
                 }
               ],
@@ -244,7 +255,9 @@ public class VertexAiServiceImpl implements AiService {
                 "protein": {"value": 0, "unit": "g"},
                 "carbohydrates": {"value": 0, "unit": "g"},
                 "fat": {"value": 0, "unit": "g"},
-                "fiber": {"value": 0, "unit": "g"}
+                "fiber": {"value": 0, "unit": "g"},
+                "sugar": {"value": 0, "unit": "g"},
+                "sodium": {"value": 0, "unit": "mg"},
               }
             }
           }

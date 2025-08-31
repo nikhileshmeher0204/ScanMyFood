@@ -52,23 +52,41 @@ class FoodItemCard extends StatelessWidget {
                     ),
                   ),
                   Row(
+                    // spacing: 10,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: AppColors.onSecondaryContainer,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(10),
                         ),
+                        padding: const EdgeInsets.all(4),
                         child: Text(
-                          '${item.quantity}${item.unit}',
+                          '🔥 ${item
+                              .calculateTotalNutrients()['calories']
+                            ?.toStringAsFixed(0) ??
+                            '0'} kcal',
                           style: AppTextStyles.withColor(
-                            AppTextStyles.bodyLargeBold,
+                            AppTextStyles.bodyMediumBold,
+                            AppColors.primaryBlack,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.onSecondaryContainer,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        child: Text(
+                          '🍽️ ${item.quantity}${item.unit}',
+                          style: AppTextStyles.withColor(
+                            AppTextStyles.bodyMediumBold,
                             AppColors.primaryBlack,
                           ),
                         ),
                       ),
                       IconButton(
+                        padding: EdgeInsets.zero,
                         icon: const Icon(
                           Icons.edit_outlined,
                           size: 20,
@@ -81,9 +99,7 @@ class FoodItemCard extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 8),
-          // Nutrient grid
+          ), // Nutrient grid
           GridView.count(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
             shrinkWrap: true,
@@ -93,15 +109,6 @@ class FoodItemCard extends StatelessWidget {
             crossAxisSpacing: 8,
             childAspectRatio: 2.5,
             children: [
-              FoodNutrientTile(
-                label: 'Calories',
-                value: item
-                        .calculateTotalNutrients()['calories']
-                        ?.toStringAsFixed(1) ??
-                    '0',
-                unit: 'kcal',
-                icon: Icons.local_fire_department_outlined,
-              ),
               FoodNutrientTile(
                 label: 'Protein',
                 value: item
@@ -136,6 +143,24 @@ class FoodItemCard extends StatelessWidget {
                     '0',
                 unit: 'g',
                 icon: Icons.grass_outlined,
+              ),
+              FoodNutrientTile(
+                label: 'Sugar',
+                value: item
+                    .calculateTotalNutrients()['sugar']
+                    ?.toStringAsFixed(1) ??
+                    '0',
+                unit: 'g',
+                icon: Icons.cake_outlined,
+              ),
+              FoodNutrientTile(
+                label: 'Sodium',
+                value: item
+                    .calculateTotalNutrients()['sodium']
+                    ?.toStringAsFixed(1) ??
+                    '0',
+                unit: 'g',
+                icon: Icons.grain_sharp,
               ),
             ],
           ),

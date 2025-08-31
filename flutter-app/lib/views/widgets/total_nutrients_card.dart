@@ -7,6 +7,7 @@ import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/views/widgets/energy_distribution_bar.dart';
 import 'package:read_the_label/views/widgets/nutrient_tile.dart';
 import 'package:read_the_label/views/widgets/portion_buttons.dart';
 
@@ -124,6 +125,8 @@ class _TotalNutrientsCardState extends State<TotalNutrientsCard> {
                         .toList(),
                   ),
                 ),
+                const SizedBox(height: 16),
+                EnergyDistributionBar(nutrients: _adjustedNutrients),
                 const SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),

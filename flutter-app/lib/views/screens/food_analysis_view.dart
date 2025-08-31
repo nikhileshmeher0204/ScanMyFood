@@ -132,23 +132,12 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                 //Loading animation
 
                 if (uiProvider.loading)
-                  Column(
+                  const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Text(
-                          'Analysis Results',
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Inter'),
-                        ),
-                      ),
-                      const FoodItemCardShimmer(),
-                      const FoodItemCardShimmer(),
-                      const TotalNutrientsCardShimmer(),
+                      FoodItemCardShimmer(),
+                      FoodItemCardShimmer(),
+                      TotalNutrientsCardShimmer(),
                     ],
                   ),
 
@@ -160,14 +149,11 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Text(
-                          'Analysis Results',
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontFamily: 'Inter',
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                        ),
+                        child:
+                            Text(
+                              mealAnalysisProvider.scannedMealName,
+                              style:AppTextStyles.heading2BoldClose,
+                            ),
                       ),
                       const SizedBox(height: 16),
                       ...mealAnalysisProvider.analyzedScannedFoodItems
