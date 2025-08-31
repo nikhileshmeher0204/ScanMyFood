@@ -21,6 +21,7 @@ class _FoodInputFormState extends State<FoodInputForm> {
   final List<TextEditingController> _foodItemControllers = [
     TextEditingController()
   ];
+  bool _showValidationError = false;
 
   @override
   void dispose() {
@@ -29,6 +30,34 @@ class _FoodInputFormState extends State<FoodInputForm> {
     }
     super.dispose();
   }
+
+  void _validateAndSubmit() {
+    final hasValidItems = _foodItemControllers
+        .any((controller) => controller.text.trim().isNotEmpty);
+
+    if (!hasValidItems) {
+      setState(() {
+        _showValidationError = true;
+      });
+      return;
+    }
+
+    setState(() {
+      _showValidationError = false;
+    });
+
+    final foodItems = _foodItemControllers
+        .where((controller) => controller.text.trim().isNotEmpty)
+        .map((controller) => controller.text.trim())
+        .join('\n, ');
+
+    context.read<DescriptionAnalysisViewModel>().logMealViaText(
+      foodItemsText: foodItems,
+    );
+    Navigator.pop(context);
+    widget.onSubmit();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -58,23 +87,54 @@ class _FoodInputFormState extends State<FoodInputForm> {
                       ),
                     ),
                     Text(
-                      "Log your Meal",
-                      style: AppTextStyles.heading3.copyWith(
-                        color: AppColors.onSurface,
-                      ),
+                      "Describe your Meal",
+                      style: AppTextStyles.heading3Bold
                     ),
                     const SizedBox(width: 60), // Balance the layout
                   ],
                 ),
               ),
+              Divider(height: 2, color: AppColors.primaryWhite.withValues(alpha: 0.2),),
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 20),
-                    Text("Food Items", style: AppTextStyles.heading2),
+                    Text("List out items in your meal", style: AppTextStyles.heading2),
                     const SizedBox(height: 16),
+                    if (_showValidationError) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: AppColors.error.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppColors.error.withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              CupertinoIcons.exclamationmark_triangle,
+                              color: AppColors.error,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                "Please add at least one food item to analyze your meal",
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  color: AppColors.error,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -96,6 +156,14 @@ class _FoodInputFormState extends State<FoodInputForm> {
                                     ),
                                     const SizedBox(height: 8),
                                     CupertinoTextField(
+                                      onChanged: (value) {
+                                        // Clear validation error when user starts typing
+                                        if (_showValidationError && value.trim().isNotEmpty) {
+                                          setState(() {
+                                            _showValidationError = false;
+                                          });
+                                        }
+                                      },
                                       controller: _foodItemControllers[index],
                                       placeholder: 'e.g., Rice 200g or 2 Rotis',
                                       style: AppTextStyles.bodyLarge.copyWith(
@@ -125,28 +193,29 @@ class _FoodInputFormState extends State<FoodInputForm> {
                               ),
                               if (_foodItemControllers.length > 1) ...[
                                 const SizedBox(width: 12),
-                                CupertinoButton(
-                                  padding: const EdgeInsets.all(8),
-                                  minSize: 0,
-                                  onPressed: () {
-                                    setState(() {
-                                      _foodItemControllers[index].dispose();
-                                      _foodItemControllers.removeAt(index);
-                                    });
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.error.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Icon(
-                                      CupertinoIcons.minus,
-                                      color: AppColors.error,
-                                      size: 20,
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 12),
+                                    child: Column(
+                                      children: [
+                                        const SizedBox(height: 28), // Match label + spacing height
+                                        CupertinoButton(
+                                          padding: const EdgeInsets.all(4),
+                                          minSize: 0,
+                                          onPressed: () {
+                                            setState(() {
+                                              _foodItemControllers[index].dispose();
+                                              _foodItemControllers.removeAt(index);
+                                            });
+                                          },
+                                          child: const Icon(
+                                            CupertinoIcons.minus,
+                                            color: AppColors.error,
+                                            size: 25,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
                               ],
                             ],
                           ),
@@ -177,7 +246,7 @@ class _FoodInputFormState extends State<FoodInputForm> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               CupertinoIcons.add,
                               color: AppColors.secondaryGreen,
                               size: 20,
@@ -199,22 +268,7 @@ class _FoodInputFormState extends State<FoodInputForm> {
                       width: double.infinity,
                       child: CupertinoButton(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        onPressed: () {
-                          final foodItems = _foodItemControllers
-                              .where((controller) => controller.text.isNotEmpty)
-                              .map((controller) => controller.text)
-                              .join('\n, ');
-
-                          if (foodItems.isNotEmpty) {
-                            context
-                                .read<DescriptionAnalysisViewModel>()
-                                .logMealViaText(
-                              foodItemsText: foodItems,
-                            );
-                            Navigator.pop(context);
-                            widget.onSubmit();
-                          }
-                        },
+                        onPressed: _validateAndSubmit,
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 4),
                           decoration: BoxDecoration(

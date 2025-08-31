@@ -182,6 +182,8 @@ class MealAnalysisViewModel extends BaseViewModel {
           .d("Carbohydrates: ${_totalScannedPlateNutrients['carbohydrates']}");
       logger.d("Fat: ${_totalScannedPlateNutrients['fat']}");
       logger.d("Fiber: ${_totalScannedPlateNutrients['fiber']}");
+      logger.d("Sugar: ${_totalScannedPlateNutrients['sugar']}");
+      logger.d("Sodium: ${_totalScannedPlateNutrients['sodium']}");
 
       notifyListeners();
       return "Analysis complete";
@@ -202,6 +204,8 @@ class MealAnalysisViewModel extends BaseViewModel {
       'carbohydrates': 0.0,
       'fat': 0.0,
       'fiber': 0.0,
+      'sugar': 0.0,
+      'sodium': 0.0,
     };
 
     for (var item in _analyzedScannedFoodItems) {
@@ -221,6 +225,12 @@ class MealAnalysisViewModel extends BaseViewModel {
       _totalScannedPlateNutrients['fiber'] =
           (_totalScannedPlateNutrients['fiber'] ?? 0.0) +
               (itemNutrients['fiber'] ?? 0.0);
+      _totalScannedPlateNutrients['sugar'] =
+          (_totalScannedPlateNutrients['sugar'] ?? 0.0) +
+              (itemNutrients['sugar'] ?? 0.0);
+      _totalScannedPlateNutrients['sodium'] =
+          (_totalScannedPlateNutrients['sodium'] ?? 0.0) +
+              (itemNutrients['sodium'] ?? 0.0);
     }
 
     notifyListeners();

@@ -63,6 +63,8 @@ class FoodItem {
       'carbohydrates': _extractNutrientValue('carbohydrates') * factor,
       'fat': _extractNutrientValue('fat') * factor,
       'fiber': _extractNutrientValue('fiber') * factor,
+      'sugar': _extractNutrientValue('sugar') * factor,
+      'sodium': _extractNutrientValue('sodium') * factor,
     };
   }
 

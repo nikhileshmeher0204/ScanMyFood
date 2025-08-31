@@ -42,6 +42,12 @@ class AppTextStyles {
     height: 1.3,
   );
 
+  static TextStyle heading3Bold = const TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 18,
+    fontWeight: FontWeight.w800, // SemiBold
+  );
+
   static TextStyle heading4 = const TextStyle(
     fontFamily: fontFamily,
     fontSize: 18,
@@ -71,6 +77,14 @@ class AppTextStyles {
     fontFamily: fontFamily,
     fontSize: 14,
     fontWeight: FontWeight.w400, // Regular
+    letterSpacing: -0.1,
+    height: 1.5,
+  );
+
+  static TextStyle bodyMediumBold = const TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 14,
+    fontWeight: FontWeight.w600, // Semi-Bold
     letterSpacing: -0.1,
     height: 1.5,
   );

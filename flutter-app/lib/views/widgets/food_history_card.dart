@@ -219,7 +219,7 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                     color: Color.fromARGB(255, 0, 21, 255),
                   ),
                   Text(
-                    "Add Food Item",
+                    "Add meal via text",
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w500,
