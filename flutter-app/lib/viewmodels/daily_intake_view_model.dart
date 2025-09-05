@@ -19,6 +19,7 @@ class DailyIntakeViewModel extends BaseViewModel {
   DateTime _selectedDate = DateTime.now();
   final ValueNotifier<Map<String, double>> dailyIntakeNotifier =
       ValueNotifier<Map<String, double>>({});
+  final Map<String, Color> _colorCache = {};
 
   // Getters
   Map<String, double> get dailyIntake => _dailyIntake;
@@ -127,11 +128,45 @@ class DailyIntakeViewModel extends BaseViewModel {
     }
   }
 
+  Future<Color> extractDominantColor(String imagePath) async {
+    // Check cache first
+    if (_colorCache.containsKey(imagePath)) {
+      return _colorCache[imagePath]!;
+    }
+
+    try {
+      final imageProvider = FileImage(File(imagePath));
+      final colorScheme = await ColorScheme.fromImageProvider(
+        provider: imageProvider,
+        brightness:
+            Brightness.dark, // Use dark for better contrast with white text
+      );
+
+      // Get the primary color and apply some opacity for the tint effect
+      final extractedColor = colorScheme.primary;
+
+      // Cache the result
+      _colorCache[imagePath] = extractedColor;
+
+      return extractedColor;
+    } catch (e) {
+      debugPrint("Error extracting color from image: $e");
+      // Return fallback color
+      final fallbackColor = Colors.black.withOpacity(0.3);
+      _colorCache[imagePath] = fallbackColor;
+      return fallbackColor;
+    }
+  }
+
+  void clearColorCache() {
+    _colorCache.clear();
+  }
+
   Future<void> saveDailyIntake(Map<String, double> newIntake) async {
     uiProvider.setLoading(true);
 
     try {
-      debugPrint("Saving daily intake for ${_selectedDate}");
+      debugPrint("Saving daily intake for $_selectedDate");
       debugPrint("Current daily intake: $_dailyIntake");
       debugPrint("New intake to add: $newIntake");
 
@@ -263,7 +298,7 @@ class DailyIntakeViewModel extends BaseViewModel {
       // Create consumption object
       final consumption = FoodConsumption(
         foodName: foodName,
-        dateTime: _selectedDate,
+        dateTime: DateTime.now(),
         nutrients: nutrients,
         source: source,
         imagePath: imagePath,
