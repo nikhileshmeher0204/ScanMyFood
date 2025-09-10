@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:read_the_label/main.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class EnergyDistributionBar extends StatelessWidget {
-  final Map<String, dynamic> nutrients;
+  final Map<String, dynamic> originalNutrients;
 
   const EnergyDistributionBar({
     super.key,
-    required this.nutrients,
+    required this.originalNutrients,
   });
 
   @override
   Widget build(BuildContext context) {
-    final protein = nutrients['protein'] ?? 0.0;
-    final carbs = nutrients['carbohydrates'] ?? 0.0;
-    final fat = nutrients['fat'] ?? 0.0;
+    final protein = originalNutrients['protein'] ?? 0.0;
+    final carbs = originalNutrients['carbohydrates'] ?? 0.0;
+    final fat = originalNutrients['fat'] ?? 0.0;
 
     // Calculate calories from each macronutrient
     final proteinCals = protein * 4;
@@ -35,17 +36,40 @@ class EnergyDistributionBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(15),
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Energy Distribution (${nutrients['calories'] ?? 0.0} kcal)',
-            style: AppTextStyles.bodyLargeBold.copyWith(
-              color: AppColors.primaryWhite,
-            ),
+          Selector<UiViewModel, double>(
+            selector: (context, uiViewModel) => uiViewModel.portionMultiplier,
+            builder: (context, portionMultiplier, child) {
+              final uiViewModel =
+                  Provider.of<UiViewModel>(context, listen: false);
+              final adjustedNutrients =
+                  uiViewModel.calculateAdjustedNutrients(originalNutrients);
+              return RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Energy Distribution • ',
+                      style: AppTextStyles.bodyLargeBold,
+                    ),
+                    TextSpan(
+                      text:
+                          '${adjustedNutrients['calories']?.toStringAsFixed(0) ?? '0'} ',
+                      style: AppTextStyles.bodyLargeBold,
+                    ),
+                    TextSpan(
+                      text: 'kcal',
+                      style: AppTextStyles.bodyLargeBold
+                          .copyWith(color: AppColors.secondaryBlackTextColor),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
           const SizedBox(height: 12),
 

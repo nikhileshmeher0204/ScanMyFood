@@ -84,3 +84,4 @@ spring-backend/src/main/resources/firebase-service-account.json
 *.code-workspace
 # Documentation and help files (optional)
 HELP.md
+flutter-app/android/.settings/org.eclipse.buildship.core.prefs

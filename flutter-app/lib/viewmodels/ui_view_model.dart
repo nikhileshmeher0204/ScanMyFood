@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:read_the_label/theme/app_colors.dart';
+import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
 
 class UiViewModel extends BaseViewModel {
@@ -7,11 +9,15 @@ class UiViewModel extends BaseViewModel {
   double _sliderValue = 0.0;
   int _currentIndex = 0;
   bool _isLoading = false;
+  DateTime _selectedTime = DateTime.now();
+  double _portionMultiplier = 1.0; // Add portion state
 
   int get currentIndex => _currentIndex;
   double get servingSize => _servingSize;
   double get sliderValue => _sliderValue;
   bool get loading => _isLoading;
+  DateTime get selectedTime => _selectedTime;
+  double get portionMultiplier => _portionMultiplier; // Add getter
 
   void setLoading(bool loading) {
     print("UiProvider: Setting loading to $loading");
@@ -33,6 +39,30 @@ class UiViewModel extends BaseViewModel {
   void updateSliderValue(double value) {
     _sliderValue = value;
     notifyListeners();
+  }
+
+  void updateSelectedTime(DateTime time) {
+    _selectedTime = time;
+    notifyListeners();
+  }
+
+  void updatePortionMultiplier(double multiplier) {
+    _portionMultiplier = multiplier;
+    notifyListeners();
+  }
+
+  // Helper method to calculate adjusted nutrients
+  Map<String, dynamic> calculateAdjustedNutrients(
+      Map<String, dynamic> originalNutrients) {
+    final Map<String, dynamic> result = {};
+    originalNutrients.forEach((key, value) {
+      if (value is num) {
+        result[key] = value * _portionMultiplier;
+      } else {
+        result[key] = value;
+      }
+    });
+    return result;
   }
 
   Color getColorForPercent(double percent) {
@@ -86,5 +116,48 @@ class UiViewModel extends BaseViewModel {
       default:
         return '';
     }
+  }
+
+  String getFormattedTime() {
+    final hour = _selectedTime.hour == 0
+        ? 12
+        : (_selectedTime.hour > 12
+            ? _selectedTime.hour - 12
+            : _selectedTime.hour);
+    final minute = _selectedTime.minute.toString().padLeft(2, '0');
+    final period = _selectedTime.hour >= 12 ? 'PM' : 'AM';
+    return '$hour:$minute $period';
+  }
+
+  List<TextSpan> buildTimeTextSpans() {
+    final timeString = getFormattedTime();
+    final parts = timeString.split(' ');
+    List<TextSpan> spans = [];
+
+    if (parts.length >= 2) {
+      // Time part (HH:MM)
+      spans.add(TextSpan(
+        text: "${parts[0]} ",
+        style: const TextStyle(
+          color: AppColors.primaryWhite,
+          fontSize: 20,
+          fontWeight: FontWeight.w500,
+          fontFamily: AppTextStyles.fontFamily,
+        ),
+      ));
+
+      // AM/PM part
+      spans.add(TextSpan(
+        text: parts[1],
+        style: const TextStyle(
+          color: AppColors.secondaryBlackTextColor,
+          fontSize: 20,
+          fontWeight: FontWeight.w500,
+          fontFamily: AppTextStyles.fontFamily,
+        ),
+      ));
+    }
+
+    return spans;
   }
 }

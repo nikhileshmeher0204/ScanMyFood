@@ -6,6 +6,11 @@ class AppColors {
   static const Color primaryWhite = Color(0xFFFFFFFF);
   static const Color primaryBlack = Color(0xFF000000);
 
+  // Primary colors for text styles
+  static const Color primaryBlackTextColor = Colors.black;
+  static const Color secondaryBlackTextColor = Colors.white54;
+  static const Color accentTextColor = Color(0xFF9ACD32); // Lime green accent
+
   // Material Theme mappings
   static const Color onPrimary = primaryWhite;
   static const Color secondary = secondaryGreen;
@@ -40,5 +45,7 @@ class AppColors {
   // Additional UI element colors
   static const Color divider = Color(0xFF2C2C2C);
   static const Color cardBackground = Color.fromARGB(255, 16, 16, 22);
+  static const Color onCardBackground = Color.fromARGB(255, 38, 38, 38);
+
   static const Color inputBackground = Color(0xFF1A1A1A);
 }

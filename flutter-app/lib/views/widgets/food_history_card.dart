@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -6,7 +9,11 @@ import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/screens/meal_description_analysis_view.dart';
+import 'package:read_the_label/views/widgets/food_history_item_card.dart';
 import 'package:read_the_label/views/widgets/food_input_form.dart';
+import 'package:read_the_label/views/widgets/wavy_line_painter.dart';
+import 'package:soft_edge_blur/soft_edge_blur.dart';
+import '../../theme/app_text_styles.dart';
 
 class FoodHistoryCard extends StatefulWidget {
   final BuildContext context;
@@ -27,31 +34,11 @@ class FoodHistoryCard extends StatefulWidget {
 class _FoodHistoryCardState extends State<FoodHistoryCard> {
   @override
   Widget build(context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-            Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
-            blurRadius: 20,
-            offset: const Offset(5, 5),
-          ),
-        ],
-      ),
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
@@ -64,9 +51,9 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                 ),
               ),
               IconButton(
-                icon: Icon(
+                icon: const Icon(
                   Icons.info_outline,
-                  color: Theme.of(context).colorScheme.onTertiary,
+                  color: AppColors.primaryWhite,
                 ),
                 onPressed: () {
                   // Show info dialog about nutrients
@@ -90,160 +77,165 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
               ),
             ],
           ),
-          ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: context.watch<DailyIntakeViewModel>().foodHistory.length,
-            itemBuilder: (context, index) {
-              final item =
-                  context.watch<DailyIntakeViewModel>().foodHistory[index];
-              // Only show items from selected date
-              if (isSameDay(item.dateTime, widget.selectedDate)) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .outline
-                          .withOpacity(0.2),
-                    ),
-                  ),
-                  child: ListTile(
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    title: Text(
-                      item.foodName,
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    subtitle: Text(
-                      DateFormat('h:mm a').format(item.dateTime),
-                      style: TextStyle(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.6),
-                        fontFamily: 'Inter',
-                      ),
-                    ),
-                    trailing: Text(
-                      '${item.nutrients['Energy']?.toStringAsFixed(0) ?? 0} kcal',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        fontFamily: 'Inter',
-                      ),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Consumer<DailyIntakeViewModel>(
+                builder: (context, viewModel, child) {
+              final todayItems = viewModel.foodHistory
+                  .where(
+                      (item) => isSameDay(item.dateTime, widget.selectedDate))
+                  .toList()
+                ..sort(
+                    (a, b) => a.dateTime.compareTo(b.dateTime)); // Sort by time
+
+              return ListView.builder(
+                padding: const EdgeInsets.only(top: 5),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: todayItems.length,
+                itemBuilder: (context, index) {
+                  final item = todayItems[index];
+                  final isFirst = index == 0;
+
+                  final isLast = index == todayItems.length - 1;
+                  final timeDifference = index > 0
+                      ? _calculateTimeDifference(
+                          todayItems[index - 1].dateTime, item.dateTime)
+                      : null;
+
+                  BorderRadius? borderRadius;
+                  if (todayItems.length == 1) {
+                    // Single item - rounded on all corners
+                    borderRadius = BorderRadius.circular(16);
+                  } else if (isFirst) {
+                    // First item - rounded top corners only
+                    borderRadius = const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    );
+                  } else if (isLast) {
+                    // Last item - rounded bottom corners only
+                    borderRadius = const BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    );
+                  }
+                  return FutureBuilder<Color>(
+                    future: viewModel.extractDominantColor(item.imagePath),
+                    builder: (context, snapshot) {
+                      final tintColor =
+                          snapshot.data ?? Colors.black.withOpacity(0.3);
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 50,
+                            child: Container(
+                              height: 100, // Match food card height exactly
+                              alignment: Alignment
+                                  .center, // Center the time vertically
+                              child: Text(
+                                DateFormat('h:mm a').format(item.dateTime),
+                                style: AppTextStyles.bodyMediumBold.copyWith(
+                                  fontSize: 12,
+                                ),
+                                textAlign: TextAlign
+                                    .center, // Changed from right to center
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8), // Reduced from 12
+                          // Food tile
+                          FoodHistoryItemCard(
+                              item: item,
+                              tintColor: tintColor,
+                              borderRadius: borderRadius,
+                              isLast: isLast),
+                        ],
+                      );
+                    },
+                  );
+                },
+              );
+            }),
+            GestureDetector(
+              onTap: () {
+                showCupertinoSheet<void>(
+                  context: context,
+                  enableDrag: true,
+                  builder: (context) => Material(
+                    child: FoodInputForm(
+                      onSubmit: () {
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (context) => Consumer<UiViewModel>(
+                              builder: (context, uiProvider, _) =>
+                                  const MealDescriptionAnalysisView(),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 );
-              }
-              return const SizedBox
-                  .shrink(); // Return empty widget for non-matching dates
-            },
-          ),
-          GestureDetector(
-            onTap: () {
-              showCupertinoSheet<void>(
-                context: context,
-                enableDrag: true,
-                builder: (context) => Material(
-                  child: FoodInputForm(
-                    onSubmit: () {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => Consumer<UiViewModel>(
-                            builder: (context, uiProvider, _) =>
-                            const MealDescriptionAnalysisView(),
-                          ),
-                        ),
-                      );
-                    },
+              },
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color.fromARGB(255, 237, 202, 149),
+                      Color.fromARGB(255, 253, 142, 81),
+                      Color.fromARGB(255, 255, 0, 85),
+                      Color.fromARGB(255, 0, 21, 255),
+                    ],
+                    stops: [0.2, 0.4, 0.6, 1.0],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-              );
-              // showModalBottomSheet(
-              //   context: context,
-              //   isScrollControlled: true,
-              //   backgroundColor: Theme.of(context).colorScheme.surface,
-              //   shape: const RoundedRectangleBorder(
-              //     borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              //   ),
-              //   builder: (context) => Padding(
-              //     padding: EdgeInsets.only(
-              //       bottom: MediaQuery.of(context).viewInsets.bottom,
-              //     ),
-              //     child: FoodInputForm(
-              //       onSubmit: () {
-              //         Navigator.push(
-              //           context,
-              //           CupertinoPageRoute(
-              //             builder: (context) => Consumer<UiViewModel>(
-              //               builder: (context, uiProvider, _) =>
-              //                   const MealDescriptionAnalysisView(),
-              //             ),
-              //           ),
-              //         );
-              //       },
-              //     ),
-              //   ),
-              // );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    Color.fromARGB(255, 237, 202, 149),
-                    Color.fromARGB(255, 253, 142, 81),
-                    Color.fromARGB(255, 255, 0, 85),
-                    Color.fromARGB(255, 0, 21, 255),
-                  ],
-                  stops: [0.2, 0.4, 0.6, 1.0],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.add,
-                    color: Color.fromARGB(255, 0, 21, 255),
-                  ),
-                  Text(
-                    "Add meal via text",
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w500,
-                      foreground: Paint()
-                        ..shader = const LinearGradient(
-                          colors: <Color>[
-                            Color.fromARGB(255, 0, 21, 255),
-                            Color.fromARGB(255, 255, 0, 85),
-                            Color.fromARGB(255, 250, 220, 194),
-                          ],
-                          stops: [0.3, 0.5, 0.8], // Four stops for four colors
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ).createShader(
-                          const Rect.fromLTWH(0.0, 0.0, 250.0, 16.0),
-                        ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.add,
+                      color: Color.fromARGB(255, 0, 21, 255),
                     ),
-                  ),
-                ],
+                    Text(
+                      "Add meal via text description",
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w500,
+                        foreground: Paint()
+                          ..shader = const LinearGradient(
+                            colors: <Color>[
+                              Color.fromARGB(255, 0, 21, 255),
+                              Color.fromARGB(255, 255, 0, 85),
+                              Color.fromARGB(255, 250, 220, 194),
+                            ],
+                            stops: [
+                              0.3,
+                              0.5,
+                              0.8
+                            ], // Four stops for four colors
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ).createShader(
+                            const Rect.fromLTWH(0.0, 0.0, 250.0, 16.0),
+                          ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -251,5 +243,14 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
     return date1.year == date2.year &&
         date1.month == date2.month &&
         date1.day == date2.day;
+  }
+
+  String _calculateTimeDifference(DateTime earlier, DateTime later) {
+    final difference = later.difference(earlier);
+    if (difference.inHours > 0) {
+      return '${difference.inHours}h ${difference.inMinutes.remainder(60)}m';
+    } else {
+      return '${difference.inMinutes}m';
+    }
   }
 }
