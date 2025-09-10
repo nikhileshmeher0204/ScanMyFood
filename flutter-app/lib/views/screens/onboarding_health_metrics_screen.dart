@@ -287,7 +287,7 @@ class _OnboardingHealthMetricsScreenState
               children: [
                 Icon(
                   icon,
-                  color: AppTextStyles.secondaryTextColor,
+                  color: AppColors.secondaryBlackTextColor,
                   size: 24,
                 ),
                 const SizedBox(width: 16),
@@ -306,7 +306,7 @@ class _OnboardingHealthMetricsScreenState
                 ),
                 const Icon(
                   Icons.chevron_right,
-                  color: AppTextStyles.secondaryTextColor,
+                  color: AppColors.secondaryBlackTextColor,
                 ),
               ],
             ),
@@ -339,7 +339,7 @@ class _OnboardingHealthMetricsScreenState
         spans.add(TextSpan(
           text: "${parts[1]} ",
           style: const TextStyle(
-            color: AppTextStyles.secondaryTextColor,
+            color: AppColors.secondaryBlackTextColor,
             fontSize: 20,
             fontWeight: FontWeight.w500,
             fontFamily: AppTextStyles.fontFamily,
@@ -361,7 +361,7 @@ class _OnboardingHealthMetricsScreenState
         spans.add(TextSpan(
           text: parts[3],
           style: const TextStyle(
-            color: AppTextStyles.secondaryTextColor,
+            color: AppColors.secondaryBlackTextColor,
             fontSize: 20,
             fontWeight: FontWeight.w500,
             fontFamily: AppTextStyles.fontFamily,
@@ -388,7 +388,7 @@ class _OnboardingHealthMetricsScreenState
         spans.add(TextSpan(
           text: parts[1],
           style: const TextStyle(
-            color: AppTextStyles.secondaryTextColor,
+            color: AppColors.secondaryBlackTextColor,
             fontSize: 20,
             fontWeight: FontWeight.w500,
             fontFamily: AppTextStyles.fontFamily,
@@ -433,7 +433,7 @@ class _OnboardingHealthMetricsScreenState
                 decoration: const BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: AppTextStyles.secondaryTextColor,
+                      color: AppColors.secondaryBlackTextColor,
                       width: 0.5,
                     ),
                   ),
@@ -445,7 +445,7 @@ class _OnboardingHealthMetricsScreenState
                       child: const Text(
                         'Cancel',
                         style:
-                            TextStyle(color: AppTextStyles.secondaryTextColor),
+                            TextStyle(color: AppColors.secondaryBlackTextColor),
                       ),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
@@ -496,7 +496,8 @@ class _OnboardingHealthMetricsScreenState
                                     const TextSpan(
                                       text: "ft",
                                       style: TextStyle(
-                                        color: AppTextStyles.secondaryTextColor,
+                                        color:
+                                            AppColors.secondaryBlackTextColor,
                                         fontSize: 22,
                                       ),
                                     ),
@@ -541,7 +542,8 @@ class _OnboardingHealthMetricsScreenState
                                     const TextSpan(
                                       text: "in",
                                       style: TextStyle(
-                                        color: AppTextStyles.secondaryTextColor,
+                                        color:
+                                            AppColors.secondaryBlackTextColor,
                                         fontSize: 22,
                                       ),
                                     ),
@@ -584,7 +586,7 @@ class _OnboardingHealthMetricsScreenState
                 decoration: const BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: AppTextStyles.secondaryTextColor,
+                      color: AppColors.secondaryBlackTextColor,
                       width: 0.5,
                     ),
                   ),
@@ -596,7 +598,7 @@ class _OnboardingHealthMetricsScreenState
                       child: const Text(
                         'Cancel',
                         style:
-                            TextStyle(color: AppTextStyles.secondaryTextColor),
+                            TextStyle(color: AppColors.secondaryBlackTextColor),
                       ),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
@@ -644,7 +646,7 @@ class _OnboardingHealthMetricsScreenState
                                   const TextSpan(
                                     text: "kg",
                                     style: TextStyle(
-                                      color: AppTextStyles.secondaryTextColor,
+                                      color: AppColors.secondaryBlackTextColor,
                                       fontSize: 22,
                                     ),
                                   ),

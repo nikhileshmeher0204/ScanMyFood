@@ -4,11 +4,6 @@ import 'package:read_the_label/theme/app_colors.dart';
 class AppTextStyles {
   static const String fontFamily = 'Inter';
 
-  // Primary colors for text styles
-  static const Color primaryTextColor = Colors.black;
-  static const Color secondaryTextColor = Colors.white54;
-  static const Color accentTextColor = Color(0xFF9ACD32); // Lime green accent
-
   // Heading styles
   static TextStyle heading1 = const TextStyle(
     fontFamily: fontFamily,

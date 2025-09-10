@@ -47,152 +47,186 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
           ),
         ),
         SliverToBoxAdapter(
-          child: Consumer3<UiViewModel, MealAnalysisViewModel,
-                  DailyIntakeViewModel>(
-              builder: (context, uiProvider, mealAnalysisProvider,
-                  dailyIntakeProvider, _) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Scanning Section
-                Container(
-                  margin: const EdgeInsets.all(20),
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.cardBackground,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.transparent),
-                  ),
-                  child: DottedBorder(
-                    borderPadding: const EdgeInsets.all(-20),
-                    borderType: BorderType.RRect,
-                    radius: const Radius.circular(20),
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withOpacity(0.2),
-                    strokeWidth: 1,
-                    dashPattern: const [6, 4],
-                    child: Column(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Scanning Section - Static content, doesn't need to rebuild
+              _buildScanningSection(),
+
+              // Loading animation - Only rebuilds when UiViewModel.loading changes
+              Selector<UiViewModel, bool>(
+                selector: (context, uiViewModel) => uiViewModel.loading,
+                builder: (context, isLoading, child) {
+                  if (isLoading) {
+                    return const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (mealAnalysisProvider.foodImage != null)
-                          Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: Image(
-                                    image: FileImage(
-                                        mealAnalysisProvider.foodImage!)),
-                              ),
-                              if (uiProvider.loading)
-                                const Positioned.fill(
-                                  left: 5,
-                                  right: 5,
-                                  top: 5,
-                                  bottom: 5,
-                                  child: rive.RiveAnimation.asset(
-                                    'assets/riveAssets/qr_code_scanner.riv',
-                                    fit: BoxFit.fill,
-                                    artboard: 'scan_board',
-                                    animations: ['anim1'],
-                                    stateMachines: ['State Machine 1'],
-                                  ),
-                                )
-                            ],
-                          )
-                        else
-                          Icon(
-                            Icons.restaurant_outlined,
-                            size: 70,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.5),
-                          ),
-                        const SizedBox(height: 20),
-                        Text(
-                          "Snap a picture of your meal or pick one from your gallery",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontSize: 14,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        FoodImageCaptureButtons(
-                          onImageCapturePressed: _handleFoodImageCapture,
-                        ),
+                        FoodItemCardShimmer(),
+                        FoodItemCardShimmer(),
+                        TotalNutrientsCardShimmer(),
                       ],
-                    ),
-                  ),
-                ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
 
-                //Loading animation
+              // Results Section - Only rebuilds when MealAnalysisViewModel changes
+              Consumer<MealAnalysisViewModel>(
+                builder: (context, mealAnalysisProvider, child) {
+                  // Check if we have results and not loading
+                  final isLoading =
+                      Provider.of<UiViewModel>(context, listen: false).loading;
 
-                if (uiProvider.loading)
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FoodItemCardShimmer(),
-                      FoodItemCardShimmer(),
-                      TotalNutrientsCardShimmer(),
-                    ],
-                  ),
+                  if (mealAnalysisProvider.foodImage != null &&
+                      mealAnalysisProvider
+                          .analyzedScannedFoodItems.isNotEmpty &&
+                      !isLoading) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Meal name
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            mealAnalysisProvider.scannedMealName,
+                            style: AppTextStyles.heading2BoldClose,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
 
-                // Results Section
-                if (mealAnalysisProvider.foodImage != null &&
-                    mealAnalysisProvider.analyzedScannedFoodItems.isNotEmpty)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child:
-                            Text(
-                              mealAnalysisProvider.scannedMealName,
-                              style:AppTextStyles.heading2BoldClose,
-                            ),
-                      ),
-                      const SizedBox(height: 16),
-                      ...mealAnalysisProvider.analyzedScannedFoodItems
-                          .asMap()
-                          .entries
-                          .map((entry) => FoodItemCard(
-                                item: entry.value,
-                                index: entry.key,
-                              )),
-                      TotalNutrientsCard(
+                        // Food item cards
+                        ...mealAnalysisProvider.analyzedScannedFoodItems
+                            .asMap()
+                            .entries
+                            .map((entry) => FoodItemCard(
+                                  item: entry.value,
+                                  index: entry.key,
+                                )),
+
+                        // Total Nutrients Card - Won't rebuild when UiViewModel changes
+                        TotalNutrientsCard(
                           mealName: mealAnalysisProvider.scannedMealName,
                           numberOfFoodItems: mealAnalysisProvider
                               .analyzedScannedFoodItems.length,
                           totalPlateNutrients:
                               mealAnalysisProvider.totalScannedPlateNutrients,
-                          nutrientInfo: mealAnalysisProvider.nutrientInfo),
-                      InkWell(
-                        onTap: () {
-                          print("Tap detected!");
-                          Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                              builder: (context) => AskAiView(
-                                foodContext: "food",
-                                mealName: mealAnalysisProvider.scannedMealName,
-                                foodImage: mealAnalysisProvider.foodImage!,
+                          nutrientInfo: mealAnalysisProvider.nutrientInfo,
+                        ),
+
+                        // Ask AI Widget
+                        InkWell(
+                          onTap: () {
+                            print("Tap detected!");
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (context) => AskAiView(
+                                  foodContext: "food",
+                                  mealName:
+                                      mealAnalysisProvider.scannedMealName,
+                                  foodImage: mealAnalysisProvider.foodImage!,
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        child: const AskAiWidget(),
-                      ),
-                    ],
-                  ),
-              ],
-            );
-          }),
+                            );
+                          },
+                          child: const AskAiWidget(),
+                        ),
+                      ],
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ],
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildScanningSection() {
+    return Consumer<MealAnalysisViewModel>(
+      builder: (context, mealAnalysisProvider, child) {
+        return Container(
+          margin: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.cardBackground,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.transparent),
+          ),
+          child: DottedBorder(
+            borderPadding: const EdgeInsets.all(-20),
+            borderType: BorderType.RRect,
+            radius: const Radius.circular(20),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+            strokeWidth: 1,
+            dashPattern: const [6, 4],
+            child: Column(
+              children: [
+                if (mealAnalysisProvider.foodImage != null)
+                  Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image(
+                          image: FileImage(mealAnalysisProvider.foodImage!),
+                        ),
+                      ),
+                      // Loading animation overlay - Only shows when loading
+                      Selector<UiViewModel, bool>(
+                        selector: (context, uiViewModel) => uiViewModel.loading,
+                        builder: (context, isLoading, child) {
+                          if (isLoading) {
+                            return const Positioned.fill(
+                              left: 5,
+                              right: 5,
+                              top: 5,
+                              bottom: 5,
+                              child: rive.RiveAnimation.asset(
+                                'assets/riveAssets/qr_code_scanner.riv',
+                                fit: BoxFit.fill,
+                                artboard: 'scan_board',
+                                animations: ['anim1'],
+                                stateMachines: ['State Machine 1'],
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                    ],
+                  )
+                else
+                  Icon(
+                    Icons.restaurant_outlined,
+                    size: 70,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.5),
+                  ),
+                const SizedBox(height: 20),
+                Text(
+                  "Snap a picture of your meal or pick one from your gallery",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: 14,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                FoodImageCaptureButtons(
+                  onImageCapturePressed: _handleFoodImageCapture,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

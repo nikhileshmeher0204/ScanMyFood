@@ -21,7 +21,10 @@ class _DailyIntakeViewState extends State<DailyIntakeView> {
   @override
   void initState() {
     super.initState();
-    _initializeData();
+    // Use WidgetsBinding.instance.addPostFrameCallback to defer initialization
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeData();
+    });
   }
 
   @override
@@ -30,6 +33,8 @@ class _DailyIntakeViewState extends State<DailyIntakeView> {
   }
 
   Future<void> _initializeData() async {
+    if (!mounted) return;
+
     print("Initializing DailyIntakePage data...");
     final dailyIntakeProvider =
         Provider.of<DailyIntakeViewModel>(context, listen: false);
@@ -45,9 +50,11 @@ class _DailyIntakeViewState extends State<DailyIntakeView> {
     print("Loading daily intake for selected date...");
     await dailyIntakeProvider.loadDailyIntake(DateTime.now());
 
-    setState(() {
-      _selectedDate = DateTime.now();
-    });
+    if (mounted) {
+      setState(() {
+        _selectedDate = DateTime.now();
+      });
+    }
   }
 
   @override

@@ -24,11 +24,12 @@ class PortionButton extends StatelessWidget {
             isSelected ? AppColors.primaryWhite : AppColors.cardBackground,
         foregroundColor:
             isSelected ? AppColors.primaryBlack : AppColors.primaryWhite,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
         elevation: isSelected ? 4 : 0,
+        minimumSize: const Size(50, 28), // Set smaller minimum size
       ),
       onPressed: onPressed,
       child: Text(

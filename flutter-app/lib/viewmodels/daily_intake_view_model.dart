@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
@@ -52,8 +51,6 @@ class DailyIntakeViewModel extends BaseViewModel {
   }
 
   Future<void> debugCheckStorage() async {
-    uiProvider.setLoading(true);
-
     try {
       // Get all keys
       final keys = await storageRepository.getAllKeys();
@@ -73,8 +70,6 @@ class DailyIntakeViewModel extends BaseViewModel {
     } catch (e) {
       debugPrint("Error checking storage: $e");
       setError("Error checking storage: $e");
-    } finally {
-      uiProvider.setLoading(false);
     }
   }
 
