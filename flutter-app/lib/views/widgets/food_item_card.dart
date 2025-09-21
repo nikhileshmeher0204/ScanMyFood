@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
-import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/views/widgets/food_nutreint_tile.dart';
 import '../../models/food_item.dart';
@@ -61,10 +60,7 @@ class FoodItemCard extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.all(4),
                         child: Text(
-                          '🔥 ${item
-                              .calculateTotalNutrients()['calories']
-                            ?.toStringAsFixed(0) ??
-                            '0'} kcal',
+                          '🔥 ${item.calculateTotalNutrients()['calories']?.toStringAsFixed(0) ?? '0'} kcal',
                           style: AppTextStyles.withColor(
                             AppTextStyles.bodyMediumBold,
                             AppColors.primaryBlack,
@@ -78,7 +74,7 @@ class FoodItemCard extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.all(4),
                         child: Text(
-                          '🍽️ ${item.quantity}${item.unit}',
+                          '🍽️ ${item.quantity.value}${item.quantity.unit}',
                           style: AppTextStyles.withColor(
                             AppTextStyles.bodyMediumBold,
                             AppColors.primaryBlack,
@@ -147,8 +143,8 @@ class FoodItemCard extends StatelessWidget {
               FoodNutrientTile(
                 label: 'Sugar',
                 value: item
-                    .calculateTotalNutrients()['sugar']
-                    ?.toStringAsFixed(1) ??
+                        .calculateTotalNutrients()['sugar']
+                        ?.toStringAsFixed(1) ??
                     '0',
                 unit: 'g',
                 icon: Icons.cake_outlined,
@@ -156,8 +152,8 @@ class FoodItemCard extends StatelessWidget {
               FoodNutrientTile(
                 label: 'Sodium',
                 value: item
-                    .calculateTotalNutrients()['sodium']
-                    ?.toStringAsFixed(1) ??
+                        .calculateTotalNutrients()['sodium']
+                        ?.toStringAsFixed(1) ??
                     '0',
                 unit: 'g',
                 icon: Icons.grain_sharp,
@@ -198,7 +194,7 @@ class FoodItemCard extends StatelessWidget {
             AppColors.primaryWhite,
           ),
           decoration: InputDecoration(
-            hintText: 'Enter quantity in ${item.unit}',
+            hintText: 'Enter quantity in ${item.quantity.unit}',
             hintStyle: AppTextStyles.withColor(
               AppTextStyles.bodyMedium,
               AppColors.textSecondary,
@@ -242,7 +238,7 @@ class FoodItemCard extends StatelessWidget {
             onPressed: () {
               double? newQuantity = double.tryParse(controller.text);
               if (newQuantity != null) {
-                item.quantity = newQuantity;
+                item.updateQuantity(newQuantity);
                 context.read<MealAnalysisViewModel>().updateTotalNutrients();
               }
               Navigator.of(context).pop();

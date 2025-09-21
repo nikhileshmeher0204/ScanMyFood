@@ -1,92 +1,71 @@
 class FoodItem {
   final String name;
-  double quantity;
-  final String unit;
-  final Map<String, dynamic> nutrientsPer100g;
+  Quantity quantity;
+  final Map<String, Quantity> nutrientsPer100g;
 
   FoodItem({
     required this.name,
     required this.quantity,
-    required this.unit,
     required this.nutrientsPer100g,
   });
 
   factory FoodItem.fromJson(Map<String, dynamic> json) {
-    // Debug the incoming JSON
-    print("Parsing FoodItem from: $json");
+    // Handle quantity
+    Quantity quantity =
+        Quantity.fromJson(json['quantity'] ?? {'value': 0.0, 'unit': 'g'});
 
-    // Handle different property names
-    String name = json['name'] ?? json['food_name'] ?? 'Unknown';
-
-    // Handle quantity - might be nested or direct
-    double quantity = 0.0;
-    if (json['quantity'] != null) {
-      quantity = (json['quantity'] is int)
-          ? (json['quantity'] as int).toDouble()
-          : (json['quantity'] as num).toDouble();
-    } else if (json['estimated_quantity'] != null &&
-        json['estimated_quantity'] is Map) {
-      var amount = json['estimated_quantity']['amount'];
-      quantity = amount is num ? amount.toDouble() : 0.0;
-    }
-
-    // Handle unit - might be nested or direct
-    String unit = 'g';
-    if (json['unit'] != null) {
-      unit = json['unit'];
-    } else if (json['estimated_quantity'] != null &&
-        json['estimated_quantity'] is Map) {
-      unit = json['estimated_quantity']['unit'] ?? 'g';
-    }
-
-    // Handle nutrients - different possible formats
-    Map<String, dynamic> nutrients = {};
-    if (json['nutrientsPer100g'] != null) {
-      nutrients = Map<String, dynamic>.from(json['nutrientsPer100g']);
-    } else if (json['nutrients_per_100g'] != null) {
-      nutrients = Map<String, dynamic>.from(json['nutrients_per_100g']);
+    // Handle nutrients
+    Map<String, Quantity> nutrients = {};
+    if (json['nutrients_per100g'] != null) {
+      Map<String, dynamic> nutrientsJson = json['nutrients_per100g'];
+      nutrientsJson.forEach((key, value) {
+        nutrients[key] = Quantity.fromJson(value);
+      });
     }
 
     return FoodItem(
-      name: name,
+      name: json['name'] ?? 'Unknown',
       quantity: quantity,
-      unit: unit,
       nutrientsPer100g: nutrients,
     );
   }
 
   Map<String, double> calculateTotalNutrients() {
-    final factor = quantity / 100; // Convert to 100g basis
+    final factor = quantity.value / 100;
     return {
-      'calories': _extractNutrientValue('calories') * factor,
-      'protein': _extractNutrientValue('protein') * factor,
-      'carbohydrates': _extractNutrientValue('carbohydrates') * factor,
-      'fat': _extractNutrientValue('fat') * factor,
-      'fiber': _extractNutrientValue('fiber') * factor,
-      'sugar': _extractNutrientValue('sugar') * factor,
-      'sodium': _extractNutrientValue('sodium') * factor,
+      'calories': (nutrientsPer100g['calories']?.value ?? 0.0) * factor,
+      'protein': (nutrientsPer100g['protein']?.value ?? 0.0) * factor,
+      'carbohydrates':
+          (nutrientsPer100g['carbohydrates']?.value ?? 0.0) * factor,
+      'fat': (nutrientsPer100g['fat']?.value ?? 0.0) * factor,
+      'fiber': (nutrientsPer100g['fiber']?.value ?? 0.0) * factor,
+      'sugar': (nutrientsPer100g['sugar']?.value ?? 0.0) * factor,
+      'sodium': (nutrientsPer100g['sodium']?.value ?? 0.0) * factor,
     };
   }
 
-  // Helper method to extract numeric values from potentially nested nutrient data
-  double _extractNutrientValue(String nutrient) {
-    // If nutrient is directly a number
-    if (nutrientsPer100g[nutrient] is num) {
-      return (nutrientsPer100g[nutrient] as num).toDouble();
-    }
+  void updateQuantity(double newQuantity) {
+    quantity = Quantity(value: newQuantity, unit: quantity.unit);
+  }
+}
 
-    // If nutrient is a map with a 'value' key
-    if (nutrientsPer100g[nutrient] is Map &&
-        nutrientsPer100g[nutrient]['value'] != null) {
-      var value = nutrientsPer100g[nutrient]['value'];
-      return value is num ? value.toDouble() : 0.0;
-    }
+class Quantity {
+  final double value;
+  final String unit;
 
-    // If we can't extract a value, return 0
-    return 0.0;
+  Quantity({required this.value, required this.unit});
+
+  factory Quantity.fromJson(Map<String, dynamic> json) {
+    return Quantity(
+      value: (json['value'] as num?)?.toDouble() ?? 0.0,
+      unit: json['unit'] ?? 'g',
+    );
   }
 
-  void updateQuantity(double newQuantity) {
-    quantity = newQuantity;
+  Map<String, dynamic> toJson() {
+    return {
+      'value': value,
+      'unit': unit,
+    };
   }
 }

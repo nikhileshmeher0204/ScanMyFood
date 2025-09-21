@@ -248,13 +248,14 @@ class DailyIntakeViewModel extends BaseViewModel {
     required File? foodImage,
   }) async {
     try {
-      // Convert meal nutrients to the format needed for daily intake
       Map<String, double> newNutrients = {
-        'Energy': (totalPlateNutrients['calories'] ?? 0).toDouble(),
-        'Protein': (totalPlateNutrients['protein'] ?? 0).toDouble(),
-        'Carbohydrate': (totalPlateNutrients['carbohydrates'] ?? 0).toDouble(),
-        'Fat': (totalPlateNutrients['fat'] ?? 0).toDouble(),
-        'Fiber': (totalPlateNutrients['fiber'] ?? 0).toDouble(),
+        'Energy': totalPlateNutrients['calories']?.value ?? 0.0,
+        'Protein': totalPlateNutrients['protein']?.value ?? 0.0,
+        'Carbohydrate': totalPlateNutrients['carbohydrates']?.value ?? 0.0,
+        'Fat': totalPlateNutrients['fat']?.value ?? 0.0,
+        'Fiber': totalPlateNutrients['fiber']?.value ?? 0.0,
+        'Sodium': totalPlateNutrients['sodium']?.value ?? 0.0,
+        'Total Sugars': totalPlateNutrients['sugar']?.value ?? 0.0,
       };
 
       // Process and save the image

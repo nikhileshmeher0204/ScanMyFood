@@ -1,6 +1,3 @@
-import 'dart:io';
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -11,8 +8,6 @@ import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/screens/meal_description_analysis_view.dart';
 import 'package:read_the_label/views/widgets/food_history_item_card.dart';
 import 'package:read_the_label/views/widgets/food_input_form.dart';
-import 'package:read_the_label/views/widgets/wavy_line_painter.dart';
-import 'package:soft_edge_blur/soft_edge_blur.dart';
 import '../../theme/app_text_styles.dart';
 
 class FoodHistoryCard extends StatefulWidget {

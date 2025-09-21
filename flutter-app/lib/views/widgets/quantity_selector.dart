@@ -167,43 +167,78 @@ class _QuantitySelectorState extends State<QuantitySelector> {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<UiViewModel, double>(
-      selector: (context, uiViewModel) => uiViewModel.portionMultiplier,
-      builder: (context, portionMultiplier, child) {
-        final Map<int, Widget> segmentWidgets = {};
-
-        for (int i = 0; i < widget.options.length; i++) {
-          segmentWidgets[i] = Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Text(
-              _getDisplayLabel(i, portionMultiplier),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Icon(
+              Icons.restaurant,
+              color: AppColors.secondaryBlackTextColor,
+              size: 20,
+            ),
+            const SizedBox(width: 16),
+            Text(
+              "Quantity",
               style: AppTextStyles.withColor(
-                AppTextStyles.withWeight(
-                  AppTextStyles.bodySmall,
-                  FontWeight.w500,
-                ),
-                _selectedIndex == i
-                    ? AppColors.primaryBlack
-                    : AppColors.primaryWhite,
+                AppTextStyles.heading4,
+                AppColors.primaryWhite,
               ),
             ),
-          );
-        }
+            const SizedBox(width: 16),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Selector<UiViewModel, double>(
+                  selector: (context, uiViewModel) =>
+                      uiViewModel.portionMultiplier,
+                  builder: (context, portionMultiplier, child) {
+                    final Map<int, Widget> segmentWidgets = {};
 
-        return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: CupertinoSlidingSegmentedControl<int>(
-            groupValue: _selectedIndex,
-            onValueChanged: _onSelectionChanged,
-            children: segmentWidgets,
-            backgroundColor: AppColors.primaryBlack,
-            thumbColor: AppColors.primaryWhite,
-            padding: const EdgeInsets.all(4),
-          ),
-        );
-      },
+                    for (int i = 0; i < widget.options.length; i++) {
+                      segmentWidgets[i] = Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        child: Text(
+                          _getDisplayLabel(i, portionMultiplier),
+                          style: AppTextStyles.withColor(
+                            AppTextStyles.withWeight(
+                              AppTextStyles.bodySmall,
+                              FontWeight.w500,
+                            ),
+                            _selectedIndex == i
+                                ? AppColors.primaryBlack
+                                : AppColors.primaryWhite,
+                          ),
+                        ),
+                      );
+                    }
+
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: CupertinoSlidingSegmentedControl<int>(
+                        groupValue: _selectedIndex,
+                        onValueChanged: _onSelectionChanged,
+                        children: segmentWidgets,
+                        backgroundColor: AppColors.primaryBlack,
+                        thumbColor: AppColors.primaryWhite,
+                        padding: const EdgeInsets.all(4),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

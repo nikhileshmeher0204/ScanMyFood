@@ -3,7 +3,7 @@ import 'package:read_the_label/models/food_item.dart';
 class FoodAnalysisResponse {
   final String mealName;
   final List<FoodItem> analyzedFoodItems;
-  final Map<String, dynamic> totalPlateNutrients;
+  final Map<String, Quantity> totalPlateNutrients;
 
   FoodAnalysisResponse({
     required this.mealName,
@@ -12,57 +12,50 @@ class FoodAnalysisResponse {
   });
 
   factory FoodAnalysisResponse.fromJson(Map<String, dynamic> json) {
-    // Process analyzed food items
+    String mealName = json['meal_name'] ?? 'Unknown Meal';
     List<FoodItem> foodItems = [];
+    Map<String, Quantity> totalNutrients = {};
 
-    // Get food items from either format
-    final items =
-        json['analyzedFoodItems'] ?? json['analyzed_food_items'] ?? [];
+    final items = json['analyzed_food_items'] ?? [];
     if (items is List) {
       foodItems = items.map((item) => FoodItem.fromJson(item)).toList();
     }
 
-    // Get total nutrients - handle both formats
-    Map<String, dynamic> totalNutrients = {};
-    if (json['totalPlateNutrients'] != null) {
-      totalNutrients = Map<String, dynamic>.from(json['totalPlateNutrients']);
-    } else if (json['total_plate_nutrients'] != null) {
-      totalNutrients = Map<String, dynamic>.from(json['total_plate_nutrients']);
+    final plateNutrientsJson = json['total_plate_nutrients'];
+    if (plateNutrientsJson != null &&
+        plateNutrientsJson is Map<String, dynamic>) {
+      plateNutrientsJson.forEach((key, value) {
+        if (value is Map<String, dynamic>) {
+          totalNutrients[key] = Quantity.fromJson(value);
+        }
+      });
     }
 
     return FoodAnalysisResponse(
-      mealName: json['mealName'] ?? json['meal_name'] ?? 'Unknown Meal',
+      mealName: mealName,
       analyzedFoodItems: foodItems,
       totalPlateNutrients: totalNutrients,
     );
   }
+}
 
-  // Add helper method to extract nutrient values
-  double extractNutrientValue(String nutrient) {
-    // If nutrient is directly a number
-    if (totalPlateNutrients[nutrient] is num) {
-      return (totalPlateNutrients[nutrient] as num).toDouble();
-    }
+class Quantity {
+  final double value;
+  final String unit;
 
-    // If nutrient is a map with a 'value' key
-    if (totalPlateNutrients[nutrient] is Map &&
-        totalPlateNutrients[nutrient]['value'] != null) {
-      var value = totalPlateNutrients[nutrient]['value'];
-      return value is num ? value.toDouble() : 0.0;
-    }
+  Quantity({required this.value, required this.unit});
 
-    // If we can't extract a value, return 0
-    return 0.0;
+  factory Quantity.fromJson(Map<String, dynamic> json) {
+    return Quantity(
+      value: (json['value'] as num?)?.toDouble() ?? 0.0,
+      unit: json['unit'] ?? 'g',
+    );
   }
 
-  // Get simple map of nutrient values
-  Map<String, double> getSimpleTotalNutrients() {
+  Map<String, dynamic> toJson() {
     return {
-      'calories': extractNutrientValue('calories'),
-      'protein': extractNutrientValue('protein'),
-      'carbohydrates': extractNutrientValue('carbohydrates'),
-      'fat': extractNutrientValue('fat'),
-      'fiber': extractNutrientValue('fiber'),
+      'value': value,
+      'unit': unit,
     };
   }
 }

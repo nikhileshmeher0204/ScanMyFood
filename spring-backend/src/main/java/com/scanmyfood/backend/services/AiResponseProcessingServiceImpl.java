@@ -1,6 +1,7 @@
 package com.scanmyfood.backend.services;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -96,17 +97,36 @@ public class AiResponseProcessingServiceImpl implements AiResponseProcessingServ
             foodItem.setName((String)item.get("food_name"));
 
             Map<String, Object> estimatedQuantity = (Map<String, Object>)item.get("estimated_quantity");
-            foodItem.setQuantity(((Number)estimatedQuantity.get("amount")).doubleValue());
-            foodItem.setUnit((String)estimatedQuantity.get("unit"));
+            FoodItem.Quantity quantity = new FoodItem.Quantity();
+            quantity.setValue(((Number)estimatedQuantity.get("amount")).doubleValue());
+            quantity.setUnit((String)estimatedQuantity.get("unit"));
+            foodItem.setQuantity(quantity);
 
-            foodItem.setNutrientsPer100g((Map<String, Object>)item.get("nutrients_per_100g"));
+            // Process nutrients_per_100g with Quantity objects
+            Map<String, Object> nutrientsMap = (Map<String, Object>)item.get("nutrients_per_100g");
+            Map<String, FoodItem.Quantity> nutrients = new HashMap<>();
+
+            nutrientsMap.forEach((key, value) -> {
+                FoodItem.Quantity nutrientQuantity = new FoodItem.Quantity();
+                if (value instanceof Number) {
+                    nutrientQuantity.setValue(((Number) value).doubleValue());
+                    nutrientQuantity.setUnit(getNutrientUnit(key)); // Helper method for units
+                } else if (value instanceof Map) {
+                    Map<String, Object> valueMap = (Map<String, Object>) value;
+                    nutrientQuantity.setValue(((Number) valueMap.get("value")).doubleValue());
+                    nutrientQuantity.setUnit((String) valueMap.get("unit"));
+                }
+                nutrients.put(key, nutrientQuantity);
+            });
+
+            foodItem.setNutrientsPer100g(nutrients);
             foodItems.add(foodItem);
         }
 
         response.setAnalyzedFoodItems(foodItems);
 
         // Set total nutrients
-        response.setTotalPlateNutrients((Map<String, Object>)plateAnalysis.get("total_plate_nutrients"));
+        response.setTotalPlateNutrients((Map<String, FoodAnalysisResponse.Quantity>)plateAnalysis.get("total_plate_nutrients"));
 
         return response;
     }
@@ -127,19 +147,51 @@ public class AiResponseProcessingServiceImpl implements AiResponseProcessingServ
             FoodItem foodItem = new FoodItem();
             foodItem.setName((String)item.get("food_name"));
 
-            Map<String, Object> estimatedQuantity = (Map<String, Object>)item.get("mentioned_quantity");
-            foodItem.setQuantity(((Number)estimatedQuantity.get("amount")).doubleValue());
-            foodItem.setUnit((String)estimatedQuantity.get("unit"));
+            Map<String, Object> estimatedQuantity = (Map<String, Object>)item.get("estimated_quantity");
+            FoodItem.Quantity quantity = new FoodItem.Quantity();
+            quantity.setValue(((Number)estimatedQuantity.get("amount")).doubleValue());
+            quantity.setUnit((String)estimatedQuantity.get("unit"));
+            foodItem.setQuantity(quantity);
 
-            foodItem.setNutrientsPer100g((Map<String, Object>)item.get("nutrients_per_100g"));
+            // Process nutrients_per_100g with Quantity objects
+            Map<String, Object> nutrientsMap = (Map<String, Object>)item.get("nutrients_per_100g");
+            Map<String, FoodItem.Quantity> nutrients = new HashMap<>();
+
+            nutrientsMap.forEach((key, value) -> {
+                FoodItem.Quantity nutrientQuantity = new FoodItem.Quantity();
+                if (value instanceof Number) {
+                    nutrientQuantity.setValue(((Number) value).doubleValue());
+                    nutrientQuantity.setUnit(getNutrientUnit(key)); // Helper method for units
+                } else if (value instanceof Map) {
+                    Map<String, Object> valueMap = (Map<String, Object>) value;
+                    nutrientQuantity.setValue(((Number) valueMap.get("value")).doubleValue());
+                    nutrientQuantity.setUnit((String) valueMap.get("unit"));
+                }
+                nutrients.put(key, nutrientQuantity);
+            });
+
+            foodItem.setNutrientsPer100g(nutrients);
             foodItems.add(foodItem);
         }
 
         response.setAnalyzedFoodItems(foodItems);
 
         // Set total nutrients
-        response.setTotalPlateNutrients((Map<String, Object>)plateAnalysis.get("total_nutrients"));
+        response.setTotalPlateNutrients((Map<String, FoodAnalysisResponse.Quantity>)plateAnalysis.get("total_nutrients"));
 
         return response;
+    }
+
+    private String getNutrientUnit(String nutrient) {
+        Map<String, String> units = Map.of(
+                "calories", "kcal",
+                "protein", "g",
+                "carbohydrates", "g",
+                "fat", "g",
+                "fiber", "g",
+                "sugar", "g",
+                "sodium", "mg"
+        );
+        return units.getOrDefault(nutrient.toLowerCase(), "g");
     }
 }

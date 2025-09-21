@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
@@ -7,7 +8,7 @@ import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class AddToIntakeButton extends StatelessWidget {
   final String mealName;
-  final Map<String, dynamic> totalPlateNutrients;
+  final Map<String, Quantity> totalPlateNutrients;
 
   const AddToIntakeButton({
     super.key,

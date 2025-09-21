@@ -12,10 +12,12 @@ import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/screens/ask_ai_view.dart';
 import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
+import 'package:read_the_label/views/widgets/input_picker_button.dart';
 import 'package:read_the_label/views/widgets/nutrient_balance_card.dart';
 import 'package:read_the_label/views/widgets/nutrient_info_shimmer.dart';
 import 'package:read_the_label/views/widgets/nutrient_tile.dart';
 import 'package:read_the_label/views/widgets/product_image_capture_buttons.dart';
+import 'package:read_the_label/views/widgets/quantity_selector.dart';
 import 'package:rive/rive.dart' as rive;
 
 class ProductAnalysisView extends StatefulWidget {
@@ -371,83 +373,99 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                           style: AppTextStyles.bodyLargeBold,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: uiProvider.sliderValue == 0
-                              ? Colors.grey
-                              : Theme.of(context).colorScheme.primary,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.onSurface,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 16,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 2,
-                          minimumSize: const Size(
-                              200, 50), // Set minimum width and height
-                        ),
-                        onPressed: () {
-                          if (uiProvider.sliderValue == 0) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                    'Please select your consumption to continue'), // Updated message
+                      const SizedBox(height: 16),
+                      // Add the TimeSelector widget
+                      const TimeSelector(),
+                      const SizedBox(height: 16),
+
+                      // Add the QuantitySelector widget
+                      const QuantitySelector(),
+                      const SizedBox(height: 16),
+                      Selector<UiViewModel, double>(
+                        selector: (context, uiViewModel) =>
+                            uiViewModel.portionMultiplier,
+                        builder: (context, portionMultiplier, child) {
+                          return ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: portionMultiplier == 0
+                                  ? Colors.grey
+                                  : AppColors.primaryWhite,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onSurface,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 16,
                               ),
-                            );
-                          } else {
-                            dailyIntakeProvider.addToDailyIntake(
-                              source: 'label',
-                              productName: productAnalysisProvider.productName,
-                              nutrients:
-                                  productAnalysisProvider.parsedNutrients,
-                              servingSize: uiProvider.servingSize,
-                              consumedAmount: uiProvider.sliderValue,
-                              imageFile: productAnalysisProvider.frontImage,
-                            );
-                            uiProvider.updateCurrentIndex(2);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text(
-                                    'Added to today\'s intake!'), // Updated message
-                                action: SnackBarAction(
-                                  label:
-                                      'VIEW', // Changed from 'SHOW' to 'VIEW'
-                                  onPressed: () {
-                                    Provider.of<UiViewModel>(context,
-                                            listen: false)
-                                        .updateCurrentIndex(2);
-                                  },
-                                ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                            );
-                          }
-                        },
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
+                              elevation: 2,
+                              minimumSize: const Size(200, 50),
+                            ),
+                            onPressed: () {
+                              if (portionMultiplier == 0) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'Please select your consumption quantity to continue'),
+                                  ),
+                                );
+                              } else {
+                                // Calculate consumed amount using portion multiplier
+                                double consumedAmount =
+                                    uiProvider.servingSize * portionMultiplier;
+
+                                dailyIntakeProvider.addToDailyIntake(
+                                  source: 'label',
+                                  productName:
+                                      productAnalysisProvider.productName,
+                                  nutrients:
+                                      productAnalysisProvider.parsedNutrients,
+                                  servingSize: uiProvider.servingSize,
+                                  consumedAmount: consumedAmount,
+                                  imageFile: productAnalysisProvider.frontImage,
+                                );
+                                uiProvider.updateCurrentIndex(2);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        const Text('Added to today\'s intake!'),
+                                    action: SnackBarAction(
+                                      label: 'VIEW',
+                                      onPressed: () {
+                                        Provider.of<UiViewModel>(context,
+                                                listen: false)
+                                            .updateCurrentIndex(2);
+                                      },
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Column(
                               children: [
-                                const Icon(
-                                  Icons.add_circle_outline,
-                                  size: 20,
-                                  color: AppColors.primaryBlack,
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.add_circle_outline,
+                                      size: 20,
+                                      color: AppColors.primaryBlack,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text("Add to today's intake",
+                                        style: AppTextStyles.buttonTextBlack),
+                                  ],
                                 ),
-                                const SizedBox(width: 8),
-                                Text("Add to today's intake",
-                                    style: AppTextStyles.buttonTextBlack),
+                                Text(
+                                  "${(uiProvider.servingSize * portionMultiplier).toStringAsFixed(0)} grams, ${(productAnalysisProvider.getCalories() * portionMultiplier).toStringAsFixed(0)} calories",
+                                  style: AppTextStyles.buttonSubTextBlack,
+                                ),
                               ],
                             ),
-                            Text(
-                              "${uiProvider.sliderValue.toStringAsFixed(0)} grams, ${(productAnalysisProvider.getCalories() * (uiProvider.sliderValue / uiProvider.servingSize)).toStringAsFixed(0)} calories",
-                              style: AppTextStyles.buttonSubTextBlack,
-                            ),
-                          ],
-                        ),
-                      )
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),

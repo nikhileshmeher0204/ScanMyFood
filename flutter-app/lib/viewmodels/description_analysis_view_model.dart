@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
-import 'package:read_the_label/models/food_item.dart';
+import 'package:read_the_label/models/food_item.dart' hide Quantity;
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
-
-import '../core/constants/dv_values.dart';
 
 class DescriptionAnalysisViewModel extends BaseViewModel {
   // Dependencies
@@ -21,18 +19,17 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
   });
 
   List<FoodItem> _analyzedFoodItems = [];
-  Map<String, dynamic> _totalPlateNutrients = {};
+  Map<String, Quantity> _totalPlateNutrients = {};
   String _mealName = "Unknown Meal";
 
   List<FoodItem> get analyzedFoodItems => _analyzedFoodItems;
-  Map<String, dynamic> get totalPlateNutrients => _totalPlateNutrients;
+  Map<String, Quantity> get totalPlateNutrients => _totalPlateNutrients;
   String get mealName => _mealName;
   List<Map<String, dynamic>> _nutrientInfo = [];
   List<Map<String, dynamic>> get nutrientInfo => _nutrientInfo;
 
-
   // Text-based meal analysis
-  Future<String> logMealViaText({
+  Future<void> logMealViaText({
     required String foodItemsText,
   }) async {
     uiProvider.setLoading(true);
@@ -49,7 +46,7 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
 
       _mealName = response.mealName;
       _analyzedFoodItems = response.analyzedFoodItems;
-      _totalPlateNutrients = response.getSimpleTotalNutrients();
+      _totalPlateNutrients = response.totalPlateNutrients;
       calculateNutrientInfo(_totalPlateNutrients);
 
       debugPrint("Total Plate Nutrients:");
@@ -60,11 +57,9 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
       debugPrint("Fiber: ${_totalPlateNutrients['fiber']}");
 
       notifyListeners();
-      return "Analysis complete";
     } catch (e) {
       debugPrint("Error analyzing food description: $e");
       setError("Error analyzing food description: $e");
-      return "Error";
     } finally {
       uiProvider.setLoading(false);
     }
@@ -104,8 +99,8 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
       // Find the matching nutrient data
       try {
         var matchingNutrient = nutrientData.firstWhere(
-              (nutrient) =>
-          nutrient['Nutrient'].toString().toLowerCase() ==
+          (nutrient) =>
+              nutrient['Nutrient'].toString().toLowerCase() ==
               nutrientName.toLowerCase(),
         );
 
@@ -113,11 +108,11 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
 
         // Convert string values to numbers
         double currentDV =
-        double.parse(matchingNutrient['Current Daily Value'].toString());
+            double.parse(matchingNutrient['Current Daily Value'].toString());
         double fivePercentDV =
-        double.parse(matchingNutrient['5%DV'].toString());
+            double.parse(matchingNutrient['5%DV'].toString());
         double twentyPercentDV =
-        double.parse(matchingNutrient['20%DV'].toString());
+            double.parse(matchingNutrient['20%DV'].toString());
 
         logger.i(
             "Current DV: $currentDV, 5%DV: $fivePercentDV, 20%DV: $twentyPercentDV");
@@ -152,7 +147,7 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
         var nutrientInfoItem = {
           'name': nutrientName,
           'quantity':
-          '${value.toStringAsFixed(1)}${matchingNutrient['Unit'] ?? ''}',
+              '${value.toStringAsFixed(1)}${matchingNutrient['Unit'] ?? ''}',
           'dv_status': dvStatus,
           'insight': nutrientInsights[nutrientName],
           'goal': goal,
@@ -172,5 +167,4 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
     logger.i("Final _nutrientInfo: $_nutrientInfo");
     logger.i("=== End calculateNutrientInfo ===");
   }
-
 }

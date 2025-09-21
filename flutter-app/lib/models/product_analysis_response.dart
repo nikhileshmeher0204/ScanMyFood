@@ -10,7 +10,7 @@ class ProductAnalysisResponse {
   factory ProductAnalysisResponse.fromJson(Map<String, dynamic> json) {
     return ProductAnalysisResponse(
       product: ProductInfo.fromJson(json['product']),
-      nutritionAnalysis: NutritionAnalysis.fromJson(json['nutritionAnalysis']),
+      nutritionAnalysis: NutritionAnalysis.fromJson(json['nutrition_analysis']),
     );
   }
 }
@@ -42,12 +42,12 @@ class NutritionAnalysis {
 
   factory NutritionAnalysis.fromJson(Map<String, dynamic> json) {
     return NutritionAnalysis(
-      servingSize: json['servingSize'] ?? 'Unknown',
+      servingSize: json['serving_size'] ?? 'Unknown',
       nutrients: (json['nutrients'] as List?)
               ?.map((n) => Nutrient.fromJson(n))
               .toList() ??
           [],
-      primaryConcerns: (json['primaryConcerns'] as List?)
+      primaryConcerns: (json['primary_concerns'] as List?)
               ?.map((c) => PrimaryConcern.fromJson(c))
               .toList() ??
           [],
@@ -76,10 +76,10 @@ class Nutrient {
     return Nutrient(
       name: json['name'] ?? 'Unknown',
       quantity: json['quantity'] ?? '0',
-      dailyValue: json['dailyValue'] ?? '0',
-      dvStatus: json['dvStatus'] ?? '',
+      dailyValue: json['daily_value'] ?? '0',
+      dvStatus: json['dv_status'] ?? '',
       goal: json['goal'] ?? 'At least',
-      healthImpact: json['healthImpact'] ?? 'Moderate',
+      healthImpact: json['health_impact'] ?? 'Moderate',
     );
   }
 }

@@ -5,12 +5,9 @@ import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
-class InputPickerButton extends StatelessWidget {
-  final String label;
-
-  const InputPickerButton({
+class TimeSelector extends StatelessWidget {
+  const TimeSelector({
     super.key,
-    required this.label,
   });
 
   void _showTimePicker(BuildContext context) {
@@ -117,7 +114,7 @@ class InputPickerButton extends StatelessWidget {
                   ),
                   const SizedBox(width: 16),
                   Text(
-                    label,
+                    "Time",
                     style: AppTextStyles.withColor(
                       AppTextStyles.heading4,
                       AppColors.primaryWhite,

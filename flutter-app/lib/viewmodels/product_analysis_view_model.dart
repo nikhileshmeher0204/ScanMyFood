@@ -67,7 +67,7 @@ class ProductAnalysisViewModel extends BaseViewModel {
     return double.tryParse(quantity) ?? 0.0;
   }
 
-  Future<String> analyzeImages() async {
+  Future<void> analyzeImages() async {
     uiProvider.setLoading(true);
 
     try {
@@ -142,10 +142,8 @@ class ProductAnalysisViewModel extends BaseViewModel {
       print("⚠️ Bad nutrients: ${watchOutNutrients.length}");
 
       notifyListeners();
-      return "✅Product Analysis complete";
     } catch (e) {
       print("❌ Error analyzing images: $e");
-      return "Error: $e";
     } finally {
       uiProvider.setLoading(false);
     }
