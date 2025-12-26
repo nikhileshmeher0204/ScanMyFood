@@ -1,3 +1,5 @@
+import 'package:read_the_label/models/quantity.dart';
+
 class ProductAnalysisResponse {
   final ProductInfo product;
   final NutritionAnalysis nutritionAnalysis;
@@ -30,11 +32,13 @@ class ProductInfo {
 }
 
 class NutritionAnalysis {
-  final String servingSize;
+  final Quantity totalQuantity;
+  final Quantity servingSize;
   final List<Nutrient> nutrients;
   final List<PrimaryConcern> primaryConcerns;
 
   NutritionAnalysis({
+    required this.totalQuantity,
     required this.servingSize,
     required this.nutrients,
     required this.primaryConcerns,
@@ -42,7 +46,12 @@ class NutritionAnalysis {
 
   factory NutritionAnalysis.fromJson(Map<String, dynamic> json) {
     return NutritionAnalysis(
-      servingSize: json['serving_size'] ?? 'Unknown',
+      totalQuantity: json['total_quantity'] != null
+          ? Quantity.fromJson(json['total_quantity'])
+          : Quantity(value: 0, unit: 'g'),
+      servingSize: json['serving_size'] != null
+          ? Quantity.fromJson(json['serving_size'])
+          : Quantity(value: 0, unit: 'g'),
       nutrients: (json['nutrients'] as List?)
               ?.map((n) => Nutrient.fromJson(n))
               .toList() ??
@@ -57,7 +66,7 @@ class NutritionAnalysis {
 
 class Nutrient {
   final String name;
-  final String quantity;
+  final Quantity quantity;
   final String dailyValue;
   final String dvStatus;
   final String goal;
@@ -75,7 +84,9 @@ class Nutrient {
   factory Nutrient.fromJson(Map<String, dynamic> json) {
     return Nutrient(
       name: json['name'] ?? 'Unknown',
-      quantity: json['quantity'] ?? '0',
+      quantity: json['quantity'] != null
+          ? Quantity.fromJson(json['quantity'])
+          : Quantity(value: 0, unit: 'g'),
       dailyValue: json['daily_value'] ?? '0',
       dvStatus: json['dv_status'] ?? '',
       goal: json['goal'] ?? 'At least',

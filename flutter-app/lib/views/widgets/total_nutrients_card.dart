@@ -1,12 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
-import 'package:read_the_label/models/food_analysis_response.dart';
+import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/views/widgets/add_to_intake_button.dart';
 import 'package:read_the_label/views/widgets/energy_distribution_bar.dart';
-import 'package:read_the_label/views/widgets/input_picker_button.dart'
-    hide TimeSelector;
 import 'package:read_the_label/views/widgets/nutrient_tile.dart';
 import 'package:read_the_label/views/widgets/time_selector.dart';
 import 'package:read_the_label/views/widgets/quantity_selector.dart';
@@ -16,6 +16,7 @@ class TotalNutrientsCard extends StatelessWidget {
   final int numberOfFoodItems;
   final Map<String, Quantity> totalPlateNutrients;
   final List<Map<String, dynamic>> nutrientInfo;
+  final File? foodImage;
 
   const TotalNutrientsCard({
     super.key,
@@ -23,6 +24,7 @@ class TotalNutrientsCard extends StatelessWidget {
     required this.numberOfFoodItems,
     required this.totalPlateNutrients,
     required this.nutrientInfo,
+    this.foodImage,
   });
 
   @override
@@ -101,6 +103,7 @@ class TotalNutrientsCard extends StatelessWidget {
                 AddToIntakeButton(
                   mealName: mealName,
                   totalPlateNutrients: totalPlateNutrients,
+                  foodImage: foodImage,
                 ),
               ],
             ),

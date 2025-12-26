@@ -111,6 +111,7 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                           totalPlateNutrients:
                               mealAnalysisProvider.totalScannedPlateNutrients,
                           nutrientInfo: mealAnalysisProvider.nutrientInfo,
+                          foodImage: mealAnalysisProvider.foodImage,
                         ),
 
                         // Ask AI Widget

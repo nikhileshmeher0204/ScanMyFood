@@ -1,4 +1,5 @@
 import 'package:read_the_label/models/food_item.dart';
+import 'package:read_the_label/models/quantity.dart';
 
 class FoodAnalysisResponse {
   final String mealName;
@@ -36,26 +37,5 @@ class FoodAnalysisResponse {
       analyzedFoodItems: foodItems,
       totalPlateNutrients: totalNutrients,
     );
-  }
-}
-
-class Quantity {
-  final double value;
-  final String unit;
-
-  Quantity({required this.value, required this.unit});
-
-  factory Quantity.fromJson(Map<String, dynamic> json) {
-    return Quantity(
-      value: (json['value'] as num?)?.toDouble() ?? 0.0,
-      unit: json['unit'] ?? 'g',
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'value': value,
-      'unit': unit,
-    };
   }
 }

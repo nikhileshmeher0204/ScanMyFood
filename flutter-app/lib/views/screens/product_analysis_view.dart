@@ -4,20 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
-import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/screens/ask_ai_view.dart';
+import 'package:read_the_label/views/widgets/add_to_intake_button.dart';
 import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
-import 'package:read_the_label/views/widgets/input_picker_button.dart';
 import 'package:read_the_label/views/widgets/nutrient_balance_card.dart';
 import 'package:read_the_label/views/widgets/nutrient_info_shimmer.dart';
 import 'package:read_the_label/views/widgets/nutrient_tile.dart';
 import 'package:read_the_label/views/widgets/product_image_capture_buttons.dart';
 import 'package:read_the_label/views/widgets/quantity_selector.dart';
+import 'package:read_the_label/views/widgets/time_selector.dart';
+
 import 'package:rive/rive.dart' as rive;
 
 class ProductAnalysisView extends StatefulWidget {
@@ -161,14 +162,14 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                             children: productAnalysisProvider
                                 .getOptimalNutrients()
                                 .map((nutrient) => NutrientTile(
-                                      nutrient: nutrient['name'],
-                                      dvStatus: nutrient['dv_status'],
-                                      goal: nutrient['goal'],
-                                      healthSign: nutrient['health_impact'],
-                                      quantity: nutrient['quantity'],
-                                      insight:
-                                          nutrientInsights[nutrient['name']],
-                                      dailyValue: nutrient['daily_value'],
+                                      nutrient: nutrient.name,
+                                      dvStatus: nutrient.dvStatus,
+                                      goal: nutrient.goal,
+                                      healthSign: nutrient.healthImpact,
+                                      dailyValue: nutrient.dailyValue,
+                                      quantity:
+                                          "${nutrient.quantity.value} ${nutrient.quantity.unit}",
+                                      insight: nutrientInsights[nutrient.name],
                                     ))
                                 .toList(),
                           ),
@@ -199,14 +200,14 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                             children: productAnalysisProvider
                                 .getModerateNutrients()
                                 .map((nutrient) => NutrientTile(
-                                      nutrient: nutrient['name'],
-                                      dvStatus: nutrient['dv_status'],
-                                      goal: nutrient['goal'],
-                                      healthSign: nutrient['health_impact'],
-                                      quantity: nutrient['quantity'],
-                                      insight:
-                                          nutrientInsights[nutrient['name']],
-                                      dailyValue: nutrient['daily_value'],
+                                      nutrient: nutrient.name,
+                                      dvStatus: nutrient.dvStatus,
+                                      goal: nutrient.goal,
+                                      healthSign: nutrient.healthImpact,
+                                      dailyValue: nutrient.dailyValue,
+                                      quantity:
+                                          "${nutrient.quantity.value} ${nutrient.quantity.unit}",
+                                      insight: nutrientInsights[nutrient.name],
                                     ))
                                 .toList(),
                           ),
@@ -237,14 +238,14 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                             children: productAnalysisProvider
                                 .getWatchOutNutrients()
                                 .map((nutrient) => NutrientTile(
-                                      nutrient: nutrient['name'],
-                                      dvStatus: nutrient['dv_status'],
-                                      goal: nutrient['goal'],
-                                      healthSign: nutrient['health_impact'],
-                                      quantity: nutrient['quantity'],
-                                      insight:
-                                          nutrientInsights[nutrient['name']],
-                                      dailyValue: nutrient['daily_value'],
+                                      nutrient: nutrient.name,
+                                      dvStatus: nutrient.dvStatus,
+                                      goal: nutrient.goal,
+                                      healthSign: nutrient.healthImpact,
+                                      dailyValue: nutrient.dailyValue,
+                                      quantity:
+                                          "${nutrient.quantity.value} ${nutrient.quantity.unit}",
+                                      insight: nutrientInsights[nutrient.name],
                                     ))
                                 .toList(),
                           ),
@@ -282,279 +283,22 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                 ),
               if (productAnalysisProvider.primaryConcerns.isNotEmpty)
                 ...productAnalysisProvider.primaryConcerns.map(
-                  (concern) => NutrientBalanceCard(
-                    issue: concern['issue'] ?? '',
-                    explanation: concern['explanation'] ?? '',
-                    recommendations: (concern['recommendations']
-                        as List<Map<String, dynamic>>),
-                  ),
+                  (concern) => NutrientBalanceCard(concern: concern),
                 ),
 
               if (uiProvider.servingSize > 0)
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
+                    spacing: 16,
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            "Serving Size: ${uiProvider.servingSize.round()} g",
-                            style: AppTextStyles.bodyLargeBold,
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.edit,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall!
-                                    .color,
-                                size: 20),
-                            onPressed: () {
-                              // Show edit dialog
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  backgroundColor: Theme.of(context)
-                                      .colorScheme
-                                      .cardBackground,
-                                  title: Text('Edit Serving Size',
-                                      style: TextStyle(
-                                          color: Theme.of(context)
-                                              .textTheme
-                                              .titleLarge!
-                                              .color,
-                                          fontFamily: 'Inter')),
-                                  content: TextField(
-                                    keyboardType: TextInputType.number,
-                                    style: TextStyle(
-                                        color: Theme.of(context)
-                                            .textTheme
-                                            .titleLarge!
-                                            .color),
-                                    decoration: InputDecoration(
-                                      hintText: 'Enter serving size in grams',
-                                      hintStyle: TextStyle(
-                                          color: Theme.of(context)
-                                              .textTheme
-                                              .titleLarge!
-                                              .color,
-                                          fontFamily: 'Inter'),
-                                    ),
-                                    onChanged: (value) {
-                                      context
-                                          .read<UiViewModel>()
-                                          .updateServingSize(
-                                              double.tryParse(value) ?? 0.0);
-                                    },
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      child: Text('OK',
-                                          style: TextStyle(
-                                              fontFamily: 'Inter',
-                                              color: Theme.of(context)
-                                                  .textTheme
-                                                  .titleMedium!
-                                                  .color)),
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "How much did you consume?",
-                          style: AppTextStyles.bodyLargeBold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Add the TimeSelector widget
                       const TimeSelector(),
-                      const SizedBox(height: 16),
-
-                      // Add the QuantitySelector widget
                       const QuantitySelector(),
-                      const SizedBox(height: 16),
-                      Selector<UiViewModel, double>(
-                        selector: (context, uiViewModel) =>
-                            uiViewModel.portionMultiplier,
-                        builder: (context, portionMultiplier, child) {
-                          return ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: portionMultiplier == 0
-                                  ? Colors.grey
-                                  : AppColors.primaryWhite,
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.onSurface,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 16,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 2,
-                              minimumSize: const Size(200, 50),
-                            ),
-                            onPressed: () {
-                              if (portionMultiplier == 0) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        'Please select your consumption quantity to continue'),
-                                  ),
-                                );
-                              } else {
-                                // Calculate consumed amount using portion multiplier
-                                double consumedAmount =
-                                    uiProvider.servingSize * portionMultiplier;
-
-                                dailyIntakeProvider.addToDailyIntake(
-                                  source: 'label',
-                                  productName:
-                                      productAnalysisProvider.productName,
-                                  nutrients:
-                                      productAnalysisProvider.parsedNutrients,
-                                  servingSize: uiProvider.servingSize,
-                                  consumedAmount: consumedAmount,
-                                  imageFile: productAnalysisProvider.frontImage,
-                                );
-                                uiProvider.updateCurrentIndex(2);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content:
-                                        const Text('Added to today\'s intake!'),
-                                    action: SnackBarAction(
-                                      label: 'VIEW',
-                                      onPressed: () {
-                                        Provider.of<UiViewModel>(context,
-                                                listen: false)
-                                            .updateCurrentIndex(2);
-                                      },
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.add_circle_outline,
-                                      size: 20,
-                                      color: AppColors.primaryBlack,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text("Add to today's intake",
-                                        style: AppTextStyles.buttonTextBlack),
-                                  ],
-                                ),
-                                Text(
-                                  "${(uiProvider.servingSize * portionMultiplier).toStringAsFixed(0)} grams, ${(productAnalysisProvider.getCalories() * portionMultiplier).toStringAsFixed(0)} calories",
-                                  style: AppTextStyles.buttonSubTextBlack,
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                      AddToIntakeButton(
+                        mealName: productAnalysisProvider.productName,
+                        totalPlateNutrients: productAnalysisProvider.nutrients,
+                        foodImage: productAnalysisProvider.frontImage,
                       ),
-                    ],
-                  ),
-                ),
-
-              if (uiProvider.servingSize == 0 &&
-                  productAnalysisProvider.parsedNutrients.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      const Text(
-                        'Serving size not found, please enter it manually',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                      TextField(
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          uiProvider
-                              .updateSliderValue(double.tryParse(value) ?? 0.0);
-                        },
-                        decoration: const InputDecoration(
-                            hintText: "Enter serving size in grams or ml",
-                            hintStyle: TextStyle(color: Colors.white54)),
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      if (uiProvider.servingSize > 0)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Slider(
-                              value: uiProvider.sliderValue,
-                              min: 0,
-                              max: uiProvider.servingSize,
-                              onChanged: (newValue) {
-                                uiProvider.updateSliderValue(newValue);
-                              }),
-                        ),
-                      if (uiProvider.servingSize > 0)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            "Serving Size: ${uiProvider.servingSize.round()} g",
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontFamily: 'Inter'),
-                          ),
-                        ),
-                      if (uiProvider.servingSize > 0)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Builder(
-                            builder: (context) {
-                              return ElevatedButton(
-                                  style: ButtonStyle(
-                                      backgroundColor: WidgetStateProperty.all(
-                                          Colors.white10)),
-                                  onPressed: () {
-                                    dailyIntakeProvider.addToDailyIntake(
-                                      source: 'label',
-                                      productName:
-                                          productAnalysisProvider.productName,
-                                      nutrients: productAnalysisProvider
-                                          .parsedNutrients,
-                                      servingSize: uiProvider.servingSize,
-                                      consumedAmount: uiProvider.sliderValue,
-                                      imageFile:
-                                          productAnalysisProvider.frontImage,
-                                    );
-                                    uiProvider.updateCurrentIndex(2);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: const Text(
-                                            'Added to today\'s intake!',
-                                            style:
-                                                TextStyle(fontFamily: 'Inter')),
-                                        action: SnackBarAction(
-                                          label: 'SHOW',
-                                          onPressed: () {
-                                            uiProvider.updateCurrentIndex(1);
-                                          },
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: const Text("Add to today's intake",
-                                      style: TextStyle(fontFamily: 'Inter')));
-                            },
-                          ),
-                        ),
                     ],
                   ),
                 ),

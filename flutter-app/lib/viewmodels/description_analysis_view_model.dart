@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
-import 'package:read_the_label/models/food_item.dart' hide Quantity;
+import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
+import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';

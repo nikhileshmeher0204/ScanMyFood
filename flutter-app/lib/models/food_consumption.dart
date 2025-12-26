@@ -1,3 +1,5 @@
+import 'package:read_the_label/models/quantity.dart';
+
 class FoodConsumption {
   final String foodName;
   final DateTime dateTime;

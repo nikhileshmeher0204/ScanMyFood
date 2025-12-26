@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:read_the_label/models/product_analysis_response.dart';
 
 class NutrientBalanceCard extends StatelessWidget {
-  final String issue;
-  final String explanation;
-  final List<Map<String, dynamic>> recommendations;
+  final PrimaryConcern concern;
 
   const NutrientBalanceCard({
     super.key,
-    required this.issue,
-    required this.explanation,
-    required this.recommendations,
+    required this.concern,
   });
 
   @override
@@ -44,7 +41,7 @@ class NutrientBalanceCard extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                issue,
+                concern.issue,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 16,
@@ -62,7 +59,7 @@ class NutrientBalanceCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  explanation,
+                  concern.explanation,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 14,
@@ -81,10 +78,10 @@ class NutrientBalanceCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                ...recommendations.map((rec) => _RecommendationItem(
-                      food: rec['food'] ?? '',
-                      quantity: rec['quantity'] ?? '',
-                      reasoning: rec['reasoning'] ?? '',
+                ...concern.recommendations.map((rec) => _RecommendationItem(
+                      food: rec.food,
+                      quantity: rec.quantity,
+                      reasoning: rec.reasoning,
                     )),
               ],
             ),
