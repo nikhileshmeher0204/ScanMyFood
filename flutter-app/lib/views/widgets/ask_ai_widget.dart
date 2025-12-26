@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:read_the_label/theme/app_theme.dart';
 
 class AskAiWidget extends StatefulWidget {
   const AskAiWidget({super.key});

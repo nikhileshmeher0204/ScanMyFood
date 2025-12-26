@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/models/food_consumption.dart';
+import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/repositories/storage_repository_interface.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'base_view_model.dart';
@@ -244,17 +245,18 @@ class DailyIntakeViewModel extends BaseViewModel {
 // Add this new method
   Future<void> addMealToDailyIntake({
     required String mealName,
-    required Map<String, dynamic> totalPlateNutrients,
+    required Map<String, Quantity> totalPlateNutrients,
     required File? foodImage,
   }) async {
     try {
-      // Convert meal nutrients to the format needed for daily intake
       Map<String, double> newNutrients = {
-        'Energy': (totalPlateNutrients['calories'] ?? 0).toDouble(),
-        'Protein': (totalPlateNutrients['protein'] ?? 0).toDouble(),
-        'Carbohydrate': (totalPlateNutrients['carbohydrates'] ?? 0).toDouble(),
-        'Fat': (totalPlateNutrients['fat'] ?? 0).toDouble(),
-        'Fiber': (totalPlateNutrients['fiber'] ?? 0).toDouble(),
+        'Energy': totalPlateNutrients['Energy']?.value ?? 0.0,
+        'Protein': totalPlateNutrients['Protein']?.value ?? 0.0,
+        'Carbohydrate': totalPlateNutrients['Carbohydrate']?.value ?? 0.0,
+        'Fat': totalPlateNutrients['Fat']?.value ?? 0.0,
+        'Fiber': totalPlateNutrients['Fiber']?.value ?? 0.0,
+        'Sodium': totalPlateNutrients['Sodium']?.value ?? 0.0,
+        'Total Sugars': totalPlateNutrients['sugar']?.value ?? 0.0,
       };
 
       // Process and save the image

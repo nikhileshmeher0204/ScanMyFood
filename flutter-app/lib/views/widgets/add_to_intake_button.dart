@@ -1,18 +1,22 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
-import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class AddToIntakeButton extends StatelessWidget {
   final String mealName;
-  final Map<String, dynamic> totalPlateNutrients;
+  final Map<String, Quantity> totalPlateNutrients;
+  final File? foodImage;
 
   const AddToIntakeButton({
     super.key,
     required this.mealName,
     required this.totalPlateNutrients,
+    required this.foodImage,
   });
 
   @override
@@ -20,7 +24,6 @@ class AddToIntakeButton extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: () {
         final uiProvider = context.read<UiViewModel>();
-        final mealAnalysisProvider = context.read<MealAnalysisViewModel>();
         final dailyIntakeProvider = context.read<DailyIntakeViewModel>();
 
         final adjustedNutrients =
@@ -32,7 +35,7 @@ class AddToIntakeButton extends StatelessWidget {
         dailyIntakeProvider.addMealToDailyIntake(
           mealName: mealName,
           totalPlateNutrients: adjustedNutrients,
-          foodImage: mealAnalysisProvider.foodImage,
+          foodImage: foodImage,
         );
 
         uiProvider.updateCurrentIndex(2);

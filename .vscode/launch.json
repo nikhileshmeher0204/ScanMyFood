@@ -19,13 +19,6 @@
             "program": "flutter-app/lib/main.dart"
         },
         {
-            "name": "read_the_label (profile mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile",
-            "program": "flutter-app/lib/main.dart"
-        },
-        {
             "name": "read_the_label (release mode)",
             "request": "launch",
             "type": "dart",

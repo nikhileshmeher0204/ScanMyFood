@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:read_the_label/models/product_analysis_response.dart';
+import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
@@ -9,15 +11,18 @@ class ProductAnalysisViewModel extends BaseViewModel {
   File? _frontImage;
   File? _nutritionLabelImage;
   String _productName = "";
-  Map<String, dynamic> _nutritionAnalysis = {};
-  List<Map<String, dynamic>> parsedNutrients = [];
-  List<Map<String, dynamic>> optimalNutrients = [];
-  List<Map<String, dynamic>> moderateNutrients = [];
-  List<Map<String, dynamic>> watchOutNutrients = [];
-  List<Map<String, dynamic>> _primaryConcerns = [];
+  Quantity _totalQuantity = Quantity(value: 0, unit: 'g');
+  Quantity _servingSize = Quantity(value: 0, unit: 'g');
+  NutritionAnalysis? _nutritionAnalysis;
+  List<Nutrient> allNutrients = [];
+  Map<String, Quantity> _nutrients = {};
+  List<Nutrient> optimalNutrients = [];
+  List<Nutrient> moderateNutrients = [];
+  List<Nutrient> watchOutNutrients = [];
+  List<PrimaryConcern> _primaryConcerns = [];
   Map<String, dynamic> totalPlateNutrients = {};
 
-// Dependencies
+  // Dependencies
   SpringBackendRepository aiRepository;
   UiViewModel uiProvider;
 
@@ -30,12 +35,15 @@ class ProductAnalysisViewModel extends BaseViewModel {
   File? get frontImage => _frontImage;
   File? get nutritionLabelImage => _nutritionLabelImage;
   String get productName => _productName;
-  Map<String, dynamic> get nutritionAnalysis => _nutritionAnalysis;
+  Quantity get totalQuantity => _totalQuantity;
+  Quantity get servingSize => _servingSize;
+  NutritionAnalysis? get nutritionAnalysis => _nutritionAnalysis;
   bool canAnalyze() => _frontImage != null && _nutritionLabelImage != null;
-  List<Map<String, dynamic>> getOptimalNutrients() => optimalNutrients;
-  List<Map<String, dynamic>> getModerateNutrients() => moderateNutrients;
-  List<Map<String, dynamic>> getWatchOutNutrients() => watchOutNutrients;
-  List<Map<String, dynamic>> get primaryConcerns => _primaryConcerns;
+  Map<String, Quantity> get nutrients => _nutrients;
+  List<Nutrient> getOptimalNutrients() => optimalNutrients;
+  List<Nutrient> getModerateNutrients() => moderateNutrients;
+  List<Nutrient> getWatchOutNutrients() => watchOutNutrients;
+  List<PrimaryConcern> get primaryConcerns => _primaryConcerns;
 
   // Methods for product analysis
   Future<void> captureImage({
@@ -55,85 +63,44 @@ class ProductAnalysisViewModel extends BaseViewModel {
     }
   }
 
-  double getCalories() {
-    var energyNutrient = parsedNutrients.firstWhere(
-      (nutrient) => nutrient['name'] == 'Energy',
-      orElse: () => {'quantity': '0.0'},
-    );
-    // Parse the quantity string to remove any non-numeric characters except decimal points
-    var quantity = energyNutrient['quantity']
-        .toString()
-        .replaceAll(RegExp(r'[^0-9\.]'), '');
-    return double.tryParse(quantity) ?? 0.0;
-  }
-
-  Future<String> analyzeImages() async {
+  Future<void> analyzeImages() async {
     uiProvider.setLoading(true);
 
     try {
       // Use the repository to get structured response
-      final response = await aiRepository.analyzeProductImages(
-          _frontImage!, _nutritionLabelImage!);
+      final ProductAnalysisResponse response = await aiRepository
+          .analyzeProductImages(_frontImage!, _nutritionLabelImage!);
 
-      // Process response (much simpler now!)
       _productName = response.product.name;
+      _totalQuantity = response.nutritionAnalysis.totalQuantity;
+      _servingSize = response.nutritionAnalysis.servingSize;
 
-      _nutritionAnalysis = {};
+      _nutritionAnalysis = null;
       // Process nutrients
-      parsedNutrients = [];
+      allNutrients = [];
       optimalNutrients = [];
       moderateNutrients = [];
       watchOutNutrients = [];
       _primaryConcerns = []; // Clear primary concerns
 
-      for (var nutrient in response.nutritionAnalysis.nutrients) {
-        final nutrientMap = {
-          'name': nutrient.name,
-          'quantity': nutrient.quantity,
-          'daily_value': nutrient.dailyValue,
-          'dv_status': nutrient.dvStatus,
-          'goal': nutrient.goal,
-          'health_impact': nutrient.healthImpact,
-        };
-        parsedNutrients.add(nutrientMap);
-
+      for (Nutrient nutrient in response.nutritionAnalysis.nutrients) {
+        allNutrients.add(nutrient);
+        _nutrients[nutrient.name] = nutrient.quantity;
         if (nutrient.healthImpact == "Good") {
-          optimalNutrients.add(nutrientMap);
+          optimalNutrients.add(nutrient);
         } else if (nutrient.healthImpact == "Moderate") {
-          moderateNutrients.add(nutrientMap);
+          moderateNutrients.add(nutrient);
         } else {
-          watchOutNutrients.add(nutrientMap);
+          watchOutNutrients.add(nutrient);
         }
       }
 
-      // Process primary concerns
-      if (response.nutritionAnalysis.primaryConcerns.isNotEmpty) {
-        for (var concern in response.nutritionAnalysis.primaryConcerns) {
-          final recommendationsList = concern.recommendations
-              .map((rec) => {
-                    'food': rec.food,
-                    'quantity': rec.quantity,
-                    'reasoning': rec.reasoning,
-                  })
-              .toList();
+      _primaryConcerns.addAll(response.nutritionAnalysis.primaryConcerns);
 
-          _primaryConcerns.add({
-            'issue': concern.issue,
-            'explanation': concern.explanation,
-            'recommendations': recommendationsList,
-          });
-        }
-      }
-
-      // Handle serving size
-      final servingSizeStr = response.nutritionAnalysis.servingSize;
-      final servingSizeNum =
-          double.tryParse(servingSizeStr.replaceAll(RegExp(r'[^0-9\.]'), '')) ??
-              0.0;
-
-      if (servingSizeNum > 0) {
-        print("Setting serving size to: $servingSizeNum");
-        uiProvider.updateServingSize(servingSizeNum);
+      if (_servingSize.value > 0) {
+        print(
+            "Setting serving size to: ${_servingSize.value} ${_servingSize.unit}");
+        uiProvider.updateServingSize(_servingSize.value);
       }
 
       print("📝 Product: $_productName");
@@ -142,10 +109,8 @@ class ProductAnalysisViewModel extends BaseViewModel {
       print("⚠️ Bad nutrients: ${watchOutNutrients.length}");
 
       notifyListeners();
-      return "✅Product Analysis complete";
     } catch (e) {
       print("❌ Error analyzing images: $e");
-      return "Error: $e";
     } finally {
       uiProvider.setLoading(false);
     }

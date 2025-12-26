@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class EnergyDistributionBar extends StatelessWidget {
-  final Map<String, dynamic> originalNutrients;
+  final Map<String, Quantity> originalNutrients;
 
   const EnergyDistributionBar({
     super.key,
@@ -14,9 +15,9 @@ class EnergyDistributionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final protein = originalNutrients['protein'] ?? 0.0;
-    final carbs = originalNutrients['carbohydrates'] ?? 0.0;
-    final fat = originalNutrients['fat'] ?? 0.0;
+    final protein = originalNutrients['protein']?.value ?? 0.0;
+    final carbs = originalNutrients['carbohydrates']?.value ?? 0.0;
+    final fat = originalNutrients['fat']?.value ?? 0.0;
 
     // Calculate calories from each macronutrient
     final proteinCals = protein * 4;
@@ -49,6 +50,12 @@ class EnergyDistributionBar extends StatelessWidget {
                   Provider.of<UiViewModel>(context, listen: false);
               final adjustedNutrients =
                   uiViewModel.calculateAdjustedNutrients(originalNutrients);
+
+              // Safe access to calories value with null checks
+              final caloriesQuantity =
+                  adjustedNutrients['calories']?.value ?? 0.0;
+              final caloriesValue = caloriesQuantity;
+
               return RichText(
                 text: TextSpan(
                   children: [
@@ -57,8 +64,7 @@ class EnergyDistributionBar extends StatelessWidget {
                       style: AppTextStyles.bodyLargeBold,
                     ),
                     TextSpan(
-                      text:
-                          '${adjustedNutrients['calories']?.toStringAsFixed(0) ?? '0'} ',
+                      text: '${caloriesValue.toStringAsFixed(0)} ',
                       style: AppTextStyles.bodyLargeBold,
                     ),
                     TextSpan(

@@ -53,13 +53,14 @@ public class VertexAiServiceImpl implements AiService {
             "category": "Food category (e.g., snack, beverage, etc.)"
           },
           "nutrition_analysis": {
-            "serving_size": "Serving size with unit",
+            "total_quantity": {"value": 0, "unit": "unit in packet"},
+            "serving_size": {"value": 0, "unit": "unit in packet"},
             "nutrients": [
               {
                 "name": "Nutrient name",
-                "quantity": "Quantity with unit",
-                "daily_value": "daily value percentage without %% symbol",
-                "dv_status": "High/Moderate/Low based on DV%%",
+                "quantity": {"value": "Quantity of nutrient in per serving of food product", "unit": "unit in packet"},
+                "daily_value": "daily value percentage without %% symbol in per serving of food product",
+                "dv_status": "High/Moderate/Low based on calculated DV%%",
                 "goal": "Goal of consumption of a nutrient can be - 'At least' or 'Less than' based on recommended DV%%",
                 "health_impact": "Good/Moderate/Bad"
               }
@@ -147,7 +148,7 @@ public class VertexAiServiceImpl implements AiService {
                         "unit": "g",
                       },
                       "nutrients_per_100g": {
-                        "calories": 0,
+                        "calories": {"value": 0, "unit": "kcal"},
                         "protein": {"value": 0, "unit": "g"},
                         "carbohydrates": {"value": 0, "unit": "g"},
                         "fat": {"value": 0, "unit": "g"},
@@ -156,7 +157,7 @@ public class VertexAiServiceImpl implements AiService {
                         "sodium": {"value": 0, "unit": "mg"},
                       },
                       "total_nutrients": {
-                        "calories": 0,
+                        "calories": {"value": 0, "unit": "kcal"},
                         "protein": {"value": 0, "unit": "g"},
                         "carbohydrates": {"value": 0, "unit": "g"},
                         "fat": {"value": 0, "unit": "g"},
@@ -169,7 +170,7 @@ public class VertexAiServiceImpl implements AiService {
                     }
                   ],
                   "total_plate_nutrients": {
-                    "calories": 0,
+                    "calories": {"value": 0, "unit": "kcal"},
                     "protein": {"value": 0, "unit": "g"},
                     "carbohydrates": {"value": 0, "unit": "g"},
                     "fat": {"value": 0, "unit": "g"},
@@ -231,7 +232,7 @@ public class VertexAiServiceImpl implements AiService {
                     "unit": "g",
                   },
                   "nutrients_per_100g": {
-                    "calories": 0,
+                    "calories": {"value": 0, "unit": "kcal"},
                     "protein": {"value": 0, "unit": "g"},
                     "carbohydrates": {"value": 0, "unit": "g"},
                     "fat": {"value": 0, "unit": "g"},
@@ -240,7 +241,7 @@ public class VertexAiServiceImpl implements AiService {
                     "sodium": {"value": 0, "unit": "mg"},
                   },
                   "nutrients_in_mentioned_quantity": {
-                    "calories": 0,
+                    "calories": {"value": 0, "unit": "kcal"},
                     "protein": {"value": 0, "unit": "g"},
                     "carbohydrates": {"value": 0, "unit": "g"},
                     "fat": {"value": 0, "unit": "g"},
@@ -251,7 +252,7 @@ public class VertexAiServiceImpl implements AiService {
                 }
               ],
               "total_nutrients": {
-                "calories": 0,
+                "calories": {"value": 0, "unit": "kcal"},
                 "protein": {"value": 0, "unit": "g"},
                 "carbohydrates": {"value": 0, "unit": "g"},
                 "fat": {"value": 0, "unit": "g"},

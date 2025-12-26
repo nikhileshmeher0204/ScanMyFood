@@ -1,6 +1,7 @@
 package com.scanmyfood.backend.models;
 
 import lombok.Data;
+
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,12 @@ import java.util.Map;
 public class FoodAnalysisResponse {
     private String mealName;
     private List<FoodItem> analyzedFoodItems;
-    private Map<String, Object> totalPlateNutrients;
+    private Map<String, Quantity> totalPlateNutrients;
+
+    @Data
+    public static class Quantity {
+        private double value;
+        private String unit;
+    }
 }
 
