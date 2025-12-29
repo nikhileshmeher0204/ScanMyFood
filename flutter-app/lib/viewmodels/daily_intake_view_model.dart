@@ -250,12 +250,12 @@ class DailyIntakeViewModel extends BaseViewModel {
   }) async {
     try {
       Map<String, double> newNutrients = {
-        'Energy': totalPlateNutrients['Energy']?.value ?? 0.0,
-        'Protein': totalPlateNutrients['Protein']?.value ?? 0.0,
-        'Carbohydrate': totalPlateNutrients['Carbohydrate']?.value ?? 0.0,
-        'Fat': totalPlateNutrients['Fat']?.value ?? 0.0,
-        'Fiber': totalPlateNutrients['Fiber']?.value ?? 0.0,
-        'Sodium': totalPlateNutrients['Sodium']?.value ?? 0.0,
+        'Energy': totalPlateNutrients['calories']?.value ?? 0.0,
+        'Protein': totalPlateNutrients['protein']?.value ?? 0.0,
+        'Carbohydrate': totalPlateNutrients['carbohydrate']?.value ?? 0.0,
+        'Fat': totalPlateNutrients['fat']?.value ?? 0.0,
+        'Fiber': totalPlateNutrients['fiber']?.value ?? 0.0,
+        'Sodium': totalPlateNutrients['sodium']?.value ?? 0.0,
         'Total Sugars': totalPlateNutrients['sugar']?.value ?? 0.0,
       };
 
