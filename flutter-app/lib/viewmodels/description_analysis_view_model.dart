@@ -4,6 +4,7 @@ import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
+import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
@@ -20,11 +21,11 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
   });
 
   List<FoodItem> _analyzedFoodItems = [];
-  Map<String, Quantity> _totalPlateNutrients = {};
+  List<FoodNutrient> _totalPlateNutrients = [];
   String _mealName = "Unknown Meal";
 
   List<FoodItem> get analyzedFoodItems => _analyzedFoodItems;
-  Map<String, Quantity> get totalPlateNutrients => _totalPlateNutrients;
+  List<FoodNutrient> get totalPlateNutrients => _totalPlateNutrients;
   String get mealName => _mealName;
   List<Map<String, dynamic>> _nutrientInfo = [];
   List<Map<String, dynamic>> get nutrientInfo => _nutrientInfo;
@@ -49,14 +50,6 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
       _analyzedFoodItems = response.analyzedFoodItems;
       _totalPlateNutrients = response.totalPlateNutrients;
       calculateNutrientInfo(_totalPlateNutrients);
-
-      debugPrint("Total Plate Nutrients:");
-      debugPrint("Calories: ${_totalPlateNutrients['calories']}");
-      debugPrint("Protein: ${_totalPlateNutrients['protein']}");
-      debugPrint("Carbohydrates: ${_totalPlateNutrients['carbohydrates']}");
-      debugPrint("Fat: ${_totalPlateNutrients['fat']}");
-      debugPrint("Fiber: ${_totalPlateNutrients['fiber']}");
-
       notifyListeners();
     } catch (e) {
       debugPrint("Error analyzing food description: $e");
@@ -66,7 +59,7 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
     }
   }
 
-  void calculateNutrientInfo(Map<String, dynamic> _totalScannedPlateNutrients) {
+  void calculateNutrientInfo(List<FoodNutrient> _totalScannedPlateNutrients) {
     logger.i("=== Starting calculateNutrientInfo ===");
     logger.i("Input nutrients: $_totalScannedPlateNutrients");
 
@@ -86,15 +79,17 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
     };
 
     // Perform calculations on the totalPlateNutrients
-    _totalScannedPlateNutrients.forEach((key, value) {
-      logger.i("Processing nutrient: $key with value: $value");
+    _totalScannedPlateNutrients.forEach((nutrient) {
+      logger.i(
+          "Processing nutrient: ${nutrient.name} with value: ${nutrient.quantity}");
 
       String dvStatus = '';
       String goal = '';
       String healthImpact = '';
 
       // Get the proper nutrient name for insights lookup
-      String nutrientName = keyMapping[key.toLowerCase()] ?? key;
+      String nutrientName =
+          keyMapping[nutrient.name.toLowerCase()] ?? nutrient.name;
       logger.i("Mapped nutrient name: $nutrientName");
 
       // Find the matching nutrient data
@@ -119,13 +114,13 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
             "Current DV: $currentDV, 5%DV: $fivePercentDV, 20%DV: $twentyPercentDV");
 
         // Calculate daily value percentage
-        double dailyValuePercent = (value / currentDV) * 100;
+        double dailyValuePercent = (nutrient.quantity.value / currentDV) * 100;
         logger.i("Calculated DV%: $dailyValuePercent");
 
         // Determine DV status
-        if (value < fivePercentDV) {
+        if (nutrient.quantity.value < fivePercentDV) {
           dvStatus = 'Low';
-        } else if (value > twentyPercentDV) {
+        } else if (nutrient.quantity.value > twentyPercentDV) {
           dvStatus = 'High';
         } else {
           dvStatus = 'Moderate';
@@ -148,7 +143,7 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
         var nutrientInfoItem = {
           'name': nutrientName,
           'quantity':
-              '${value.toStringAsFixed(1)}${matchingNutrient['Unit'] ?? ''}',
+              '${nutrient.quantity.value.toStringAsFixed(1)}${matchingNutrient['Unit'] ?? ''}',
           'dv_status': dvStatus,
           'insight': nutrientInsights[nutrientName],
           'goal': goal,

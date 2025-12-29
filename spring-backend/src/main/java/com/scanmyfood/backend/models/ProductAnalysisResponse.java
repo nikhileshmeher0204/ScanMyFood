@@ -46,10 +46,4 @@ public class ProductAnalysisResponse {
         private String quantity;
         private String reasoning;
     }
-
-    @Data
-    public static class Quantity {
-        private double value;
-        private String unit;
-    }
 }

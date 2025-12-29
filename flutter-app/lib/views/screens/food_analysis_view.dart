@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/views/screens/ask_ai_view.dart';
@@ -103,8 +104,9 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                                   index: entry.key,
                                 )),
 
-                        // Total Nutrients Card - Won't rebuild when UiViewModel changes
                         TotalNutrientsCard(
+                          source: AppConstants.scanMeal,
+                          foodAnalysis: mealAnalysisProvider.foodAnalysis,
                           mealName: mealAnalysisProvider.scannedMealName,
                           numberOfFoodItems: mealAnalysisProvider
                               .analyzedScannedFoodItems.length,
@@ -114,7 +116,6 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                           foodImage: mealAnalysisProvider.foodImage,
                         ),
 
-                        // Ask AI Widget
                         InkWell(
                           onTap: () {
                             print("Tap detected!");

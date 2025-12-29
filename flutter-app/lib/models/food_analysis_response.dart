@@ -1,10 +1,10 @@
 import 'package:read_the_label/models/food_item.dart';
-import 'package:read_the_label/models/quantity.dart';
+import 'package:read_the_label/models/food_nutrient.dart';
 
 class FoodAnalysisResponse {
   final String mealName;
   final List<FoodItem> analyzedFoodItems;
-  final Map<String, Quantity> totalPlateNutrients;
+  List<FoodNutrient> totalPlateNutrients;
 
   FoodAnalysisResponse({
     required this.mealName,
@@ -15,21 +15,17 @@ class FoodAnalysisResponse {
   factory FoodAnalysisResponse.fromJson(Map<String, dynamic> json) {
     String mealName = json['meal_name'] ?? 'Unknown Meal';
     List<FoodItem> foodItems = [];
-    Map<String, Quantity> totalNutrients = {};
+    List<FoodNutrient> totalNutrients = [];
 
     final items = json['analyzed_food_items'] ?? [];
     if (items is List) {
       foodItems = items.map((item) => FoodItem.fromJson(item)).toList();
     }
 
-    final plateNutrientsJson = json['total_plate_nutrients'];
-    if (plateNutrientsJson != null &&
-        plateNutrientsJson is Map<String, dynamic>) {
-      plateNutrientsJson.forEach((key, value) {
-        if (value is Map<String, dynamic>) {
-          totalNutrients[key] = Quantity.fromJson(value);
-        }
-      });
+    final nutrientItems = json['total_plate_nutrients'] ?? [];
+    if (nutrientItems is List) {
+      totalNutrients =
+          nutrientItems.map((item) => FoodNutrient.fromJson(item)).toList();
     }
 
     return FoodAnalysisResponse(
@@ -37,5 +33,15 @@ class FoodAnalysisResponse {
       analyzedFoodItems: foodItems,
       totalPlateNutrients: totalNutrients,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'meal_name': mealName,
+      'analyzed_food_items':
+          analyzedFoodItems.map((item) => item.toJson()).toList(),
+      'total_plate_nutrients':
+          totalPlateNutrients.map((nutrient) => nutrient.toJson()).toList(),
+    };
   }
 }

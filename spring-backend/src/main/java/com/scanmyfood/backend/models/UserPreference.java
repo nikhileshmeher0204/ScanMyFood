@@ -11,11 +11,10 @@ import lombok.Setter;
 @Table(name = "user_preferences")
 public class UserPreference {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String firebaseUid;
 
     @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "firebase_uid", referencedColumnName = "firebaseUid")
     private User user;
 
     @Enumerated(EnumType.STRING)

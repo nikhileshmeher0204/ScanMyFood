@@ -49,4 +49,13 @@ class FoodItem {
   void updateQuantity(double newQuantity) {
     quantity = Quantity(value: newQuantity, unit: quantity.unit);
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'quantity': quantity.toJson(),
+      'nutrients_per100g':
+          nutrientsPer100g.map((key, value) => MapEntry(key, value.toJson())),
+    };
+  }
 }

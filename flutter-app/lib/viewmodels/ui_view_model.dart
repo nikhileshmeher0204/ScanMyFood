@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
+import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
@@ -54,16 +55,19 @@ class UiViewModel extends BaseViewModel {
   }
 
   // Helper method to calculate adjusted nutrients
-  Map<String, Quantity> calculateAdjustedNutrients(
-      Map<String, Quantity> originalNutrients) {
-    final Map<String, Quantity> result = {};
-    originalNutrients.forEach((key, quantity) {
-      // Create new Quantity with adjusted value but same unit
-      result[key] = Quantity(
-        value: quantity.value * _portionMultiplier,
-        unit: quantity.unit,
-      );
-    });
+  List<FoodNutrient> calculateAdjustedNutrients(
+      List<FoodNutrient> originalNutrients) {
+    final List<FoodNutrient> result = [];
+    for (var nutrient in originalNutrients) {
+      // Create new FoodNutrient with adjusted value but same unit
+      result.add(FoodNutrient(
+        name: nutrient.name,
+        quantity: Quantity(
+          value: nutrient.quantity.value * _portionMultiplier,
+          unit: nutrient.quantity.unit,
+        ),
+      ));
+    }
     return result;
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/theme/app_theme.dart';
@@ -295,6 +296,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                       const TimeSelector(),
                       const QuantitySelector(),
                       AddToIntakeButton(
+                        source: AppConstants.scanLabel,
                         mealName: productAnalysisProvider.productName,
                         totalPlateNutrients: productAnalysisProvider.nutrients,
                         foodImage: productAnalysisProvider.frontImage,

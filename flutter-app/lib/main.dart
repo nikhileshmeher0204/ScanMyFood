@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:read_the_label/config/env_config.dart';
+import 'package:read_the_label/repositories/intake_repository.dart';
 import 'package:read_the_label/repositories/user_repository.dart';
 import 'package:read_the_label/utils/app_logger.dart';
 import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
@@ -130,6 +131,9 @@ class MyApp extends StatelessWidget {
       Provider<UserRepository>(
         create: (context) => UserRepository(context.read<ApiClient>()),
       ),
+      Provider<IntakeRepository>(
+        create: (context) => IntakeRepository(context.read<ApiClient>()),
+      ),
       // Register ViewModels
       ChangeNotifierProvider<OnboardingViewModel>(
         create: (_) => OnboardingViewModel(),
@@ -166,6 +170,7 @@ class MyApp extends StatelessWidget {
           DailyIntakeViewModel>(
         create: (context) => DailyIntakeViewModel(
           storageRepository: context.read<StorageRepository>(),
+          intakeRepository: context.read<IntakeRepository>(),
           uiProvider: context.read<UiViewModel>(),
         ),
         update: (context, uiViewModel, storageRepository, previous) => previous!

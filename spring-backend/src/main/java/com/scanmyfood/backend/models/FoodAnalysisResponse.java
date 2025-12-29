@@ -9,12 +9,5 @@ import java.util.Map;
 public class FoodAnalysisResponse {
     private String mealName;
     private List<FoodItem> analyzedFoodItems;
-    private Map<String, Quantity> totalPlateNutrients;
-
-    @Data
-    public static class Quantity {
-        private double value;
-        private String unit;
-    }
+    private List<FoodNutrient> totalPlateNutrients;
 }
-

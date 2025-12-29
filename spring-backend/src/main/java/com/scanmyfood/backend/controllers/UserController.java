@@ -38,7 +38,7 @@ public class UserController {
         User user = userService.findOrCreateUser(firebaseUid, email, displayName);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("userId", user.getId());
+        response.put("userId", user.getFirebaseUid());
         response.put("created", true);
         log.info("User with uid {} created successfully", firebaseUid);
         return ResponseEntity.ok(ApiResponse.success(response));
