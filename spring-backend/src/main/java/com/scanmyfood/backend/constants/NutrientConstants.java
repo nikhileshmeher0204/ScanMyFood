@@ -45,7 +45,12 @@ public class NutrientConstants {
         Zinc: 11mg (At least)
         """;
 
-    private NutrientConstants() {
-        // Utility class
-    }
+    public static final String CALORIES = "calories";
+    public static final String PROTEIN = "protein";
+    public static final String CARBOHYDRATES = "carbohydrates";
+    public static final String FAT = "fat";
+    public static final String FIBER = "fiber";
+    public static final String SUGAR = "sugar";
+    public static final String SODIUM = "sodium";
+
 }

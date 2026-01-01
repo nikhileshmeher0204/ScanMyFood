@@ -11,8 +11,8 @@ class SaveScannedFoodInput {
 
   Map<String, dynamic> toJson() {
     return {
-      'userId': userId,
-      'foodAnalysisResponse': foodAnalysisResponse.toJson(),
+      'user_id': userId,
+      'food_analysis_response': foodAnalysisResponse.toJson(),
     };
   }
 }

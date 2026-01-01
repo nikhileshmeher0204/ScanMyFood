@@ -31,14 +31,14 @@ class IntakeRepository implements IntakeRepositoryInterface {
       request.files.add(
         http.MultipartFile.fromString(
           'saveScannedFoodInput',
-          jsonEncode(saveScannedFoodInput?.toJson()),
+          jsonEncode(saveScannedFoodInput.toJson()),
           contentType: MediaType('application', 'json'),
+          filename: 'saveScannedFoodInput.json',
         ),
       );
 
       request.files
           .add(await http.MultipartFile.fromPath('foodImage', foodImage!.path));
-
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 

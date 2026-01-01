@@ -2,7 +2,9 @@ package com.scanmyfood.backend.controllers;
 
 import com.scanmyfood.backend.models.ApiResponse;
 import com.scanmyfood.backend.models.SaveScannedFoodInput;
+import com.scanmyfood.backend.services.UserIntakeService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,6 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/user/save")
 public class UserIntakeController {
+
+    @Autowired
+    UserIntakeService userIntakeService;
 
     @PostMapping("/scannedFood")
     public ResponseEntity<ApiResponse> saveScannedFood(
@@ -23,7 +28,7 @@ public class UserIntakeController {
         log.info("Food Analysis: {}", saveScannedFoodInput);
 
         //create food analysis record
-
+        userIntakeService.saveIntake(saveScannedFoodInput);
         //insert food items
 
         //map food items to food analysis record

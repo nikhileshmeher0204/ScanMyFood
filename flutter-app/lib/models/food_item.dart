@@ -5,13 +5,11 @@ class FoodItem {
   final String name;
   final Quantity quantity;
   final List<FoodNutrient> nutrients;
-  final List<FoodNutrient> nutrientsPer100g;
 
   FoodItem({
     required this.name,
     required this.quantity,
     required this.nutrients,
-    required this.nutrientsPer100g,
   });
 
   factory FoodItem.fromJson(Map<String, dynamic> json) {
@@ -25,19 +23,10 @@ class FoodItem {
           nutrientItems.map((item) => FoodNutrient.fromJson(item)).toList();
     }
 
-    List<FoodNutrient> nutrientsPer100g = [];
-    final nutrientPer100gItems = json['nutrients_per100g'] ?? [];
-    if (nutrientPer100gItems is List) {
-      nutrientsPer100g = nutrientPer100gItems
-          .map((item) => FoodNutrient.fromJson(item))
-          .toList();
-    }
-
     return FoodItem(
       name: json['name'] ?? 'Unknown',
       quantity: quantity,
       nutrients: nutrients,
-      nutrientsPer100g: nutrientsPer100g,
     );
   }
 
@@ -46,8 +35,6 @@ class FoodItem {
       'name': name,
       'quantity': quantity.toJson(),
       'nutrients': nutrients.map((nutrient) => nutrient.toJson()).toList(),
-      'nutrients_per100g':
-          nutrientsPer100g.map((nutrient) => nutrient.toJson()).toList(),
     };
   }
 }
