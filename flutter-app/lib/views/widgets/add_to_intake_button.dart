@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
-import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';

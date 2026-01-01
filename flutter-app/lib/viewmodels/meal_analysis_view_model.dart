@@ -6,7 +6,6 @@ import 'package:read_the_label/main.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
-import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
@@ -57,9 +56,9 @@ class MealAnalysisViewModel extends BaseViewModel {
     }
   }
 
-  void calculateNutrientInfo(List<FoodNutrient> _totalScannedPlateNutrients) {
+  void calculateNutrientInfo(List<FoodNutrient> totalScannedPlateNutrients) {
     logger.i("=== Starting calculateNutrientInfo ===");
-    logger.i("Input nutrients: $_totalScannedPlateNutrients");
+    logger.i("Input nutrients: $totalScannedPlateNutrients");
 
     // Clear previous data
     _nutrientInfo.clear();
@@ -77,7 +76,7 @@ class MealAnalysisViewModel extends BaseViewModel {
     };
 
     // Perform calculations on the totalPlateNutrients
-    for (FoodNutrient nutrient in _totalScannedPlateNutrients) {
+    for (FoodNutrient nutrient in totalScannedPlateNutrients) {
       logger.i(
           "Processing nutrient: ${nutrient.name} with value: ${nutrient.quantity.value} ${nutrient.quantity.unit}");
 
@@ -192,35 +191,5 @@ class MealAnalysisViewModel extends BaseViewModel {
     } finally {
       uiProvider.setLoading(false);
     }
-  }
-
-  // Update total nutrients when food items are modified
-  void updateTotalNutrients() {
-    _totalScannedPlateNutrients = [
-      FoodNutrient(
-          name: 'calories', quantity: Quantity(value: 0.0, unit: 'kcal')),
-      FoodNutrient(name: 'protein', quantity: Quantity(value: 0.0, unit: 'g')),
-      FoodNutrient(
-          name: 'carbohydrates', quantity: Quantity(value: 0.0, unit: 'g')),
-      FoodNutrient(name: 'fat', quantity: Quantity(value: 0.0, unit: 'g')),
-      FoodNutrient(name: 'fiber', quantity: Quantity(value: 0.0, unit: 'g')),
-      FoodNutrient(name: 'sugar', quantity: Quantity(value: 0.0, unit: 'g')),
-      FoodNutrient(name: 'sodium', quantity: Quantity(value: 0.0, unit: 'mg')),
-    ];
-
-    for (var item in _analyzedScannedFoodItems) {
-      var itemNutrients = item.calculateTotalNutrients();
-
-      for (var nutrient in _totalScannedPlateNutrients) {
-        double currentValue = nutrient.quantity.value;
-        double additionalValue = itemNutrients[nutrient.name] ?? 0.0;
-        nutrient.quantity = Quantity(
-          value: currentValue + additionalValue,
-          unit: nutrient.quantity.unit,
-        );
-      }
-    }
-
-    notifyListeners();
   }
 }

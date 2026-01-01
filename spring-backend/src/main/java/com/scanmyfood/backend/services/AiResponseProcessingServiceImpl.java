@@ -48,24 +48,23 @@ public class AiResponseProcessingServiceImpl implements AiResponseProcessingServ
             quantity.setUnit((String)estimatedQuantity.get("unit"));
             foodItem.setQuantity(quantity);
 
-            // Process nutrients_per_100g with Quantity objects
-            Map<String, Object> nutrientsMap = (Map<String, Object>)item.get("nutrients_per_100g");
-            Map<String, Quantity> nutrients = new HashMap<>();
+            // Process nutrients_in_mentioned_quantity
+            Map<String, Object> nutrientsMap = (Map<String, Object>) item.get("nutrients_in_estimated_quantity");
+            List<FoodNutrient> nutrients = new ArrayList<>();
 
-            nutrientsMap.forEach((key, value) -> {
-                Quantity nutrientQuantity = new Quantity();
-                if (value instanceof Number) {
-                    nutrientQuantity.setValue(((Number) value).doubleValue());
-                    nutrientQuantity.setUnit(getNutrientUnit(key)); // Helper method for units
-                } else if (value instanceof Map) {
-                    Map<String, Object> valueMap = (Map<String, Object>) value;
-                    nutrientQuantity.setValue(((Number) valueMap.get("value")).doubleValue());
-                    nutrientQuantity.setUnit((String) valueMap.get("unit"));
+            if (nutrientsMap != null) {
+                for (Map.Entry<String, Object> entry : nutrientsMap.entrySet()) {
+                    String nutrientName = entry.getKey();
+                    Map<String, Object> quantityMap = (Map<String, Object>) entry.getValue();
+
+                    FoodNutrient nutrient = new FoodNutrient();
+                    nutrient.setName(nutrientName);
+                    nutrient.setQuantity(mapToQuantity(quantityMap));
+                    nutrients.add(nutrient);
                 }
-                nutrients.put(key, nutrientQuantity);
-            });
+            }
+            foodItem.setNutrients(nutrients);
 
-            foodItem.setNutrientsPer100g(nutrients);
             foodItems.add(foodItem);
         }
 
@@ -108,30 +107,12 @@ public class AiResponseProcessingServiceImpl implements AiResponseProcessingServ
             FoodItem foodItem = new FoodItem();
             foodItem.setName((String)item.get("food_name"));
 
-            Map<String, Object> estimatedQuantity = (Map<String, Object>)item.get("estimated_quantity");
+            Map<String, Object> estimatedQuantity = (Map<String, Object>)item.get("nutrients_in_estimated_quantity");
             Quantity quantity = new Quantity();
             quantity.setValue(((Number)estimatedQuantity.get("amount")).doubleValue());
             quantity.setUnit((String)estimatedQuantity.get("unit"));
             foodItem.setQuantity(quantity);
 
-            // Process nutrients_per_100g with Quantity objects
-            Map<String, Object> nutrientsMap = (Map<String, Object>)item.get("nutrients_per_100g");
-            Map<String, Quantity> nutrients = new HashMap<>();
-
-            nutrientsMap.forEach((key, value) -> {
-                Quantity nutrientQuantity = new Quantity();
-                if (value instanceof Number) {
-                    nutrientQuantity.setValue(((Number) value).doubleValue());
-                    nutrientQuantity.setUnit(getNutrientUnit(key)); // Helper method for units
-                } else if (value instanceof Map) {
-                    Map<String, Object> valueMap = (Map<String, Object>) value;
-                    nutrientQuantity.setValue(((Number) valueMap.get("value")).doubleValue());
-                    nutrientQuantity.setUnit((String) valueMap.get("unit"));
-                }
-                nutrients.put(key, nutrientQuantity);
-            });
-
-            foodItem.setNutrientsPer100g(nutrients);
             foodItems.add(foodItem);
         }
 

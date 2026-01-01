@@ -1,61 +1,53 @@
+import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/quantity.dart';
 
 class FoodItem {
   final String name;
-  Quantity quantity;
-  final Map<String, Quantity> nutrientsPer100g;
+  final Quantity quantity;
+  final List<FoodNutrient> nutrients;
+  final List<FoodNutrient> nutrientsPer100g;
 
   FoodItem({
     required this.name,
     required this.quantity,
+    required this.nutrients,
     required this.nutrientsPer100g,
   });
 
   factory FoodItem.fromJson(Map<String, dynamic> json) {
-    // Handle quantity
     Quantity quantity =
         Quantity.fromJson(json['quantity'] ?? {'value': 0.0, 'unit': 'g'});
 
-    // Handle nutrients
-    Map<String, Quantity> nutrients = {};
-    if (json['nutrients_per100g'] != null) {
-      Map<String, dynamic> nutrientsJson = json['nutrients_per100g'];
-      nutrientsJson.forEach((key, value) {
-        nutrients[key] = Quantity.fromJson(value);
-      });
+    List<FoodNutrient> nutrients = [];
+    final nutrientItems = json['nutrients'] ?? [];
+    if (nutrientItems is List) {
+      nutrients =
+          nutrientItems.map((item) => FoodNutrient.fromJson(item)).toList();
+    }
+
+    List<FoodNutrient> nutrientsPer100g = [];
+    final nutrientPer100gItems = json['nutrients_per100g'] ?? [];
+    if (nutrientPer100gItems is List) {
+      nutrientsPer100g = nutrientPer100gItems
+          .map((item) => FoodNutrient.fromJson(item))
+          .toList();
     }
 
     return FoodItem(
       name: json['name'] ?? 'Unknown',
       quantity: quantity,
-      nutrientsPer100g: nutrients,
+      nutrients: nutrients,
+      nutrientsPer100g: nutrientsPer100g,
     );
-  }
-
-  Map<String, double> calculateTotalNutrients() {
-    final factor = quantity.value / 100;
-    return {
-      'calories': (nutrientsPer100g['calories']?.value ?? 0.0) * factor,
-      'protein': (nutrientsPer100g['protein']?.value ?? 0.0) * factor,
-      'carbohydrates':
-          (nutrientsPer100g['carbohydrates']?.value ?? 0.0) * factor,
-      'fat': (nutrientsPer100g['fat']?.value ?? 0.0) * factor,
-      'fiber': (nutrientsPer100g['fiber']?.value ?? 0.0) * factor,
-      'sugar': (nutrientsPer100g['sugar']?.value ?? 0.0) * factor,
-      'sodium': (nutrientsPer100g['sodium']?.value ?? 0.0) * factor,
-    };
-  }
-
-  void updateQuantity(double newQuantity) {
-    quantity = Quantity(value: newQuantity, unit: quantity.unit);
   }
 
   Map<String, dynamic> toJson() {
     return {
       'name': name,
       'quantity': quantity.toJson(),
+      'nutrients': nutrients.map((nutrient) => nutrient.toJson()).toList(),
       'nutrients_per100g':
-          nutrientsPer100g.map((key, value) => MapEntry(key, value.toJson())),
+          nutrientsPer100g.map((nutrient) => nutrient.toJson()).toList(),
     };
   }
 }

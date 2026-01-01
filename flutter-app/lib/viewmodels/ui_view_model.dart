@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/theme/app_colors.dart';
