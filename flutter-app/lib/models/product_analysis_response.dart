@@ -36,12 +36,14 @@ class NutritionAnalysis {
   final Quantity servingSize;
   final List<Nutrient> nutrients;
   final List<PrimaryConcern> primaryConcerns;
+  final Map<String, Quantity>? nutrientsMap;
 
   NutritionAnalysis({
     required this.totalQuantity,
     required this.servingSize,
     required this.nutrients,
     required this.primaryConcerns,
+    this.nutrientsMap,
   });
 
   factory NutritionAnalysis.fromJson(Map<String, dynamic> json) {

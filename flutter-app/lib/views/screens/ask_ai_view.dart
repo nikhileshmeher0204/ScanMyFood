@@ -7,6 +7,8 @@ import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/models/food_nutrient.dart';
+import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/theme/app_theme.dart';
 import 'package:read_the_label/utils/app_logger.dart';
 import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
@@ -68,7 +70,7 @@ class _AskAiViewState extends State<AskAiView> {
     final descriptionAnalysisProvider =
         Provider.of<DescriptionAnalysisViewModel>(context, listen: false);
 
-    final Map<String, dynamic> nutrientData;
+    final List<FoodNutrient> nutrientData;
     logger.d("foodContext: ${widget.foodContext}");
     switch (widget.foodContext) {
       case "food":
@@ -85,16 +87,41 @@ class _AskAiViewState extends State<AskAiView> {
         break;
       default:
         // Default to empty history if context is unknown
-        nutrientData = {};
+        nutrientData = [];
     }
     logger.d("nutrientData: $nutrientData");
     // Extract individual nutrients with null safety
-    final calories = nutrientData['calories'] ?? 0;
-    final protein = nutrientData['protein'] ?? 0;
-    final carbs = nutrientData['carbohydrates'] ?? 0;
-    final fat = nutrientData['fat'] ?? 0;
-    final fiber = nutrientData['fiber'] ?? 0;
-
+    final calories = nutrientData
+        .firstWhere((nutrient) => nutrient.name.toLowerCase() == 'calories',
+            orElse: () => FoodNutrient(
+                name: 'calories', quantity: Quantity(value: 0, unit: 'kcal')))
+        .quantity
+        .value;
+    final protein = nutrientData
+        .firstWhere((nutrient) => nutrient.name.toLowerCase() == 'protein',
+            orElse: () => FoodNutrient(
+                name: 'protein', quantity: Quantity(value: 0, unit: 'g')))
+        .quantity
+        .value;
+    final carbs = nutrientData
+        .firstWhere(
+            (nutrient) => nutrient.name.toLowerCase() == 'carbohydrates',
+            orElse: () => FoodNutrient(
+                name: 'carbohydrates', quantity: Quantity(value: 0, unit: 'g')))
+        .quantity
+        .value;
+    final fat = nutrientData
+        .firstWhere((nutrient) => nutrient.name.toLowerCase() == 'fat',
+            orElse: () => FoodNutrient(
+                name: 'fat', quantity: Quantity(value: 0, unit: 'g')))
+        .quantity
+        .value;
+    final fiber = nutrientData
+        .firstWhere((nutrient) => nutrient.name.toLowerCase() == 'fiber',
+            orElse: () => FoodNutrient(
+                name: 'fiber', quantity: Quantity(value: 0, unit: 'g')))
+        .quantity
+        .value;
     nutritionContext = '''
       Meal: ${widget.mealName}
       Nutritional Information:

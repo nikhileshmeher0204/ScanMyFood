@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
@@ -15,7 +16,7 @@ class ProductAnalysisViewModel extends BaseViewModel {
   Quantity _servingSize = Quantity(value: 0, unit: 'g');
   NutritionAnalysis? _nutritionAnalysis;
   List<Nutrient> allNutrients = [];
-  Map<String, Quantity> _nutrients = {};
+  List<FoodNutrient> _nutrients = [];
   List<Nutrient> optimalNutrients = [];
   List<Nutrient> moderateNutrients = [];
   List<Nutrient> watchOutNutrients = [];
@@ -39,7 +40,7 @@ class ProductAnalysisViewModel extends BaseViewModel {
   Quantity get servingSize => _servingSize;
   NutritionAnalysis? get nutritionAnalysis => _nutritionAnalysis;
   bool canAnalyze() => _frontImage != null && _nutritionLabelImage != null;
-  Map<String, Quantity> get nutrients => _nutrients;
+  List<FoodNutrient> get nutrients => _nutrients;
   List<Nutrient> getOptimalNutrients() => optimalNutrients;
   List<Nutrient> getModerateNutrients() => moderateNutrients;
   List<Nutrient> getWatchOutNutrients() => watchOutNutrients;
@@ -85,7 +86,8 @@ class ProductAnalysisViewModel extends BaseViewModel {
 
       for (Nutrient nutrient in response.nutritionAnalysis.nutrients) {
         allNutrients.add(nutrient);
-        _nutrients[nutrient.name] = nutrient.quantity;
+        _nutrients.add(
+            FoodNutrient(name: nutrient.name, quantity: nutrient.quantity));
         if (nutrient.healthImpact == "Good") {
           optimalNutrients.add(nutrient);
         } else if (nutrient.healthImpact == "Moderate") {

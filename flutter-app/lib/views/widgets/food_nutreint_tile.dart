@@ -4,7 +4,7 @@ import 'package:read_the_label/theme/app_text_styles.dart';
 
 class FoodNutrientTile extends StatelessWidget {
   final String label;
-  final String value;
+  final double value;
   final String unit;
   final IconData icon;
 
@@ -47,7 +47,7 @@ class FoodNutrientTile extends StatelessWidget {
               children: [
                 Text(label, style: AppTextStyles.bodyLarge),
                 const SizedBox(height: 2),
-                Text('$value$unit', style: AppTextStyles.bodyMedium),
+                Text('$value $unit', style: AppTextStyles.bodyMedium),
               ],
             ),
           ),

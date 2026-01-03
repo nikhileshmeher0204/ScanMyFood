@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.scanmyfood.backend.mapper.UserIntakeMapper">
+
+    <select id="insertFoodAnalysis" resultType="java.lang.Integer">
+        INSERT INTO food_analysis (
+            user_id, meal_name,
+            calories_value, calories_unit,
+            protein_value, protein_unit,
+            carbohydrates_value, carbohydrates_unit,
+            fat_value, fat_unit,
+            fiber_value, fiber_unit,
+            sugar_value, sugar_unit,
+            sodium_value, sodium_unit
+        ) VALUES (
+            #{userId}, #{mealName},
+            #{caloriesValue}, #{caloriesUnit},
+            #{proteinValue}, #{proteinUnit},
+            #{carbohydratesValue}, #{carbohydratesUnit},
+            #{fatValue}, #{fatUnit},
+            #{fiberValue}, #{fiberUnit},
+            #{sugarValue}, #{sugarUnit},
+            #{sodiumValue}, #{sodiumUnit}
+        )
+        RETURNING id
+    </select>
+
+    <select id="insertFoodItem" resultType="java.lang.Integer">
+        INSERT INTO food_item (
+            item_name,
+            calories_value_per_100g, calories_unit,
+            protein_value_per_100g, protein_unit,
+            carbohydrates_value_per_100g, carbohydrates_unit,
+            fat_value_per_100g, fat_unit,
+            fiber_value_per_100g, fiber_unit,
+            sugar_value_per_100g, sugar_unit,
+            sodium_value_per_100g, sodium_unit,
+            added_by
+        ) VALUES (
+            #{itemName},
+            #{caloriesValuePer100g}, #{caloriesUnit},
+            #{proteinValuePer100g}, #{proteinUnit},
+            #{carbohydratesValuePer100g}, #{carbohydratesUnit},
+            #{fatValuePer100g}, #{fatUnit},
+            #{fiberValuePer100g}, #{fiberUnit},
+            #{sugarValuePer100g}, #{sugarUnit},
+            #{sodiumValuePer100g}, #{sodiumUnit},
+            #{addedBy}
+        )
+        RETURNING id
+    </select>
+
+    <insert id="insertFoodAnalysisItem">
+        INSERT INTO food_analysis_item (
+            food_analysis_id,
+            food_item_id,
+            quantity_value,
+            quantity_unit
+        ) VALUES (
+            #{foodAnalysisId},
+            #{foodItemId},
+            #{quantityValue},
+            #{quantityUnit}
+        )
+    </insert>
+
+    <select id="fetchUserIntake" resultType="com.scanmyfood.backend.models.FoodAnalysisRecord">
+        SELECT
+            id,
+            user_id,
+            meal_name,
+            calories_value,
+            calories_unit,
+            protein_value,
+            protein_unit,
+            carbohydrates_value,
+            carbohydrates_unit,
+            fat_value,
+            fat_unit,
+            fiber_value,
+            fiber_unit,
+            sugar_value,
+            sugar_unit,
+            sodium_value,
+            sodium_unit,
+            created_at
+        FROM food_analysis
+        WHERE user_id = #{userId}
+            AND DATE(created_at) = #{date}
+    </select>
+
+</mapper>
