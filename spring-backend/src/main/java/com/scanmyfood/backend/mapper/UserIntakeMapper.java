@@ -12,6 +12,7 @@ public interface UserIntakeMapper {
     Integer insertFoodAnalysis(
             @Param("userId") String userId,
             @Param("mealName") String mealName,
+            @Param("imageUrl") String imageUrl,
             @Param("caloriesValue") double caloriesValue,
             @Param("caloriesUnit") String caloriesUnit,
             @Param("proteinValue") double proteinValue,

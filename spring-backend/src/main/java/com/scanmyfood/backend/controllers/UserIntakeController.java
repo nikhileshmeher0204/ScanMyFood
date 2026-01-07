@@ -4,6 +4,7 @@ import com.scanmyfood.backend.models.ApiResponse;
 import com.scanmyfood.backend.models.SaveScannedFoodInput;
 import com.scanmyfood.backend.models.UserIntakeOutput;
 import com.scanmyfood.backend.services.UserIntakeService;
+import com.scanmyfood.backend.services.storage.FileStorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,10 @@ public class UserIntakeController {
     @Autowired
     UserIntakeService userIntakeService;
 
-    @PostMapping("/scannedFood")
+    @Autowired
+    FileStorageService fileStorageService;
+
+    @PostMapping("save/scannedFood")
     public ResponseEntity<ApiResponse> saveScannedFood(
             @RequestPart("foodImage") MultipartFile foodImage,
             @RequestPart("saveScannedFoodInput") SaveScannedFoodInput saveScannedFoodInput) {
@@ -30,14 +34,23 @@ public class UserIntakeController {
         log.info("Food Image: {}", foodImage.getOriginalFilename());
         log.info("Food Analysis: {}", saveScannedFoodInput);
 
-        //create food analysis record
-        userIntakeService.saveIntake(saveScannedFoodInput);
-        //insert food items
+        try {
+            // Store image (implementation is abstracted)
+            String storedPath = fileStorageService.store(foodImage, "food-images");
 
-        //map food items to food analysis record
+            // Get full access URL for storage
+            String accessUrl = fileStorageService.getAccessUrl(storedPath);
 
+            // Save intake with image URL
+            userIntakeService.saveIntake(saveScannedFoodInput, accessUrl);
 
-        return ResponseEntity.ok(ApiResponse.success(null, "Scanned food intake saved successfully."));
+            return ResponseEntity.ok(ApiResponse.success(null, "Scanned food intake saved successfully."));
+
+        } catch (Exception e) {
+            log.error("Error saving scanned food: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError()
+                    .body(ApiResponse.error("Failed to save scanned food"));
+        }
     }
 
     @GetMapping("/intake")

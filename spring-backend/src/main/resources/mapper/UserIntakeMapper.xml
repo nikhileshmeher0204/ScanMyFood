@@ -5,7 +5,7 @@
 
     <select id="insertFoodAnalysis" resultType="java.lang.Integer">
         INSERT INTO food_analysis (
-            user_id, meal_name,
+            user_id, meal_name, image_url,
             calories_value, calories_unit,
             protein_value, protein_unit,
             carbohydrates_value, carbohydrates_unit,
@@ -14,7 +14,7 @@
             sugar_value, sugar_unit,
             sodium_value, sodium_unit
         ) VALUES (
-            #{userId}, #{mealName},
+            #{userId}, #{mealName}, #{imageUrl},
             #{caloriesValue}, #{caloriesUnit},
             #{proteinValue}, #{proteinUnit},
             #{carbohydratesValue}, #{carbohydratesUnit},
@@ -70,6 +70,7 @@
             id,
             user_id,
             meal_name,
+            image_url,
             calories_value,
             calories_unit,
             protein_value,

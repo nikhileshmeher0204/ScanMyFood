@@ -2,6 +2,7 @@ package com.scanmyfood.backend.services;
 
 import com.scanmyfood.backend.mapper.UserIntakeMapper;
 import com.scanmyfood.backend.models.*;
+import com.scanmyfood.backend.services.storage.FileStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,11 @@ public class UserIntakeServiceImpl implements UserIntakeService {
     @Autowired
     private UserIntakeMapper userIntakeMapper;
 
+    @Autowired
+    FileStorageService fileStorageService;
+
     @Override
-    public void saveIntake(SaveScannedFoodInput saveIntakeInput) {
+    public void saveIntake(SaveScannedFoodInput saveIntakeInput, String imageAccessUrl) {
         try {
             // Insert food analysis record
             Map<String, Quantity> nutrientMap = saveIntakeInput.getFoodAnalysisResponse()
@@ -38,6 +42,7 @@ public class UserIntakeServiceImpl implements UserIntakeService {
             Integer foodAnalysisId = userIntakeMapper.insertFoodAnalysis(
                     saveIntakeInput.getUserId(),
                     saveIntakeInput.getFoodAnalysisResponse().getMealName(),
+                    imageAccessUrl,
                     nutrientMap.get(CALORIES).getValue(), nutrientMap.get(CALORIES).getUnit(),
                     nutrientMap.get(PROTEIN).getValue(), nutrientMap.get(PROTEIN).getUnit(),
                     nutrientMap.get(CARBOHYDRATES).getValue(), nutrientMap.get(CARBOHYDRATES).getUnit(),
@@ -85,8 +90,15 @@ public class UserIntakeServiceImpl implements UserIntakeService {
             UserIntakeOutput output = new UserIntakeOutput();
             List<FoodNutrient> totalNutrients = new ArrayList<>();
             List<FoodAnalysisRecord> records = userIntakeMapper.fetchUserIntake(userId, date);
-            if(!records.isEmpty()){
+            logger.info("User intake records for date {}: {}", date, records.size());
+            if (!records.isEmpty()) {
+                logger.info("Calculating total nutrients");
                 totalNutrients = getTotalValues(records);
+                records.forEach(foodAnalysisRecord -> {
+                    if (foodAnalysisRecord.getImageUrl() != null) {
+                        foodAnalysisRecord.setImageUrl(fileStorageService.getAccessUrl(foodAnalysisRecord.getImageUrl()));
+                    }
+                });
             }
             output.setUserId(userId);
             output.setDate(date);

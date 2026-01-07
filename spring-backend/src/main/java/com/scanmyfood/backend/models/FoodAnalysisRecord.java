@@ -9,6 +9,7 @@ public class FoodAnalysisRecord {
     private Integer id;
     private String userId;
     private String mealName;
+    private String imageUrl;
     private Double caloriesValue;
     private String caloriesUnit;
     private Double proteinValue;
