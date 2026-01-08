@@ -2,6 +2,7 @@ package com.scanmyfood.backend.controllers;
 
 import com.scanmyfood.backend.models.ApiResponse;
 import com.scanmyfood.backend.models.SaveScannedFoodInput;
+import com.scanmyfood.backend.models.SaveScannedLabelInput;
 import com.scanmyfood.backend.models.UserIntakeOutput;
 import com.scanmyfood.backend.services.UserIntakeService;
 import com.scanmyfood.backend.services.storage.FileStorageService;
@@ -35,14 +36,34 @@ public class UserIntakeController {
         log.info("Food Analysis: {}", saveScannedFoodInput);
 
         try {
-            // Store image (implementation is abstracted)
             String storedPath = fileStorageService.store(foodImage, "food-images");
-
-            // Get full access URL for storage
             String accessUrl = fileStorageService.getAccessUrl(storedPath);
 
-            // Save intake with image URL
-            userIntakeService.saveIntake(saveScannedFoodInput, accessUrl);
+            userIntakeService.saveScannedFoodIntake(saveScannedFoodInput, accessUrl);
+            log.info("Successfully saved intake");
+            return ResponseEntity.ok(ApiResponse.success(null, "Scanned food intake saved successfully."));
+
+        } catch (Exception e) {
+            log.error("Error saving scanned food: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError()
+                    .body(ApiResponse.error("Failed to save scanned food"));
+        }
+    }
+
+    @PostMapping("save/scannedLabel")
+    public ResponseEntity<ApiResponse> saveScannedLabel(
+            @RequestPart("foodImage") MultipartFile foodImage,
+            @RequestPart("saveScannedLabelInput") SaveScannedLabelInput saveScannedLabelInput) {
+
+        log.info("Saving scanned label intake");
+        log.info("Food Image: {}", foodImage.getOriginalFilename());
+        log.info("Food Analysis: {}", saveScannedLabelInput);
+
+        try {
+            String storedPath = fileStorageService.store(foodImage, "food-images");
+            String accessUrl = fileStorageService.getAccessUrl(storedPath);
+
+            userIntakeService.saveScannedLabelIntake(saveScannedLabelInput, accessUrl);
 
             return ResponseEntity.ok(ApiResponse.success(null, "Scanned food intake saved successfully."));
 

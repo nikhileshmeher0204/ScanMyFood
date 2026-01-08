@@ -67,11 +67,11 @@ class MealAnalysisViewModel extends BaseViewModel {
     Map<String, String> keyMapping = {
       'calories': 'Energy',
       'protein': 'Protein',
-      'carbohydrates': 'Carbohydrate',
-      'fat': 'Fat',
-      'fiber': 'Fiber',
+      'total_carbohydrate': 'Carbohydrate',
+      'total_fat': 'Fat',
+      'dietary_fiber': 'Fiber',
       'sodium': 'Sodium',
-      'sugar': 'Total Sugars',
+      'total_sugars': 'Total Sugars',
       'saturated_fat': 'Saturated Fat',
     };
 

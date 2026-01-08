@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/models/quantity.dart';
@@ -9,6 +10,7 @@ import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class ProductAnalysisViewModel extends BaseViewModel {
   // Properties for product scanning and analysis
+  ProductAnalysisResponse? productAnalysis;
   File? _frontImage;
   File? _nutritionLabelImage;
   String _productName = "";
@@ -33,6 +35,7 @@ class ProductAnalysisViewModel extends BaseViewModel {
   });
 
   // Getters
+  ProductAnalysisResponse? get getProductAnalysis => productAnalysis;
   File? get frontImage => _frontImage;
   File? get nutritionLabelImage => _nutritionLabelImage;
   String get productName => _productName;
@@ -68,36 +71,39 @@ class ProductAnalysisViewModel extends BaseViewModel {
     uiProvider.setLoading(true);
 
     try {
-      // Use the repository to get structured response
-      final ProductAnalysisResponse response = await aiRepository
-          .analyzeProductImages(_frontImage!, _nutritionLabelImage!);
+      productAnalysis = await aiRepository.analyzeProductImages(
+          _frontImage!, _nutritionLabelImage!);
 
-      _productName = response.product.name;
-      _totalQuantity = response.nutritionAnalysis.totalQuantity;
-      _servingSize = response.nutritionAnalysis.servingSize;
+      _productName = productAnalysis!.product.name;
+      _totalQuantity = productAnalysis!.nutritionAnalysis.totalQuantity;
+      _servingSize = productAnalysis!.nutritionAnalysis.servingSize;
 
       _nutritionAnalysis = null;
-      // Process nutrients
+      // Clear previous data
       allNutrients = [];
       optimalNutrients = [];
       moderateNutrients = [];
       watchOutNutrients = [];
-      _primaryConcerns = []; // Clear primary concerns
+      _primaryConcerns = [];
 
-      for (Nutrient nutrient in response.nutritionAnalysis.nutrients) {
-        allNutrients.add(nutrient);
-        _nutrients.add(
-            FoodNutrient(name: nutrient.name, quantity: nutrient.quantity));
-        if (nutrient.healthImpact == "Good") {
-          optimalNutrients.add(nutrient);
-        } else if (nutrient.healthImpact == "Moderate") {
-          moderateNutrients.add(nutrient);
-        } else {
-          watchOutNutrients.add(nutrient);
+      for (Nutrient nutrient in productAnalysis!.nutritionAnalysis.nutrients) {
+        if (nutrient.quantity.value != 0.0) {
+          allNutrients.add(nutrient);
+          _nutrients.add(
+              FoodNutrient(name: nutrient.name, quantity: nutrient.quantity));
+          if (nutrient.healthImpact == AppConstants.goodHealthImpact) {
+            optimalNutrients.add(nutrient);
+          } else if (nutrient.healthImpact ==
+              AppConstants.moderateHealthImpact) {
+            moderateNutrients.add(nutrient);
+          } else {
+            watchOutNutrients.add(nutrient);
+          }
         }
       }
 
-      _primaryConcerns.addAll(response.nutritionAnalysis.primaryConcerns);
+      _primaryConcerns
+          .addAll(productAnalysis!.nutritionAnalysis.primaryConcerns);
 
       if (_servingSize.value > 0) {
         print(

@@ -300,6 +300,8 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                         mealName: productAnalysisProvider.productName,
                         totalPlateNutrients: productAnalysisProvider.nutrients,
                         foodImage: productAnalysisProvider.frontImage,
+                        productAnalysis:
+                            productAnalysisProvider.productAnalysis,
                       ),
                     ],
                   ),

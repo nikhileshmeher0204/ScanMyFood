@@ -7,6 +7,7 @@ import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_consumption.dart';
 import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
+import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/repositories/intake_repository_interface.dart';
 import 'package:read_the_label/repositories/storage_repository_interface.dart';
@@ -331,6 +332,13 @@ class DailyIntakeViewModel extends BaseViewModel {
     uiProvider.setLoading(true);
     final response =
         await intakeRepository.saveScannedFood(userId, foodImage, foodAnalysis);
+  }
+
+  Future<void> saveScannedLabel(String userId, File? foodImage,
+      ProductAnalysisResponse? productAnalysis) async {
+    uiProvider.setLoading(true);
+    final response = await intakeRepository.saveScannedLabel(
+        userId, foodImage, productAnalysis);
   }
 
   Future<void> addToFoodHistory({

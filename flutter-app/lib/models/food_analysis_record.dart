@@ -7,8 +7,8 @@ class FoodAnalysisRecord {
   final String caloriesUnit;
   final double proteinValue;
   final String proteinUnit;
-  final double carbohydratesValue;
-  final String carbohydratesUnit;
+  final double carbohydrateValue;
+  final String carbohydrateUnit;
   final double fatValue;
   final String fatUnit;
   final double fiberValue;
@@ -28,8 +28,8 @@ class FoodAnalysisRecord {
     required this.caloriesUnit,
     required this.proteinValue,
     required this.proteinUnit,
-    required this.carbohydratesValue,
-    required this.carbohydratesUnit,
+    required this.carbohydrateValue,
+    required this.carbohydrateUnit,
     required this.fatValue,
     required this.fatUnit,
     required this.fiberValue,
@@ -51,8 +51,8 @@ class FoodAnalysisRecord {
       caloriesUnit: json['calories_unit'] as String,
       proteinValue: (json['protein_value'] as num).toDouble(),
       proteinUnit: json['protein_unit'] as String,
-      carbohydratesValue: (json['carbohydrates_value'] as num).toDouble(),
-      carbohydratesUnit: json['carbohydrates_unit'] as String,
+      carbohydrateValue: (json['carbohydrate_value'] as num).toDouble(),
+      carbohydrateUnit: json['carbohydrate_unit'] as String,
       fatValue: (json['fat_value'] as num).toDouble(),
       fatUnit: json['fat_unit'] as String,
       fiberValue: (json['fiber_value'] as num).toDouble(),
@@ -75,8 +75,8 @@ class FoodAnalysisRecord {
       'calories_unit': caloriesUnit,
       'protein_value': proteinValue,
       'protein_unit': proteinUnit,
-      'carbohydrates_value': carbohydratesValue,
-      'carbohydrates_unit': carbohydratesUnit,
+      'carbohydrate_value': carbohydrateValue,
+      'carbohydrate_unit': carbohydrateUnit,
       'fat_value': fatValue,
       'fat_unit': fatUnit,
       'fiber_value': fiberValue,

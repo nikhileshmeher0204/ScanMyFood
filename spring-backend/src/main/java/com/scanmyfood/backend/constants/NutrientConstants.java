@@ -46,11 +46,38 @@ public class NutrientConstants {
         """;
 
     public static final String CALORIES = "calories";
+    public static final String ENERGY = "energy";
+    public static final String CHOLESTEROL = "cholesterol";
     public static final String PROTEIN = "protein";
-    public static final String CARBOHYDRATES = "carbohydrates";
-    public static final String FAT = "fat";
-    public static final String FIBER = "fiber";
-    public static final String SUGAR = "sugar";
+    public static final String TOTAL_CARBOHYDRATE = "total_carbohydrate";
+    public static final String TOTAL_FAT = "total_fat";
+    public static final String SATURATED_FAT = "saturated_fat";
+    public static final String TRANS_FAT = "trans_fat";
+    public static final String DIETARY_FIBER = "dietary_fiber";
+    public static final String TOTAL_SUGARS = "total_sugars";
+    public static final String ADDED_SUGARS = "added_sugars";
     public static final String SODIUM = "sodium";
+    public static final String IRON = "iron";
+    public static final String CALCIUM = "calcium";
+    public static final String POTASSIUM = "potassium";
+    public static final String VITAMIN_D = "vitamin_d";
+    public static final String VITAMIN_A = "vitamin_a";
+    public static final String VITAMIN_C = "vitamin_c";
+    public static final String VITAMIN_E = "vitamin_e";
+    public static final String VITAMIN_K = "vitamin_k";
+    public static final String VITAMIN_B6 = "vitamin_b6";
+    public static final String VITAMIN_B12 = "vitamin_b12";
+    public static final String MAGNESIUM = "magnesium";
+    public static final String PHOSPHORUS = "phosphorus";
+    public static final String ZINC = "zinc";
+    public static final String FOLATE = "folate";
+
+    public static final String ALL_NUTRIENT_NAMES = String.join(", ",
+            ENERGY, PROTEIN, CHOLESTEROL,
+            TOTAL_FAT, SATURATED_FAT, TRANS_FAT,
+            TOTAL_CARBOHYDRATE, DIETARY_FIBER, TOTAL_SUGARS, ADDED_SUGARS,
+            SODIUM, CALCIUM, IRON, POTASSIUM, MAGNESIUM, PHOSPHORUS, ZINC, FOLATE,
+            VITAMIN_D, VITAMIN_A, VITAMIN_C, VITAMIN_B6, VITAMIN_B12, VITAMIN_E, VITAMIN_K
+    );
 
 }

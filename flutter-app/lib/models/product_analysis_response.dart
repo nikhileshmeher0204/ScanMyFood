@@ -15,6 +15,13 @@ class ProductAnalysisResponse {
       nutritionAnalysis: NutritionAnalysis.fromJson(json['nutrition_analysis']),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'product': product.toJson(),
+      'nutrition_analysis': nutritionAnalysis.toJson(),
+    };
+  }
 }
 
 class ProductInfo {
@@ -28,6 +35,13 @@ class ProductInfo {
       name: json['name'] ?? 'Unknown Product',
       category: json['category'] ?? 'Unknown Category',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'category': category,
+    };
   }
 }
 
@@ -64,6 +78,18 @@ class NutritionAnalysis {
           [],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total_quantity': totalQuantity.toJson(),
+      'serving_size': servingSize.toJson(),
+      'nutrients': nutrients.map((n) => n.toJson()).toList(),
+      'primary_concerns': primaryConcerns.map((c) => c.toJson()).toList(),
+      if (nutrientsMap != null)
+        'nutrients_map':
+            nutrientsMap!.map((key, value) => MapEntry(key, value.toJson())),
+    };
+  }
 }
 
 class Nutrient {
@@ -95,6 +121,17 @@ class Nutrient {
       healthImpact: json['health_impact'] ?? 'Moderate',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'quantity': quantity.toJson(),
+      'daily_value': dailyValue,
+      'dv_status': dvStatus,
+      'goal': goal,
+      'health_impact': healthImpact,
+    };
+  }
 }
 
 class PrimaryConcern {
@@ -118,6 +155,14 @@ class PrimaryConcern {
           [],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'issue': issue,
+      'explanation': explanation,
+      'recommendations': recommendations.map((r) => r.toJson()).toList(),
+    };
+  }
 }
 
 class Recommendation {
@@ -137,5 +182,13 @@ class Recommendation {
       quantity: json['quantity'] ?? '',
       reasoning: json['reasoning'] ?? '',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'food': food,
+      'quantity': quantity,
+      'reasoning': reasoning,
+    };
   }
 }

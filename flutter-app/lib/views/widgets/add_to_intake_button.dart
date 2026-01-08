@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
@@ -47,7 +48,13 @@ class AddToIntakeButton extends StatelessWidget {
         print("Current total nutrients: $totalPlateNutrients");
         print("foodAnalysis: $foodAnalysis");
 
-        dailyIntakeProvider.saveScannedFood(user!.uid, foodImage, foodAnalysis);
+        if (source == AppConstants.scanMeal) {
+          dailyIntakeProvider.saveScannedFood(
+              user!.uid, foodImage, foodAnalysis);
+        } else if (source == AppConstants.scanLabel) {
+          dailyIntakeProvider.saveScannedLabel(
+              user!.uid, foodImage, productAnalysis);
+        }
 
         dailyIntakeProvider.addMealToDailyIntake(
           user: user,

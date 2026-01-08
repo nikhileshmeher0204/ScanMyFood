@@ -104,10 +104,9 @@ class _AskAiViewState extends State<AskAiView> {
         .quantity
         .value;
     final carbs = nutrientData
-        .firstWhere(
-            (nutrient) => nutrient.name.toLowerCase() == 'carbohydrates',
+        .firstWhere((nutrient) => nutrient.name.toLowerCase() == 'carbohydrate',
             orElse: () => FoodNutrient(
-                name: 'carbohydrates', quantity: Quantity(value: 0, unit: 'g')))
+                name: 'carbohydrate', quantity: Quantity(value: 0, unit: 'g')))
         .quantity
         .value;
     final fat = nutrientData
@@ -127,7 +126,7 @@ class _AskAiViewState extends State<AskAiView> {
       Nutritional Information:
       - Calories: $calories kcal
       - Protein: ${protein}g
-      - Carbohydrates: ${carbs}g
+      - Carbohydrate: ${carbs}g
       - Fat: ${fat}g
       - Fiber: ${fiber}g
     ''';

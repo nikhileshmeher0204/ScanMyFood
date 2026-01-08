@@ -140,18 +140,6 @@ public class AiResponseProcessingServiceImpl implements AiResponseProcessingServ
         return response;
     }
 
-    private String getNutrientUnit(String nutrient) {
-        Map<String, String> units = Map.of(
-                "calories", "kcal",
-                "protein", "g",
-                "carbohydrates", "g",
-                "fat", "g",
-                "fiber", "g",
-                "sugar", "g",
-                "sodium", "mg"
-        );
-        return units.getOrDefault(nutrient.toLowerCase(), "g");
-    }
     private ProductAnalysisResponse.ProductInfo mapToProductInfo(Map<String, Object> map) {
         if (map == null) return null;
         ProductAnalysisResponse.ProductInfo info = new ProductAnalysisResponse.ProductInfo();
@@ -171,11 +159,11 @@ public class AiResponseProcessingServiceImpl implements AiResponseProcessingServ
         return null;
     }
 
-    private List<ProductAnalysisResponse.Nutrient> mapToNutrients(List<Map<String, Object>> list) {
+    private List<Nutrient> mapToNutrients(List<Map<String, Object>> list) {
         if (list == null) return null;
-        List<ProductAnalysisResponse.Nutrient> nutrients = new ArrayList<>();
+        List<Nutrient> nutrients = new ArrayList<>();
         for (Map<String, Object> map : list) {
-            ProductAnalysisResponse.Nutrient nutrient = new ProductAnalysisResponse.Nutrient();
+            Nutrient nutrient = new Nutrient();
             nutrient.setName((String) map.get("name"));
             nutrient.setQuantity((Quantity) mapToQuantity(map.get("quantity")));
             nutrient.setDailyValue((String) map.get("daily_value"));
