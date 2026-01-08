@@ -106,40 +106,49 @@ class FoodItemCard extends StatelessWidget {
             childAspectRatio: 2.5,
             children: [
               FoodNutrientTile(
-                label: 'Protein',
+                label: NutrientUtils.formatNutrientName(AppConstants.protein),
                 value:
                     NutrientUtils.getNutrientValue(item, AppConstants.protein),
                 unit: NutrientUtils.getNutrientUnit(item, AppConstants.protein),
                 icon: Icons.fitness_center_outlined,
               ),
               FoodNutrientTile(
-                label: 'Carbohydrates',
+                label: NutrientUtils.formatNutrientName(
+                    AppConstants.totalCarbohydrate),
                 value: NutrientUtils.getNutrientValue(
-                    item, AppConstants.carbohydrates),
+                    item, AppConstants.totalCarbohydrate),
                 unit: NutrientUtils.getNutrientUnit(
-                    item, AppConstants.carbohydrates),
+                    item, AppConstants.totalCarbohydrate),
                 icon: Icons.grain_outlined,
               ),
               FoodNutrientTile(
-                label: 'Fat',
-                value: NutrientUtils.getNutrientValue(item, AppConstants.fat),
-                unit: NutrientUtils.getNutrientUnit(item, AppConstants.fat),
+                label: NutrientUtils.formatNutrientName(AppConstants.totalFat),
+                value:
+                    NutrientUtils.getNutrientValue(item, AppConstants.totalFat),
+                unit:
+                    NutrientUtils.getNutrientUnit(item, AppConstants.totalFat),
                 icon: Icons.opacity_outlined,
               ),
               FoodNutrientTile(
-                label: 'Fiber',
-                value: NutrientUtils.getNutrientValue(item, AppConstants.fiber),
-                unit: NutrientUtils.getNutrientUnit(item, AppConstants.fiber),
+                label:
+                    NutrientUtils.formatNutrientName(AppConstants.dietaryFiber),
+                value: NutrientUtils.getNutrientValue(
+                    item, AppConstants.dietaryFiber),
+                unit: NutrientUtils.getNutrientUnit(
+                    item, AppConstants.dietaryFiber),
                 icon: Icons.grass_outlined,
               ),
               FoodNutrientTile(
-                label: 'Sugar',
-                value: NutrientUtils.getNutrientValue(item, AppConstants.sugar),
-                unit: NutrientUtils.getNutrientUnit(item, AppConstants.sugar),
+                label:
+                    NutrientUtils.formatNutrientName(AppConstants.totalSugars),
+                value: NutrientUtils.getNutrientValue(
+                    item, AppConstants.totalSugars),
+                unit: NutrientUtils.getNutrientUnit(
+                    item, AppConstants.totalSugars),
                 icon: Icons.cake_outlined,
               ),
               FoodNutrientTile(
-                label: 'Sodium',
+                label: NutrientUtils.formatNutrientName(AppConstants.sodium),
                 value:
                     NutrientUtils.getNutrientValue(item, AppConstants.sodium),
                 unit: NutrientUtils.getNutrientUnit(item, AppConstants.sodium),

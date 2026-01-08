@@ -1,8 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
+import 'package:read_the_label/utils/nutrient_utils.dart';
 
 class NutrientGrid extends StatefulWidget {
   final List<NutrientData> nutrients;
@@ -167,7 +169,8 @@ class _NutrientTileState extends State<NutrientTile>
                                   Row(
                                     children: [
                                       Text(
-                                        widget.nutrient,
+                                        NutrientUtils.formatNutrientName(
+                                            widget.nutrient),
                                         style: AppTextStyles.bodyLargeBold,
                                       ),
                                       Expanded(

@@ -69,7 +69,7 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
     Map<String, String> keyMapping = {
       'calories': 'Energy',
       'protein': 'Protein',
-      'carbohydrates': 'Carbohydrate',
+      'carbohydrate': 'Carbohydrate',
       'fat': 'Fat',
       'fiber': 'Fiber',
       'sodium': 'Sodium',

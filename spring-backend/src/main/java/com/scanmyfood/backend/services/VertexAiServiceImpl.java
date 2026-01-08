@@ -44,8 +44,6 @@ public class VertexAiServiceImpl implements AiService {
 
       // Create prompt
       String prompt = """
-        %s
-        
         Analyze the food product, product name and its nutrition label. Provide response in this strict JSON format:
         {
           "product": {
@@ -57,7 +55,7 @@ public class VertexAiServiceImpl implements AiService {
             "serving_size": {"value": 0, "unit": "unit in packet"},
             "nutrients": [
               {
-                "name": "Nutrient name",
+                "name": "nutrient name in snake_case from the list below",
                 "quantity": {"value": "Quantity of nutrient in per serving of food product", "unit": "unit in packet"},
                 "daily_value": "daily value percentage without %% symbol in per serving of food product",
                 "dv_status": "High/Moderate/Low based on calculated DV%%",
@@ -82,22 +80,25 @@ public class VertexAiServiceImpl implements AiService {
         }
 
         Strictly follow these rules:
-        1. Mention Quantity with units in the label
-        2. Calculate DV%% using the reference values above: (nutrient_quantity_per_serving / daily_value_reference) × 100
-        3. Return calculated DV%%, and not the ones found in label
-        4. Do not include any extra characters or formatting outside of the JSON object
-        5. Use accurate escape sequences for any special characters
-        6. Avoid including nutrients that aren't mentioned in the label
-        7. For primary_concerns, focus on major nutritional imbalances
-        8. For recommendations:
+        1. MUST include ALL nutrients from this list: %s
+        2. If a nutrient is not found on the label, set its value to 0.0 and use standard unit
+        3. Extract total nutrient (e.g., Total Sugars, Total Fat) and its sub-nutrients (e.g., Added Sugars, Saturated Fat, Trans Fat) if mentioned in the label
+        4. Calculate DV%% using these reference values: 
+           %s
+           Formula: (nutrient_quantity_per_serving / daily_value_reference) × 100
+        5. Return calculated DV%%, and not the ones found in label
+        6. Do not include any extra characters or formatting outside of the JSON object
+        7. Use accurate escape sequences for any special characters
+        8. For primary_concerns, focus on major nutritional imbalances
+        9. For recommendations:
            - Suggest foods that can be added to complement the product
            - Focus on practical additions
            - Explain how each addition helps balance nutrition
-        9. Use %%DV guidelines:
+        10. Use %%DV guidelines:
            5%% DV or less is considered low dv_status
            20%% DV or more is considered high dv_status
            5%% < DV < 20%% is considered moderate dv_status
-        10. For health_impact determination:
+        11. For health_impact determination:
            "At least" nutrients (like fiber, protein):
              High dv_status → Good health_impact
              Moderate dv_status → Moderate health_impact
@@ -106,7 +107,7 @@ public class VertexAiServiceImpl implements AiService {
              Low dv_status → Good health_impact
              Moderate dv_status → Moderate health_impact
              High dv_status → Bad health_impact
-        """.formatted(NutrientConstants.DAILY_VALUES_REFERENCE);
+        """.formatted(NutrientConstants.ALL_NUTRIENT_NAMES, NutrientConstants.DAILY_VALUES_REFERENCE);
 
       // Use ContentMaker and PartMaker
       Content content = ContentMaker.fromMultiModalData(
@@ -150,10 +151,10 @@ public class VertexAiServiceImpl implements AiService {
                       "nutrients_in_estimated_quantity": {
                         "calories": {"value": 0, "unit": "kcal"},
                         "protein": {"value": 0, "unit": "g"},
-                        "carbohydrates": {"value": 0, "unit": "g"},
-                        "fat": {"value": 0, "unit": "g"},
-                        "fiber": {"value": 0, "unit": "g"},
-                        "sugar": {"value": 0, "unit": "g"},
+                        "total_carbohydrate": {"value": 0, "unit": "g"},
+                        "total_fat": {"value": 0, "unit": "g"},
+                        "dietary_fiber": {"value": 0, "unit": "g"},
+                        "total_sugars": {"value": 0, "unit": "g"},
                         "sodium": {"value": 0, "unit": "mg"},
                       },
                       "visual_cues": ["List of visual indicators used for estimation"],
@@ -163,10 +164,10 @@ public class VertexAiServiceImpl implements AiService {
                   "total_plate_nutrients": {
                     "calories": {"value": 0, "unit": "kcal"},
                     "protein": {"value": 0, "unit": "g"},
-                    "carbohydrates": {"value": 0, "unit": "g"},
-                    "fat": {"value": 0, "unit": "g"},
-                    "fiber": {"value": 0, "unit": "g"},
-                    "sugar": {"value": 0, "unit": "g"},
+                    "total_carbohydrate": {"value": 0, "unit": "g"},
+                    "total_fat": {"value": 0, "unit": "g"},
+                    "dietary_fiber": {"value": 0, "unit": "g"},
+                    "total_sugars": {"value": 0, "unit": "g"},
                     "sodium": {"value": 0, "unit": "mg"},
                   }
                 }
@@ -222,22 +223,13 @@ public class VertexAiServiceImpl implements AiService {
                     "amount": 0,
                     "unit": "g",
                   },
-                  "nutrients_per_100g": {
-                    "calories": {"value": 0, "unit": "kcal"},
-                    "protein": {"value": 0, "unit": "g"},
-                    "carbohydrates": {"value": 0, "unit": "g"},
-                    "fat": {"value": 0, "unit": "g"},
-                    "fiber": {"value": 0, "unit": "g"},
-                    "sugar": {"value": 0, "unit": "g"},
-                    "sodium": {"value": 0, "unit": "mg"},
-                  },
                   "nutrients_in_mentioned_quantity": {
                     "calories": {"value": 0, "unit": "kcal"},
                     "protein": {"value": 0, "unit": "g"},
-                    "carbohydrates": {"value": 0, "unit": "g"},
-                    "fat": {"value": 0, "unit": "g"},
-                    "fiber": {"value": 0, "unit": "g"},
-                    "sugar": {"value": 0, "unit": "g"},
+                    "total_carbohydrate": {"value": 0, "unit": "g"},
+                    "total_fat": {"value": 0, "unit": "g"},
+                    "dietary_fiber": {"value": 0, "unit": "g"},
+                    "total_sugars": {"value": 0, "unit": "g"},
                     "sodium": {"value": 0, "unit": "mg"},
                   },
                 }
@@ -245,10 +237,10 @@ public class VertexAiServiceImpl implements AiService {
               "total_nutrients": {
                 "calories": {"value": 0, "unit": "kcal"},
                 "protein": {"value": 0, "unit": "g"},
-                "carbohydrates": {"value": 0, "unit": "g"},
-                "fat": {"value": 0, "unit": "g"},
-                "fiber": {"value": 0, "unit": "g"},
-                "sugar": {"value": 0, "unit": "g"},
+                "total_carbohydrate": {"value": 0, "unit": "g"},
+                "total_fat": {"value": 0, "unit": "g"},
+                "dietary_fiber": {"value": 0, "unit": "g"},
+                "total_sugars": {"value": 0, "unit": "g"},
                 "sodium": {"value": 0, "unit": "mg"},
               }
             }

@@ -10,5 +10,5 @@ public class UserIntakeOutput {
     private String userId;
     private LocalDate date;
     private List<FoodNutrient> totalNutrients;
-    private List<FoodAnalysisRecord> foodAnalysisResponse;
+    private List<DailyIntakeRecord> foodAnalysisResponse;
 }

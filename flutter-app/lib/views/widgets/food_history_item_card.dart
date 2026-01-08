@@ -46,12 +46,20 @@ class FoodHistoryItemCard extends StatelessWidget {
                   ],
                 )
               ],
-              child: Image.file(
-                File(item.imagePath),
-                fit: BoxFit.cover,
-                height: 100,
-                width: double.infinity,
-              ),
+              child: item.imagePath != null &&
+                      item.imagePath.isNotEmpty &&
+                      File(item.imagePath).existsSync()
+                  ? Image.file(
+                      File(item.imagePath),
+                      fit: BoxFit.cover,
+                      height: 100,
+                      width: double.infinity,
+                    )
+                  : Container(
+                      height: 100,
+                      width: double.infinity,
+                      color: Colors.yellow,
+                    ),
             ),
             Column(
               children: [

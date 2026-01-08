@@ -4,24 +4,63 @@
 <mapper namespace="com.scanmyfood.backend.mapper.UserIntakeMapper">
 
     <select id="insertFoodAnalysis" resultType="java.lang.Integer">
-        INSERT INTO food_analysis (
-            user_id, meal_name,
+            INSERT INTO daily_intake (
+            user_id, meal_name, image_url,
             calories_value, calories_unit,
             protein_value, protein_unit,
-            carbohydrates_value, carbohydrates_unit,
-            fat_value, fat_unit,
-            fiber_value, fiber_unit,
-            sugar_value, sugar_unit,
+            total_carbohydrate_value, total_carbohydrate_unit,
+            total_fat_value, total_fat_unit,
+            dietary_fiber_value, dietary_fiber_unit,
+            total_sugars_value, total_sugars_unit,
             sodium_value, sodium_unit
         ) VALUES (
-            #{userId}, #{mealName},
+            #{userId}, #{mealName}, #{imageUrl},
             #{caloriesValue}, #{caloriesUnit},
             #{proteinValue}, #{proteinUnit},
-            #{carbohydratesValue}, #{carbohydratesUnit},
-            #{fatValue}, #{fatUnit},
-            #{fiberValue}, #{fiberUnit},
-            #{sugarValue}, #{sugarUnit},
+            #{totalCarbohydrateValue}, #{totalCarbohydrateUnit},
+            #{totalFatValue}, #{totalFatUnit},
+            #{dietaryFiberValue}, #{dietaryFiberUnit},
+            #{totalSugarsValue}, #{totalSugarsUnit},
             #{sodiumValue}, #{sodiumUnit}
+        )
+        RETURNING id
+    </select>
+
+    <select id="insertProductAnalysis" resultType="java.lang.Integer">
+        INSERT INTO daily_intake (
+            user_id,
+            product_name,
+            image_url,
+            energy_value, energy_unit,
+            protein_value, protein_unit,
+            total_carbohydrate_value, total_carbohydrate_unit,
+            total_fat_value, total_fat_unit,
+            saturated_fat_value, saturated_fat_unit,
+            trans_fat_value, trans_fat_unit,
+            dietary_fiber_value, dietary_fiber_unit,
+            total_sugars_value, total_sugars_unit,
+            added_sugars_value, added_sugars_unit,
+            sodium_value, sodium_unit,
+            iron_value, iron_unit,
+            calcium_value, calcium_unit,
+            potassium_value, potassium_unit
+        ) VALUES (
+            #{userId},
+            #{productName},
+            #{imageUrl},
+            #{energyValue}, #{energyUnit},
+            #{proteinValue}, #{proteinUnit},
+            #{totalCarbohydrateValue}, #{totalCarbohydrateUnit},
+            #{totalFatValue}, #{totalFatUnit},
+            #{saturatedFatValue}, #{saturatedFatUnit},
+            #{transFatValue}, #{transFatUnit},
+            #{dietaryFiberValue}, #{dietaryFiberUnit},
+            #{totalSugarsValue}, #{totalSugarsUnit},
+            #{addedSugarsValue}, #{addedSugarsUnit},
+            #{sodiumValue}, #{sodiumUnit},
+            #{ironValue}, #{ironUnit},
+            #{calciumValue}, #{calciumUnit},
+            #{potassiumValue}, #{potassiumUnit}
         )
         RETURNING id
     </select>
@@ -31,20 +70,20 @@
             item_name,
             calories_value_per_100g, calories_unit,
             protein_value_per_100g, protein_unit,
-            carbohydrates_value_per_100g, carbohydrates_unit,
-            fat_value_per_100g, fat_unit,
-            fiber_value_per_100g, fiber_unit,
-            sugar_value_per_100g, sugar_unit,
+            total_carbohydrate_value_per_100g, total_carbohydrate_unit,
+            total_fat_value_per_100g, total_fat_unit,
+            dietary_fiber_value_per_100g, dietary_fiber_unit,
+            total_sugars_value_per_100g, total_sugars_unit,
             sodium_value_per_100g, sodium_unit,
             added_by
         ) VALUES (
             #{itemName},
             #{caloriesValuePer100g}, #{caloriesUnit},
             #{proteinValuePer100g}, #{proteinUnit},
-            #{carbohydratesValuePer100g}, #{carbohydratesUnit},
-            #{fatValuePer100g}, #{fatUnit},
-            #{fiberValuePer100g}, #{fiberUnit},
-            #{sugarValuePer100g}, #{sugarUnit},
+            #{totalCarbohydrateValuePer100g}, #{totalCarbohydrateUnit},
+            #{totalFatValuePer100g}, #{totalFatUnit},
+            #{dietaryFiberValuePer100g}, #{dietaryFiberUnit},
+            #{totalSugarsValuePer100g}, #{totalSugarsUnit},
             #{sodiumValuePer100g}, #{sodiumUnit},
             #{addedBy}
         )
@@ -53,41 +92,164 @@
 
     <insert id="insertFoodAnalysisItem">
         INSERT INTO food_analysis_item (
-            food_analysis_id,
+            daily_intake_id,
             food_item_id,
             quantity_value,
             quantity_unit
         ) VALUES (
-            #{foodAnalysisId},
+            #{dailyIntakeId},
             #{foodItemId},
             #{quantityValue},
             #{quantityUnit}
         )
     </insert>
 
-    <select id="fetchUserIntake" resultType="com.scanmyfood.backend.models.FoodAnalysisRecord">
+    <select id="fetchUserIntake" resultType="com.scanmyfood.backend.models.DailyIntakeRecord">
         SELECT
             id,
             user_id,
             meal_name,
+            meal_description_name,
+            product_name,
+            image_url,
             calories_value,
             calories_unit,
+            energy_value,
+            energy_unit,
             protein_value,
             protein_unit,
-            carbohydrates_value,
-            carbohydrates_unit,
-            fat_value,
-            fat_unit,
-            fiber_value,
-            fiber_unit,
-            sugar_value,
-            sugar_unit,
+            cholesterol_value,
+            cholesterol_unit,
+            total_carbohydrate_value,
+            total_carbohydrate_unit,
+            dietary_fiber_value,
+            dietary_fiber_unit,
+            total_sugars_value,
+            total_sugars_unit,
+            added_sugars_value,
+            added_sugars_unit,
+            total_fat_value,
+            total_fat_unit,
+            saturated_fat_value,
+            saturated_fat_unit,
+            trans_fat_value,
+            trans_fat_unit,
             sodium_value,
             sodium_unit,
+            calcium_value,
+            calcium_unit,
+            iron_value,
+            iron_unit,
+            potassium_value,
+            potassium_unit,
+            magnesium_value,
+            magnesium_unit,
+            phosphorus_value,
+            phosphorus_unit,
+            zinc_value,
+            zinc_unit,
+            folate_value,
+            folate_unit,
+            vitamin_d_value,
+            vitamin_d_unit,
+            vitamin_a_value,
+            vitamin_a_unit,
+            vitamin_c_value,
+            vitamin_c_unit,
+            vitamin_b6_value,
+            vitamin_b6_unit,
+            vitamin_b12_value,
+            vitamin_b12_unit,
+            vitamin_e_value,
+            vitamin_e_unit,
+            vitamin_k_value,
+            vitamin_k_unit,
             created_at
-        FROM food_analysis
+        FROM daily_intake
         WHERE user_id = #{userId}
             AND DATE(created_at) = #{date}
     </select>
+
+    <select id="insertProductLabel" resultType="java.lang.Integer">
+        INSERT INTO product_label (
+            product_name, category,
+            total_quantity_value, total_quantity_unit,
+            serving_size_value, serving_size_unit,
+            energy_value_per_100g, energy_unit,
+            protein_value_per_100g, protein_unit,
+            total_carbohydrate_value_per_100g, total_carbohydrate_unit,
+            total_fat_value_per_100g, total_fat_unit,
+            saturated_fat_value_per_100g, saturated_fat_unit,
+            trans_fat_value_per_100g, trans_fat_unit,
+            dietary_fiber_value_per_100g, dietary_fiber_unit,
+            total_sugars_value_per_100g, total_sugars_unit,
+            added_sugars_value_per_100g, added_sugars_unit,
+            sodium_value_per_100g, sodium_unit,
+            iron_value_per_100g, iron_unit,
+            potassium_value_per_100g, potassium_unit,
+            calcium_value_per_100g, calcium_unit,
+            added_by
+        ) VALUES (
+            #{productName}, #{category},
+            #{totalQuantityValue}, #{totalQuantityUnit},
+            #{servingSizeValue}, #{servingSizeUnit},
+            #{energyValuePer100g}, #{energyUnit},
+            #{proteinValuePer100g}, #{proteinUnit},
+            #{totalCarbohydrateValuePer100g}, #{totalCarbohydrateUnit},
+            #{totalFatValuePer100g}, #{totalFatUnit},
+            #{saturatedFatValuePer100g}, #{saturatedFatUnit},
+            #{transFatValuePer100g}, #{transFatUnit},
+            #{dietaryFiberValuePer100g}, #{dietaryFiberUnit},
+            #{totalSugarsValuePer100g}, #{totalSugarsUnit},
+            #{addedSugarsValuePer100g}, #{addedSugarsUnit},
+            #{sodiumValuePer100g}, #{sodiumUnit},
+            #{ironValuePer100g}, #{ironUnit},
+            #{potassiumValuePer100g}, #{potassiumUnit},
+            #{calciumValuePer100g}, #{calciumUnit},
+            #{addedBy}
+        )
+        RETURNING id
+    </select>
+
+    <insert id="insertFoodAnalysisProduct">
+        INSERT INTO food_analysis_product (
+            daily_intake_id,
+            product_label_id,
+            quantity_value,
+            quantity_unit
+        ) VALUES (
+            #{dailyIntakeId},
+            #{productLabelId},
+            #{quantityValue},
+            #{quantityUnit}
+        )
+    </insert>
+
+    <select id="insertProductPrimaryConcern" resultType="java.lang.Integer">
+        INSERT INTO product_primary_concern (
+            product_label_id,
+            issue,
+            explanation
+        ) VALUES (
+            #{productLabelId},
+            #{issue},
+            #{explanation}
+        )
+        RETURNING id
+    </select>
+
+    <insert id="insertConcernRecommendation">
+        INSERT INTO product_concern_recommendation (
+            concern_id,
+            food,
+            quantity,
+            reasoning
+        ) VALUES (
+            #{concernId},
+            #{food},
+            #{quantity},
+            #{reasoning}
+        )
+    </insert>
 
 </mapper>

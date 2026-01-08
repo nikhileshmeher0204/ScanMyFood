@@ -2,11 +2,13 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_consumption.dart';
 import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
+import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/repositories/intake_repository_interface.dart';
 import 'package:read_the_label/repositories/storage_repository_interface.dart';
@@ -260,46 +262,33 @@ class DailyIntakeViewModel extends BaseViewModel {
     try {
       Map<String, double> newNutrients = {
         'Energy': totalPlateNutrients
-            .firstWhere((n) => n.name.toLowerCase() == 'calories',
-                orElse: () => FoodNutrient(
-                    name: 'calories', quantity: Quantity(value: 0.0, unit: '')))
+            .firstWhere((n) => n.name.toLowerCase() == AppConstants.energy)
             .quantity
             .value,
         'Protein': totalPlateNutrients
-            .firstWhere((n) => n.name.toLowerCase() == 'protein',
-                orElse: () => FoodNutrient(
-                    name: 'protein', quantity: Quantity(value: 0.0, unit: '')))
+            .firstWhere((n) => n.name.toLowerCase() == AppConstants.protein)
             .quantity
             .value,
         'Carbohydrate': totalPlateNutrients
-            .firstWhere((n) => n.name.toLowerCase() == 'carbohydrate',
-                orElse: () => FoodNutrient(
-                    name: 'carbohydrate',
-                    quantity: Quantity(value: 0.0, unit: '')))
+            .firstWhere(
+                (n) => n.name.toLowerCase() == AppConstants.totalCarbohydrate)
             .quantity
             .value,
         'Fat': totalPlateNutrients
-            .firstWhere((n) => n.name.toLowerCase() == 'fat',
-                orElse: () => FoodNutrient(
-                    name: 'fat', quantity: Quantity(value: 0.0, unit: '')))
+            .firstWhere((n) => n.name.toLowerCase() == AppConstants.totalFat)
             .quantity
             .value,
         'Fiber': totalPlateNutrients
-            .firstWhere((n) => n.name.toLowerCase() == 'fiber',
-                orElse: () => FoodNutrient(
-                    name: 'fiber', quantity: Quantity(value: 0.0, unit: '')))
+            .firstWhere(
+                (n) => n.name.toLowerCase() == AppConstants.dietaryFiber)
             .quantity
             .value,
         'Sodium': totalPlateNutrients
-            .firstWhere((n) => n.name.toLowerCase() == 'sodium',
-                orElse: () => FoodNutrient(
-                    name: 'sodium', quantity: Quantity(value: 0.0, unit: '')))
+            .firstWhere((n) => n.name.toLowerCase() == AppConstants.sodium)
             .quantity
             .value,
         'Total Sugars': totalPlateNutrients
-            .firstWhere((n) => n.name.toLowerCase() == 'sugar',
-                orElse: () => FoodNutrient(
-                    name: 'sugar', quantity: Quantity(value: 0.0, unit: '')))
+            .firstWhere((n) => n.name.toLowerCase() == AppConstants.totalSugars)
             .quantity
             .value,
       };
@@ -331,6 +320,13 @@ class DailyIntakeViewModel extends BaseViewModel {
     uiProvider.setLoading(true);
     final response =
         await intakeRepository.saveScannedFood(userId, foodImage, foodAnalysis);
+  }
+
+  Future<void> saveScannedLabel(String userId, File? foodImage,
+      ProductAnalysisResponse? productAnalysis) async {
+    uiProvider.setLoading(true);
+    final response = await intakeRepository.saveScannedLabel(
+        userId, foodImage, productAnalysis);
   }
 
   Future<void> addToFoodHistory({
