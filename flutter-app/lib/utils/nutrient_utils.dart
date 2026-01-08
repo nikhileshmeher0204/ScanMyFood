@@ -18,4 +18,11 @@ class NutrientUtils {
   static String getNutrientUnit(FoodItem item, String nutrientName) {
     return getNutrient(item, nutrientName)?.quantity.unit ?? '';
   }
+
+  static String formatNutrientName(String nutrientName) {
+    return nutrientName
+        .split('_')
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
+  }
 }

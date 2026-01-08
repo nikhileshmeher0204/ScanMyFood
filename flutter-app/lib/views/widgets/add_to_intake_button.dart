@@ -48,7 +48,8 @@ class AddToIntakeButton extends StatelessWidget {
         print("Current total nutrients: $totalPlateNutrients");
         print("foodAnalysis: $foodAnalysis");
 
-        if (source == AppConstants.scanMeal) {
+        if (source == AppConstants.scanMeal ||
+            source == AppConstants.scanDescription) {
           dailyIntakeProvider.saveScannedFood(
               user!.uid, foodImage, foodAnalysis);
         } else if (source == AppConstants.scanLabel) {

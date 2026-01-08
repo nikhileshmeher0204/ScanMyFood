@@ -107,11 +107,21 @@ public class AiResponseProcessingServiceImpl implements AiResponseProcessingServ
             FoodItem foodItem = new FoodItem();
             foodItem.setName((String)item.get("food_name"));
 
-            Map<String, Object> estimatedQuantity = (Map<String, Object>)item.get("nutrients_in_estimated_quantity");
-            Quantity quantity = new Quantity();
-            quantity.setValue(((Number)estimatedQuantity.get("amount")).doubleValue());
-            quantity.setUnit((String)estimatedQuantity.get("unit"));
-            foodItem.setQuantity(quantity);
+            Map<String, Object> nutrientsMap = (Map<String, Object>)item.get("nutrients_in_mentioned_quantity");
+            List<FoodNutrient> nutrients = new ArrayList<>();
+
+            if (nutrientsMap != null) {
+                for (Map.Entry<String, Object> entry : nutrientsMap.entrySet()) {
+                    String nutrientName = entry.getKey();
+                    Map<String, Object> quantityMap = (Map<String, Object>) entry.getValue();
+
+                    FoodNutrient nutrient = new FoodNutrient();
+                    nutrient.setName(nutrientName);
+                    nutrient.setQuantity(mapToQuantity(quantityMap));
+                    nutrients.add(nutrient);
+                }
+            }
+            foodItem.setNutrients(nutrients);
 
             foodItems.add(foodItem);
         }
@@ -119,7 +129,7 @@ public class AiResponseProcessingServiceImpl implements AiResponseProcessingServ
         response.setAnalyzedFoodItems(foodItems);
 
         // Set total nutrients
-        Map<String, Object> totalNutrientsMap = (Map<String, Object>) plateAnalysis.get("total_plate_nutrients");
+        Map<String, Object> totalNutrientsMap = (Map<String, Object>) plateAnalysis.get("total_nutrients");
         List<FoodNutrient> totalPlateNutrients = new ArrayList<>();
 
         if (totalNutrientsMap != null) {

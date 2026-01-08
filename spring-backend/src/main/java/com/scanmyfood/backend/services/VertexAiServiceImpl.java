@@ -223,21 +223,12 @@ public class VertexAiServiceImpl implements AiService {
                     "amount": 0,
                     "unit": "g",
                   },
-                  "nutrients_per_100g": {
+                  "nutrients_in_mentioned_quantity": {
                     "calories": {"value": 0, "unit": "kcal"},
                     "protein": {"value": 0, "unit": "g"},
                     "total_carbohydrate": {"value": 0, "unit": "g"},
                     "total_fat": {"value": 0, "unit": "g"},
                     "dietary_fiber": {"value": 0, "unit": "g"},
-                    "total_sugars": {"value": 0, "unit": "g"},
-                    "sodium": {"value": 0, "unit": "mg"},
-                  },
-                  "nutrients_in_mentioned_quantity": {
-                    "calories": {"value": 0, "unit": "kcal"},
-                    "protein": {"value": 0, "unit": "g"},
-                    "total_carbohydrate": {"value": 0, "unit": "g"},
-                    "dietary_fiber": {"value": 0, "unit": "g"},
-                    "fiber": {"value": 0, "unit": "g"},
                     "total_sugars": {"value": 0, "unit": "g"},
                     "sodium": {"value": 0, "unit": "mg"},
                   },
