@@ -40,7 +40,7 @@ public class UserIntakeController {
             String accessUrl = fileStorageService.getAccessUrl(storedPath);
 
             userIntakeService.saveScannedFoodIntake(saveScannedFoodInput, accessUrl);
-            log.info("Successfully saved intake");
+            log.info("Scanned food intake saved successfully");
             return ResponseEntity.ok(ApiResponse.success(null, "Scanned food intake saved successfully."));
 
         } catch (Exception e) {
@@ -64,8 +64,8 @@ public class UserIntakeController {
             String accessUrl = fileStorageService.getAccessUrl(storedPath);
 
             userIntakeService.saveScannedLabelIntake(saveScannedLabelInput, accessUrl);
-
-            return ResponseEntity.ok(ApiResponse.success(null, "Scanned food intake saved successfully."));
+            log.info("Scanned product intake saved successfully");
+            return ResponseEntity.ok(ApiResponse.success(null, "Scanned product intake saved successfully."));
 
         } catch (Exception e) {
             log.error("Error saving scanned food: {}", e.getMessage(), e);
@@ -84,6 +84,7 @@ public class UserIntakeController {
         if(dailyIntake.getDailyIntake().isEmpty()){
             return ResponseEntity.noContent().build();
         }
+        log.info("Daily intake fetched successfully for userId: {} on date: {}", userId, date);
         return ResponseEntity.ok(ApiResponse.success(dailyIntake, "Daily intake fetched successfully."));
 
     }
