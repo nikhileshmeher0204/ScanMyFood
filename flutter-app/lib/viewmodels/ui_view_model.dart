@@ -103,26 +103,6 @@ class UiViewModel extends BaseViewModel {
     }
   }
 
-  String getUnit(String nutrient) {
-    switch (nutrient.toLowerCase()) {
-      case 'energy':
-        return ' kcal';
-      case 'protein':
-      case 'carbohydrate':
-      case 'fat':
-      case 'fiber':
-      case 'sugar':
-        return 'g';
-      case 'sodium':
-      case 'potassium':
-      case 'calcium':
-      case 'iron':
-        return 'mg';
-      default:
-        return '';
-    }
-  }
-
   String getFormattedTime() {
     final hour = _selectedTime.hour == 0
         ? 12
