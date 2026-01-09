@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
-import 'package:read_the_label/models/food_consumption.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/models/user_intake_output.dart';
@@ -19,8 +18,6 @@ class DailyIntakeViewModel extends BaseViewModel {
   // State
   UserIntakeOutput? userIntakeOutput;
   Map<String, FoodNutrient>? _totalNutrientsMap;
-  Map<String, double> _dailyIntake = {};
-  List<FoodConsumption> _foodHistory = [];
   DateTime _selectedDate = DateTime.now();
   final ValueNotifier<Map<String, double>> dailyIntakeNotifier =
       ValueNotifier<Map<String, double>>({});
@@ -29,8 +26,6 @@ class DailyIntakeViewModel extends BaseViewModel {
   // Getters
   UserIntakeOutput? get userIntake => userIntakeOutput;
   Map<String, FoodNutrient>? get totalNutrients => _totalNutrientsMap;
-  Map<String, double> get dailyIntake => _dailyIntake;
-  List<FoodConsumption> get foodHistory => _foodHistory;
   DateTime get selectedDate => _selectedDate;
 
   // Constructor with dependency injection
@@ -72,24 +67,20 @@ class DailyIntakeViewModel extends BaseViewModel {
 
   Future<void> saveScannedFood(String userId, File? foodImage,
       FoodAnalysisResponse? foodAnalysis) async {
-    uiProvider.setLoading(true);
     await intakeRepository.saveScannedFood(userId, foodImage, foodAnalysis);
   }
 
-  Future<UserIntakeOutput?> getDailyIntake(String userId, DateTime date) async {
-    uiProvider.setLoading(true);
+  Future<void> getDailyIntake(String userId, DateTime date) async {
     userIntakeOutput = await intakeRepository.getDailyIntake(
       userId,
       date,
     );
     _mapTotalNutrients();
-    uiProvider.setLoading(false);
-    return userIntakeOutput;
+    notifyListeners();
   }
 
   Future<void> saveScannedLabel(String userId, File? foodImage,
       ProductAnalysisResponse? productAnalysis) async {
-    uiProvider.setLoading(true);
     await intakeRepository.saveScannedLabel(userId, foodImage, productAnalysis);
   }
 

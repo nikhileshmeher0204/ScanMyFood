@@ -140,7 +140,7 @@ class DetailedNutrientsCard extends StatelessWidget {
                   })
                   .map((nutrient) => NutrientCard(
                         nutrient: nutrient,
-                        dailyIntake: dailyIntake,
+                        totalNutrients: totalNutrients,
                       ))
                   .toList(),
             ),
