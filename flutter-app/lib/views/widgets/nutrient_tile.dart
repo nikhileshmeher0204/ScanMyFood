@@ -1,7 +1,4 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/utils/nutrient_utils.dart';
@@ -169,7 +166,7 @@ class _NutrientTileState extends State<NutrientTile>
                                   Row(
                                     children: [
                                       Text(
-                                        NutrientUtils.formatNutrientName(
+                                        NutrientUtils.toTitleCase(
                                             widget.nutrient),
                                         style: AppTextStyles.bodyLargeBold,
                                       ),

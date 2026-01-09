@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:read_the_label/models/daily_intake_record.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:soft_edge_blur/soft_edge_blur.dart';
@@ -15,12 +15,17 @@ class FoodHistoryItemCard extends StatelessWidget {
       required this.isLast});
 
   final Color tintColor;
-  final item;
+  final DailyIntakeRecord item;
   final BorderRadius? borderRadius;
   final bool isLast;
 
   @override
   Widget build(BuildContext context) {
+    final itemName = item.mealName ??
+        item.mealDescriptionName ??
+        item.productName ??
+        'Unknown Item';
+
     return Expanded(
       child: ClipRRect(
         borderRadius: borderRadius ?? BorderRadius.zero,
@@ -46,11 +51,11 @@ class FoodHistoryItemCard extends StatelessWidget {
                   ],
                 )
               ],
-              child: item.imagePath != null &&
-                      item.imagePath.isNotEmpty &&
-                      File(item.imagePath).existsSync()
+              child: item.imageUrl != null &&
+                      item.imageUrl!.isNotEmpty &&
+                      File(item.imageUrl!).existsSync()
                   ? Image.file(
-                      File(item.imagePath),
+                      File(item.imageUrl!),
                       fit: BoxFit.cover,
                       height: 100,
                       width: double.infinity,
@@ -70,7 +75,7 @@ class FoodHistoryItemCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          item.foodName,
+                          itemName,
                           style: AppTextStyles.bodyLargeBold.copyWith(
                             fontWeight: FontWeight.w800,
                             color:
@@ -79,7 +84,7 @@ class FoodHistoryItemCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${item.nutrients['Energy']?.toStringAsFixed(0) ?? 0} kcal',
+                        '${item.caloriesValue ?? item.energyValue} ${item.caloriesUnit ?? item.energyUnit}',
                         style: AppTextStyles.bodyMediumBold.copyWith(
                           color: AppColors.primaryWhite.withValues(alpha: 0.8),
                         ),

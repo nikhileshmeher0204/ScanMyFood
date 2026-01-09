@@ -19,10 +19,18 @@ class NutrientUtils {
     return getNutrient(item, nutrientName)?.quantity.unit ?? '';
   }
 
-  static String formatNutrientName(String nutrientName) {
+  static String toTitleCase(String nutrientName) {
     return nutrientName
         .split('_')
         .map((word) => word[0].toUpperCase() + word.substring(1))
         .join(' ');
+  }
+
+  static String toSnakeCase(String nutrientName) {
+    return nutrientName
+        .trim()
+        .split(' ')
+        .map((word) => word.toLowerCase())
+        .join('_');
   }
 }

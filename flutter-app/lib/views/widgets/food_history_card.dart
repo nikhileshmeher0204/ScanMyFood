@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/models/daily_intake_record.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
@@ -79,12 +80,13 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
           children: [
             Consumer<DailyIntakeViewModel>(
                 builder: (context, viewModel, child) {
-              final todayItems = viewModel.foodHistory
+              final List<DailyIntakeRecord> todayItems = viewModel
+                  .userIntakeOutput!.dailyIntake
                   .where(
-                      (item) => isSameDay(item.dateTime, widget.selectedDate))
+                      (item) => isSameDay(item.createdAt, widget.selectedDate))
                   .toList()
-                ..sort(
-                    (a, b) => a.dateTime.compareTo(b.dateTime)); // Sort by time
+                ..sort((a, b) =>
+                    a.createdAt!.compareTo(b.createdAt!)); // Sort by time
 
               return ListView.builder(
                 padding: const EdgeInsets.only(top: 5),
@@ -96,10 +98,6 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                   final isFirst = index == 0;
 
                   final isLast = index == todayItems.length - 1;
-                  final timeDifference = index > 0
-                      ? _calculateTimeDifference(
-                          todayItems[index - 1].dateTime, item.dateTime)
-                      : null;
 
                   BorderRadius? borderRadius;
                   if (todayItems.length == 1) {
@@ -119,7 +117,7 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                     );
                   }
                   return FutureBuilder<Color>(
-                    future: viewModel.extractDominantColor(item.imagePath),
+                    future: viewModel.extractDominantColor(item.imageUrl),
                     builder: (context, snapshot) {
                       final tintColor =
                           snapshot.data ?? Colors.black.withOpacity(0.3);
@@ -133,7 +131,7 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                               alignment: Alignment
                                   .center, // Center the time vertically
                               child: Text(
-                                DateFormat('h:mm a').format(item.dateTime),
+                                DateFormat('h:mm a').format(item.createdAt!),
                                 style: AppTextStyles.bodyMediumBold.copyWith(
                                   fontSize: 12,
                                 ),
@@ -234,18 +232,10 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
     );
   }
 
-  bool isSameDay(DateTime date1, DateTime date2) {
+  bool isSameDay(DateTime? date1, DateTime date2) {
+    if (date1 == null) return false;
     return date1.year == date2.year &&
         date1.month == date2.month &&
         date1.day == date2.day;
-  }
-
-  String _calculateTimeDifference(DateTime earlier, DateTime later) {
-    final difference = later.difference(earlier);
-    if (difference.inHours > 0) {
-      return '${difference.inHours}h ${difference.inMinutes.remainder(60)}m';
-    } else {
-      return '${difference.inMinutes}m';
-    }
   }
 }

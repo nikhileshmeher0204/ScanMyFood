@@ -1,17 +1,17 @@
-import 'package:read_the_label/models/food_analysis_record.dart';
+import 'package:read_the_label/models/daily_intake_record.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 
 class UserIntakeOutput {
   final String userId;
   final DateTime date;
   final List<FoodNutrient> totalNutrients;
-  final List<FoodAnalysisRecord> foodAnalysisResponse;
+  final List<DailyIntakeRecord> dailyIntake;
 
   UserIntakeOutput({
     required this.userId,
     required this.date,
     required this.totalNutrients,
-    required this.foodAnalysisResponse,
+    required this.dailyIntake,
   });
 
   factory UserIntakeOutput.fromJson(Map<String, dynamic> json) {
@@ -21,8 +21,8 @@ class UserIntakeOutput {
       totalNutrients: (json['total_nutrients'] as List<dynamic>)
           .map((e) => FoodNutrient.fromJson(e as Map<String, dynamic>))
           .toList(),
-      foodAnalysisResponse: (json['food_analysis_response'] as List<dynamic>)
-          .map((e) => FoodAnalysisRecord.fromJson(e as Map<String, dynamic>))
+      dailyIntake: (json['daily_intake'] as List<dynamic>)
+          .map((e) => DailyIntakeRecord.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -32,8 +32,7 @@ class UserIntakeOutput {
       'user_id': userId,
       'date': date.toIso8601String(),
       'total_nutrients': totalNutrients.map((e) => e.toJson()).toList(),
-      'food_analysis_response':
-          foodAnalysisResponse.map((e) => e.toJson()).toList(),
+      'daily_intake': dailyIntake.map((e) => e.toJson()).toList(),
     };
   }
 }

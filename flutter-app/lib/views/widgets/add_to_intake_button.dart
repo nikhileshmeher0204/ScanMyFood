@@ -9,7 +9,6 @@ import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
-import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class AddToIntakeButton extends StatelessWidget {
@@ -36,7 +35,6 @@ class AddToIntakeButton extends StatelessWidget {
       onPressed: () {
         final uiProvider = context.read<UiViewModel>();
         final dailyIntakeProvider = context.read<DailyIntakeViewModel>();
-        final mealAnalysisProvider = context.read<MealAnalysisViewModel>();
         final authService = Provider.of<AuthService>(context, listen: false);
         final user = authService.currentUser;
 
@@ -56,14 +54,6 @@ class AddToIntakeButton extends StatelessWidget {
           dailyIntakeProvider.saveScannedLabel(
               user!.uid, foodImage, productAnalysis);
         }
-
-        dailyIntakeProvider.addMealToDailyIntake(
-          user: user,
-          mealName: mealName,
-          foodItems: mealAnalysisProvider.analyzedScannedFoodItems,
-          totalPlateNutrients: adjustedNutrients,
-          foodImage: foodImage,
-        );
 
         uiProvider.updateCurrentIndex(2);
         ScaffoldMessenger.of(context).showSnackBar(
