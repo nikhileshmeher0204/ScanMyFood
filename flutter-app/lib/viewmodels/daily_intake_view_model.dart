@@ -5,13 +5,11 @@ import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/models/user_intake_output.dart';
 import 'package:read_the_label/repositories/intake_repository_interface.dart';
-import 'package:read_the_label/repositories/storage_repository_interface.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'base_view_model.dart';
 
 class DailyIntakeViewModel extends BaseViewModel {
   // Dependencies
-  StorageRepositoryInterface storageRepository;
   IntakeRepositoryInterface intakeRepository;
   UiViewModel uiProvider;
 
@@ -30,7 +28,6 @@ class DailyIntakeViewModel extends BaseViewModel {
 
   // Constructor with dependency injection
   DailyIntakeViewModel({
-    required this.storageRepository,
     required this.intakeRepository,
     required this.uiProvider,
   });
