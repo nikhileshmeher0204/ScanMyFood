@@ -16,7 +16,7 @@ List<Map<String, dynamic>> nutrientData = [
     'Goal': 'Less than'
   },
   {
-    'Nutrient': 'Sugar',
+    'Nutrient': 'Total Sugars',
     'Current Daily Value': '50',
     'Unit': 'g',
     '5%DV': '2.5',
@@ -80,7 +80,7 @@ List<Map<String, dynamic>> nutrientData = [
     'Goal': 'At least'
   },
   {
-    'Nutrient': 'Fiber',
+    'Nutrient': 'Dietary Fiber',
     'Current Daily Value': '28',
     'Unit': 'g',
     '5%DV': '1.4',
@@ -88,7 +88,7 @@ List<Map<String, dynamic>> nutrientData = [
     'Goal': 'At least'
   },
   {
-    'Nutrient': 'Fat',
+    'Nutrient': 'Total Fat',
     'Current Daily Value': '78',
     'Unit': 'g',
     '5%DV': '3.9',
@@ -224,7 +224,7 @@ List<Map<String, dynamic>> nutrientData = [
     'Goal': 'At least'
   },
   {
-    'Nutrient': 'Carbohydrate',
+    'Nutrient': 'Total Carbohydrate',
     'Current Daily Value': '275',
     'Unit': 'g',
     '5%DV': '13.75',
