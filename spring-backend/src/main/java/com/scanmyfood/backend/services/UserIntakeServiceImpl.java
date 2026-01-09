@@ -203,7 +203,7 @@ public class UserIntakeServiceImpl implements UserIntakeService {
             output.setUserId(userId);
             output.setDate(date);
             output.setTotalNutrients(totalNutrients);
-            output.setFoodAnalysisResponse(records);
+            output.setDailyIntake(records);
             return output;
         } catch (Exception exception) {
             logger.error("Error fetching user intake: {}", exception.getMessage(), exception);

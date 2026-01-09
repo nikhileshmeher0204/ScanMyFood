@@ -81,7 +81,7 @@ public class UserIntakeController {
     ) throws Exception {
         log.info("Fetching daily intake for userId: {} on date: {}", userId, date);
         UserIntakeOutput dailyIntake = userIntakeService.getUserIntake(userId, date);
-        if(dailyIntake.getFoodAnalysisResponse().isEmpty()){
+        if(dailyIntake.getDailyIntake().isEmpty()){
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(ApiResponse.success(dailyIntake, "Daily intake fetched successfully."));

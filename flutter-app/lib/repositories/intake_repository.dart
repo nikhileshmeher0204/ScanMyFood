@@ -7,6 +7,7 @@ import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/models/save_scanned_food_input.dart';
 import 'package:read_the_label/models/save_scanned_label_input.dart';
+import 'package:read_the_label/models/user_intake_output.dart';
 import 'package:read_the_label/repositories/api_client.dart';
 import 'package:read_the_label/repositories/intake_repository_interface.dart';
 
@@ -110,6 +111,49 @@ class IntakeRepository implements IntakeRepositoryInterface {
       }
     } catch (e) {
       throw Exception('Error saving scanned food: $e');
+    }
+  }
+
+  @override
+  Future<UserIntakeOutput> getDailyIntake(String userId, DateTime date) async {
+    try {
+      final formattedDate =
+          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+      final uri = Uri.parse('${_apiClient.baseUrl}/user/intake').replace(
+        queryParameters: {
+          'userId': userId,
+          'date': formattedDate,
+        },
+      );
+
+      final token = await _apiClient.getAuthToken();
+      final headers = <String, String>{};
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+
+      final response = await http.get(uri, headers: headers);
+      print("Raw response: ${response.body}");
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        // Check response structure
+        if (jsonResponse['status'] == 'success' &&
+            jsonResponse['data'] != null) {
+          // Convert data to FoodAnalysisResponse
+          return UserIntakeOutput.fromJson(jsonResponse['data']);
+        } else {
+          throw Exception(
+              'Invalid response format: ${jsonResponse['message'] ?? "Unknown error"}');
+        }
+      } else {
+        throw Exception(
+            'Failed to analyze description: ${response.statusCode}');
+      }
+    } catch (exception) {
+      throw Exception('Error getting daily intake: $exception');
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/views/widgets/date_selector.dart';
@@ -36,19 +37,11 @@ class _DailyIntakeViewState extends State<DailyIntakeView> {
     if (!mounted) return;
 
     print("Initializing DailyIntakePage data...");
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final user = authService.currentUser;
     final dailyIntakeProvider =
         Provider.of<DailyIntakeViewModel>(context, listen: false);
-
-    // Debug check storage
-    await dailyIntakeProvider.debugCheckStorage();
-
-    // Load food history first
-    print("Loading food history...");
-    await dailyIntakeProvider.loadFoodHistory();
-
-    // Then load daily intake for selected date
-    print("Loading daily intake for selected date...");
-    await dailyIntakeProvider.loadDailyIntake(DateTime.now());
+    dailyIntakeProvider.getDailyIntake(user!.uid, _selectedDate);
 
     if (mounted) {
       setState(() {
@@ -80,24 +73,29 @@ class _DailyIntakeViewState extends State<DailyIntakeView> {
               builder: (context, dailyIntakeProvider, _) {
             return Column(
               children: [
-                HeaderCard(context, _selectedDate),
+                HeaderCard(
+                  selectedDate: _selectedDate,
+                ),
                 DateSelector(
                   context,
                   _selectedDate,
                   (DateTime newDate) {
                     setState(() {
+                      final authService =
+                          Provider.of<AuthService>(context, listen: false);
+                      final user = authService.currentUser;
                       _selectedDate = newDate;
-                      dailyIntakeProvider.loadDailyIntake(newDate);
+                      dailyIntakeProvider.getDailyIntake(user!.uid, newDate);
                     });
                   },
                 ),
-                MacronutrientSummaryCard(
-                    context, dailyIntakeProvider.dailyIntake),
+                const MacronutrientSummaryCard(),
                 FoodHistoryCard(
                     context: context,
                     currentIndex: 2,
                     selectedDate: _selectedDate),
-                DetailedNutrientsCard(context, dailyIntakeProvider.dailyIntake),
+                DetailedNutrientsCard(
+                    totalNutrients: dailyIntakeProvider.totalNutrients),
               ],
             );
           }),
