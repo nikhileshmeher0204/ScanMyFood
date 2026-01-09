@@ -18,7 +18,6 @@ import 'package:read_the_label/views/screens/onboarding_getstarted_screen.dart';
 import 'package:read_the_label/views/screens/onboarding_health_metrics_screen.dart';
 import 'package:read_the_label/views/screens/product_analysis_view.dart';
 import 'firebase_options.dart';
-import 'package:read_the_label/repositories/storage_repository.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/repositories/api_client.dart';
 import 'package:read_the_label/services/auth_service.dart';
@@ -125,9 +124,6 @@ class MyApp extends StatelessWidget {
       // Provider<AiRepository>(
       //   create: (_) => AiRepository(),
       // ),
-      Provider<StorageRepository>(
-        create: (_) => StorageRepository(),
-      ),
       Provider<UserRepository>(
         create: (context) => UserRepository(context.read<ApiClient>()),
       ),
@@ -166,17 +162,13 @@ class MyApp extends StatelessWidget {
         update: (context, uiViewModel, previous) =>
             previous!..uiProvider = uiViewModel,
       ),
-      ChangeNotifierProxyProvider2<UiViewModel, StorageRepository,
-          DailyIntakeViewModel>(
-        create: (context) => DailyIntakeViewModel(
-          storageRepository: context.read<StorageRepository>(),
-          intakeRepository: context.read<IntakeRepository>(),
-          uiProvider: context.read<UiViewModel>(),
-        ),
-        update: (context, uiViewModel, storageRepository, previous) => previous!
-          ..uiProvider = uiViewModel
-          ..storageRepository = storageRepository,
-      ),
+      ChangeNotifierProxyProvider<UiViewModel, DailyIntakeViewModel>(
+          create: (context) => DailyIntakeViewModel(
+                intakeRepository: context.read<IntakeRepository>(),
+                uiProvider: context.read<UiViewModel>(),
+              ),
+          update: (context, uiViewModel, previous) =>
+              previous!..uiProvider = uiViewModel),
     ];
   }
 }
