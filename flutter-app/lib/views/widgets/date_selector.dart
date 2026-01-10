@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_text_styles.dart';
 
 class DateSelector extends StatelessWidget {
   const DateSelector({
@@ -13,8 +15,6 @@ class DateSelector extends StatelessWidget {
   final ValueChanged<DateTime> onDateSelected;
   final int daysToShow;
 
-  static const double _itemHeight = 70.0;
-  static const double _itemWidth = 50.0;
   static const double _borderRadius = 16.0;
 
   bool _isSameDay(DateTime date1, DateTime date2) {
@@ -25,96 +25,69 @@ class DateSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Calculate responsive dimensions
+    final horizontalPadding = screenWidth * 0.05; // 5% of screen width
+    final availableWidth = screenWidth - (horizontalPadding * 2);
+    final itemSpacing = screenWidth * 0.015; // 1.5% of screen width
+    final totalSpacing = itemSpacing * (daysToShow - 1);
+    final itemWidth = (availableWidth - totalSpacing) / daysToShow;
+    final itemHeight = itemWidth * 1.4; // Maintain aspect ratio
+
     final now = DateTime.now();
     final List<DateTime> dates = List.generate(daysToShow,
         (index) => now.subtract(Duration(days: daysToShow - 1 - index)));
 
     return SizedBox(
-      height: _itemHeight,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: dates.length,
-        itemBuilder: (context, index) {
-          final date = dates[index];
-          final isSelected = _isSameDay(selectedDate, date);
-          final isFirstItem = index == 0;
-          final isLastItem = index == dates.length - 1;
-
-          return Padding(
-            padding: EdgeInsets.only(
-              left: isFirstItem ? 20 : 8,
-              right: isLastItem ? 20 : 8,
-            ),
-            child: Material(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(_borderRadius),
-              child: InkWell(
+      height: itemHeight,
+      child: Row(
+        children: [
+          for (int i = 0; i < dates.length; i++) ...[
+            if (i > 0) SizedBox(width: itemSpacing),
+            Expanded(
+              child: Material(
+                color: Colors.transparent,
                 borderRadius: BorderRadius.circular(_borderRadius),
-                onTap: () => onDateSelected(date),
-                child: Ink(
-                  width: _itemWidth,
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        isSelected
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.1),
-                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(_borderRadius),
+                  onTap: () => onDateSelected(dates[i]),
+                  child: Ink(
+                    decoration: BoxDecoration(
+                      color: _isSameDay(selectedDate, dates[i])
+                          ? AppColors.accent
+                          : AppColors.cardBackground,
+                      borderRadius: BorderRadius.circular(_borderRadius),
                     ),
-                    borderRadius: BorderRadius.circular(_borderRadius),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .primary
-                            .withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(5, 5),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        DateFormat('E').format(date).substring(0, 1),
-                        style: TextStyle(
-                          color: isSelected
-                              ? Theme.of(context).colorScheme.onPrimary
-                              : Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withOpacity(0.6),
-                          fontSize: 14,
-                          fontFamily: 'Inter',
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          DateFormat('E').format(dates[i]).substring(0, 1),
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: _isSameDay(selectedDate, dates[i])
+                                ? AppColors.onPrimary
+                                : AppColors.textSecondary,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${date.day}',
-                        style: TextStyle(
-                          color: isSelected
-                              ? Theme.of(context).colorScheme.onPrimary
-                              : Theme.of(context).colorScheme.onSurface,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Inter',
+                        const SizedBox(height: 4),
+                        Text(
+                          '${dates[i].day}',
+                          style: AppTextStyles.buttonTextWhite.copyWith(
+                            color: _isSameDay(selectedDate, dates[i])
+                                ? AppColors.onPrimary
+                                : AppColors.onSurface,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          );
-        },
+          ],
+        ],
       ),
     );
   }

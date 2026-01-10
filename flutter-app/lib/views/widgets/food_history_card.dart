@@ -11,7 +11,7 @@ import 'package:read_the_label/views/widgets/food_history_item_card.dart';
 import 'package:read_the_label/views/widgets/food_input_form.dart';
 import '../../theme/app_text_styles.dart';
 
-class FoodHistoryCard extends StatefulWidget {
+class FoodHistoryCard extends StatelessWidget {
   final DateTime selectedDate;
 
   const FoodHistoryCard({
@@ -20,208 +20,139 @@ class FoodHistoryCard extends StatefulWidget {
   });
 
   @override
-  State<FoodHistoryCard> createState() => _FoodHistoryCardState();
-}
-
-class _FoodHistoryCardState extends State<FoodHistoryCard> {
-  @override
-  Widget build(context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        spacing: 10,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Today\'s Intake',
+            style: AppTextStyles.heading2.copyWith(
+              color: AppColors.onPrimary,
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            spacing: 10,
             children: [
-              Text(
-                'Today\'s Intake',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontFamily: 'Inter',
-                ),
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.info_outline,
-                  color: AppColors.primaryWhite,
-                ),
-                onPressed: () {
-                  // Show info dialog about nutrients
-                  showDialog(
+              Consumer<DailyIntakeViewModel>(
+                  builder: (context, viewModel, child) {
+                final List<DailyIntakeRecord> todayItems = viewModel
+                    .userIntakeOutput!.dailyIntake
+                    .where((item) => isSameDay(item.createdAt, selectedDate))
+                    .toList()
+                  ..sort((a, b) =>
+                      a.createdAt!.compareTo(b.createdAt!)); // Sort by time
+
+                return ListView.builder(
+                  padding: const EdgeInsets.only(top: 5),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: todayItems.length,
+                  itemBuilder: (context, index) {
+                    final item = todayItems[index];
+                    final isFirst = index == 0;
+
+                    final isLast = index == todayItems.length - 1;
+
+                    BorderRadius? borderRadius;
+                    if (todayItems.length == 1) {
+                      // Single item - rounded on all corners
+                      borderRadius = BorderRadius.circular(16);
+                    } else if (isFirst) {
+                      // First item - rounded top corners only
+                      borderRadius = const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      );
+                    } else if (isLast) {
+                      // Last item - rounded bottom corners only
+                      borderRadius = const BorderRadius.only(
+                        bottomLeft: Radius.circular(16),
+                        bottomRight: Radius.circular(16),
+                      );
+                    }
+                    return FoodHistoryItemCard(
+                        item: item, borderRadius: borderRadius, isLast: isLast);
+                  },
+                );
+              }),
+              GestureDetector(
+                onTap: () {
+                  showCupertinoSheet<void>(
                     context: context,
-                    builder: (context) => AlertDialog(
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      title: const Text('Food Items History'),
-                      content: const Text(
-                        'This section shows all the food items you have consumed today, along with their caloric values and timestamps.',
+                    enableDrag: true,
+                    builder: (context) => Material(
+                      child: FoodInputForm(
+                        onSubmit: () {
+                          Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (context) => Consumer<UiViewModel>(
+                                builder: (context, uiProvider, _) =>
+                                    const MealDescriptionAnalysisView(),
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Got it'),
-                        ),
-                      ],
                     ),
                   );
                 },
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 237, 202, 149),
+                        Color.fromARGB(255, 253, 142, 81),
+                        Color.fromARGB(255, 255, 0, 85),
+                        Color.fromARGB(255, 0, 21, 255),
+                      ],
+                      stops: [0.2, 0.4, 0.6, 1.0],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    spacing: 5,
+                    children: [
+                      const Icon(
+                        Icons.auto_awesome,
+                        color: Color.fromARGB(255, 0, 21, 255),
+                        size: 20,
+                      ),
+                      Text(
+                        "Add intake via text description",
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          fontWeight: FontWeight.w500,
+                          foreground: Paint()
+                            ..shader = const LinearGradient(
+                              colors: <Color>[
+                                Color.fromARGB(255, 0, 21, 255),
+                                Color.fromARGB(255, 255, 0, 85),
+                                Color.fromARGB(255, 250, 220, 194),
+                              ],
+                              stops: [0.3, 0.5, 0.8],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ).createShader(
+                              const Rect.fromLTWH(0.0, 0.0, 250.0, 16.0),
+                            ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Consumer<DailyIntakeViewModel>(
-                builder: (context, viewModel, child) {
-              final List<DailyIntakeRecord> todayItems = viewModel
-                  .userIntakeOutput!.dailyIntake
-                  .where(
-                      (item) => isSameDay(item.createdAt, widget.selectedDate))
-                  .toList()
-                ..sort((a, b) =>
-                    a.createdAt!.compareTo(b.createdAt!)); // Sort by time
-
-              return ListView.builder(
-                padding: const EdgeInsets.only(top: 5),
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: todayItems.length,
-                itemBuilder: (context, index) {
-                  final item = todayItems[index];
-                  final isFirst = index == 0;
-
-                  final isLast = index == todayItems.length - 1;
-
-                  BorderRadius? borderRadius;
-                  if (todayItems.length == 1) {
-                    // Single item - rounded on all corners
-                    borderRadius = BorderRadius.circular(16);
-                  } else if (isFirst) {
-                    // First item - rounded top corners only
-                    borderRadius = const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
-                    );
-                  } else if (isLast) {
-                    // Last item - rounded bottom corners only
-                    borderRadius = const BorderRadius.only(
-                      bottomLeft: Radius.circular(16),
-                      bottomRight: Radius.circular(16),
-                    );
-                  }
-                  return FutureBuilder<Color>(
-                    future: viewModel.extractDominantColor(item.imageUrl),
-                    builder: (context, snapshot) {
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 50,
-                            child: Container(
-                              height: 100, // Match food card height exactly
-                              alignment: Alignment
-                                  .center, // Center the time vertically
-                              child: Text(
-                                DateFormat('h:mm a').format(item.createdAt!),
-                                style: AppTextStyles.bodyMediumBold.copyWith(
-                                  fontSize: 12,
-                                ),
-                                textAlign: TextAlign
-                                    .center, // Changed from right to center
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8), // Reduced from 12
-                          // Food tile
-                          FoodHistoryItemCard(
-                              item: item,
-                              borderRadius: borderRadius,
-                              isLast: isLast),
-                        ],
-                      );
-                    },
-                  );
-                },
-              );
-            }),
-            GestureDetector(
-              onTap: () {
-                showCupertinoSheet<void>(
-                  context: context,
-                  enableDrag: true,
-                  builder: (context) => Material(
-                    child: FoodInputForm(
-                      onSubmit: () {
-                        Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                            builder: (context) => Consumer<UiViewModel>(
-                              builder: (context, uiProvider, _) =>
-                                  const MealDescriptionAnalysisView(),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color.fromARGB(255, 237, 202, 149),
-                      Color.fromARGB(255, 253, 142, 81),
-                      Color.fromARGB(255, 255, 0, 85),
-                      Color.fromARGB(255, 0, 21, 255),
-                    ],
-                    stops: [0.2, 0.4, 0.6, 1.0],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.add,
-                      color: Color.fromARGB(255, 0, 21, 255),
-                    ),
-                    Text(
-                      "Add meal via text description",
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w500,
-                        foreground: Paint()
-                          ..shader = const LinearGradient(
-                            colors: <Color>[
-                              Color.fromARGB(255, 0, 21, 255),
-                              Color.fromARGB(255, 255, 0, 85),
-                              Color.fromARGB(255, 250, 220, 194),
-                            ],
-                            stops: [
-                              0.3,
-                              0.5,
-                              0.8
-                            ], // Four stops for four colors
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ).createShader(
-                            const Rect.fromLTWH(0.0, 0.0, 250.0, 16.0),
-                          ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
   }
 

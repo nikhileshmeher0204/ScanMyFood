@@ -23,7 +23,6 @@ class DetailedNutrientsCard extends StatelessWidget {
         dailyIntakeProvider.totalNutrients!;
 
     return Container(
-      margin: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [

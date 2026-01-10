@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/views/widgets/date_selector.dart';
 import 'package:read_the_label/views/widgets/detailed_nutrients_card.dart';
 import 'package:read_the_label/views/widgets/food_history_card.dart';
 import 'package:read_the_label/views/widgets/header_widget.dart';
-import 'package:read_the_label/views/widgets/macronutrien_summary_card.dart';
+import 'package:read_the_label/views/widgets/calorie_card.dart';
+import 'package:read_the_label/views/widgets/macronutrient_indicator_card.dart';
 
 class DailyIntakeView extends StatelessWidget {
   const DailyIntakeView({super.key});
@@ -62,21 +64,29 @@ class DailyIntakeView extends StatelessWidget {
               );
             }
 
-            return Column(
-              children: [
-                HeaderCard(
-                  selectedDate: dailyIntakeProvider.selectedDate,
-                ),
-                DateSelector(
-                  selectedDate: dailyIntakeProvider.selectedDate,
-                  onDateSelected: dailyIntakeProvider.updateSelectedDate,
-                ),
-                MacronutrientSummaryCard(
-                    totalNutrients: dailyIntakeProvider.totalNutrients!),
-                FoodHistoryCard(selectedDate: dailyIntakeProvider.selectedDate),
-                DetailedNutrientsCard(
-                    totalNutrients: dailyIntakeProvider.totalNutrients!),
-              ],
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                spacing: 20,
+                children: [
+                  HeaderCard(
+                    selectedDate: dailyIntakeProvider.selectedDate,
+                  ),
+                  DateSelector(
+                    selectedDate: dailyIntakeProvider.selectedDate,
+                    onDateSelected: dailyIntakeProvider.updateSelectedDate,
+                  ),
+                  CalorieCard(
+                      calories: dailyIntakeProvider
+                          .totalNutrients![AppConstants.calories]),
+                  MacronutrientsIndicatorCard(
+                      totalNutrients: dailyIntakeProvider.totalNutrients!),
+                  FoodHistoryCard(
+                      selectedDate: dailyIntakeProvider.selectedDate),
+                  DetailedNutrientsCard(
+                      totalNutrients: dailyIntakeProvider.totalNutrients!),
+                ],
+              ),
             );
           }),
         ),
