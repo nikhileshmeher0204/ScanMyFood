@@ -5,6 +5,7 @@ import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/models/user_intake_output.dart';
 import 'package:read_the_label/repositories/intake_repository_interface.dart';
+import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'base_view_model.dart';
 
@@ -12,6 +13,7 @@ class DailyIntakeViewModel extends BaseViewModel {
   // Dependencies
   IntakeRepositoryInterface intakeRepository;
   UiViewModel uiProvider;
+  AuthService authService;
 
   // State
   UserIntakeOutput? userIntakeOutput;
@@ -30,7 +32,16 @@ class DailyIntakeViewModel extends BaseViewModel {
   DailyIntakeViewModel({
     required this.intakeRepository,
     required this.uiProvider,
+    required this.authService,
   });
+
+  Future<void> updateSelectedDate(DateTime newDate) async {
+    final user = authService.currentUser;
+    if (user == null) return;
+
+    _selectedDate = newDate;
+    await getDailyIntake(user.uid, newDate);
+  }
 
   Future<Color> extractDominantColor(String? imagePath) async {
     // Check cache first

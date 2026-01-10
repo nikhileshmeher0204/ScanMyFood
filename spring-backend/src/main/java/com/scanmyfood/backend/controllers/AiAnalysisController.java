@@ -1,5 +1,6 @@
 package com.scanmyfood.backend.controllers;
 
+import com.scanmyfood.backend.constants.ResponseCodeConstants;
 import com.scanmyfood.backend.models.ApiResponse;
 import com.scanmyfood.backend.models.FoodAnalysisResponse;
 import com.scanmyfood.backend.models.ProductAnalysisResponse;
@@ -36,7 +37,7 @@ public class AiAnalysisController {
         Map<String, Object> analysis = aiService.analyzeProductImages(frontImage, labelImage);
         ProductAnalysisResponse processedAnalysis = aiResponseProcessingService.processProductImagesResponse(analysis);
         log.info("Product images analyzed successfully");
-        return ResponseEntity.ok(ApiResponse.success(processedAnalysis));
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.PRODUCT_ANALYZED, processedAnalysis));
     }
 
     @PostMapping(value = "/analyze/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -46,7 +47,7 @@ public class AiAnalysisController {
         Map<String, Object> analysis = aiService.analyzeFoodImage(imageFile);
         FoodAnalysisResponse processedAnalysis = aiResponseProcessingService.processFoodImageResponse(analysis);
         log.info("Food image analyzed successfully");
-        return ResponseEntity.ok(ApiResponse.success(processedAnalysis));
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.FOOD_ANALYZED, processedAnalysis));
     }
 
     @PostMapping("/analyze/description")
@@ -57,6 +58,6 @@ public class AiAnalysisController {
         Map<String, Object> analysis = aiService.analyzeFoodDescription(description);
         FoodAnalysisResponse processedAnalysis = aiResponseProcessingService.processFoodDescriptionResponse(analysis);
         log.info("Food description analyzed successfully");
-        return ResponseEntity.ok(ApiResponse.success(processedAnalysis));
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.DESCRIPTION_ANALYZED, processedAnalysis));
     }
 }

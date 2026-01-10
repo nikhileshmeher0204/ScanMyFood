@@ -19,10 +19,12 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
     required this.uiProvider,
   });
 
+  FoodAnalysisResponse? foodAnalysisResponse;
   List<FoodItem> _analyzedFoodItems = [];
   List<FoodNutrient> _totalPlateNutrients = [];
   String _mealName = "Unknown Meal";
 
+  FoodAnalysisResponse? get foodAnalysis => foodAnalysisResponse;
   List<FoodItem> get analyzedFoodItems => _analyzedFoodItems;
   List<FoodNutrient> get totalPlateNutrients => _totalPlateNutrients;
   String get mealName => _mealName;
@@ -39,15 +41,15 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
       debugPrint("Processing food items via text: \n$foodItemsText");
 
       // Use repository for text-based analysis
-      final FoodAnalysisResponse response =
+      foodAnalysisResponse =
           await aiRepository.analyzeFoodDescription(foodItemsText);
       // Clear previous analysis
       _analyzedFoodItems.clear();
       _totalPlateNutrients.clear();
 
-      _mealName = response.mealName;
-      _analyzedFoodItems = response.analyzedFoodItems;
-      _totalPlateNutrients = response.totalPlateNutrients;
+      _mealName = foodAnalysisResponse!.mealName;
+      _analyzedFoodItems = foodAnalysisResponse!.analyzedFoodItems;
+      _totalPlateNutrients = foodAnalysisResponse!.totalPlateNutrients;
       calculateNutrientInfo(_totalPlateNutrients);
       notifyListeners();
     } catch (e) {

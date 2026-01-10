@@ -6,10 +6,10 @@ import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
-import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class ProductAnalysisViewModel extends BaseViewModel {
   // Properties for product scanning and analysis
+  bool _isLoading = false;
   ProductAnalysisResponse? productAnalysis;
   File? _frontImage;
   File? _nutritionLabelImage;
@@ -27,14 +27,13 @@ class ProductAnalysisViewModel extends BaseViewModel {
 
   // Dependencies
   SpringBackendRepository aiRepository;
-  UiViewModel uiProvider;
 
   ProductAnalysisViewModel({
     required this.aiRepository,
-    required this.uiProvider,
   });
 
   // Getters
+  bool get loading => _isLoading;
   ProductAnalysisResponse? get getProductAnalysis => productAnalysis;
   File? get frontImage => _frontImage;
   File? get nutritionLabelImage => _nutritionLabelImage;
@@ -48,6 +47,11 @@ class ProductAnalysisViewModel extends BaseViewModel {
   List<Nutrient> getModerateNutrients() => moderateNutrients;
   List<Nutrient> getWatchOutNutrients() => watchOutNutrients;
   List<PrimaryConcern> get primaryConcerns => _primaryConcerns;
+
+  void setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
 
   // Methods for product analysis
   Future<void> captureImage({
@@ -68,7 +72,7 @@ class ProductAnalysisViewModel extends BaseViewModel {
   }
 
   Future<void> analyzeImages() async {
-    uiProvider.setLoading(true);
+    setLoading(true);
 
     try {
       productAnalysis = await aiRepository.analyzeProductImages(
@@ -105,12 +109,6 @@ class ProductAnalysisViewModel extends BaseViewModel {
       _primaryConcerns
           .addAll(productAnalysis!.nutritionAnalysis.primaryConcerns);
 
-      if (_servingSize.value > 0) {
-        print(
-            "Setting serving size to: ${_servingSize.value} ${_servingSize.unit}");
-        uiProvider.updateServingSize(_servingSize.value);
-      }
-
       print("📝 Product: $_productName");
       print("📊 Good nutrients: ${optimalNutrients.length}");
       print("⚠️ Moderate nutrients: ${moderateNutrients.length}");
@@ -120,7 +118,7 @@ class ProductAnalysisViewModel extends BaseViewModel {
     } catch (e) {
       print("❌ Error analyzing images: $e");
     } finally {
-      uiProvider.setLoading(false);
+      setLoading(false);
     }
   }
 }

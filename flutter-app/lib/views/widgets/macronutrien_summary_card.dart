@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
-import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 
 class MacronutrientSummaryCard extends StatelessWidget {
-  const MacronutrientSummaryCard({super.key});
+  final Map<String, FoodNutrient> totalNutrients;
+  const MacronutrientSummaryCard({super.key, required this.totalNutrients});
 
   @override
   Widget build(BuildContext context) {
-    final dailyIntakeProvider =
-        Provider.of<DailyIntakeViewModel>(context, listen: false);
-    final Map<String, FoodNutrient> totalNutrients =
-        dailyIntakeProvider.totalNutrients!;
-
     final FoodNutrient? calories = totalNutrients[AppConstants.calories];
     final FoodNutrient? protein = totalNutrients[AppConstants.protein];
     final FoodNutrient? carbs = totalNutrients[AppConstants.totalCarbohydrate];
@@ -58,7 +52,7 @@ class MacronutrientSummaryCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${calories?.quantity.value.toString()} / ${calorieGoal.toStringAsFixed(0)} kcal',
+                    '${calories?.quantity.value ?? 0} / ${calorieGoal.toStringAsFixed(0)} kcal',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 24,

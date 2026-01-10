@@ -8,20 +8,16 @@ import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
-import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class MealAnalysisViewModel extends BaseViewModel {
   // Dependencies
   SpringBackendRepository aiRepository;
-  UiViewModel uiProvider;
 
   // Constructor with dependency injection
-  MealAnalysisViewModel({
-    required this.aiRepository,
-    required this.uiProvider,
-  });
+  MealAnalysisViewModel({required this.aiRepository});
 
   // Properties
+  bool _isLoading = false;
   FoodAnalysisResponse? foodAnalysisResponse;
   File? _foodImage;
   List<FoodItem> _analyzedScannedFoodItems = [];
@@ -29,6 +25,7 @@ class MealAnalysisViewModel extends BaseViewModel {
   String _scannedMealName = "Unknown Meal";
 
   // Getters
+  bool get loading => _isLoading;
   FoodAnalysisResponse? get foodAnalysis => foodAnalysisResponse;
   File? get foodImage => _foodImage;
   List<FoodItem> get analyzedScannedFoodItems => _analyzedScannedFoodItems;
@@ -37,6 +34,11 @@ class MealAnalysisViewModel extends BaseViewModel {
       _totalScannedPlateNutrients;
   List<Map<String, dynamic>> _nutrientInfo = [];
   List<Map<String, dynamic>> get nutrientInfo => _nutrientInfo;
+
+  setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
 
   void setFoodImage(File imageFile) {
     _foodImage = imageFile;
@@ -166,7 +168,7 @@ class MealAnalysisViewModel extends BaseViewModel {
   Future<void> analyzeFoodImage({
     required File imageFile,
   }) async {
-    uiProvider.setLoading(true);
+    setLoading(true);
 
     try {
       // Store the food image
@@ -189,7 +191,7 @@ class MealAnalysisViewModel extends BaseViewModel {
       logger.d("Error analyzing food image: $e");
       setError("Error analyzing food image: $e");
     } finally {
-      uiProvider.setLoading(false);
+      setLoading(false);
     }
   }
 }

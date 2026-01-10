@@ -1,5 +1,6 @@
 package com.scanmyfood.backend.controllers;
 
+import com.scanmyfood.backend.constants.ResponseCodeConstants;
 import com.scanmyfood.backend.models.ApiResponse;
 import com.scanmyfood.backend.models.SaveScannedFoodInput;
 import com.scanmyfood.backend.models.SaveScannedLabelInput;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+
+import static com.scanmyfood.backend.constants.ResponseCodeConstants.ERROR;
 
 
 @Slf4j
@@ -28,49 +31,52 @@ public class UserIntakeController {
 
     @PostMapping("save/scannedFood")
     public ResponseEntity<ApiResponse> saveScannedFood(
-            @RequestPart("foodImage") MultipartFile foodImage,
+            @RequestPart(value = "foodImage", required = false) MultipartFile foodImage,
             @RequestPart("saveScannedFoodInput") SaveScannedFoodInput saveScannedFoodInput) {
 
         log.info("Saving scanned food intake");
-        log.info("Food Image: {}", foodImage.getOriginalFilename());
         log.info("Food Analysis: {}", saveScannedFoodInput);
 
         try {
-            String storedPath = fileStorageService.store(foodImage, "food-images");
-            String accessUrl = fileStorageService.getAccessUrl(storedPath);
+            String accessUrl = "";
+            if (foodImage != null) {
+                log.info("Food Image: {}", foodImage.getOriginalFilename());
+                String storedPath = fileStorageService.store(foodImage, "food-images");
+                accessUrl = fileStorageService.getAccessUrl(storedPath);
+            }
 
             userIntakeService.saveScannedFoodIntake(saveScannedFoodInput, accessUrl);
             log.info("Scanned food intake saved successfully");
-            return ResponseEntity.ok(ApiResponse.success(null, "Scanned food intake saved successfully."));
+            return ResponseEntity.ok(ApiResponse.success(null, ResponseCodeConstants.SCANNED_FOOD_SAVED, "Scanned food intake saved successfully."));
 
         } catch (Exception e) {
             log.error("Error saving scanned food: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("Failed to save scanned food"));
+                    .body(ApiResponse.error(ERROR, "Failed to save scanned food"));
         }
     }
 
     @PostMapping("save/scannedLabel")
     public ResponseEntity<ApiResponse> saveScannedLabel(
-            @RequestPart("foodImage") MultipartFile foodImage,
+            @RequestPart("productImage") MultipartFile productImage,
             @RequestPart("saveScannedLabelInput") SaveScannedLabelInput saveScannedLabelInput) {
 
         log.info("Saving scanned label intake");
-        log.info("Food Image: {}", foodImage.getOriginalFilename());
-        log.info("Food Analysis: {}", saveScannedLabelInput);
+        log.info("Product Image: {}", productImage.getOriginalFilename());
+        log.info("Product Analysis: {}", saveScannedLabelInput);
 
         try {
-            String storedPath = fileStorageService.store(foodImage, "food-images");
+            String storedPath = fileStorageService.store(productImage, "food-images");
             String accessUrl = fileStorageService.getAccessUrl(storedPath);
 
             userIntakeService.saveScannedLabelIntake(saveScannedLabelInput, accessUrl);
             log.info("Scanned product intake saved successfully");
-            return ResponseEntity.ok(ApiResponse.success(null, "Scanned product intake saved successfully."));
+            return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.SCANNED_LABEL_SAVED, "Scanned product intake saved successfully"));
 
         } catch (Exception e) {
             log.error("Error saving scanned food: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("Failed to save scanned food"));
+                    .body(ApiResponse.error(ERROR, "Failed to save scanned food"));
         }
     }
 
@@ -81,11 +87,8 @@ public class UserIntakeController {
     ) throws Exception {
         log.info("Fetching daily intake for userId: {} on date: {}", userId, date);
         UserIntakeOutput dailyIntake = userIntakeService.getUserIntake(userId, date);
-        if(dailyIntake.getDailyIntake().isEmpty()){
-            return ResponseEntity.noContent().build();
-        }
         log.info("Daily intake fetched successfully for userId: {} on date: {}", userId, date);
-        return ResponseEntity.ok(ApiResponse.success(dailyIntake, "Daily intake fetched successfully."));
+        return ResponseEntity.ok(ApiResponse.success(dailyIntake, ResponseCodeConstants.DAILY_INTAKE_FETCHED, "Daily intake fetched successfully"));
 
     }
 }

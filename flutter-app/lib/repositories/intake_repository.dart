@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:read_the_label/core/constants/response_code_constants.dart';
 import 'package:read_the_label/main.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -39,9 +40,10 @@ class IntakeRepository implements IntakeRepositoryInterface {
           filename: 'saveScannedFoodInput.json',
         ),
       );
-
-      request.files
-          .add(await http.MultipartFile.fromPath('foodImage', foodImage!.path));
+      if (foodImage != null) {
+        request.files.add(
+            await http.MultipartFile.fromPath('foodImage', foodImage.path));
+      }
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
@@ -50,7 +52,8 @@ class IntakeRepository implements IntakeRepositoryInterface {
 
         // Check response structure
         if (jsonResponse['status'] == 'success' &&
-            jsonResponse['data'] != null) {
+            jsonResponse['response_code'] ==
+                ResponseCodeConstants.scannedFoodSaved) {
           // success
           logger.i("Scanned food saved successfully.");
         } else {
@@ -66,7 +69,7 @@ class IntakeRepository implements IntakeRepositoryInterface {
   }
 
   @override
-  Future<void> saveScannedLabel(String userId, File? foodImage,
+  Future<void> saveScannedLabel(String userId, File? productImage,
       ProductAnalysisResponse? productAnalysis) async {
     try {
       SaveScannedLabelInput saveScannedLabelInput = SaveScannedLabelInput(
@@ -89,8 +92,8 @@ class IntakeRepository implements IntakeRepositoryInterface {
         ),
       );
 
-      request.files
-          .add(await http.MultipartFile.fromPath('foodImage', foodImage!.path));
+      request.files.add(await http.MultipartFile.fromPath(
+          'productImage', productImage!.path));
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
@@ -99,9 +102,10 @@ class IntakeRepository implements IntakeRepositoryInterface {
 
         // Check response structure
         if (jsonResponse['status'] == 'success' &&
-            jsonResponse['data'] != null) {
+            jsonResponse['response_code'] ==
+                ResponseCodeConstants.scannedLabelSaved) {
           // success
-          logger.i("Scanned food saved successfully.");
+          logger.i("Scanned label saved successfully.");
         } else {
           throw Exception(
               'Invalid response format: ${jsonResponse['message']}');
@@ -110,7 +114,7 @@ class IntakeRepository implements IntakeRepositoryInterface {
         throw Exception('Failed to analyze images: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error saving scanned food: $e');
+      throw Exception('Error saving scanned label: $e');
     }
   }
 
@@ -141,6 +145,8 @@ class IntakeRepository implements IntakeRepositoryInterface {
 
         // Check response structure
         if (jsonResponse['status'] == 'success' &&
+            jsonResponse['response_code'] ==
+                ResponseCodeConstants.dailyIntakeFetched &&
             jsonResponse['data'] != null) {
           // Convert data to FoodAnalysisResponse
           return UserIntakeOutput.fromJson(jsonResponse['data']);

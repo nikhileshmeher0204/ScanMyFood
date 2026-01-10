@@ -48,10 +48,8 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
         ),
       ),
       SliverToBoxAdapter(
-        child: Consumer3<UiViewModel, ProductAnalysisViewModel,
-                DailyIntakeViewModel>(
-            builder: (context, uiProvider, productAnalysisProvider,
-                dailyIntakeProvider, _) {
+        child: Consumer<ProductAnalysisViewModel>(
+            builder: (context, productAnalysisProvider, _) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
@@ -84,7 +82,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                     image: FileImage(
                                         productAnalysisProvider.frontImage!)),
                               ),
-                              if (uiProvider.loading)
+                              if (productAnalysisProvider.loading)
                                 const Positioned.fill(
                                   left: 5,
                                   right: 5,
@@ -128,7 +126,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                   }),
                 ),
               ),
-              if (uiProvider.loading) const NutrientInfoShimmer(),
+              if (productAnalysisProvider.loading) const NutrientInfoShimmer(),
 
               //Good/Moderate nutrients
               if (productAnalysisProvider.getOptimalNutrients().isNotEmpty)
@@ -287,7 +285,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                   (concern) => NutrientBalanceCard(concern: concern),
                 ),
 
-              if (uiProvider.servingSize > 0)
+              if (productAnalysisProvider.nutrients.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -306,7 +304,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                     ],
                   ),
                 ),
-              if (uiProvider.servingSize > 0)
+              if (productAnalysisProvider.nutrients.isNotEmpty)
                 InkWell(
                   onTap: () {
                     print("Tap detected!");

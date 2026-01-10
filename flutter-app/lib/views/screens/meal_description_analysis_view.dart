@@ -110,6 +110,7 @@ class _MealDescriptionAnalysisViewState
                           totalPlateNutrients:
                               descriptionViewModel.totalPlateNutrients,
                           nutrientInfo: descriptionViewModel.nutrientInfo,
+                          foodAnalysis: descriptionViewModel.foodAnalysis,
                         ),
                       ],
                     ),

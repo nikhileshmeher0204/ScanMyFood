@@ -194,11 +194,6 @@ public class UserIntakeServiceImpl implements UserIntakeService {
             if (!records.isEmpty()) {
                 logger.info("Calculating total nutrients");
                 setTotalValues(records, totalNutrients);
-                records.forEach(dailyIntakeRecord -> {
-                    if (dailyIntakeRecord.getImageUrl() != null) {
-                        dailyIntakeRecord.setImageUrl(fileStorageService.getAccessUrl(dailyIntakeRecord.getImageUrl()));
-                    }
-                });
             }
             output.setUserId(userId);
             output.setDate(date);

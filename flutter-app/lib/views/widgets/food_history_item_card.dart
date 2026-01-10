@@ -9,12 +9,10 @@ import 'package:soft_edge_blur/soft_edge_blur.dart';
 class FoodHistoryItemCard extends StatelessWidget {
   const FoodHistoryItemCard(
       {super.key,
-      required this.tintColor,
       required this.item,
       required this.borderRadius,
       required this.isLast});
 
-  final Color tintColor;
   final DailyIntakeRecord item;
   final BorderRadius? borderRadius;
   final bool isLast;
@@ -25,6 +23,14 @@ class FoodHistoryItemCard extends StatelessWidget {
         item.mealDescriptionName ??
         item.productName ??
         'Unknown Item';
+
+    final bool isNetworkImage = item.imageUrl != null &&
+        (item.imageUrl!.startsWith('http://') ||
+            item.imageUrl!.startsWith('https://'));
+    final bool isLocalFile = item.imageUrl != null &&
+        item.imageUrl!.isNotEmpty &&
+        !isNetworkImage &&
+        File(item.imageUrl!).existsSync();
 
     return Expanded(
       child: ClipRRect(
@@ -38,10 +44,10 @@ class FoodHistoryItemCard extends StatelessWidget {
                   type: EdgeType.bottomEdge,
                   size: 100,
                   sigma: 100,
-                  tintColor: tintColor,
+                  tintColor: Colors.black.withValues(alpha: 0.3),
                   controlPoints: [
                     ControlPoint(
-                      position: 0.5,
+                      position: 0.4,
                       type: ControlPointType.visible,
                     ),
                     ControlPoint(
@@ -51,20 +57,52 @@ class FoodHistoryItemCard extends StatelessWidget {
                   ],
                 )
               ],
-              child: item.imageUrl != null &&
-                      item.imageUrl!.isNotEmpty &&
-                      File(item.imageUrl!).existsSync()
-                  ? Image.file(
-                      File(item.imageUrl!),
+              child: isNetworkImage
+                  ? Image.network(
+                      item.imageUrl!,
                       fit: BoxFit.cover,
                       height: 100,
                       width: double.infinity,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 100,
+                          width: double.infinity,
+                          color: Colors.grey,
+                          child: const Icon(Icons.broken_image,
+                              color: Colors.white),
+                        );
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          height: 100,
+                          width: double.infinity,
+                          color: Colors.grey.shade800,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          ),
+                        );
+                      },
                     )
-                  : Container(
-                      height: 100,
-                      width: double.infinity,
-                      color: Colors.yellow,
-                    ),
+                  : isLocalFile
+                      ? Image.file(
+                          File(item.imageUrl!),
+                          fit: BoxFit.cover,
+                          height: 100,
+                          width: double.infinity,
+                        )
+                      : Container(
+                          height: 100,
+                          width: double.infinity,
+                          color: Colors.grey,
+                          child: const Icon(Icons.image_not_supported,
+                              color: Colors.white),
+                        ),
             ),
             Column(
               children: [
@@ -84,7 +122,7 @@ class FoodHistoryItemCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${item.caloriesValue ?? item.energyValue} ${item.caloriesUnit ?? item.energyUnit}',
+                        '${item.caloriesValue == 0 ? item.energyValue : item.caloriesValue} ${item.caloriesUnit ?? item.energyUnit}',
                         style: AppTextStyles.bodyMediumBold.copyWith(
                           color: AppColors.primaryWhite.withValues(alpha: 0.8),
                         ),

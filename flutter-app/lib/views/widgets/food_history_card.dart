@@ -12,15 +12,11 @@ import 'package:read_the_label/views/widgets/food_input_form.dart';
 import '../../theme/app_text_styles.dart';
 
 class FoodHistoryCard extends StatefulWidget {
-  final BuildContext context;
   final DateTime selectedDate;
-  final int currentIndex;
 
   const FoodHistoryCard({
     super.key,
-    required this.context,
     required this.selectedDate,
-    required this.currentIndex,
   });
 
   @override
@@ -144,7 +140,6 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                           // Food tile
                           FoodHistoryItemCard(
                               item: item,
-                              tintColor: tintColor,
                               borderRadius: borderRadius,
                               isLast: isLast),
                         ],

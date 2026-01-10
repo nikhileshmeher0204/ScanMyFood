@@ -13,7 +13,7 @@ class DetailedNutrientsCard extends StatelessWidget {
     required this.totalNutrients,
   });
 
-  final Map<String, FoodNutrient>? totalNutrients;
+  final Map<String, FoodNutrient> totalNutrients;
 
   @override
   Widget build(BuildContext context) {
