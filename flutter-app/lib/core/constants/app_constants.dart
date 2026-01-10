@@ -11,11 +11,14 @@ class AppConstants {
   static const String energy = "energy";
   static const String cholesterol = "cholesterol";
   static const String protein = "protein";
+  static const String carbohydrate = "carbohydrate";
   static const String totalCarbohydrate = "total_carbohydrate";
+  static const String fat = "fat";
   static const String totalFat = "total_fat";
   static const String saturatedFat = "saturated_fat";
   static const String transFat = "trans_fat";
   static const String dietaryFiber = "dietary_fiber";
+  static const String sugar = "sugar";
   static const String totalSugars = "total_sugars";
   static const String addedSugars = "added_sugars";
   static const String sodium = "sodium";

@@ -52,12 +52,12 @@ class _MealDescriptionAnalysisViewState
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).padding.bottom + 80,
           ),
-          child: Consumer2<UiViewModel, DescriptionAnalysisViewModel>(
-            builder: (context, uiViewModel, descriptionViewModel, _) {
+          child: Consumer<DescriptionAnalysisViewModel>(
+            builder: (context, descriptionViewModel, _) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (uiViewModel.loading)
+                  if (descriptionViewModel.isLoading)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -115,7 +115,7 @@ class _MealDescriptionAnalysisViewState
                       ],
                     ),
                   // No results state
-                  if (!uiViewModel.loading &&
+                  if (!descriptionViewModel.isLoading &&
                       descriptionViewModel.analyzedFoodItems.isEmpty)
                     Padding(
                       padding: const EdgeInsets.all(20.0),

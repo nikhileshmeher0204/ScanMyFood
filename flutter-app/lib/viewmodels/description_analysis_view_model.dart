@@ -19,17 +19,24 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
     required this.uiProvider,
   });
 
+  bool loading = false;
   FoodAnalysisResponse? foodAnalysisResponse;
   List<FoodItem> _analyzedFoodItems = [];
   List<FoodNutrient> _totalPlateNutrients = [];
   String _mealName = "Unknown Meal";
 
+  bool get isLoading => loading;
   FoodAnalysisResponse? get foodAnalysis => foodAnalysisResponse;
   List<FoodItem> get analyzedFoodItems => _analyzedFoodItems;
   List<FoodNutrient> get totalPlateNutrients => _totalPlateNutrients;
   String get mealName => _mealName;
   List<Map<String, dynamic>> _nutrientInfo = [];
   List<Map<String, dynamic>> get nutrientInfo => _nutrientInfo;
+
+  void setLoading(bool value) {
+    loading = value;
+    notifyListeners();
+  }
 
   // Text-based meal analysis
   Future<void> logMealViaText({

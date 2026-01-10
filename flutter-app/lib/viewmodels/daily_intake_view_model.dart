@@ -76,6 +76,7 @@ class DailyIntakeViewModel extends BaseViewModel {
   Future<void> saveScannedFood(String userId, File? foodImage,
       FoodAnalysisResponse? foodAnalysis) async {
     await intakeRepository.saveScannedFood(userId, foodImage, foodAnalysis);
+    await getDailyIntake(userId, _selectedDate);
   }
 
   Future<void> getDailyIntake(String userId, DateTime date) async {
@@ -90,6 +91,7 @@ class DailyIntakeViewModel extends BaseViewModel {
   Future<void> saveScannedLabel(String userId, File? foodImage,
       ProductAnalysisResponse? productAnalysis) async {
     await intakeRepository.saveScannedLabel(userId, foodImage, productAnalysis);
+    await getDailyIntake(userId, _selectedDate);
   }
 
   void _mapTotalNutrients() {

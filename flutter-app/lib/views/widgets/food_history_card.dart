@@ -115,8 +115,6 @@ class _FoodHistoryCardState extends State<FoodHistoryCard> {
                   return FutureBuilder<Color>(
                     future: viewModel.extractDominantColor(item.imageUrl),
                     builder: (context, snapshot) {
-                      final tintColor =
-                          snapshot.data ?? Colors.black.withOpacity(0.3);
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
