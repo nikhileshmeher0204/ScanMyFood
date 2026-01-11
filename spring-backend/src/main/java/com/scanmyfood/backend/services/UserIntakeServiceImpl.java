@@ -28,7 +28,7 @@ public class UserIntakeServiceImpl implements UserIntakeService {
     FileStorageService fileStorageService;
 
     @Override
-    public void saveScannedFoodIntake(SaveScannedFoodInput saveIntakeInput, String imageAccessUrl) {
+    public int saveScannedFoodIntake(SaveScannedFoodInput saveIntakeInput, String imageAccessUrl) throws Exception {
         try {
             // Insert food analysis record
             Map<String, Quantity> nutrientMap = saveIntakeInput.getFoodAnalysisResponse()
@@ -79,13 +79,15 @@ public class UserIntakeServiceImpl implements UserIntakeService {
                         actualQuantityUnit
                 );
             }
+            return dailyIntakeId;
         } catch (Exception exception) {
             logger.error("Error saving user intake: {}", exception.getMessage(), exception);
+            throw new Exception("Error saving user intake", exception);
         }
     }
 
     @Override
-    public void saveScannedLabelIntake(SaveScannedLabelInput scannedLabelInput, String imageAccessUrl) {
+    public int saveScannedLabelIntake(SaveScannedLabelInput scannedLabelInput, String imageAccessUrl) throws Exception {
         try {
             ProductAnalysisResponse productAnalysis = scannedLabelInput.getProductAnalysisResponse();
             
@@ -179,8 +181,10 @@ public class UserIntakeServiceImpl implements UserIntakeService {
                     }
                 }
             }
+            return dailyIntakeId;
         } catch (Exception exception) {
             logger.error("Error saving scanned label intake: {}", exception.getMessage(), exception);
+            throw new Exception("Error saving scanned label intake", exception);
         }
     }
 
@@ -203,6 +207,16 @@ public class UserIntakeServiceImpl implements UserIntakeService {
         } catch (Exception exception) {
             logger.error("Error fetching user intake: {}", exception.getMessage(), exception);
             throw new Exception("Error fetching user intake", exception);
+        }
+    }
+
+    @Override
+    public void updateDailyIntakeImage(int dailyIntakeId, String imageAccessUrl) throws Exception {
+        try {
+            userIntakeMapper.updateDailyIntakeImageUrl(dailyIntakeId, imageAccessUrl);
+        } catch (Exception exception) {
+            logger.error("Error updating daily intake image: {}", exception.getMessage(), exception);
+            throw new Exception("Error updating daily intake image", exception);
         }
     }
 

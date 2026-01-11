@@ -14,5 +14,6 @@ public class ResponseCodeConstants {
     public static final String PRODUCT_ANALYZED = "PRODUCT_ANALYZED";
     public static final String FOOD_ANALYZED = "FOOD_ANALYZED";
     public static final String DESCRIPTION_ANALYZED = "DESCRIPTION_ANALYZED";
+    public static final String IMAGE_GENERATED = "IMAGE_GENERATED";
     public static final String ERROR = "ERROR";
 }

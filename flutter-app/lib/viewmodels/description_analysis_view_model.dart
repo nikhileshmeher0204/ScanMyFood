@@ -5,6 +5,7 @@ import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
+import 'package:read_the_label/models/image_generation_response.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
@@ -20,13 +21,17 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
   });
 
   bool loading = false;
-  FoodAnalysisResponse? foodAnalysisResponse;
+  String? _descriptionText;
+  FoodAnalysisResponse? _foodAnalysisResponse;
+  ImageGenerationResponse? _imageGenerationResponse;
   List<FoodItem> _analyzedFoodItems = [];
   List<FoodNutrient> _totalPlateNutrients = [];
   String _mealName = "Unknown Meal";
 
   bool get isLoading => loading;
-  FoodAnalysisResponse? get foodAnalysis => foodAnalysisResponse;
+  String? get descriptionText => _descriptionText;
+  FoodAnalysisResponse? get foodAnalysis => _foodAnalysisResponse;
+  ImageGenerationResponse? get generatedImage => _imageGenerationResponse;
   List<FoodItem> get analyzedFoodItems => _analyzedFoodItems;
   List<FoodNutrient> get totalPlateNutrients => _totalPlateNutrients;
   String get mealName => _mealName;
@@ -42,34 +47,56 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
   Future<void> logMealViaText({
     required String foodItemsText,
   }) async {
-    uiProvider.setLoading(true);
+    setLoading(true);
 
     try {
       debugPrint("Processing food items via text: \n$foodItemsText");
 
       // Use repository for text-based analysis
-      foodAnalysisResponse =
+      _foodAnalysisResponse =
           await aiRepository.analyzeFoodDescription(foodItemsText);
       // Clear previous analysis
       _analyzedFoodItems.clear();
       _totalPlateNutrients.clear();
 
-      _mealName = foodAnalysisResponse!.mealName;
-      _analyzedFoodItems = foodAnalysisResponse!.analyzedFoodItems;
-      _totalPlateNutrients = foodAnalysisResponse!.totalPlateNutrients;
+      _descriptionText = foodItemsText;
+      _mealName = _foodAnalysisResponse!.mealName;
+      _analyzedFoodItems = _foodAnalysisResponse!.analyzedFoodItems;
+      _totalPlateNutrients = _foodAnalysisResponse!.totalPlateNutrients;
       calculateNutrientInfo(_totalPlateNutrients);
       notifyListeners();
     } catch (e) {
       debugPrint("Error analyzing food description: $e");
       setError("Error analyzing food description: $e");
     } finally {
+      setLoading(false);
+    }
+  }
+
+  Future<void> generateIntakeImage({
+    required String foodItemsText,
+    required int dailyIntakeId,
+  }) async {
+    uiProvider.setLoading(true);
+
+    try {
+      debugPrint("Generating image for food description: \n$foodItemsText");
+
+      _imageGenerationResponse =
+          await aiRepository.generateIntakeImage(foodItemsText, dailyIntakeId);
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error generating image: $e");
+      setError("Error generating image: $e");
+    } finally {
       uiProvider.setLoading(false);
     }
   }
 
-  void calculateNutrientInfo(List<FoodNutrient> _totalScannedPlateNutrients) {
+  void calculateNutrientInfo(List<FoodNutrient> totalScannedPlateNutrients) {
     logger.i("=== Starting calculateNutrientInfo ===");
-    logger.i("Input nutrients: $_totalScannedPlateNutrients");
+    logger.i("Input nutrients: $totalScannedPlateNutrients");
 
     // Clear previous data
     _nutrientInfo.clear();
@@ -87,7 +114,7 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
     };
 
     // Perform calculations on the totalPlateNutrients
-    _totalScannedPlateNutrients.forEach((nutrient) {
+    totalScannedPlateNutrients.forEach((nutrient) {
       logger.i(
           "Processing nutrient: ${nutrient.name} with value: ${nutrient.quantity}");
 

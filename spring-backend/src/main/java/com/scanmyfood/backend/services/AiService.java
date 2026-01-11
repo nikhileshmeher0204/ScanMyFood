@@ -8,4 +8,5 @@ public interface AiService {
     Map<String, Object> analyzeProductImages(MultipartFile frontImage, MultipartFile labelImage);
     Map<String, Object> analyzeFoodImage(MultipartFile imageFile);
     Map<String, Object> analyzeFoodDescription(String description);
+    byte[] generateFoodImage(String foodDescription);
 }

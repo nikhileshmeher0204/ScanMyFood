@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
+import 'package:read_the_label/models/save_intake_output.dart';
 import 'package:read_the_label/models/save_scanned_food_input.dart';
 import 'package:read_the_label/models/save_scanned_label_input.dart';
 import 'package:read_the_label/models/user_intake_output.dart';
@@ -18,7 +19,7 @@ class IntakeRepository implements IntakeRepositoryInterface {
   IntakeRepository(this._apiClient);
 
   @override
-  Future<void> saveScannedFood(String userId, File? foodImage,
+  Future<SaveIntakeOutput> saveScannedFood(String userId, File? foodImage,
       FoodAnalysisResponse? foodAnalysis) async {
     try {
       SaveScannedFoodInput saveScannedFoodInput = SaveScannedFoodInput(
@@ -53,9 +54,10 @@ class IntakeRepository implements IntakeRepositoryInterface {
         // Check response structure
         if (jsonResponse['status'] == 'success' &&
             jsonResponse['response_code'] ==
-                ResponseCodeConstants.scannedFoodSaved) {
-          // success
+                ResponseCodeConstants.scannedFoodSaved &&
+            jsonResponse['data'] != null) {
           logger.i("Scanned food saved successfully.");
+          return SaveIntakeOutput.fromJson(jsonResponse['data']);
         } else {
           throw Exception(
               'Invalid response format: ${jsonResponse['message']}');
@@ -69,7 +71,7 @@ class IntakeRepository implements IntakeRepositoryInterface {
   }
 
   @override
-  Future<void> saveScannedLabel(String userId, File? productImage,
+  Future<SaveIntakeOutput> saveScannedLabel(String userId, File? productImage,
       ProductAnalysisResponse? productAnalysis) async {
     try {
       SaveScannedLabelInput saveScannedLabelInput = SaveScannedLabelInput(
@@ -103,9 +105,10 @@ class IntakeRepository implements IntakeRepositoryInterface {
         // Check response structure
         if (jsonResponse['status'] == 'success' &&
             jsonResponse['response_code'] ==
-                ResponseCodeConstants.scannedLabelSaved) {
-          // success
+                ResponseCodeConstants.scannedLabelSaved &&
+            jsonResponse['data'] != null) {
           logger.i("Scanned label saved successfully.");
+          return SaveIntakeOutput.fromJson(jsonResponse['data']);
         } else {
           throw Exception(
               'Invalid response format: ${jsonResponse['message']}');

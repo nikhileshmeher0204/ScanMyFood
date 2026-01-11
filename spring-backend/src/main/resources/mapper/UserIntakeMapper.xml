@@ -252,4 +252,10 @@
         )
     </insert>
 
+    <update id="updateDailyIntakeImageUrl">
+        UPDATE daily_intake
+        SET image_url = #{imageUrl}
+        WHERE id = #{dailyIntakeId}
+    </update>
+
 </mapper>

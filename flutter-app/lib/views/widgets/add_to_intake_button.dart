@@ -49,10 +49,10 @@ class AddToIntakeButton extends StatelessWidget {
         if (source == AppConstants.scanMeal ||
             source == AppConstants.scanDescription) {
           dailyIntakeProvider.saveScannedFood(
-              user!.uid, foodImage, foodAnalysis);
+              user!.uid, foodImage, source, foodAnalysis);
         } else if (source == AppConstants.scanLabel) {
           dailyIntakeProvider.saveScannedLabel(
-              user!.uid, foodImage, productAnalysis);
+              user!.uid, foodImage, source, productAnalysis);
         }
 
         uiProvider.updateCurrentIndex(2);

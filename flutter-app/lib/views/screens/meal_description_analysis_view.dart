@@ -79,7 +79,8 @@ class _MealDescriptionAnalysisViewState
                       ],
                     ),
                   // Results Section
-                  if (descriptionViewModel.analyzedFoodItems.isNotEmpty)
+                  if (descriptionViewModel.analyzedFoodItems.isNotEmpty &&
+                      !descriptionViewModel.isLoading)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

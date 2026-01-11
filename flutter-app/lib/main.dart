@@ -160,6 +160,7 @@ class MyApp extends StatelessWidget {
               DailyIntakeViewModel>(
           create: (context) => DailyIntakeViewModel(
                 intakeRepository: context.read<IntakeRepository>(),
+                aiRepository: context.read<SpringBackendRepository>(),
                 uiProvider: context.read<UiViewModel>(),
                 authService: context.read<AuthService>(),
               ),

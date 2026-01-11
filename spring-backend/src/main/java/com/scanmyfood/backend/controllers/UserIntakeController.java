@@ -1,10 +1,7 @@
 package com.scanmyfood.backend.controllers;
 
 import com.scanmyfood.backend.constants.ResponseCodeConstants;
-import com.scanmyfood.backend.models.ApiResponse;
-import com.scanmyfood.backend.models.SaveScannedFoodInput;
-import com.scanmyfood.backend.models.SaveScannedLabelInput;
-import com.scanmyfood.backend.models.UserIntakeOutput;
+import com.scanmyfood.backend.models.*;
 import com.scanmyfood.backend.services.UserIntakeService;
 import com.scanmyfood.backend.services.storage.FileStorageService;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +27,7 @@ public class UserIntakeController {
     FileStorageService fileStorageService;
 
     @PostMapping("save/scannedFood")
-    public ResponseEntity<ApiResponse> saveScannedFood(
+    public ResponseEntity<ApiResponse<SaveIntakeOutput>> saveScannedFood(
             @RequestPart(value = "foodImage", required = false) MultipartFile foodImage,
             @RequestPart("saveScannedFoodInput") SaveScannedFoodInput saveScannedFoodInput) {
 
@@ -38,6 +35,7 @@ public class UserIntakeController {
         log.info("Food Analysis: {}", saveScannedFoodInput);
 
         try {
+            SaveIntakeOutput saveIntakeOutput = new SaveIntakeOutput();
             String accessUrl = "";
             if (foodImage != null) {
                 log.info("Food Image: {}", foodImage.getOriginalFilename());
@@ -45,9 +43,10 @@ public class UserIntakeController {
                 accessUrl = fileStorageService.getAccessUrl(storedPath);
             }
 
-            userIntakeService.saveScannedFoodIntake(saveScannedFoodInput, accessUrl);
+            int dailyIntakeRecordId = userIntakeService.saveScannedFoodIntake(saveScannedFoodInput, accessUrl);
+            saveIntakeOutput.setDailyIntakeId(dailyIntakeRecordId);
             log.info("Scanned food intake saved successfully");
-            return ResponseEntity.ok(ApiResponse.success(null, ResponseCodeConstants.SCANNED_FOOD_SAVED, "Scanned food intake saved successfully."));
+            return ResponseEntity.ok(ApiResponse.success(saveIntakeOutput, ResponseCodeConstants.SCANNED_FOOD_SAVED, "Scanned food intake saved successfully."));
 
         } catch (Exception e) {
             log.error("Error saving scanned food: {}", e.getMessage(), e);
@@ -57,7 +56,7 @@ public class UserIntakeController {
     }
 
     @PostMapping("save/scannedLabel")
-    public ResponseEntity<ApiResponse> saveScannedLabel(
+    public ResponseEntity<ApiResponse<SaveIntakeOutput>> saveScannedLabel(
             @RequestPart("productImage") MultipartFile productImage,
             @RequestPart("saveScannedLabelInput") SaveScannedLabelInput saveScannedLabelInput) {
 
@@ -66,12 +65,14 @@ public class UserIntakeController {
         log.info("Product Analysis: {}", saveScannedLabelInput);
 
         try {
+            SaveIntakeOutput saveIntakeOutput = new SaveIntakeOutput();
             String storedPath = fileStorageService.store(productImage, "food-images");
             String accessUrl = fileStorageService.getAccessUrl(storedPath);
 
-            userIntakeService.saveScannedLabelIntake(saveScannedLabelInput, accessUrl);
+            int dailyIntakeRecordId = userIntakeService.saveScannedLabelIntake(saveScannedLabelInput, accessUrl);
+            saveIntakeOutput.setDailyIntakeId(dailyIntakeRecordId);
             log.info("Scanned product intake saved successfully");
-            return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.SCANNED_LABEL_SAVED, "Scanned product intake saved successfully"));
+            return ResponseEntity.ok(ApiResponse.success(saveIntakeOutput, ResponseCodeConstants.SCANNED_LABEL_SAVED, "Scanned product intake saved successfully"));
 
         } catch (Exception e) {
             log.error("Error saving scanned food: {}", e.getMessage(), e);

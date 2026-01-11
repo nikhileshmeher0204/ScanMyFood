@@ -148,4 +148,10 @@ public interface UserIntakeMapper {
             @Param("reasoning") String reasoning
     );
 
+
+    void updateDailyIntakeImageUrl(
+            @Param("dailyIntakeId") Integer dailyIntakeId,
+            @Param("imageUrl") String imageUrl
+    );
+
 }

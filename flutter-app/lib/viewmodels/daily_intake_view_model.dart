@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
+import 'package:read_the_label/models/save_intake_output.dart';
 import 'package:read_the_label/models/user_intake_output.dart';
+import 'package:read_the_label/repositories/ai_repository_interface.dart';
 import 'package:read_the_label/repositories/intake_repository_interface.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
@@ -12,6 +15,7 @@ import 'base_view_model.dart';
 class DailyIntakeViewModel extends BaseViewModel {
   // Dependencies
   IntakeRepositoryInterface intakeRepository;
+  AiRepositoryInterface aiRepository;
   UiViewModel uiProvider;
   AuthService authService;
 
@@ -22,18 +26,25 @@ class DailyIntakeViewModel extends BaseViewModel {
   final ValueNotifier<Map<String, double>> dailyIntakeNotifier =
       ValueNotifier<Map<String, double>>({});
   final Map<String, Color> _colorCache = {};
+  String _descriptionText = "";
 
   // Getters
   UserIntakeOutput? get userIntake => userIntakeOutput;
   Map<String, FoodNutrient>? get totalNutrients => _totalNutrientsMap;
   DateTime get selectedDate => _selectedDate;
+  String get descriptionText => _descriptionText;
 
   // Constructor with dependency injection
   DailyIntakeViewModel({
     required this.intakeRepository,
+    required this.aiRepository,
     required this.uiProvider,
     required this.authService,
   });
+
+  setDescriptionText(String text) {
+    _descriptionText = text;
+  }
 
   Future<void> updateSelectedDate(DateTime newDate) async {
     final user = authService.currentUser;
@@ -73,9 +84,14 @@ class DailyIntakeViewModel extends BaseViewModel {
     }
   }
 
-  Future<void> saveScannedFood(String userId, File? foodImage,
+  Future<void> saveScannedFood(String userId, File? foodImage, String source,
       FoodAnalysisResponse? foodAnalysis) async {
-    await intakeRepository.saveScannedFood(userId, foodImage, foodAnalysis);
+    SaveIntakeOutput output =
+        await intakeRepository.saveScannedFood(userId, foodImage, foodAnalysis);
+    if (source == AppConstants.scanDescription) {
+      await aiRepository.generateIntakeImage(
+          _descriptionText, output.dailyIntakeId);
+    }
     await getDailyIntake(userId, _selectedDate);
   }
 
@@ -88,7 +104,7 @@ class DailyIntakeViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  Future<void> saveScannedLabel(String userId, File? foodImage,
+  Future<void> saveScannedLabel(String userId, File? foodImage, String source,
       ProductAnalysisResponse? productAnalysis) async {
     await intakeRepository.saveScannedLabel(userId, foodImage, productAnalysis);
     await getDailyIntake(userId, _selectedDate);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.vertexai.VertexAI;
 import com.google.cloud.vertexai.generativeai.GenerativeModel;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,7 @@ import org.springframework.core.io.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+@Slf4j
 @Configuration
 public class VertexAIConfig {
 
@@ -24,6 +26,9 @@ public class VertexAIConfig {
 
     @Value("${vertex.ai.model.name:gemini-2.0-flash}")
     private String MODEL_NAME;
+
+    @Value("${vertex.ai.image.model.name:gemini-2.5-flash-image}")
+    private String IMAGE_MODEL_NAME;
 
     @Bean
     public GoogleCredentials googleCredentials() throws IOException {
@@ -58,5 +63,10 @@ public class VertexAIConfig {
     @Bean
     public GenerativeModel generativeModel(VertexAI vertexAI) {
         return new GenerativeModel(MODEL_NAME, vertexAI);
+    }
+
+    @Bean
+    public GenerativeModel imageGenerativeModel(VertexAI vertexAI) {
+        return new GenerativeModel(IMAGE_MODEL_NAME, vertexAI);
     }
 }
