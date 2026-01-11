@@ -6,6 +6,7 @@ import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
+import 'package:read_the_label/models/save_intake_output.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
@@ -32,7 +33,7 @@ class AddToIntakeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
-      onPressed: () {
+      onPressed: () async {
         final uiProvider = context.read<UiViewModel>();
         final dailyIntakeProvider = context.read<DailyIntakeViewModel>();
         final authService = Provider.of<AuthService>(context, listen: false);
@@ -46,22 +47,38 @@ class AddToIntakeButton extends StatelessWidget {
         print("Current total nutrients: $totalPlateNutrients");
         print("foodAnalysis: $foodAnalysis");
 
-        if (source == AppConstants.scanMeal ||
-            source == AppConstants.scanDescription) {
-          dailyIntakeProvider.saveScannedFood(
-              user!.uid, foodImage, source, foodAnalysis);
-        } else if (source == AppConstants.scanLabel) {
-          dailyIntakeProvider.saveScannedLabel(
-              user!.uid, foodImage, source, productAnalysis);
-        }
+        try {
+          if (source == AppConstants.scanMeal) {
+            await dailyIntakeProvider.saveScannedFood(
+                user!.uid, foodImage, source, foodAnalysis);
+          } else if (source == AppConstants.scanDescription) {
+            await dailyIntakeProvider.saveScannedFood(
+                user!.uid, foodImage, source, foodAnalysis);
+            await dailyIntakeProvider.aiRepository.generateIntakeImage(
+                dailyIntakeProvider.descriptionText,
+                dailyIntakeProvider.saveIntakeOutput!.dailyIntakeId);
+          } else if (source == AppConstants.scanLabel) {
+            await dailyIntakeProvider.saveScannedLabel(
+                user!.uid, foodImage, source, productAnalysis);
+          }
+          await dailyIntakeProvider.getDailyIntake(user!.uid, DateTime.now());
 
-        uiProvider.updateCurrentIndex(2);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Added to daily intake'),
-            duration: Duration(seconds: 2),
-          ),
-        );
+          uiProvider.updateCurrentIndex(2);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Added to daily intake'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error saving intake: $e'),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
       },
       icon: const Icon(Icons.add_circle_outline),
       label: const Text('Add to today\'s intake'),

@@ -37,12 +37,9 @@ class FoodHistoryCard extends StatelessWidget {
             children: [
               Consumer<DailyIntakeViewModel>(
                   builder: (context, viewModel, child) {
-                final List<DailyIntakeRecord> todayItems = viewModel
-                    .userIntakeOutput!.dailyIntake
-                    .where((item) =>
-                        viewModel.isSameDay(item.createdAt, selectedDate))
-                    .toList()
-                  ..sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
+                final List<DailyIntakeRecord> todayItems =
+                    viewModel.userIntakeOutput!.dailyIntake.toList()
+                      ..sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
 
                 return ListView.builder(
                   padding: const EdgeInsets.only(top: 5),

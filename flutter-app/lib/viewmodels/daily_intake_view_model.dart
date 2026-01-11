@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
@@ -21,6 +20,7 @@ class DailyIntakeViewModel extends BaseViewModel {
 
   // State
   UserIntakeOutput? userIntakeOutput;
+  SaveIntakeOutput? saveIntakeOutput;
   Map<String, FoodNutrient>? _totalNutrientsMap;
   DateTime _selectedDate = DateTime.now();
   final ValueNotifier<Map<String, double>> dailyIntakeNotifier =
@@ -30,6 +30,7 @@ class DailyIntakeViewModel extends BaseViewModel {
 
   // Getters
   UserIntakeOutput? get userIntake => userIntakeOutput;
+  SaveIntakeOutput? get saveIntake => saveIntakeOutput;
   Map<String, FoodNutrient>? get totalNutrients => _totalNutrientsMap;
   DateTime get selectedDate => _selectedDate;
   String get descriptionText => _descriptionText;
@@ -84,15 +85,22 @@ class DailyIntakeViewModel extends BaseViewModel {
     }
   }
 
-  Future<void> saveScannedFood(String userId, File? foodImage, String source,
-      FoodAnalysisResponse? foodAnalysis) async {
-    SaveIntakeOutput output =
-        await intakeRepository.saveScannedFood(userId, foodImage, foodAnalysis);
-    if (source == AppConstants.scanDescription) {
-      await aiRepository.generateIntakeImage(
-          _descriptionText, output.dailyIntakeId);
+  Future<SaveIntakeOutput> saveScannedFood(String userId, File? foodImage,
+      String source, FoodAnalysisResponse? foodAnalysis) async {
+    try {
+      debugPrint(
+          "Starting saveScannedFood for userId: $userId, source: $source");
+      saveIntakeOutput = await intakeRepository.saveScannedFood(
+          userId, foodImage, source, foodAnalysis);
+      debugPrint(
+          "SaveIntakeOutput received: ${saveIntakeOutput?.dailyIntakeId}");
+      return saveIntakeOutput!;
+    } catch (e, stackTrace) {
+      debugPrint("Error in saveScannedFood: $e");
+      debugPrint("StackTrace: $stackTrace");
+      setError("Failed to save intake: $e");
+      rethrow;
     }
-    await getDailyIntake(userId, _selectedDate);
   }
 
   Future<void> getDailyIntake(String userId, DateTime date) async {
@@ -106,8 +114,8 @@ class DailyIntakeViewModel extends BaseViewModel {
 
   Future<void> saveScannedLabel(String userId, File? foodImage, String source,
       ProductAnalysisResponse? productAnalysis) async {
-    await intakeRepository.saveScannedLabel(userId, foodImage, productAnalysis);
-    await getDailyIntake(userId, _selectedDate);
+    await intakeRepository.saveScannedLabel(
+        userId, foodImage, source, productAnalysis);
   }
 
   void _mapTotalNutrients() {

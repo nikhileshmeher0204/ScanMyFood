@@ -21,10 +21,7 @@ class FoodHistoryItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final itemName = item.mealName ??
-        item.mealDescriptionName ??
-        item.productName ??
-        'Unknown Item';
+    final itemName = item.intakeName ?? 'Unknown Item';
 
     final bool isNetworkImage = item.imageUrl != null &&
         (item.imageUrl!.startsWith('http://') ||

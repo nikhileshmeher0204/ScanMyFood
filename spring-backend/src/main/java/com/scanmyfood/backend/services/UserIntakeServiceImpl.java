@@ -24,9 +24,6 @@ public class UserIntakeServiceImpl implements UserIntakeService {
     @Autowired
     private UserIntakeMapper userIntakeMapper;
 
-    @Autowired
-    FileStorageService fileStorageService;
-
     @Override
     public int saveScannedFoodIntake(SaveScannedFoodInput saveIntakeInput, String imageAccessUrl) throws Exception {
         try {
@@ -43,6 +40,7 @@ public class UserIntakeServiceImpl implements UserIntakeService {
                     saveIntakeInput.getUserId(),
                     saveIntakeInput.getFoodAnalysisResponse().getMealName(),
                     imageAccessUrl,
+                    saveIntakeInput.getSourceOfIntake(),
                     nutrientMap.get(CALORIES).getValue(), nutrientMap.get(CALORIES).getUnit(),
                     nutrientMap.get(PROTEIN).getValue(), nutrientMap.get(PROTEIN).getUnit(),
                     nutrientMap.get(TOTAL_CARBOHYDRATE).getValue(), nutrientMap.get(TOTAL_CARBOHYDRATE).getUnit(),
@@ -105,6 +103,7 @@ public class UserIntakeServiceImpl implements UserIntakeService {
                     scannedLabelInput.getUserId(),
                     productAnalysis.getProduct().getName(),
                     imageAccessUrl,
+                    scannedLabelInput.getSourceOfIntake(),
                     nutrientMap.get(ENERGY).getValue(), nutrientMap.get(ENERGY).getUnit(),
                     nutrientMap.get(PROTEIN).getValue(), nutrientMap.get(PROTEIN).getUnit(),
                     nutrientMap.get(TOTAL_CARBOHYDRATE).getValue(), nutrientMap.get(TOTAL_CARBOHYDRATE).getUnit(),
