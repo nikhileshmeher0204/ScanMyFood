@@ -6,7 +6,6 @@ import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
-import 'package:read_the_label/models/save_intake_output.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
@@ -54,9 +53,11 @@ class AddToIntakeButton extends StatelessWidget {
           } else if (source == AppConstants.scanDescription) {
             await dailyIntakeProvider.saveScannedFood(
                 user!.uid, foodImage, source, foodAnalysis);
+            dailyIntakeProvider.setIsImageGenerating(true);
             await dailyIntakeProvider.aiRepository.generateIntakeImage(
                 dailyIntakeProvider.descriptionText,
                 dailyIntakeProvider.saveIntakeOutput!.dailyIntakeId);
+            dailyIntakeProvider.setIsImageGenerating(false);
           } else if (source == AppConstants.scanLabel) {
             await dailyIntakeProvider.saveScannedLabel(
                 user!.uid, foodImage, source, productAnalysis);

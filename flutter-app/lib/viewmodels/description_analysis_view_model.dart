@@ -8,16 +8,13 @@ import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/image_generation_response.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
-import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class DescriptionAnalysisViewModel extends BaseViewModel {
   // Dependencies
   SpringBackendRepository aiRepository;
-  UiViewModel uiProvider;
 
   DescriptionAnalysisViewModel({
     required this.aiRepository,
-    required this.uiProvider,
   });
 
   bool loading = false;
@@ -77,7 +74,7 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
     required String foodItemsText,
     required int dailyIntakeId,
   }) async {
-    uiProvider.setLoading(true);
+    setLoading(true);
 
     try {
       debugPrint("Generating image for food description: \n$foodItemsText");
@@ -90,7 +87,7 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
       debugPrint("Error generating image: $e");
       setError("Error generating image: $e");
     } finally {
-      uiProvider.setLoading(false);
+      setLoading(false);
     }
   }
 
@@ -105,11 +102,11 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
     Map<String, String> keyMapping = {
       'calories': 'Energy',
       'protein': 'Protein',
-      'carbohydrate': 'Carbohydrate',
-      'fat': 'Fat',
-      'fiber': 'Fiber',
+      'total_carbohydrate': 'Carbohydrate',
+      'total_fat': 'Fat',
+      'dietary_fiber': 'Fiber',
       'sodium': 'Sodium',
-      'sugar': 'Total Sugars',
+      'total_sugars': 'Total Sugars',
       'saturated_fat': 'Saturated Fat',
     };
 

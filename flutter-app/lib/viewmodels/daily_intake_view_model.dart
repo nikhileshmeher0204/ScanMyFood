@@ -27,6 +27,7 @@ class DailyIntakeViewModel extends BaseViewModel {
       ValueNotifier<Map<String, double>>({});
   final Map<String, Color> _colorCache = {};
   String _descriptionText = "";
+  bool _isImageGenerating = false;
 
   // Getters
   UserIntakeOutput? get userIntake => userIntakeOutput;
@@ -34,6 +35,7 @@ class DailyIntakeViewModel extends BaseViewModel {
   Map<String, FoodNutrient>? get totalNutrients => _totalNutrientsMap;
   DateTime get selectedDate => _selectedDate;
   String get descriptionText => _descriptionText;
+  bool get isImageGenerating => _isImageGenerating;
 
   // Constructor with dependency injection
   DailyIntakeViewModel({
@@ -45,6 +47,11 @@ class DailyIntakeViewModel extends BaseViewModel {
 
   setDescriptionText(String text) {
     _descriptionText = text;
+  }
+
+  setIsImageGenerating(bool value) {
+    _isImageGenerating = value;
+    notifyListeners();
   }
 
   Future<void> updateSelectedDate(DateTime newDate) async {

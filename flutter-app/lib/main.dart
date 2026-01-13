@@ -148,13 +148,10 @@ class MyApp extends StatelessWidget {
           aiRepository: context.read<SpringBackendRepository>(),
         ),
       ),
-      ChangeNotifierProxyProvider<UiViewModel, DescriptionAnalysisViewModel>(
+      ChangeNotifierProvider<DescriptionAnalysisViewModel>(
         create: (context) => DescriptionAnalysisViewModel(
           aiRepository: context.read<SpringBackendRepository>(),
-          uiProvider: context.read<UiViewModel>(),
         ),
-        update: (context, uiViewModel, previous) =>
-            previous!..uiProvider = uiViewModel,
       ),
       ChangeNotifierProxyProvider2<UiViewModel, AuthService,
               DailyIntakeViewModel>(
