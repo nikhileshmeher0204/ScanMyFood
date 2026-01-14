@@ -7,9 +7,7 @@ import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/theme/app_theme.dart';
-import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
-import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/screens/ask_ai_view.dart';
 import 'package:read_the_label/views/widgets/add_to_intake_button.dart';
 import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
@@ -48,10 +46,8 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
         ),
       ),
       SliverToBoxAdapter(
-        child: Consumer3<UiViewModel, ProductAnalysisViewModel,
-                DailyIntakeViewModel>(
-            builder: (context, uiProvider, productAnalysisProvider,
-                dailyIntakeProvider, _) {
+        child: Consumer<ProductAnalysisViewModel>(
+            builder: (context, productAnalysisProvider, _) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
@@ -84,7 +80,7 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                     image: FileImage(
                                         productAnalysisProvider.frontImage!)),
                               ),
-                              if (uiProvider.loading)
+                              if (productAnalysisProvider.loading)
                                 const Positioned.fill(
                                   left: 5,
                                   right: 5,
@@ -128,10 +124,11 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                   }),
                 ),
               ),
-              if (uiProvider.loading) const NutrientInfoShimmer(),
+              if (productAnalysisProvider.loading) const NutrientInfoShimmer(),
 
               //Good/Moderate nutrients
-              if (productAnalysisProvider.getOptimalNutrients().isNotEmpty)
+              if (productAnalysisProvider.getOptimalNutrients().isNotEmpty &&
+                  !productAnalysisProvider.loading)
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 24.0),
                   child: Column(
@@ -181,7 +178,8 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                 ),
 
               //Moderate nutrients
-              if (productAnalysisProvider.getModerateNutrients().isNotEmpty)
+              if (productAnalysisProvider.getModerateNutrients().isNotEmpty &&
+                  !productAnalysisProvider.loading)
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 24.0),
                   child: Column(
@@ -219,7 +217,8 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                 ),
 
               //Bad nutrients
-              if (productAnalysisProvider.getWatchOutNutrients().isNotEmpty)
+              if (productAnalysisProvider.getWatchOutNutrients().isNotEmpty &&
+                  !productAnalysisProvider.loading)
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 24.0),
                   child: Column(
@@ -255,7 +254,8 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                     ],
                   ),
                 ),
-              if (productAnalysisProvider.getWatchOutNutrients().isNotEmpty)
+              if (productAnalysisProvider.getWatchOutNutrients().isNotEmpty &&
+                  !productAnalysisProvider.loading)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Row(
@@ -282,12 +282,14 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                     ],
                   ),
                 ),
-              if (productAnalysisProvider.primaryConcerns.isNotEmpty)
+              if (productAnalysisProvider.primaryConcerns.isNotEmpty &&
+                  !productAnalysisProvider.loading)
                 ...productAnalysisProvider.primaryConcerns.map(
                   (concern) => NutrientBalanceCard(concern: concern),
                 ),
 
-              if (uiProvider.servingSize > 0)
+              if (productAnalysisProvider.nutrients.isNotEmpty &&
+                  !productAnalysisProvider.loading)
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -306,7 +308,8 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                     ],
                   ),
                 ),
-              if (uiProvider.servingSize > 0)
+              if (productAnalysisProvider.nutrients.isNotEmpty &&
+                  !productAnalysisProvider.loading)
                 InkWell(
                   onTap: () {
                     print("Tap detected!");

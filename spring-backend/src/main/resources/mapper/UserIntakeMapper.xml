@@ -5,7 +5,7 @@
 
     <select id="insertFoodAnalysis" resultType="java.lang.Integer">
             INSERT INTO daily_intake (
-            user_id, meal_name, image_url,
+            user_id, intake_name, image_url, source_of_intake,
             calories_value, calories_unit,
             protein_value, protein_unit,
             total_carbohydrate_value, total_carbohydrate_unit,
@@ -14,7 +14,7 @@
             total_sugars_value, total_sugars_unit,
             sodium_value, sodium_unit
         ) VALUES (
-            #{userId}, #{mealName}, #{imageUrl},
+            #{userId}, #{intakeName}, #{imageUrl}, #{sourceOfIntake},
             #{caloriesValue}, #{caloriesUnit},
             #{proteinValue}, #{proteinUnit},
             #{totalCarbohydrateValue}, #{totalCarbohydrateUnit},
@@ -29,8 +29,9 @@
     <select id="insertProductAnalysis" resultType="java.lang.Integer">
         INSERT INTO daily_intake (
             user_id,
-            product_name,
+            intake_name,
             image_url,
+            source_of_intake,
             energy_value, energy_unit,
             protein_value, protein_unit,
             total_carbohydrate_value, total_carbohydrate_unit,
@@ -46,8 +47,9 @@
             potassium_value, potassium_unit
         ) VALUES (
             #{userId},
-            #{productName},
+            #{intakeName},
             #{imageUrl},
+            #{sourceOfIntake},
             #{energyValue}, #{energyUnit},
             #{proteinValue}, #{proteinUnit},
             #{totalCarbohydrateValue}, #{totalCarbohydrateUnit},
@@ -108,9 +110,8 @@
         SELECT
             id,
             user_id,
-            meal_name,
-            meal_description_name,
-            product_name,
+            intake_name,
+            source_of_intake,
             image_url,
             calories_value,
             calories_unit,
@@ -251,5 +252,11 @@
             #{reasoning}
         )
     </insert>
+
+    <update id="updateDailyIntakeImageUrl">
+        UPDATE daily_intake
+        SET image_url = #{imageUrl}
+        WHERE id = #{dailyIntakeId}
+    </update>
 
 </mapper>

@@ -13,7 +13,7 @@ class DetailedNutrientsCard extends StatelessWidget {
     required this.totalNutrients,
   });
 
-  final Map<String, FoodNutrient>? totalNutrients;
+  final Map<String, FoodNutrient> totalNutrients;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,6 @@ class DetailedNutrientsCard extends StatelessWidget {
         dailyIntakeProvider.totalNutrients!;
 
     return Container(
-      margin: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [

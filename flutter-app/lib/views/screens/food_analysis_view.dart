@@ -50,13 +50,10 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Scanning Section - Static content, doesn't need to rebuild
               _buildScanningSection(),
-
-              // Loading animation - Only rebuilds when UiViewModel.loading changes
-              Selector<UiViewModel, bool>(
-                selector: (context, uiViewModel) => uiViewModel.loading,
-                builder: (context, isLoading, child) {
+              Consumer<MealAnalysisViewModel>(
+                builder: (context, mealAnalysisProvider, child) {
+                  final isLoading = mealAnalysisProvider.loading;
                   if (isLoading) {
                     return const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,17 +64,6 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                       ],
                     );
                   }
-                  return const SizedBox.shrink();
-                },
-              ),
-
-              // Results Section - Only rebuilds when MealAnalysisViewModel changes
-              Consumer<MealAnalysisViewModel>(
-                builder: (context, mealAnalysisProvider, child) {
-                  // Check if we have results and not loading
-                  final isLoading =
-                      Provider.of<UiViewModel>(context, listen: false).loading;
-
                   if (mealAnalysisProvider.foodImage != null &&
                       mealAnalysisProvider
                           .analyzedScannedFoodItems.isNotEmpty &&

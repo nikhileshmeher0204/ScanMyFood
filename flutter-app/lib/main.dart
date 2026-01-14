@@ -137,38 +137,33 @@ class MyApp extends StatelessWidget {
       ChangeNotifierProvider<UiViewModel>(
         create: (_) => UiViewModel(),
       ),
-      // Keep these changes:
-      ChangeNotifierProxyProvider<UiViewModel, ProductAnalysisViewModel>(
+
+      ChangeNotifierProvider<ProductAnalysisViewModel>(
         create: (context) => ProductAnalysisViewModel(
           aiRepository: context.read<SpringBackendRepository>(),
-          uiProvider: context.read<UiViewModel>(),
         ),
-        update: (context, uiViewModel, previous) =>
-            previous!..uiProvider = uiViewModel,
       ),
-      ChangeNotifierProxyProvider<UiViewModel, MealAnalysisViewModel>(
+      ChangeNotifierProvider<MealAnalysisViewModel>(
         create: (context) => MealAnalysisViewModel(
           aiRepository: context.read<SpringBackendRepository>(),
-          uiProvider: context.read<UiViewModel>(),
         ),
-        update: (context, uiViewModel, previous) =>
-            previous!..uiProvider = uiViewModel,
       ),
-      ChangeNotifierProxyProvider<UiViewModel, DescriptionAnalysisViewModel>(
+      ChangeNotifierProvider<DescriptionAnalysisViewModel>(
         create: (context) => DescriptionAnalysisViewModel(
           aiRepository: context.read<SpringBackendRepository>(),
-          uiProvider: context.read<UiViewModel>(),
         ),
-        update: (context, uiViewModel, previous) =>
-            previous!..uiProvider = uiViewModel,
       ),
-      ChangeNotifierProxyProvider<UiViewModel, DailyIntakeViewModel>(
+      ChangeNotifierProxyProvider2<UiViewModel, AuthService,
+              DailyIntakeViewModel>(
           create: (context) => DailyIntakeViewModel(
                 intakeRepository: context.read<IntakeRepository>(),
+                aiRepository: context.read<SpringBackendRepository>(),
                 uiProvider: context.read<UiViewModel>(),
+                authService: context.read<AuthService>(),
               ),
-          update: (context, uiViewModel, previous) =>
-              previous!..uiProvider = uiViewModel),
+          update: (context, uiViewModel, authService, previous) => previous!
+            ..uiProvider = uiViewModel
+            ..authService = authService),
     ];
   }
 }

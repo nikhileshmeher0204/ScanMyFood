@@ -8,9 +8,8 @@ import java.sql.Timestamp;
 public class DailyIntakeRecord {
     private Integer id;
     private String userId;
-    private String mealName;
-    private String mealDescriptionName;
-    private String productName;
+    private String intakeName;
+    private String sourceOfIntake;
     private String imageUrl;
     
     private Double caloriesValue = 0.0;

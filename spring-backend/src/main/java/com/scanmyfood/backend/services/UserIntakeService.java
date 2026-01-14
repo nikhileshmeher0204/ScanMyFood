@@ -10,9 +10,11 @@ import java.time.LocalDate;
 @Service
 public interface UserIntakeService {
 
-    public void saveScannedFoodIntake(SaveScannedFoodInput saveIntakeInput, String imageAccessUrl);
+    public int saveScannedFoodIntake(SaveScannedFoodInput saveIntakeInput, String imageAccessUrl) throws Exception;
 
-    public void saveScannedLabelIntake(SaveScannedLabelInput scannedLabelInput, String imageAccessUrl);
+    public int saveScannedLabelIntake(SaveScannedLabelInput scannedLabelInput, String imageAccessUrl) throws Exception;
 
     public UserIntakeOutput getUserIntake(String userId, LocalDate date) throws Exception;
+
+    public void updateDailyIntakeImage(int dailyIntakeId, String imageAccessUrl) throws Exception;
 }

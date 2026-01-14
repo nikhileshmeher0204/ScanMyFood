@@ -32,7 +32,7 @@ class AddToIntakeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
-      onPressed: () {
+      onPressed: () async {
         final uiProvider = context.read<UiViewModel>();
         final dailyIntakeProvider = context.read<DailyIntakeViewModel>();
         final authService = Provider.of<AuthService>(context, listen: false);
@@ -46,22 +46,45 @@ class AddToIntakeButton extends StatelessWidget {
         print("Current total nutrients: $totalPlateNutrients");
         print("foodAnalysis: $foodAnalysis");
 
-        if (source == AppConstants.scanMeal ||
-            source == AppConstants.scanDescription) {
-          dailyIntakeProvider.saveScannedFood(
-              user!.uid, foodImage, foodAnalysis);
-        } else if (source == AppConstants.scanLabel) {
-          dailyIntakeProvider.saveScannedLabel(
-              user!.uid, foodImage, productAnalysis);
-        }
+        try {
+          //save intake based on source
+          if (source == AppConstants.scanMeal ||
+              source == AppConstants.scanDescription) {
+            await dailyIntakeProvider.saveScannedFood(
+                user!.uid, foodImage, source, foodAnalysis);
+          } else if (source == AppConstants.scanLabel) {
+            await dailyIntakeProvider.saveScannedLabel(
+                user!.uid, foodImage, source, productAnalysis);
+          }
+          //get Daily Intake after saving
+          await dailyIntakeProvider.getDailyIntake(user!.uid, DateTime.now());
 
-        uiProvider.updateCurrentIndex(2);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Added to daily intake'),
-            duration: Duration(seconds: 2),
-          ),
-        );
+          // If source is description, generate image after saving intake
+          if (source == AppConstants.scanDescription) {
+            dailyIntakeProvider.setIsImageGenerating(true);
+            await dailyIntakeProvider.aiRepository.generateIntakeImage(
+                dailyIntakeProvider.descriptionText,
+                dailyIntakeProvider.saveIntakeOutput!.dailyIntakeId);
+            dailyIntakeProvider.setIsImageGenerating(false);
+            // Refresh daily intake to get updated image
+            await dailyIntakeProvider.getDailyIntake(user.uid, DateTime.now());
+          }
+          uiProvider.updateCurrentIndex(2);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Added to daily intake'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error saving intake: $e'),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
       },
       icon: const Icon(Icons.add_circle_outline),
       label: const Text('Add to today\'s intake'),

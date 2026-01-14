@@ -11,8 +11,9 @@ public interface UserIntakeMapper {
 
     Integer insertFoodAnalysis(
             @Param("userId") String userId,
-            @Param("mealName") String mealName,
+            @Param("intakeName") String intakeName,
             @Param("imageUrl") String imageUrl,
+            @Param("sourceOfIntake") String sourceOfIntake,
             @Param("caloriesValue") double caloriesValue,
             @Param("caloriesUnit") String caloriesUnit,
             @Param("proteinValue") double proteinValue,
@@ -31,8 +32,9 @@ public interface UserIntakeMapper {
 
     Integer insertProductAnalysis(
             @Param("userId") String userId,
-            @Param("productName") String productName,
+            @Param("intakeName") String intakeName,
             @Param("imageUrl") String imageUrl,
+            @Param("sourceOfIntake") String sourceOfIntake,
             @Param("energyValue") double energyValue,
             @Param("energyUnit") String energyUnit,
             @Param("proteinValue") double proteinValue,
@@ -93,7 +95,7 @@ public interface UserIntakeMapper {
     );
 
     Integer insertProductLabel(
-            @Param("productName") String productName,
+            @Param("intakeName") String intakeName,
             @Param("category") String category,
             @Param("totalQuantityValue") double totalQuantityValue,
             @Param("totalQuantityUnit") String totalQuantityUnit,
@@ -146,6 +148,12 @@ public interface UserIntakeMapper {
             @Param("food") String food,
             @Param("quantity") String quantity,
             @Param("reasoning") String reasoning
+    );
+
+
+    void updateDailyIntakeImageUrl(
+            @Param("dailyIntakeId") Integer dailyIntakeId,
+            @Param("imageUrl") String imageUrl
     );
 
 }

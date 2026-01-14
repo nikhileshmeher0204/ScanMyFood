@@ -20,6 +20,7 @@ import com.google.cloud.vertexai.api.GenerateContentResponse;
 import com.google.cloud.vertexai.generativeai.ContentMaker;
 import com.google.cloud.vertexai.generativeai.GenerativeModel;
 import com.google.cloud.vertexai.generativeai.PartMaker;
+import com.google.protobuf.ByteString;
 
 @Service
 public class VertexAiServiceImpl implements AiService {
@@ -34,6 +35,9 @@ public class VertexAiServiceImpl implements AiService {
 
   @Autowired
   private GenerativeModel generativeModel;
+
+  @Autowired
+  private GenerativeModel imageGenerativeModel;
 
   @Override
   public Map<String, Object> analyzeProductImages(MultipartFile frontImage, MultipartFile labelImage) {
@@ -274,6 +278,87 @@ public class VertexAiServiceImpl implements AiService {
     } catch (Exception e) {
       logger.error("Error analyzing food description", e);
       throw new RuntimeException("Failed to analyze food description: " + e.getMessage());
+    }
+  }
+
+  @Override
+  public byte[] generateFoodImage(String foodDescription) {
+    try {
+      // Build optimized prompt for realistic food photography
+      String prompt = String.format(
+        "Generate a professional food photography image of %s. " +
+        "Requirements: " +
+        "- Serve on appropriate cutlery and dinnerware based on the food type " +
+        "- Proper plating with accurate portion sizes matching the description " +
+        "- Arrange appetizingly on a clean table setting (white or wooden) " +
+        "- Natural soft daylight lighting from the side " +
+        "- Shot from a 45-degree angle in landscape format (16:9 aspect ratio) " +
+        "- Shallow depth of field, Canon EOS R5 photography style " +
+        "- 8K resolution, photorealistic, restaurant quality presentation " +
+        "- Professional food styling with vibrant colors and fresh ingredients " +
+        "- Slightly blurred background with warm neutral tones " +
+        "- No hands, people, or text visible - focus entirely on the food " +
+        "- Add steam if it's a hot dish for realism",
+        foodDescription
+      );
+      
+      logger.info("Generating food image with Gemini 2.5 Flash Image for: {}", foodDescription);
+      logger.debug("Image generation prompt: {}", prompt);
+      
+      // Create content with image generation request
+      Content content = ContentMaker.fromString(prompt);
+      
+      // Generate image using injected image generation model
+      GenerateContentResponse response = imageGenerativeModel.generateContent(content);
+      
+      logger.info("Received response from Gemini, candidates: {}", response.getCandidatesCount());
+      
+      if (response.getCandidatesCount() == 0) {
+        logger.error("No candidates in response. Response: {}", response);
+        throw new RuntimeException("No image generated - response has no candidates");
+      }
+      
+      var candidate = response.getCandidates(0);
+      logger.info("Candidate parts count: {}", candidate.getContent().getPartsCount());
+      
+      if (candidate.getContent().getPartsCount() == 0) {
+        logger.error("No parts in candidate content. Candidate: {}", candidate);
+        throw new RuntimeException("No image generated - candidate has no parts");
+      }
+      
+      // Iterate through all parts to find the one with inline data (the image)
+      ByteString imageData = null;
+      for (int i = 0; i < candidate.getContent().getPartsCount(); i++) {
+        var part = candidate.getContent().getParts(i);
+        
+        if (part.hasInlineData()) {
+          logger.info("Found inline data in part {}", i);
+          imageData = part.getInlineData().getData();
+          break;
+        } else if (part.hasText()) {
+          logger.info("Part {} contains text: {}", i, part.getText());
+        }
+      }
+      
+      if (imageData == null) {
+        logger.error("No inline data found in any part");
+        throw new RuntimeException("No image generated - no part contains inline data");
+      }
+      
+      // Extract image bytes from response
+      byte[] imageBytes = imageData.toByteArray();
+      
+      logger.info("Successfully generated food image, size: {} bytes", imageBytes.length);
+      
+      if (imageBytes.length == 0) {
+        throw new RuntimeException("Image data is empty");
+      }
+      
+      return imageBytes;
+      
+    } catch (Exception e) {
+      logger.error("Error generating food image with Gemini 2.5 Flash Image", e);
+      throw new RuntimeException("Failed to generate food image: " + e.getMessage(), e);
     }
   }
 

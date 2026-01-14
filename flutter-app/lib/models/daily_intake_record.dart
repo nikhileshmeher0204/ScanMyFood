@@ -1,9 +1,8 @@
 class DailyIntakeRecord {
   final int? id;
   final String? userId;
-  final String? mealName;
-  final String? mealDescriptionName;
-  final String? productName;
+  final String? intakeName;
+  final String? sourceOfIntake;
   final String? imageUrl;
 
   final double caloriesValue;
@@ -63,9 +62,8 @@ class DailyIntakeRecord {
   DailyIntakeRecord({
     this.id,
     this.userId,
-    this.mealName,
-    this.mealDescriptionName,
-    this.productName,
+    this.intakeName,
+    this.sourceOfIntake,
     this.imageUrl,
     this.caloriesValue = 0.0,
     this.caloriesUnit = 'kcal',
@@ -126,9 +124,8 @@ class DailyIntakeRecord {
     return DailyIntakeRecord(
       id: json['id'] as int?,
       userId: json['user_id'] as String?,
-      mealName: json['meal_name'] as String?,
-      mealDescriptionName: json['meal_description_name'] as String?,
-      productName: json['product_name'] as String?,
+      intakeName: json['intake_name'] as String?,
+      sourceOfIntake: json['source_of_intake'] as String?,
       imageUrl: json['image_url'] as String?,
       caloriesValue: (json['calories_value'] as num?)?.toDouble() ?? 0.0,
       caloriesUnit: json['calories_unit'] as String? ?? 'kcal',
@@ -195,9 +192,8 @@ class DailyIntakeRecord {
     return {
       'id': id,
       'user_id': userId,
-      'meal_name': mealName,
-      'meal_description_name': mealDescriptionName,
-      'product_name': productName,
+      'intake_name': intakeName,
+      'source_of_intake': sourceOfIntake,
       'image_url': imageUrl,
       'calories_value': caloriesValue,
       'calories_unit': caloriesUnit,

@@ -24,11 +24,8 @@ public class UserIntakeServiceImpl implements UserIntakeService {
     @Autowired
     private UserIntakeMapper userIntakeMapper;
 
-    @Autowired
-    FileStorageService fileStorageService;
-
     @Override
-    public void saveScannedFoodIntake(SaveScannedFoodInput saveIntakeInput, String imageAccessUrl) {
+    public int saveScannedFoodIntake(SaveScannedFoodInput saveIntakeInput, String imageAccessUrl) throws Exception {
         try {
             // Insert food analysis record
             Map<String, Quantity> nutrientMap = saveIntakeInput.getFoodAnalysisResponse()
@@ -43,6 +40,7 @@ public class UserIntakeServiceImpl implements UserIntakeService {
                     saveIntakeInput.getUserId(),
                     saveIntakeInput.getFoodAnalysisResponse().getMealName(),
                     imageAccessUrl,
+                    saveIntakeInput.getSourceOfIntake(),
                     nutrientMap.get(CALORIES).getValue(), nutrientMap.get(CALORIES).getUnit(),
                     nutrientMap.get(PROTEIN).getValue(), nutrientMap.get(PROTEIN).getUnit(),
                     nutrientMap.get(TOTAL_CARBOHYDRATE).getValue(), nutrientMap.get(TOTAL_CARBOHYDRATE).getUnit(),
@@ -79,13 +77,15 @@ public class UserIntakeServiceImpl implements UserIntakeService {
                         actualQuantityUnit
                 );
             }
+            return dailyIntakeId;
         } catch (Exception exception) {
             logger.error("Error saving user intake: {}", exception.getMessage(), exception);
+            throw new Exception("Error saving user intake", exception);
         }
     }
 
     @Override
-    public void saveScannedLabelIntake(SaveScannedLabelInput scannedLabelInput, String imageAccessUrl) {
+    public int saveScannedLabelIntake(SaveScannedLabelInput scannedLabelInput, String imageAccessUrl) throws Exception {
         try {
             ProductAnalysisResponse productAnalysis = scannedLabelInput.getProductAnalysisResponse();
             
@@ -103,6 +103,7 @@ public class UserIntakeServiceImpl implements UserIntakeService {
                     scannedLabelInput.getUserId(),
                     productAnalysis.getProduct().getName(),
                     imageAccessUrl,
+                    scannedLabelInput.getSourceOfIntake(),
                     nutrientMap.get(ENERGY).getValue(), nutrientMap.get(ENERGY).getUnit(),
                     nutrientMap.get(PROTEIN).getValue(), nutrientMap.get(PROTEIN).getUnit(),
                     nutrientMap.get(TOTAL_CARBOHYDRATE).getValue(), nutrientMap.get(TOTAL_CARBOHYDRATE).getUnit(),
@@ -179,8 +180,10 @@ public class UserIntakeServiceImpl implements UserIntakeService {
                     }
                 }
             }
+            return dailyIntakeId;
         } catch (Exception exception) {
             logger.error("Error saving scanned label intake: {}", exception.getMessage(), exception);
+            throw new Exception("Error saving scanned label intake", exception);
         }
     }
 
@@ -194,11 +197,6 @@ public class UserIntakeServiceImpl implements UserIntakeService {
             if (!records.isEmpty()) {
                 logger.info("Calculating total nutrients");
                 setTotalValues(records, totalNutrients);
-                records.forEach(dailyIntakeRecord -> {
-                    if (dailyIntakeRecord.getImageUrl() != null) {
-                        dailyIntakeRecord.setImageUrl(fileStorageService.getAccessUrl(dailyIntakeRecord.getImageUrl()));
-                    }
-                });
             }
             output.setUserId(userId);
             output.setDate(date);
@@ -208,6 +206,16 @@ public class UserIntakeServiceImpl implements UserIntakeService {
         } catch (Exception exception) {
             logger.error("Error fetching user intake: {}", exception.getMessage(), exception);
             throw new Exception("Error fetching user intake", exception);
+        }
+    }
+
+    @Override
+    public void updateDailyIntakeImage(int dailyIntakeId, String imageAccessUrl) throws Exception {
+        try {
+            userIntakeMapper.updateDailyIntakeImageUrl(dailyIntakeId, imageAccessUrl);
+        } catch (Exception exception) {
+            logger.error("Error updating daily intake image: {}", exception.getMessage(), exception);
+            throw new Exception("Error updating daily intake image", exception);
         }
     }
 
