@@ -47,23 +47,28 @@ class AddToIntakeButton extends StatelessWidget {
         print("foodAnalysis: $foodAnalysis");
 
         try {
-          if (source == AppConstants.scanMeal) {
+          //save intake based on source
+          if (source == AppConstants.scanMeal ||
+              source == AppConstants.scanDescription) {
             await dailyIntakeProvider.saveScannedFood(
                 user!.uid, foodImage, source, foodAnalysis);
-          } else if (source == AppConstants.scanDescription) {
-            await dailyIntakeProvider.saveScannedFood(
-                user!.uid, foodImage, source, foodAnalysis);
+          } else if (source == AppConstants.scanLabel) {
+            await dailyIntakeProvider.saveScannedLabel(
+                user!.uid, foodImage, source, productAnalysis);
+          }
+          //get Daily Intake after saving
+          await dailyIntakeProvider.getDailyIntake(user!.uid, DateTime.now());
+
+          // If source is description, generate image after saving intake
+          if (source == AppConstants.scanDescription) {
             dailyIntakeProvider.setIsImageGenerating(true);
             await dailyIntakeProvider.aiRepository.generateIntakeImage(
                 dailyIntakeProvider.descriptionText,
                 dailyIntakeProvider.saveIntakeOutput!.dailyIntakeId);
             dailyIntakeProvider.setIsImageGenerating(false);
-          } else if (source == AppConstants.scanLabel) {
-            await dailyIntakeProvider.saveScannedLabel(
-                user!.uid, foodImage, source, productAnalysis);
+            // Refresh daily intake to get updated image
+            await dailyIntakeProvider.getDailyIntake(user.uid, DateTime.now());
           }
-          await dailyIntakeProvider.getDailyIntake(user!.uid, DateTime.now());
-
           uiProvider.updateCurrentIndex(2);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

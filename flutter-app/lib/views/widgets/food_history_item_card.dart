@@ -33,7 +33,7 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
   void initState() {
     super.initState();
     _shimmerController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 5000),
       vsync: this,
     )..repeat();
   }
@@ -58,104 +58,82 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
-          // Show shimmer animation when image is being generated
-          if (widget.item.imageUrl == null && isImageGenerating)
-            AnimatedBuilder(
-              animation: _shimmerController,
-              builder: (context, child) {
-                return Container(
-                  height: 100,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: const [
-                        Color.fromARGB(255, 237, 202, 149),
-                        Color.fromARGB(255, 253, 142, 81),
-                        Color.fromARGB(255, 255, 0, 85),
-                        Color.fromARGB(255, 0, 21, 255),
-                      ],
-                      stops: const [0.2, 0.4, 0.6, 1.0],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      transform:
-                          GradientRotation(_shimmerController.value * 6.28),
-                    ),
+          SoftEdgeBlur(
+            edges: [
+              EdgeBlur(
+                type: EdgeType.bottomEdge,
+                size: 70,
+                sigma: 5,
+                tintColor: Colors.black.withValues(alpha: 0.3),
+                controlPoints: [
+                  ControlPoint(
+                    position: 0.5,
+                    type: ControlPointType.visible,
                   ),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.auto_awesome,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Generating image...',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.primaryWhite,
-                            fontWeight: FontWeight.w600,
+                  ControlPoint(
+                    position: 1,
+                    type: ControlPointType.transparent,
+                  )
+                ],
+              )
+            ],
+            child: (widget.item.imageUrl!.isEmpty && isImageGenerating)
+                ? AnimatedBuilder(
+                    animation: _shimmerController,
+                    builder: (context, child) {
+                      return Container(
+                        height: 125,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: const [
+                              Color.fromARGB(255, 237, 202, 149),
+                              Color.fromARGB(255, 253, 142, 81),
+                              Color.fromARGB(255, 255, 0, 85),
+                              Color.fromARGB(255, 0, 21, 255),
+                            ],
+                            stops: const [0.2, 0.4, 0.6, 1.0],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            transform: GradientRotation(
+                                _shimmerController.value * 6.28),
                           ),
                         ),
-                      ],
-                    ),
+                      );
+                    },
+                  )
+                : Image.network(
+                    widget.item.imageUrl!,
+                    fit: BoxFit.cover,
+                    height: 125,
+                    width: double.infinity,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 125,
+                        width: double.infinity,
+                        color: Colors.grey,
+                        child:
+                            const Icon(Icons.broken_image, color: Colors.white),
+                      );
+                    },
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 125,
+                        width: double.infinity,
+                        color: Colors.grey.shade800,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            )
-          // Show network image when not generating
-          else
-            SoftEdgeBlur(
-              edges: [
-                EdgeBlur(
-                  type: EdgeType.bottomEdge,
-                  size: 100,
-                  sigma: 100,
-                  tintColor: Colors.black.withValues(alpha: 0.3),
-                  controlPoints: [
-                    ControlPoint(
-                      position: 0.4,
-                      type: ControlPointType.visible,
-                    ),
-                    ControlPoint(
-                      position: 1,
-                      type: ControlPointType.transparent,
-                    )
-                  ],
-                )
-              ],
-              child: Image.network(
-                widget.item.imageUrl!,
-                fit: BoxFit.cover,
-                height: 100,
-                width: double.infinity,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    height: 100,
-                    width: double.infinity,
-                    color: Colors.grey,
-                    child: const Icon(Icons.broken_image, color: Colors.white),
-                  );
-                },
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                    height: 100,
-                    width: double.infinity,
-                    color: Colors.grey.shade800,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                            : null,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+          ),
           Positioned(
             top: 8,
             left: 8,

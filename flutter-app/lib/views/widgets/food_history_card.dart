@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/models/daily_intake_record.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/views/widgets/add_intake_desc_button.dart';
@@ -13,26 +12,23 @@ class FoodHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Column(
-        spacing: 10,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Today\'s Intake',
-            style: AppTextStyles.heading2.copyWith(
-              color: AppColors.onPrimary,
-            ),
+    return Column(
+      spacing: 10,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Today\'s Intake',
+          style: AppTextStyles.heading2.copyWith(
+            color: AppColors.onPrimary,
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            spacing: 10,
-            children: [_FoodHistoryList(), const AddIntakeDescButton()],
-          ),
-        ],
-      ),
+        ),
+        const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          spacing: 10,
+          children: [_FoodHistoryList(), AddIntakeDescButton()],
+        ),
+      ],
     );
   }
 }
