@@ -1,9 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
-import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/screens/meal_description_analysis_view.dart';
 import 'package:read_the_label/views/widgets/food_input_form.dart';
 
@@ -59,10 +57,8 @@ class _AddIntakeDescButtonState extends State<AddIntakeDescButton>
                     Navigator.push(
                       context,
                       CupertinoPageRoute(
-                        builder: (context) => Consumer<UiViewModel>(
-                          builder: (context, uiProvider, _) =>
-                              const MealDescriptionAnalysisView(),
-                        ),
+                        builder: (context) =>
+                            const MealDescriptionAnalysisView(),
                       ),
                     );
                   },
