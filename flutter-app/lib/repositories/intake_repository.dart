@@ -28,7 +28,7 @@ class IntakeRepository implements IntakeRepositoryInterface {
         foodAnalysisResponse: foodAnalysis!,
       );
       var request = http.MultipartRequest(
-          'POST', Uri.parse('${_apiClient.baseUrl}/user/save/scannedFood'));
+          'POST', Uri.parse('${_apiClient.baseUrl}/users/intake/scanned-food'));
 
       final token = await _apiClient.getAuthToken();
       if (token != null) {
@@ -80,8 +80,8 @@ class IntakeRepository implements IntakeRepositoryInterface {
         sourceOfIntake: sourceOfIntake,
         productAnalysisResponse: productAnalysis!,
       );
-      var request = http.MultipartRequest(
-          'POST', Uri.parse('${_apiClient.baseUrl}/user/save/scannedLabel'));
+      var request = http.MultipartRequest('POST',
+          Uri.parse('${_apiClient.baseUrl}/users/intake/scanned-label'));
 
       final token = await _apiClient.getAuthToken();
       if (token != null) {
@@ -129,7 +129,8 @@ class IntakeRepository implements IntakeRepositoryInterface {
       final formattedDate =
           '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
-      final uri = Uri.parse('${_apiClient.baseUrl}/user/intake').replace(
+      final uri =
+          Uri.parse('${_apiClient.baseUrl}/users/intake/daily-intake').replace(
         queryParameters: {
           'userId': userId,
           'date': formattedDate,
@@ -165,6 +166,58 @@ class IntakeRepository implements IntakeRepositoryInterface {
       }
     } catch (exception) {
       throw Exception('Error getting daily intake: $exception');
+    }
+  }
+
+  @override
+  Future<FoodAnalysisResponse> getIntakeDetails(
+      String userId, int dailyIntakeId) async {
+    try {
+      // Create request
+      final uri =
+          Uri.parse('${_apiClient.baseUrl}/users/intake/intake-record').replace(
+        queryParameters: {
+          'userId': userId,
+          'dailyIntakeId': dailyIntakeId.toString(),
+        },
+      );
+
+      // Add auth header if available
+      final token = await _apiClient.getAuthToken();
+      Map<String, String> headers = {
+        'Content-Type': 'application/json',
+      };
+
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+      // Send request with JSON body
+      final response = await http.get(
+        uri,
+        headers: headers,
+      );
+
+      // Debug the raw response
+      print("Raw response: ${response.body}");
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        // Check response structure
+        if (jsonResponse['status'] == 'success' &&
+            jsonResponse['data'] != null) {
+          // Convert data to FoodAnalysisResponse
+          return FoodAnalysisResponse.fromJson(jsonResponse['data']);
+        } else {
+          throw Exception(
+              'Invalid response format: ${jsonResponse['message'] ?? "Unknown error"}');
+        }
+      } else {
+        throw Exception(
+            'Failed to analyze description: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error analyzing food description: $e');
     }
   }
 }

@@ -106,6 +106,12 @@ public class AiResponseProcessingServiceImpl implements AiResponseProcessingServ
             FoodItem foodItem = new FoodItem();
             foodItem.setName((String)item.get("food_name"));
 
+            Map<String, Object> estimatedQuantity = (Map<String, Object>)item.get("mentioned_quantity");
+            Quantity quantity = new Quantity();
+            quantity.setValue(((Number)estimatedQuantity.get("amount")).doubleValue());
+            quantity.setUnit((String)estimatedQuantity.get("unit"));
+            foodItem.setQuantity(quantity);
+
             Map<String, Object> nutrientsMap = (Map<String, Object>)item.get("nutrients_in_mentioned_quantity");
             List<FoodNutrient> nutrients = new ArrayList<>();
 

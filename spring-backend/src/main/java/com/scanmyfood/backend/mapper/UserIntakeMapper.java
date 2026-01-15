@@ -1,6 +1,8 @@
 package com.scanmyfood.backend.mapper;
 
 import com.scanmyfood.backend.models.DailyIntakeRecord;
+import com.scanmyfood.backend.models.FoodItem;
+import com.scanmyfood.backend.models.FoodItemRecord;
 import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDate;
@@ -92,6 +94,15 @@ public interface UserIntakeMapper {
     List<DailyIntakeRecord> fetchUserIntake(
             @Param("userId") String userId,
             @Param("date") LocalDate date
+    );
+
+    DailyIntakeRecord fetchIntakeById(
+            @Param("userId") String userId,
+            @Param("dailyIntakeId") Integer dailyIntakeId
+    );
+
+    List<FoodItemRecord> fetchFoodItemsByDailyIntakeId(
+            @Param("dailyIntakeId") Integer dailyIntakeId
     );
 
     Integer insertProductLabel(

@@ -12,7 +12,8 @@ class NutrientUtils {
   }
 
   static double getNutrientValue(FoodItem item, String nutrientName) {
-    return getNutrient(item, nutrientName)?.quantity.value ?? 0.0;
+    final value = getNutrient(item, nutrientName)?.quantity.value ?? 0.0;
+    return double.parse(value.toStringAsFixed(2));
   }
 
   static String getNutrientUnit(FoodItem item, String nutrientName) {

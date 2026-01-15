@@ -22,6 +22,7 @@ class TotalNutrientsCard extends StatelessWidget {
   final List<FoodNutrient> totalPlateNutrients;
   final List<Map<String, dynamic>> nutrientInfo;
   final File? foodImage;
+  final bool showSaveOptions;
 
   const TotalNutrientsCard({
     super.key,
@@ -33,6 +34,7 @@ class TotalNutrientsCard extends StatelessWidget {
     required this.totalPlateNutrients,
     required this.nutrientInfo,
     this.foodImage,
+    required this.showSaveOptions,
   });
 
   @override
@@ -106,15 +108,17 @@ class TotalNutrientsCard extends StatelessWidget {
                   ),
                 ),
                 EnergyDistributionBar(originalNutrients: totalPlateNutrients),
-                const TimeSelector(),
-                const QuantitySelector(),
-                AddToIntakeButton(
-                  source: source,
-                  foodAnalysis: foodAnalysis,
-                  mealName: mealName,
-                  totalPlateNutrients: totalPlateNutrients,
-                  foodImage: foodImage,
-                ),
+                if (showSaveOptions) ...[
+                  const TimeSelector(),
+                  const QuantitySelector(),
+                  AddToIntakeButton(
+                    source: source,
+                    foodAnalysis: foodAnalysis,
+                    mealName: mealName,
+                    totalPlateNutrients: totalPlateNutrients,
+                    foodImage: foodImage,
+                  ),
+                ],
               ],
             ),
           ),

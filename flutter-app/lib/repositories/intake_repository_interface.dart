@@ -13,4 +13,7 @@ abstract class IntakeRepositoryInterface {
       String sourceOfIntake, ProductAnalysisResponse? productAnalysis);
 
   Future<UserIntakeOutput> getDailyIntake(String userId, DateTime date);
+
+  Future<FoodAnalysisResponse> getIntakeDetails(
+      String userId, int dailyIntakeId);
 }

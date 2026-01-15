@@ -100,6 +100,7 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                               mealAnalysisProvider.totalScannedPlateNutrients,
                           nutrientInfo: mealAnalysisProvider.nutrientInfo,
                           foodImage: mealAnalysisProvider.foodImage,
+                          showSaveOptions: true,
                         ),
 
                         InkWell(

@@ -96,6 +96,7 @@ class MealDescriptionAnalysisView extends StatelessWidget {
                               descriptionViewModel.totalPlateNutrients,
                           nutrientInfo: descriptionViewModel.nutrientInfo,
                           foodAnalysis: descriptionViewModel.foodAnalysis,
+                          showSaveOptions: true,
                         ),
                       ],
                     ),

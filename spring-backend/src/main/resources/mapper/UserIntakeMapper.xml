@@ -171,6 +171,79 @@
             AND DATE(created_at) = #{date}
     </select>
 
+    <select id="fetchIntakeById" resultType="com.scanmyfood.backend.models.DailyIntakeRecord">
+        SELECT
+            id,
+            user_id,
+            intake_name,
+            source_of_intake,
+            image_url,
+            calories_value,
+            calories_unit,
+            energy_value,
+            energy_unit,
+            protein_value,
+            protein_unit,
+            cholesterol_value,
+            cholesterol_unit,
+            total_carbohydrate_value,
+            total_carbohydrate_unit,
+            dietary_fiber_value,
+            dietary_fiber_unit,
+            total_sugars_value,
+            total_sugars_unit,
+            added_sugars_value,
+            added_sugars_unit,
+            total_fat_value,
+            total_fat_unit,
+            saturated_fat_value,
+            saturated_fat_unit,
+            trans_fat_value,
+            trans_fat_unit,
+            sodium_value,
+            sodium_unit,
+            calcium_value,
+            calcium_unit,
+            iron_value,
+            iron_unit,
+            potassium_value,
+            potassium_unit,
+            magnesium_value,
+            magnesium_unit,
+            phosphorus_value,
+            phosphorus_unit,
+            zinc_value,
+            zinc_unit,
+            folate_value,
+            folate_unit,
+            vitamin_d_value,
+            vitamin_d_unit,
+            vitamin_a_value,
+            vitamin_a_unit,
+            vitamin_c_value,
+            vitamin_c_unit,
+            vitamin_b6_value,
+            vitamin_b6_unit,
+            vitamin_b12_value,
+            vitamin_b12_unit,
+            vitamin_e_value,
+            vitamin_e_unit,
+            vitamin_k_value,
+            vitamin_k_unit,
+            created_at
+        FROM daily_intake
+        WHERE user_id = #{userId}
+          AND id= #{dailyIntakeId}
+    </select>
+
+    <select id="fetchFoodItemsByDailyIntakeId" resultType="com.scanmyfood.backend.models.FoodItemRecord">
+        SELECT fi.*, fai.quantity_value, fai.quantity_unit
+        FROM food_item fi
+                 INNER JOIN food_analysis_item fai
+                            ON fi.id = fai.food_item_id
+        WHERE fai.daily_intake_id = #{dailyIntakeId};
+    </select>
+
     <select id="insertProductLabel" resultType="java.lang.Integer">
         INSERT INTO product_label (
             product_name, category,
