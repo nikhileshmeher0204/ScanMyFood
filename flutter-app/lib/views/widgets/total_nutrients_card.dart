@@ -43,7 +43,6 @@ class TotalNutrientsCard extends StatelessWidget {
     print(StackTrace.current.toString().split('\n').take(10).join('\n'));
 
     return Container(
-      margin: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
       ),
@@ -88,7 +87,7 @@ class TotalNutrientsCard extends StatelessWidget {
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(15)),
             ),
             child: Column(
-              spacing: 16,
+              spacing: 15,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ClipRRect(
@@ -101,6 +100,7 @@ class TotalNutrientsCard extends StatelessWidget {
                               goal: nutrient['goal'],
                               healthSign: nutrient['health_impact'],
                               quantity: nutrient['quantity'],
+                              unit: nutrient['unit'],
                               insight: nutrientInsights[nutrient['name']],
                               dailyValue: nutrient['daily_value'],
                             ))

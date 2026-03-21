@@ -166,7 +166,8 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                       healthSign: nutrient.healthImpact,
                                       dailyValue: nutrient.dailyValue,
                                       quantity:
-                                          "${nutrient.quantity.value} ${nutrient.quantity.unit}",
+                                          nutrient.quantity.value.toString(),
+                                      unit: nutrient.quantity.unit,
                                       insight: nutrientInsights[nutrient.name],
                                     ))
                                 .toList(),
@@ -205,7 +206,8 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                       healthSign: nutrient.healthImpact,
                                       dailyValue: nutrient.dailyValue,
                                       quantity:
-                                          "${nutrient.quantity.value} ${nutrient.quantity.unit}",
+                                          nutrient.quantity.value.toString(),
+                                      unit: nutrient.quantity.unit,
                                       insight: nutrientInsights[nutrient.name],
                                     ))
                                 .toList(),
@@ -244,7 +246,8 @@ class _ProductAnalysisViewState extends State<ProductAnalysisView> {
                                       healthSign: nutrient.healthImpact,
                                       dailyValue: nutrient.dailyValue,
                                       quantity:
-                                          "${nutrient.quantity.value} ${nutrient.quantity.unit}",
+                                          nutrient.quantity.value.toString(),
+                                      unit: nutrient.quantity.unit,
                                       insight: nutrientInsights[nutrient.name],
                                     ))
                                 .toList(),

@@ -26,11 +26,9 @@ class DateSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-
-    // Calculate responsive dimensions
-    final horizontalPadding = screenWidth * 0.05; // 5% of screen width
+    final horizontalPadding = 16.0; // Standardized padding
     final availableWidth = screenWidth - (horizontalPadding * 2);
-    final itemSpacing = screenWidth * 0.015; // 1.5% of screen width
+    final itemSpacing = 8.0; // Consistent spacing
     final totalSpacing = itemSpacing * (daysToShow - 1);
     final itemWidth = (availableWidth - totalSpacing) / daysToShow;
     final itemHeight = itemWidth * 1.4; // Maintain aspect ratio

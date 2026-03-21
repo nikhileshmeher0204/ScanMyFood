@@ -80,7 +80,6 @@ class _AskAiWidgetState extends State<AskAiWidget>
   Widget build(BuildContext context) {
     return RepaintBoundary(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: AppColors.cardBackground,
           border: Border.all(

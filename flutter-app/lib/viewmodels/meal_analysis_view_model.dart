@@ -23,6 +23,7 @@ class MealAnalysisViewModel extends BaseViewModel {
   List<FoodItem> _analyzedScannedFoodItems = [];
   List<FoodNutrient> _totalScannedPlateNutrients = [];
   String _scannedMealName = "Unknown Meal";
+  List<Map<String, dynamic>> _nutrientInfo = [];
 
   // Getters
   bool get loading => _isLoading;
@@ -32,7 +33,6 @@ class MealAnalysisViewModel extends BaseViewModel {
   String get scannedMealName => _scannedMealName;
   List<FoodNutrient> get totalScannedPlateNutrients =>
       _totalScannedPlateNutrients;
-  List<Map<String, dynamic>> _nutrientInfo = [];
   List<Map<String, dynamic>> get nutrientInfo => _nutrientInfo;
 
   setLoading(bool loading) {
@@ -55,6 +55,16 @@ class MealAnalysisViewModel extends BaseViewModel {
     if (image != null) {
       _foodImage = File(image.path);
       notifyListeners();
+    }
+  }
+
+  Future<void> handleFoodImageCapture(ImageSource source) async {
+    final imagePicker = ImagePicker();
+    final image = await imagePicker.pickImage(source: source);
+
+    if (image != null) {
+      setFoodImage(File(image.path));
+      await analyzeFoodImage(imageFile: _foodImage!);
     }
   }
 
@@ -142,8 +152,8 @@ class MealAnalysisViewModel extends BaseViewModel {
 
         var nutrientInfoItem = {
           'name': nutrientName,
-          'quantity':
-              '${value.toStringAsFixed(1)}${matchingNutrient['Unit'] ?? ''}',
+          'quantity': value.toStringAsFixed(1),
+          'unit': matchingNutrient['Unit'] ?? '',
           'dv_status': dvStatus,
           'insight': nutrientInsights[nutrientName],
           'goal': goal,
