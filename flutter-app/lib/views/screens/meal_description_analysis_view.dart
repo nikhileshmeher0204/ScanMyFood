@@ -2,32 +2,17 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
-import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/widgets/food_item_card.dart';
 import 'package:read_the_label/views/widgets/total_nutrients_card.dart';
 import '../widgets/food_item_card_shimmer.dart';
 import '../widgets/total_nutrients_card_shimmer.dart';
 
-class MealDescriptionAnalysisView extends StatefulWidget {
+class MealDescriptionAnalysisView extends StatelessWidget {
   const MealDescriptionAnalysisView({
     super.key,
   });
-
-  @override
-  _MealDescriptionAnalysisViewState createState() =>
-      _MealDescriptionAnalysisViewState();
-}
-
-class _MealDescriptionAnalysisViewState
-    extends State<MealDescriptionAnalysisView> {
-  late int currentIndex;
-  @override
-  void initState() {
-    super.initState();
-    // Initialize with a default value or get from provider
-    currentIndex = context.read<UiViewModel>().currentIndex;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,12 +36,12 @@ class _MealDescriptionAnalysisViewState
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).padding.bottom + 80,
           ),
-          child: Consumer2<UiViewModel, DescriptionAnalysisViewModel>(
-            builder: (context, uiViewModel, descriptionViewModel, _) {
+          child: Consumer<DescriptionAnalysisViewModel>(
+            builder: (context, descriptionViewModel, _) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (uiViewModel.loading)
+                  if (descriptionViewModel.isLoading)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -78,7 +63,8 @@ class _MealDescriptionAnalysisViewState
                       ],
                     ),
                   // Results Section
-                  if (descriptionViewModel.analyzedFoodItems.isNotEmpty)
+                  if (descriptionViewModel.analyzedFoodItems.isNotEmpty &&
+                      !descriptionViewModel.isLoading)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -102,17 +88,20 @@ class _MealDescriptionAnalysisViewState
                                   index: entry.key,
                                 )),
                         TotalNutrientsCard(
+                          source: AppConstants.scanDescription,
                           mealName: descriptionViewModel.mealName,
                           numberOfFoodItems:
                               descriptionViewModel.analyzedFoodItems.length,
                           totalPlateNutrients:
                               descriptionViewModel.totalPlateNutrients,
                           nutrientInfo: descriptionViewModel.nutrientInfo,
+                          foodAnalysis: descriptionViewModel.foodAnalysis,
+                          showSaveOptions: true,
                         ),
                       ],
                     ),
                   // No results state
-                  if (!uiViewModel.loading &&
+                  if (!descriptionViewModel.isLoading &&
                       descriptionViewModel.analyzedFoodItems.isEmpty)
                     Padding(
                       padding: const EdgeInsets.all(20.0),

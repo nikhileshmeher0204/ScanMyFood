@@ -4,71 +4,96 @@ import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
-import 'package:read_the_label/models/quantity.dart';
+import 'package:read_the_label/models/food_nutrient.dart';
+import 'package:read_the_label/models/image_generation_response.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
-import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class DescriptionAnalysisViewModel extends BaseViewModel {
   // Dependencies
   SpringBackendRepository aiRepository;
-  UiViewModel uiProvider;
 
   DescriptionAnalysisViewModel({
     required this.aiRepository,
-    required this.uiProvider,
   });
 
+  bool loading = false;
+  String? _descriptionText;
+  FoodAnalysisResponse? _foodAnalysisResponse;
+  ImageGenerationResponse? _imageGenerationResponse;
   List<FoodItem> _analyzedFoodItems = [];
-  Map<String, Quantity> _totalPlateNutrients = {};
+  List<FoodNutrient> _totalPlateNutrients = [];
   String _mealName = "Unknown Meal";
 
+  bool get isLoading => loading;
+  String? get descriptionText => _descriptionText;
+  FoodAnalysisResponse? get foodAnalysis => _foodAnalysisResponse;
+  ImageGenerationResponse? get generatedImage => _imageGenerationResponse;
   List<FoodItem> get analyzedFoodItems => _analyzedFoodItems;
-  Map<String, Quantity> get totalPlateNutrients => _totalPlateNutrients;
+  List<FoodNutrient> get totalPlateNutrients => _totalPlateNutrients;
   String get mealName => _mealName;
   List<Map<String, dynamic>> _nutrientInfo = [];
   List<Map<String, dynamic>> get nutrientInfo => _nutrientInfo;
+
+  void setLoading(bool value) {
+    loading = value;
+    notifyListeners();
+  }
 
   // Text-based meal analysis
   Future<void> logMealViaText({
     required String foodItemsText,
   }) async {
-    uiProvider.setLoading(true);
+    setLoading(true);
 
     try {
       debugPrint("Processing food items via text: \n$foodItemsText");
 
       // Use repository for text-based analysis
-      final FoodAnalysisResponse response =
+      _foodAnalysisResponse =
           await aiRepository.analyzeFoodDescription(foodItemsText);
       // Clear previous analysis
       _analyzedFoodItems.clear();
       _totalPlateNutrients.clear();
 
-      _mealName = response.mealName;
-      _analyzedFoodItems = response.analyzedFoodItems;
-      _totalPlateNutrients = response.totalPlateNutrients;
+      _descriptionText = foodItemsText;
+      _mealName = _foodAnalysisResponse!.mealName;
+      _analyzedFoodItems = _foodAnalysisResponse!.analyzedFoodItems;
+      _totalPlateNutrients = _foodAnalysisResponse!.totalPlateNutrients;
       calculateNutrientInfo(_totalPlateNutrients);
-
-      debugPrint("Total Plate Nutrients:");
-      debugPrint("Calories: ${_totalPlateNutrients['calories']}");
-      debugPrint("Protein: ${_totalPlateNutrients['protein']}");
-      debugPrint("Carbohydrates: ${_totalPlateNutrients['carbohydrates']}");
-      debugPrint("Fat: ${_totalPlateNutrients['fat']}");
-      debugPrint("Fiber: ${_totalPlateNutrients['fiber']}");
-
       notifyListeners();
     } catch (e) {
       debugPrint("Error analyzing food description: $e");
       setError("Error analyzing food description: $e");
     } finally {
-      uiProvider.setLoading(false);
+      setLoading(false);
     }
   }
 
-  void calculateNutrientInfo(Map<String, dynamic> _totalScannedPlateNutrients) {
+  Future<void> generateIntakeImage({
+    required String foodItemsText,
+    required int dailyIntakeId,
+  }) async {
+    setLoading(true);
+
+    try {
+      debugPrint("Generating image for food description: \n$foodItemsText");
+
+      _imageGenerationResponse =
+          await aiRepository.generateIntakeImage(foodItemsText, dailyIntakeId);
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error generating image: $e");
+      setError("Error generating image: $e");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  void calculateNutrientInfo(List<FoodNutrient> totalScannedPlateNutrients) {
     logger.i("=== Starting calculateNutrientInfo ===");
-    logger.i("Input nutrients: $_totalScannedPlateNutrients");
+    logger.i("Input nutrients: $totalScannedPlateNutrients");
 
     // Clear previous data
     _nutrientInfo.clear();
@@ -77,24 +102,26 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
     Map<String, String> keyMapping = {
       'calories': 'Energy',
       'protein': 'Protein',
-      'carbohydrates': 'Carbohydrate',
-      'fat': 'Fat',
-      'fiber': 'Fiber',
+      'total_carbohydrate': 'Carbohydrate',
+      'total_fat': 'Fat',
+      'dietary_fiber': 'Fiber',
       'sodium': 'Sodium',
-      'sugar': 'Total Sugars',
+      'total_sugars': 'Total Sugars',
       'saturated_fat': 'Saturated Fat',
     };
 
     // Perform calculations on the totalPlateNutrients
-    _totalScannedPlateNutrients.forEach((key, value) {
-      logger.i("Processing nutrient: $key with value: $value");
+    totalScannedPlateNutrients.forEach((nutrient) {
+      logger.i(
+          "Processing nutrient: ${nutrient.name} with value: ${nutrient.quantity}");
 
       String dvStatus = '';
       String goal = '';
       String healthImpact = '';
 
       // Get the proper nutrient name for insights lookup
-      String nutrientName = keyMapping[key.toLowerCase()] ?? key;
+      String nutrientName =
+          keyMapping[nutrient.name.toLowerCase()] ?? nutrient.name;
       logger.i("Mapped nutrient name: $nutrientName");
 
       // Find the matching nutrient data
@@ -119,13 +146,13 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
             "Current DV: $currentDV, 5%DV: $fivePercentDV, 20%DV: $twentyPercentDV");
 
         // Calculate daily value percentage
-        double dailyValuePercent = (value / currentDV) * 100;
+        double dailyValuePercent = (nutrient.quantity.value / currentDV) * 100;
         logger.i("Calculated DV%: $dailyValuePercent");
 
         // Determine DV status
-        if (value < fivePercentDV) {
+        if (nutrient.quantity.value < fivePercentDV) {
           dvStatus = 'Low';
-        } else if (value > twentyPercentDV) {
+        } else if (nutrient.quantity.value > twentyPercentDV) {
           dvStatus = 'High';
         } else {
           dvStatus = 'Moderate';
@@ -148,11 +175,11 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
         var nutrientInfoItem = {
           'name': nutrientName,
           'quantity':
-              '${value.toStringAsFixed(1)}${matchingNutrient['Unit'] ?? ''}',
+              '${nutrient.quantity.value.toStringAsFixed(1)}${matchingNutrient['Unit'] ?? ''}',
           'dv_status': dvStatus,
           'insight': nutrientInsights[nutrientName],
           'goal': goal,
-          'daily_value': dailyValuePercent.toStringAsFixed(1),
+          'daily_value': dailyValuePercent.toDouble(),
           'health_impact': healthImpact,
         };
 

@@ -5,36 +5,40 @@ import 'package:read_the_label/core/constants/nutrient_insights.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_item.dart';
-import 'package:read_the_label/models/quantity.dart';
+import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
-import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class MealAnalysisViewModel extends BaseViewModel {
   // Dependencies
   SpringBackendRepository aiRepository;
-  UiViewModel uiProvider;
 
   // Constructor with dependency injection
-  MealAnalysisViewModel({
-    required this.aiRepository,
-    required this.uiProvider,
-  });
+  MealAnalysisViewModel({required this.aiRepository});
 
   // Properties
+  bool _isLoading = false;
+  FoodAnalysisResponse? foodAnalysisResponse;
   File? _foodImage;
   List<FoodItem> _analyzedScannedFoodItems = [];
-  Map<String, Quantity> _totalScannedPlateNutrients = {};
+  List<FoodNutrient> _totalScannedPlateNutrients = [];
   String _scannedMealName = "Unknown Meal";
+  List<Map<String, dynamic>> _nutrientInfo = [];
 
   // Getters
+  bool get loading => _isLoading;
+  FoodAnalysisResponse? get foodAnalysis => foodAnalysisResponse;
   File? get foodImage => _foodImage;
   List<FoodItem> get analyzedScannedFoodItems => _analyzedScannedFoodItems;
   String get scannedMealName => _scannedMealName;
-  Map<String, Quantity> get totalScannedPlateNutrients =>
+  List<FoodNutrient> get totalScannedPlateNutrients =>
       _totalScannedPlateNutrients;
-  List<Map<String, dynamic>> _nutrientInfo = [];
   List<Map<String, dynamic>> get nutrientInfo => _nutrientInfo;
+
+  setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
 
   void setFoodImage(File imageFile) {
     _foodImage = imageFile;
@@ -54,10 +58,19 @@ class MealAnalysisViewModel extends BaseViewModel {
     }
   }
 
-  void calculateNutrientInfo(
-      Map<String, Quantity> _totalScannedPlateNutrients) {
+  Future<void> handleFoodImageCapture(ImageSource source) async {
+    final imagePicker = ImagePicker();
+    final image = await imagePicker.pickImage(source: source);
+
+    if (image != null) {
+      setFoodImage(File(image.path));
+      await analyzeFoodImage(imageFile: _foodImage!);
+    }
+  }
+
+  void calculateNutrientInfo(List<FoodNutrient> totalScannedPlateNutrients) {
     logger.i("=== Starting calculateNutrientInfo ===");
-    logger.i("Input nutrients: $_totalScannedPlateNutrients");
+    logger.i("Input nutrients: $totalScannedPlateNutrients");
 
     // Clear previous data
     _nutrientInfo.clear();
@@ -66,26 +79,27 @@ class MealAnalysisViewModel extends BaseViewModel {
     Map<String, String> keyMapping = {
       'calories': 'Energy',
       'protein': 'Protein',
-      'carbohydrates': 'Carbohydrate',
-      'fat': 'Fat',
-      'fiber': 'Fiber',
+      'total_carbohydrate': 'Carbohydrate',
+      'total_fat': 'Fat',
+      'dietary_fiber': 'Fiber',
       'sodium': 'Sodium',
-      'sugar': 'Total Sugars',
+      'total_sugars': 'Total Sugars',
       'saturated_fat': 'Saturated Fat',
     };
 
     // Perform calculations on the totalPlateNutrients
-    _totalScannedPlateNutrients.forEach((key, quantity) {
+    for (FoodNutrient nutrient in totalScannedPlateNutrients) {
       logger.i(
-          "Processing nutrient: $key with value: ${quantity.value} ${quantity.unit}");
+          "Processing nutrient: ${nutrient.name} with value: ${nutrient.quantity.value} ${nutrient.quantity.unit}");
 
-      double value = quantity.value;
+      double value = nutrient.quantity.value;
       String dvStatus = '';
       String goal = '';
       String healthImpact = '';
 
       // Get the proper nutrient name for insights lookup
-      String nutrientName = keyMapping[key.toLowerCase()] ?? key;
+      String nutrientName =
+          keyMapping[nutrient.name.toLowerCase()] ?? nutrient.name;
       logger.i("Mapped nutrient name: $nutrientName");
 
       // Find the matching nutrient data
@@ -138,12 +152,12 @@ class MealAnalysisViewModel extends BaseViewModel {
 
         var nutrientInfoItem = {
           'name': nutrientName,
-          'quantity':
-              '${value.toStringAsFixed(1)}${matchingNutrient['Unit'] ?? ''}',
+          'quantity': value.toDouble(),
+          'unit': matchingNutrient['Unit'] ?? '',
           'dv_status': dvStatus,
           'insight': nutrientInsights[nutrientName],
           'goal': goal,
-          'daily_value': dailyValuePercent.toStringAsFixed(1),
+          'daily_value': dailyValuePercent.toDouble(),
           'health_impact': healthImpact,
         };
 
@@ -153,7 +167,7 @@ class MealAnalysisViewModel extends BaseViewModel {
         // Handle case where nutrient is not found in nutrientData
         logger.w("Nutrient '$nutrientName' not found in nutrient data: $e");
       }
-    });
+    }
 
     logger.i("Final _nutrientInfo length: ${_nutrientInfo.length}");
     logger.i("Final _nutrientInfo: $_nutrientInfo");
@@ -164,65 +178,30 @@ class MealAnalysisViewModel extends BaseViewModel {
   Future<void> analyzeFoodImage({
     required File imageFile,
   }) async {
-    uiProvider.setLoading(true);
+    setLoading(true);
 
     try {
       // Store the food image
       _foodImage = imageFile;
 
       // Use repository for AI analysis
-      final FoodAnalysisResponse response =
-          await aiRepository.analyzeFoodImage(imageFile);
+      foodAnalysisResponse = await aiRepository.analyzeFoodImage(imageFile);
 
       _analyzedScannedFoodItems.clear();
       _totalScannedPlateNutrients.clear();
 
-      _scannedMealName = response.mealName;
-      _analyzedScannedFoodItems = response.analyzedFoodItems;
-      _totalScannedPlateNutrients = response.totalPlateNutrients;
+      _scannedMealName = foodAnalysisResponse!.mealName;
+      _analyzedScannedFoodItems = foodAnalysisResponse!.analyzedFoodItems;
+      _totalScannedPlateNutrients = foodAnalysisResponse!.totalPlateNutrients;
 
       calculateNutrientInfo(_totalScannedPlateNutrients);
-
-      logger.d("Total Plate Nutrients:");
-      logger.d("Calories: ${_totalScannedPlateNutrients['calories']?.value}");
-      logger.d("Protein: ${_totalScannedPlateNutrients['protein']?.value}");
-      logger.d(
-          "Carbohydrates: ${_totalScannedPlateNutrients['carbohydrates']?.value}");
-      logger.d("Fat: ${_totalScannedPlateNutrients['fat']?.value}");
-      logger.d("Fiber: ${_totalScannedPlateNutrients['fiber']?.value}");
-      logger.d("Sugar: ${_totalScannedPlateNutrients['sugar']?.value}");
-      logger.d("Sodium: ${_totalScannedPlateNutrients['sodium']?.value}");
 
       notifyListeners();
     } catch (e) {
       logger.d("Error analyzing food image: $e");
       setError("Error analyzing food image: $e");
     } finally {
-      uiProvider.setLoading(false);
+      setLoading(false);
     }
-  }
-
-  // Update total nutrients when food items are modified
-  void updateTotalNutrients() {
-    _totalScannedPlateNutrients = {
-      'calories': Quantity(value: 0.0, unit: 'kcal'),
-      'protein': Quantity(value: 0.0, unit: 'g'),
-      'carbohydrates': Quantity(value: 0.0, unit: 'g'),
-      'fat': Quantity(value: 0.0, unit: 'g'),
-      'fiber': Quantity(value: 0.0, unit: 'g'),
-      'sugar': Quantity(value: 0.0, unit: 'g'),
-      'sodium': Quantity(value: 0.0, unit: 'mg'),
-    };
-
-    for (var item in _analyzedScannedFoodItems) {
-      var itemNutrients = item.calculateTotalNutrients();
-      _totalScannedPlateNutrients.forEach((key, quantity) {
-        double newValue = quantity.value + (itemNutrients[key] ?? 0.0);
-        _totalScannedPlateNutrients[key] =
-            Quantity(value: newValue, unit: quantity.unit);
-      });
-    }
-
-    notifyListeners();
   }
 }

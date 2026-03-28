@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
-import 'package:read_the_label/models/quantity.dart';
+import 'package:read_the_label/models/food_analysis_response.dart';
+import 'package:read_the_label/models/food_nutrient.dart';
+import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/views/widgets/add_to_intake_button.dart';
@@ -12,19 +14,27 @@ import 'package:read_the_label/views/widgets/time_selector.dart';
 import 'package:read_the_label/views/widgets/quantity_selector.dart';
 
 class TotalNutrientsCard extends StatelessWidget {
+  final String source;
   final String mealName;
+  final FoodAnalysisResponse? foodAnalysis;
+  final ProductAnalysisResponse? productAnalysis;
   final int numberOfFoodItems;
-  final Map<String, Quantity> totalPlateNutrients;
+  final List<FoodNutrient> totalPlateNutrients;
   final List<Map<String, dynamic>> nutrientInfo;
   final File? foodImage;
+  final bool showSaveOptions;
 
   const TotalNutrientsCard({
     super.key,
+    required this.source,
     required this.mealName,
+    this.foodAnalysis,
+    this.productAnalysis,
     required this.numberOfFoodItems,
     required this.totalPlateNutrients,
     required this.nutrientInfo,
     this.foodImage,
+    required this.showSaveOptions,
   });
 
   @override
@@ -33,7 +43,6 @@ class TotalNutrientsCard extends StatelessWidget {
     print(StackTrace.current.toString().split('\n').take(10).join('\n'));
 
     return Container(
-      margin: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
       ),
@@ -78,7 +87,7 @@ class TotalNutrientsCard extends StatelessWidget {
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(15)),
             ),
             child: Column(
-              spacing: 16,
+              spacing: 15,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ClipRRect(
@@ -91,6 +100,7 @@ class TotalNutrientsCard extends StatelessWidget {
                               goal: nutrient['goal'],
                               healthSign: nutrient['health_impact'],
                               quantity: nutrient['quantity'],
+                              unit: nutrient['unit'],
                               insight: nutrientInsights[nutrient['name']],
                               dailyValue: nutrient['daily_value'],
                             ))
@@ -98,13 +108,17 @@ class TotalNutrientsCard extends StatelessWidget {
                   ),
                 ),
                 EnergyDistributionBar(originalNutrients: totalPlateNutrients),
-                const TimeSelector(),
-                const QuantitySelector(),
-                AddToIntakeButton(
-                  mealName: mealName,
-                  totalPlateNutrients: totalPlateNutrients,
-                  foodImage: foodImage,
-                ),
+                if (showSaveOptions) ...[
+                  const TimeSelector(),
+                  const QuantitySelector(),
+                  AddToIntakeButton(
+                    source: source,
+                    foodAnalysis: foodAnalysis,
+                    mealName: mealName,
+                    totalPlateNutrients: totalPlateNutrients,
+                    foodImage: foodImage,
+                  ),
+                ],
               ],
             ),
           ),

@@ -26,7 +26,7 @@ public class DailyIntake {
 
     private Double calories;
     private Double protein;
-    private Double carbohydrates;
+    private Double carbohydrate;
     private Double fat;
     private Double fiber;
 

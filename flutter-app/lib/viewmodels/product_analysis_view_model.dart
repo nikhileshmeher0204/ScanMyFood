@@ -1,13 +1,18 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
+import 'package:read_the_label/theme/app_text_styles.dart';
+import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
-import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class ProductAnalysisViewModel extends BaseViewModel {
   // Properties for product scanning and analysis
+  bool _isLoading = false;
+  ProductAnalysisResponse? productAnalysis;
   File? _frontImage;
   File? _nutritionLabelImage;
   String _productName = "";
@@ -15,7 +20,7 @@ class ProductAnalysisViewModel extends BaseViewModel {
   Quantity _servingSize = Quantity(value: 0, unit: 'g');
   NutritionAnalysis? _nutritionAnalysis;
   List<Nutrient> allNutrients = [];
-  Map<String, Quantity> _nutrients = {};
+  List<FoodNutrient> _nutrients = [];
   List<Nutrient> optimalNutrients = [];
   List<Nutrient> moderateNutrients = [];
   List<Nutrient> watchOutNutrients = [];
@@ -24,14 +29,14 @@ class ProductAnalysisViewModel extends BaseViewModel {
 
   // Dependencies
   SpringBackendRepository aiRepository;
-  UiViewModel uiProvider;
 
   ProductAnalysisViewModel({
     required this.aiRepository,
-    required this.uiProvider,
   });
 
   // Getters
+  bool get loading => _isLoading;
+  ProductAnalysisResponse? get getProductAnalysis => productAnalysis;
   File? get frontImage => _frontImage;
   File? get nutritionLabelImage => _nutritionLabelImage;
   String get productName => _productName;
@@ -39,11 +44,16 @@ class ProductAnalysisViewModel extends BaseViewModel {
   Quantity get servingSize => _servingSize;
   NutritionAnalysis? get nutritionAnalysis => _nutritionAnalysis;
   bool canAnalyze() => _frontImage != null && _nutritionLabelImage != null;
-  Map<String, Quantity> get nutrients => _nutrients;
+  List<FoodNutrient> get nutrients => _nutrients;
   List<Nutrient> getOptimalNutrients() => optimalNutrients;
   List<Nutrient> getModerateNutrients() => moderateNutrients;
   List<Nutrient> getWatchOutNutrients() => watchOutNutrients;
   List<PrimaryConcern> get primaryConcerns => _primaryConcerns;
+
+  void setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
 
   // Methods for product analysis
   Future<void> captureImage({
@@ -63,45 +73,87 @@ class ProductAnalysisViewModel extends BaseViewModel {
     }
   }
 
+  Future<void> handleImageCapture(BuildContext context, ImageSource source) async {
+    // First, capture front image
+    await captureImage(
+      source: source,
+      isFrontImage: true,
+    );
+
+    if (_frontImage != null) {
+      // Show dialog for nutrition label
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            title: Text(
+              'Now capture nutrition label',
+              style: AppTextStyles.heading2,
+            ),
+            content: Text(
+              'Please capture or select the nutrition facts label of the product',
+              style: AppTextStyles.bodyMedium,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await captureImage(
+                    source: source,
+                    isFrontImage: false,
+                  );
+                  if (canAnalyze()) {
+                    await analyzeImages();
+                  }
+                },
+                child: Text('Continue', style: AppTextStyles.buttonTextWhite),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> analyzeImages() async {
-    uiProvider.setLoading(true);
+    setLoading(true);
 
     try {
-      // Use the repository to get structured response
-      final ProductAnalysisResponse response = await aiRepository
-          .analyzeProductImages(_frontImage!, _nutritionLabelImage!);
+      productAnalysis = await aiRepository.analyzeProductImages(
+          _frontImage!, _nutritionLabelImage!);
 
-      _productName = response.product.name;
-      _totalQuantity = response.nutritionAnalysis.totalQuantity;
-      _servingSize = response.nutritionAnalysis.servingSize;
+      _productName = productAnalysis!.product.name;
+      _totalQuantity = productAnalysis!.nutritionAnalysis.totalQuantity;
+      _servingSize = productAnalysis!.nutritionAnalysis.servingSize;
 
       _nutritionAnalysis = null;
-      // Process nutrients
+      // Clear previous data
       allNutrients = [];
       optimalNutrients = [];
       moderateNutrients = [];
       watchOutNutrients = [];
-      _primaryConcerns = []; // Clear primary concerns
+      _primaryConcerns = [];
 
-      for (Nutrient nutrient in response.nutritionAnalysis.nutrients) {
-        allNutrients.add(nutrient);
-        _nutrients[nutrient.name] = nutrient.quantity;
-        if (nutrient.healthImpact == "Good") {
-          optimalNutrients.add(nutrient);
-        } else if (nutrient.healthImpact == "Moderate") {
-          moderateNutrients.add(nutrient);
-        } else {
-          watchOutNutrients.add(nutrient);
+      for (Nutrient nutrient in productAnalysis!.nutritionAnalysis.nutrients) {
+        if (nutrient.quantity.value != 0.0) {
+          allNutrients.add(nutrient);
+          _nutrients.add(
+              FoodNutrient(name: nutrient.name, quantity: nutrient.quantity));
+          if (nutrient.healthImpact == AppConstants.goodHealthImpact) {
+            optimalNutrients.add(nutrient);
+          } else if (nutrient.healthImpact ==
+              AppConstants.moderateHealthImpact) {
+            moderateNutrients.add(nutrient);
+          } else {
+            watchOutNutrients.add(nutrient);
+          }
         }
       }
 
-      _primaryConcerns.addAll(response.nutritionAnalysis.primaryConcerns);
-
-      if (_servingSize.value > 0) {
-        print(
-            "Setting serving size to: ${_servingSize.value} ${_servingSize.unit}");
-        uiProvider.updateServingSize(_servingSize.value);
-      }
+      _primaryConcerns
+          .addAll(productAnalysis!.nutritionAnalysis.primaryConcerns);
 
       print("📝 Product: $_productName");
       print("📊 Good nutrients: ${optimalNutrients.length}");
@@ -112,7 +164,7 @@ class ProductAnalysisViewModel extends BaseViewModel {
     } catch (e) {
       print("❌ Error analyzing images: $e");
     } finally {
-      uiProvider.setLoading(false);
+      setLoading(false);
     }
   }
 }

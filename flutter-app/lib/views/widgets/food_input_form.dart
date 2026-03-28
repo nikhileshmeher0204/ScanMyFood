@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
+import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
 
 class FoodInputForm extends StatefulWidget {
@@ -52,12 +53,12 @@ class _FoodInputFormState extends State<FoodInputForm> {
         .join('\n, ');
 
     context.read<DescriptionAnalysisViewModel>().logMealViaText(
-      foodItemsText: foodItems,
-    );
+          foodItemsText: foodItems,
+        );
+    context.read<DailyIntakeViewModel>().setDescriptionText(foodItems);
     Navigator.pop(context);
     widget.onSubmit();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -86,26 +87,29 @@ class _FoodInputFormState extends State<FoodInputForm> {
                         ),
                       ),
                     ),
-                    Text(
-                      "Describe your Meal",
-                      style: AppTextStyles.heading3Bold
-                    ),
+                    Text("Describe your Meal",
+                        style: AppTextStyles.heading3Bold),
                     const SizedBox(width: 60), // Balance the layout
                   ],
                 ),
               ),
-              Divider(height: 2, color: AppColors.primaryWhite.withValues(alpha: 0.2),),
+              Divider(
+                height: 2,
+                color: AppColors.primaryWhite.withValues(alpha: 0.2),
+              ),
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 20),
-                    Text("List out items in your meal", style: AppTextStyles.heading2),
+                    Text("List out items in your meal",
+                        style: AppTextStyles.heading2),
                     const SizedBox(height: 16),
                     if (_showValidationError) ...[
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
                         margin: const EdgeInsets.only(bottom: 16),
                         decoration: BoxDecoration(
                           color: AppColors.error.withOpacity(0.1),
@@ -151,14 +155,16 @@ class _FoodInputFormState extends State<FoodInputForm> {
                                     Text(
                                       'Food Item ${index + 1}',
                                       style: AppTextStyles.bodyMedium.copyWith(
-                                        color: AppColors.onPrimary.withOpacity(0.7),
+                                        color: AppColors.onPrimary
+                                            .withOpacity(0.7),
                                       ),
                                     ),
                                     const SizedBox(height: 8),
                                     CupertinoTextField(
                                       onChanged: (value) {
                                         // Clear validation error when user starts typing
-                                        if (_showValidationError && value.trim().isNotEmpty) {
+                                        if (_showValidationError &&
+                                            value.trim().isNotEmpty) {
                                           setState(() {
                                             _showValidationError = false;
                                           });
@@ -170,8 +176,9 @@ class _FoodInputFormState extends State<FoodInputForm> {
                                         color: AppColors.onSurface,
                                       ),
                                       placeholderStyle:
-                                      AppTextStyles.bodyLarge.copyWith(
-                                        color: AppColors.onSurface.withOpacity(0.5),
+                                          AppTextStyles.bodyLarge.copyWith(
+                                        color: AppColors.onSurface
+                                            .withOpacity(0.5),
                                       ),
                                       decoration: BoxDecoration(
                                         color: AppColors.cardBackground,
@@ -186,36 +193,41 @@ class _FoodInputFormState extends State<FoodInputForm> {
                                         vertical: 12,
                                       ),
                                       cursorColor: AppColors.secondaryGreen,
-                                      clearButtonMode: OverlayVisibilityMode.editing,
+                                      clearButtonMode:
+                                          OverlayVisibilityMode.editing,
                                     ),
                                   ],
                                 ),
                               ),
                               if (_foodItemControllers.length > 1) ...[
                                 const SizedBox(width: 12),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 12),
-                                    child: Column(
-                                      children: [
-                                        const SizedBox(height: 28), // Match label + spacing height
-                                        CupertinoButton(
-                                          padding: const EdgeInsets.all(4),
-                                          minSize: 0,
-                                          onPressed: () {
-                                            setState(() {
-                                              _foodItemControllers[index].dispose();
-                                              _foodItemControllers.removeAt(index);
-                                            });
-                                          },
-                                          child: const Icon(
-                                            CupertinoIcons.minus,
-                                            color: AppColors.error,
-                                            size: 25,
-                                          ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 12),
+                                  child: Column(
+                                    children: [
+                                      const SizedBox(
+                                          height:
+                                              28), // Match label + spacing height
+                                      CupertinoButton(
+                                        padding: const EdgeInsets.all(4),
+                                        minSize: 0,
+                                        onPressed: () {
+                                          setState(() {
+                                            _foodItemControllers[index]
+                                                .dispose();
+                                            _foodItemControllers
+                                                .removeAt(index);
+                                          });
+                                        },
+                                        child: const Icon(
+                                          CupertinoIcons.minus,
+                                          color: AppColors.error,
+                                          size: 25,
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
+                                ),
                               ],
                             ],
                           ),
@@ -309,7 +321,6 @@ class _FoodInputFormState extends State<FoodInputForm> {
                   ],
                 ),
               )
-
             ],
           ),
         ),

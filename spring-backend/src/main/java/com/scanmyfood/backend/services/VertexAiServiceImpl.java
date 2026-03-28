@@ -20,6 +20,7 @@ import com.google.cloud.vertexai.api.GenerateContentResponse;
 import com.google.cloud.vertexai.generativeai.ContentMaker;
 import com.google.cloud.vertexai.generativeai.GenerativeModel;
 import com.google.cloud.vertexai.generativeai.PartMaker;
+import com.google.protobuf.ByteString;
 
 @Service
 public class VertexAiServiceImpl implements AiService {
@@ -35,6 +36,9 @@ public class VertexAiServiceImpl implements AiService {
   @Autowired
   private GenerativeModel generativeModel;
 
+  @Autowired
+  private GenerativeModel imageGenerativeModel;
+
   @Override
   public Map<String, Object> analyzeProductImages(MultipartFile frontImage, MultipartFile labelImage) {
 
@@ -44,8 +48,6 @@ public class VertexAiServiceImpl implements AiService {
 
       // Create prompt
       String prompt = """
-        %s
-        
         Analyze the food product, product name and its nutrition label. Provide response in this strict JSON format:
         {
           "product": {
@@ -57,7 +59,7 @@ public class VertexAiServiceImpl implements AiService {
             "serving_size": {"value": 0, "unit": "unit in packet"},
             "nutrients": [
               {
-                "name": "Nutrient name",
+                "name": "nutrient name in snake_case from the list below",
                 "quantity": {"value": "Quantity of nutrient in per serving of food product", "unit": "unit in packet"},
                 "daily_value": "daily value percentage without %% symbol in per serving of food product",
                 "dv_status": "High/Moderate/Low based on calculated DV%%",
@@ -82,22 +84,25 @@ public class VertexAiServiceImpl implements AiService {
         }
 
         Strictly follow these rules:
-        1. Mention Quantity with units in the label
-        2. Calculate DV%% using the reference values above: (nutrient_quantity_per_serving / daily_value_reference) × 100
-        3. Return calculated DV%%, and not the ones found in label
-        4. Do not include any extra characters or formatting outside of the JSON object
-        5. Use accurate escape sequences for any special characters
-        6. Avoid including nutrients that aren't mentioned in the label
-        7. For primary_concerns, focus on major nutritional imbalances
-        8. For recommendations:
+        1. MUST include ALL nutrients from this list: %s
+        2. If a nutrient is not found on the label, set its value to 0.0 and use standard unit
+        3. Extract total nutrient (e.g., Total Sugars, Total Fat) and its sub-nutrients (e.g., Added Sugars, Saturated Fat, Trans Fat) if mentioned in the label
+        4. Calculate DV%% using these reference values: 
+           %s
+           Formula: (nutrient_quantity_per_serving / daily_value_reference) × 100
+        5. Return calculated DV%%, and not the ones found in label
+        6. Do not include any extra characters or formatting outside of the JSON object
+        7. Use accurate escape sequences for any special characters
+        8. For primary_concerns, focus on major nutritional imbalances
+        9. For recommendations:
            - Suggest foods that can be added to complement the product
            - Focus on practical additions
            - Explain how each addition helps balance nutrition
-        9. Use %%DV guidelines:
+        10. Use %%DV guidelines:
            5%% DV or less is considered low dv_status
            20%% DV or more is considered high dv_status
            5%% < DV < 20%% is considered moderate dv_status
-        10. For health_impact determination:
+        11. For health_impact determination:
            "At least" nutrients (like fiber, protein):
              High dv_status → Good health_impact
              Moderate dv_status → Moderate health_impact
@@ -106,7 +111,7 @@ public class VertexAiServiceImpl implements AiService {
              Low dv_status → Good health_impact
              Moderate dv_status → Moderate health_impact
              High dv_status → Bad health_impact
-        """.formatted(NutrientConstants.DAILY_VALUES_REFERENCE);
+        """.formatted(NutrientConstants.ALL_NUTRIENT_NAMES, NutrientConstants.DAILY_VALUES_REFERENCE);
 
       // Use ContentMaker and PartMaker
       Content content = ContentMaker.fromMultiModalData(
@@ -147,22 +152,13 @@ public class VertexAiServiceImpl implements AiService {
                         "amount": 0,
                         "unit": "g",
                       },
-                      "nutrients_per_100g": {
+                      "nutrients_in_estimated_quantity": {
                         "calories": {"value": 0, "unit": "kcal"},
                         "protein": {"value": 0, "unit": "g"},
-                        "carbohydrates": {"value": 0, "unit": "g"},
-                        "fat": {"value": 0, "unit": "g"},
-                        "fiber": {"value": 0, "unit": "g"},
-                        "sugar": {"value": 0, "unit": "g"},
-                        "sodium": {"value": 0, "unit": "mg"},
-                      },
-                      "total_nutrients": {
-                        "calories": {"value": 0, "unit": "kcal"},
-                        "protein": {"value": 0, "unit": "g"},
-                        "carbohydrates": {"value": 0, "unit": "g"},
-                        "fat": {"value": 0, "unit": "g"},
-                        "fiber": {"value": 0, "unit": "g"},
-                        "sugar": {"value": 0, "unit": "g"},
+                        "total_carbohydrate": {"value": 0, "unit": "g"},
+                        "total_fat": {"value": 0, "unit": "g"},
+                        "dietary_fiber": {"value": 0, "unit": "g"},
+                        "total_sugars": {"value": 0, "unit": "g"},
                         "sodium": {"value": 0, "unit": "mg"},
                       },
                       "visual_cues": ["List of visual indicators used for estimation"],
@@ -172,10 +168,10 @@ public class VertexAiServiceImpl implements AiService {
                   "total_plate_nutrients": {
                     "calories": {"value": 0, "unit": "kcal"},
                     "protein": {"value": 0, "unit": "g"},
-                    "carbohydrates": {"value": 0, "unit": "g"},
-                    "fat": {"value": 0, "unit": "g"},
-                    "fiber": {"value": 0, "unit": "g"},
-                    "sugar": {"value": 0, "unit": "g"},
+                    "total_carbohydrate": {"value": 0, "unit": "g"},
+                    "total_fat": {"value": 0, "unit": "g"},
+                    "dietary_fiber": {"value": 0, "unit": "g"},
+                    "total_sugars": {"value": 0, "unit": "g"},
                     "sodium": {"value": 0, "unit": "mg"},
                   }
                 }
@@ -231,22 +227,13 @@ public class VertexAiServiceImpl implements AiService {
                     "amount": 0,
                     "unit": "g",
                   },
-                  "nutrients_per_100g": {
-                    "calories": {"value": 0, "unit": "kcal"},
-                    "protein": {"value": 0, "unit": "g"},
-                    "carbohydrates": {"value": 0, "unit": "g"},
-                    "fat": {"value": 0, "unit": "g"},
-                    "fiber": {"value": 0, "unit": "g"},
-                    "sugar": {"value": 0, "unit": "g"},
-                    "sodium": {"value": 0, "unit": "mg"},
-                  },
                   "nutrients_in_mentioned_quantity": {
                     "calories": {"value": 0, "unit": "kcal"},
                     "protein": {"value": 0, "unit": "g"},
-                    "carbohydrates": {"value": 0, "unit": "g"},
-                    "fat": {"value": 0, "unit": "g"},
-                    "fiber": {"value": 0, "unit": "g"},
-                    "sugar": {"value": 0, "unit": "g"},
+                    "total_carbohydrate": {"value": 0, "unit": "g"},
+                    "total_fat": {"value": 0, "unit": "g"},
+                    "dietary_fiber": {"value": 0, "unit": "g"},
+                    "total_sugars": {"value": 0, "unit": "g"},
                     "sodium": {"value": 0, "unit": "mg"},
                   },
                 }
@@ -254,10 +241,10 @@ public class VertexAiServiceImpl implements AiService {
               "total_nutrients": {
                 "calories": {"value": 0, "unit": "kcal"},
                 "protein": {"value": 0, "unit": "g"},
-                "carbohydrates": {"value": 0, "unit": "g"},
-                "fat": {"value": 0, "unit": "g"},
-                "fiber": {"value": 0, "unit": "g"},
-                "sugar": {"value": 0, "unit": "g"},
+                "total_carbohydrate": {"value": 0, "unit": "g"},
+                "total_fat": {"value": 0, "unit": "g"},
+                "dietary_fiber": {"value": 0, "unit": "g"},
+                "total_sugars": {"value": 0, "unit": "g"},
                 "sodium": {"value": 0, "unit": "mg"},
               }
             }
@@ -291,6 +278,87 @@ public class VertexAiServiceImpl implements AiService {
     } catch (Exception e) {
       logger.error("Error analyzing food description", e);
       throw new RuntimeException("Failed to analyze food description: " + e.getMessage());
+    }
+  }
+
+  @Override
+  public byte[] generateFoodImage(String foodDescription) {
+    try {
+      // Build optimized prompt for realistic food photography
+      String prompt = String.format(
+        "Generate a professional food photography image of %s. " +
+        "Requirements: " +
+        "- Serve on appropriate cutlery and dinnerware based on the food type " +
+        "- Proper plating with accurate portion sizes matching the description " +
+        "- Arrange appetizingly on a clean table setting (white or wooden) " +
+        "- Natural soft daylight lighting from the side " +
+        "- Shot from a 45-degree angle in landscape format (16:9 aspect ratio) " +
+        "- Shallow depth of field, Canon EOS R5 photography style " +
+        "- 8K resolution, photorealistic, restaurant quality presentation " +
+        "- Professional food styling with vibrant colors and fresh ingredients " +
+        "- Slightly blurred background with warm neutral tones " +
+        "- No hands, people, or text visible - focus entirely on the food " +
+        "- Add steam if it's a hot dish for realism",
+        foodDescription
+      );
+      
+      logger.info("Generating food image with Gemini 2.5 Flash Image for: {}", foodDescription);
+      logger.debug("Image generation prompt: {}", prompt);
+      
+      // Create content with image generation request
+      Content content = ContentMaker.fromString(prompt);
+      
+      // Generate image using injected image generation model
+      GenerateContentResponse response = imageGenerativeModel.generateContent(content);
+      
+      logger.info("Received response from Gemini, candidates: {}", response.getCandidatesCount());
+      
+      if (response.getCandidatesCount() == 0) {
+        logger.error("No candidates in response. Response: {}", response);
+        throw new RuntimeException("No image generated - response has no candidates");
+      }
+      
+      var candidate = response.getCandidates(0);
+      logger.info("Candidate parts count: {}", candidate.getContent().getPartsCount());
+      
+      if (candidate.getContent().getPartsCount() == 0) {
+        logger.error("No parts in candidate content. Candidate: {}", candidate);
+        throw new RuntimeException("No image generated - candidate has no parts");
+      }
+      
+      // Iterate through all parts to find the one with inline data (the image)
+      ByteString imageData = null;
+      for (int i = 0; i < candidate.getContent().getPartsCount(); i++) {
+        var part = candidate.getContent().getParts(i);
+        
+        if (part.hasInlineData()) {
+          logger.info("Found inline data in part {}", i);
+          imageData = part.getInlineData().getData();
+          break;
+        } else if (part.hasText()) {
+          logger.info("Part {} contains text: {}", i, part.getText());
+        }
+      }
+      
+      if (imageData == null) {
+        logger.error("No inline data found in any part");
+        throw new RuntimeException("No image generated - no part contains inline data");
+      }
+      
+      // Extract image bytes from response
+      byte[] imageBytes = imageData.toByteArray();
+      
+      logger.info("Successfully generated food image, size: {} bytes", imageBytes.length);
+      
+      if (imageBytes.length == 0) {
+        throw new RuntimeException("Image data is empty");
+      }
+      
+      return imageBytes;
+      
+    } catch (Exception e) {
+      logger.error("Error generating food image with Gemini 2.5 Flash Image", e);
+      throw new RuntimeException("Failed to generate food image: " + e.getMessage(), e);
     }
   }
 

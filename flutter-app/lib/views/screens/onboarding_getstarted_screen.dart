@@ -164,6 +164,7 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                             },
                             child: !_showSignInForm
                                 ? Column(
+                                    spacing: 16,
                                     children: [
                                       RichText(
                                         text: TextSpan(
@@ -180,15 +181,13 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                           ],
                                         ),
                                       ),
-                                      const SizedBox(height: 16),
                                       Text(
-                                        "Helping people understand what they eat, one scan at a time. Make informed choices for better nutrition.",
+                                        "Scan. Track. Share. Build healthier eating habits with the people you care about most.",
                                         style: AppTextStyles.withColor(
                                           AppTextStyles.bodyMedium,
                                           Colors.white70,
                                         ),
                                       ),
-                                      const SizedBox(height: 32),
                                       Row(
                                         children: [
                                           Expanded(

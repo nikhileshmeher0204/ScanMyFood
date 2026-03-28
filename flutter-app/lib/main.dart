@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:read_the_label/config/env_config.dart';
+import 'package:read_the_label/repositories/intake_repository.dart';
 import 'package:read_the_label/repositories/user_repository.dart';
 import 'package:read_the_label/utils/app_logger.dart';
 import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
@@ -17,7 +18,6 @@ import 'package:read_the_label/views/screens/onboarding_getstarted_screen.dart';
 import 'package:read_the_label/views/screens/onboarding_health_metrics_screen.dart';
 import 'package:read_the_label/views/screens/product_analysis_view.dart';
 import 'firebase_options.dart';
-import 'package:read_the_label/repositories/storage_repository.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
 import 'package:read_the_label/repositories/api_client.dart';
 import 'package:read_the_label/services/auth_service.dart';
@@ -124,11 +124,11 @@ class MyApp extends StatelessWidget {
       // Provider<AiRepository>(
       //   create: (_) => AiRepository(),
       // ),
-      Provider<StorageRepository>(
-        create: (_) => StorageRepository(),
-      ),
       Provider<UserRepository>(
         create: (context) => UserRepository(context.read<ApiClient>()),
+      ),
+      Provider<IntakeRepository>(
+        create: (context) => IntakeRepository(context.read<ApiClient>()),
       ),
       // Register ViewModels
       ChangeNotifierProvider<OnboardingViewModel>(
@@ -137,41 +137,33 @@ class MyApp extends StatelessWidget {
       ChangeNotifierProvider<UiViewModel>(
         create: (_) => UiViewModel(),
       ),
-      // Keep these changes:
-      ChangeNotifierProxyProvider<UiViewModel, ProductAnalysisViewModel>(
+
+      ChangeNotifierProvider<ProductAnalysisViewModel>(
         create: (context) => ProductAnalysisViewModel(
           aiRepository: context.read<SpringBackendRepository>(),
-          uiProvider: context.read<UiViewModel>(),
         ),
-        update: (context, uiViewModel, previous) =>
-            previous!..uiProvider = uiViewModel,
       ),
-      ChangeNotifierProxyProvider<UiViewModel, MealAnalysisViewModel>(
+      ChangeNotifierProvider<MealAnalysisViewModel>(
         create: (context) => MealAnalysisViewModel(
           aiRepository: context.read<SpringBackendRepository>(),
-          uiProvider: context.read<UiViewModel>(),
         ),
-        update: (context, uiViewModel, previous) =>
-            previous!..uiProvider = uiViewModel,
       ),
-      ChangeNotifierProxyProvider<UiViewModel, DescriptionAnalysisViewModel>(
+      ChangeNotifierProvider<DescriptionAnalysisViewModel>(
         create: (context) => DescriptionAnalysisViewModel(
           aiRepository: context.read<SpringBackendRepository>(),
-          uiProvider: context.read<UiViewModel>(),
         ),
-        update: (context, uiViewModel, previous) =>
-            previous!..uiProvider = uiViewModel,
       ),
-      ChangeNotifierProxyProvider2<UiViewModel, StorageRepository,
-          DailyIntakeViewModel>(
-        create: (context) => DailyIntakeViewModel(
-          storageRepository: context.read<StorageRepository>(),
-          uiProvider: context.read<UiViewModel>(),
-        ),
-        update: (context, uiViewModel, storageRepository, previous) => previous!
-          ..uiProvider = uiViewModel
-          ..storageRepository = storageRepository,
-      ),
+      ChangeNotifierProxyProvider2<UiViewModel, AuthService,
+              DailyIntakeViewModel>(
+          create: (context) => DailyIntakeViewModel(
+                intakeRepository: context.read<IntakeRepository>(),
+                aiRepository: context.read<SpringBackendRepository>(),
+                uiProvider: context.read<UiViewModel>(),
+                authService: context.read<AuthService>(),
+              ),
+          update: (context, uiViewModel, authService, previous) => previous!
+            ..uiProvider = uiViewModel
+            ..authService = authService),
     ];
   }
 }

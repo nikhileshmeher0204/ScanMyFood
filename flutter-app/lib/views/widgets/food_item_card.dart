@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
-import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
+import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:read_the_label/views/widgets/food_nutreint_tile.dart';
 import '../../models/food_item.dart';
 
@@ -19,7 +19,6 @@ class FoodItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
@@ -51,7 +50,6 @@ class FoodItemCard extends StatelessWidget {
                     ),
                   ),
                   Row(
-                    // spacing: 10,
                     children: [
                       Container(
                         decoration: BoxDecoration(
@@ -60,7 +58,7 @@ class FoodItemCard extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.all(4),
                         child: Text(
-                          '🔥 ${item.calculateTotalNutrients()['calories']?.toStringAsFixed(0) ?? '0'} kcal',
+                          '🔥 ${NutrientUtils.getNutrientValue(item, AppConstants.calories)} ${NutrientUtils.getNutrientUnit(item, AppConstants.calories)}',
                           style: AppTextStyles.withColor(
                             AppTextStyles.bodyMediumBold,
                             AppColors.primaryBlack,
@@ -106,56 +104,49 @@ class FoodItemCard extends StatelessWidget {
             childAspectRatio: 2.5,
             children: [
               FoodNutrientTile(
-                label: 'Protein',
-                value: item
-                        .calculateTotalNutrients()['protein']
-                        ?.toStringAsFixed(1) ??
-                    '0',
-                unit: 'g',
+                label: NutrientUtils.toTitleCase(AppConstants.protein),
+                value:
+                    NutrientUtils.getNutrientValue(item, AppConstants.protein),
+                unit: NutrientUtils.getNutrientUnit(item, AppConstants.protein),
                 icon: Icons.fitness_center_outlined,
               ),
               FoodNutrientTile(
-                label: 'Carbohydrates',
-                value: item
-                        .calculateTotalNutrients()['carbohydrates']
-                        ?.toStringAsFixed(1) ??
-                    '0',
-                unit: 'g',
+                label: NutrientUtils.toTitleCase(AppConstants.carbohydrate),
+                value: NutrientUtils.getNutrientValue(
+                    item, AppConstants.totalCarbohydrate),
+                unit: NutrientUtils.getNutrientUnit(
+                    item, AppConstants.totalCarbohydrate),
                 icon: Icons.grain_outlined,
               ),
               FoodNutrientTile(
-                label: 'Fat',
+                label: NutrientUtils.toTitleCase(AppConstants.fat),
                 value:
-                    item.calculateTotalNutrients()['fat']?.toStringAsFixed(1) ??
-                        '0',
-                unit: 'g',
+                    NutrientUtils.getNutrientValue(item, AppConstants.totalFat),
+                unit:
+                    NutrientUtils.getNutrientUnit(item, AppConstants.totalFat),
                 icon: Icons.opacity_outlined,
               ),
               FoodNutrientTile(
-                label: 'Fiber',
-                value: item
-                        .calculateTotalNutrients()['fiber']
-                        ?.toStringAsFixed(1) ??
-                    '0',
-                unit: 'g',
+                label: NutrientUtils.toTitleCase(AppConstants.dietaryFiber),
+                value: NutrientUtils.getNutrientValue(
+                    item, AppConstants.dietaryFiber),
+                unit: NutrientUtils.getNutrientUnit(
+                    item, AppConstants.dietaryFiber),
                 icon: Icons.grass_outlined,
               ),
               FoodNutrientTile(
-                label: 'Sugar',
-                value: item
-                        .calculateTotalNutrients()['sugar']
-                        ?.toStringAsFixed(1) ??
-                    '0',
-                unit: 'g',
+                label: NutrientUtils.toTitleCase(AppConstants.sugar),
+                value: NutrientUtils.getNutrientValue(
+                    item, AppConstants.totalSugars),
+                unit: NutrientUtils.getNutrientUnit(
+                    item, AppConstants.totalSugars),
                 icon: Icons.cake_outlined,
               ),
               FoodNutrientTile(
-                label: 'Sodium',
-                value: item
-                        .calculateTotalNutrients()['sodium']
-                        ?.toStringAsFixed(1) ??
-                    '0',
-                unit: 'g',
+                label: NutrientUtils.toTitleCase(AppConstants.sodium),
+                value:
+                    NutrientUtils.getNutrientValue(item, AppConstants.sodium),
+                unit: NutrientUtils.getNutrientUnit(item, AppConstants.sodium),
                 icon: Icons.grain_sharp,
               ),
             ],
@@ -174,7 +165,7 @@ class FoodItemCard extends StatelessWidget {
         backgroundColor: AppColors.cardBackground,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
+          side: const BorderSide(
             color: AppColors.divider,
             width: 1,
           ),
@@ -238,8 +229,8 @@ class FoodItemCard extends StatelessWidget {
             onPressed: () {
               double? newQuantity = double.tryParse(controller.text);
               if (newQuantity != null) {
-                item.updateQuantity(newQuantity);
-                context.read<MealAnalysisViewModel>().updateTotalNutrients();
+                // item.updateQuantity(newQuantity);
+                // context.read<MealAnalysisViewModel>().updateTotalNutrients();
               }
               Navigator.of(context).pop();
             },

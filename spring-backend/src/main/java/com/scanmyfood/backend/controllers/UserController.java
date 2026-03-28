@@ -1,5 +1,6 @@
 package com.scanmyfood.backend.controllers;
 
+import com.scanmyfood.backend.constants.ResponseCodeConstants;
 import com.scanmyfood.backend.models.ApiResponse;
 import com.scanmyfood.backend.models.User;
 import com.scanmyfood.backend.services.UserService;
@@ -25,7 +26,7 @@ public class UserController {
         Map<String, Object> response = new HashMap<>();
         log.info("User with uid {} is new: {}", firebaseUid, isNewUser);
         response.put("isNewUser", isNewUser);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.NEW_USER_CHECKED, response));
     }
 
     @PostMapping("/create-user")
@@ -38,10 +39,10 @@ public class UserController {
         User user = userService.findOrCreateUser(firebaseUid, email, displayName);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("userId", user.getId());
+        response.put("userId", user.getFirebaseUid());
         response.put("created", true);
         log.info("User with uid {} created successfully", firebaseUid);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.USER_CREATED, response));
     }
 
     @PostMapping("/complete-onboarding")
@@ -68,7 +69,7 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(Map.of(
                 "success", true,
                 "message", "Onboarding completed successfully"
-        )));
+        ), ResponseCodeConstants.ONBOARDING_COMPLETED, "Onboarding completed successfully"));
     }
 
     @GetMapping("/check/onboarding-status/{firebaseUid}")
@@ -80,7 +81,7 @@ public class UserController {
         response.put("isOnboardingComplete", isOnboardingComplete);
         log.info("User {} onboarding complete status: {}", firebaseUid, isOnboardingComplete);
 
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.ONBOARDING_STATUS_CHECKED, response));
     }
 
     @PostMapping("/preferences")
@@ -96,7 +97,7 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(Map.of(
                 "success", true,
                 "message", "Preferences saved successfully"
-        )));
+        ), ResponseCodeConstants.PREFERENCES_SAVED, "Preferences saved successfully"));
     }
 
     @PostMapping("/health-metrics")
@@ -114,6 +115,6 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(Map.of(
                 "success", true,
                 "message", "Health metrics saved successfully"
-        )));
+        ), ResponseCodeConstants.HEALTH_METRICS_SAVED, "Health metrics saved successfully"));
     }
 }

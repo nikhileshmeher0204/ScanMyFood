@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
-import 'package:read_the_label/views/widgets/date_selector.dart';
+import 'package:read_the_label/views/widgets/date_section_widget.dart';
 import 'package:read_the_label/views/widgets/detailed_nutrients_card.dart';
 import 'package:read_the_label/views/widgets/food_history_card.dart';
-import 'package:read_the_label/views/widgets/header_widget.dart';
-import 'package:read_the_label/views/widgets/macronutrien_summary_card.dart';
+import 'package:read_the_label/views/widgets/calorie_card.dart';
+import 'package:read_the_label/views/widgets/macronutrient_indicator_card.dart';
+import 'package:read_the_label/views/widgets/user_switch_card.dart';
 
 class DailyIntakeView extends StatefulWidget {
   const DailyIntakeView({super.key});
@@ -16,45 +18,20 @@ class DailyIntakeView extends StatefulWidget {
 }
 
 class _DailyIntakeViewState extends State<DailyIntakeView> {
-  DateTime _selectedDate = DateTime.now();
-
   @override
   void initState() {
     super.initState();
-    // Use WidgetsBinding.instance.addPostFrameCallback to defer initialization
+    // Initialize data only once when widget is first created
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  Future<void> _initializeData() async {
-    if (!mounted) return;
-
+  void _initializeData() {
     print("Initializing DailyIntakePage data...");
     final dailyIntakeProvider =
         Provider.of<DailyIntakeViewModel>(context, listen: false);
-
-    // Debug check storage
-    await dailyIntakeProvider.debugCheckStorage();
-
-    // Load food history first
-    print("Loading food history...");
-    await dailyIntakeProvider.loadFoodHistory();
-
-    // Then load daily intake for selected date
-    print("Loading daily intake for selected date...");
-    await dailyIntakeProvider.loadDailyIntake(DateTime.now());
-
-    if (mounted) {
-      setState(() {
-        _selectedDate = DateTime.now();
-      });
-    }
+    dailyIntakeProvider.updateSelectedDate(dailyIntakeProvider.selectedDate);
   }
 
   @override
@@ -64,10 +41,10 @@ class _DailyIntakeViewState extends State<DailyIntakeView> {
         SliverAppBar(
           backgroundColor: Theme.of(context).colorScheme.surface,
           pinned: true,
-          expandedHeight: 120,
+          expandedHeight: 90,
           flexibleSpace: FlexibleSpaceBar(
-            expandedTitleScale: 1.75,
-            titlePadding: const EdgeInsets.only(left: 24, bottom: 16),
+            expandedTitleScale: 1.3,
+            titlePadding: const EdgeInsets.only(left: 16, bottom: 12),
             title: Text(
               'Daily Intake',
               style: AppTextStyles.heading2BoldClose,
@@ -75,34 +52,75 @@ class _DailyIntakeViewState extends State<DailyIntakeView> {
             collapseMode: CollapseMode.pin,
           ),
         ),
-        SliverToBoxAdapter(
-          child: Consumer<DailyIntakeViewModel>(
-              builder: (context, dailyIntakeProvider, _) {
-            return Column(
-              children: [
-                HeaderCard(context, _selectedDate),
-                DateSelector(
-                  context,
-                  _selectedDate,
-                  (DateTime newDate) {
-                    setState(() {
-                      _selectedDate = newDate;
-                      dailyIntakeProvider.loadDailyIntake(newDate);
-                    });
-                  },
-                ),
-                MacronutrientSummaryCard(
-                    context, dailyIntakeProvider.dailyIntake),
-                FoodHistoryCard(
-                    context: context,
-                    currentIndex: 2,
-                    selectedDate: _selectedDate),
-                DetailedNutrientsCard(context, dailyIntakeProvider.dailyIntake),
-              ],
-            );
-          }),
+        const SliverToBoxAdapter(
+          child: _DailyIntakeContent(),
         ),
       ],
+    );
+  }
+}
+
+// Separate widget with granular selectors for optimal rebuilds
+class _DailyIntakeContent extends StatelessWidget {
+  const _DailyIntakeContent();
+
+  @override
+  Widget build(BuildContext context) {
+    // Select only totalNutrients - only rebuilds when this changes
+    final totalNutrients = context.select(
+      (DailyIntakeViewModel vm) => vm.totalNutrients,
+    );
+
+    // Select only selectedDate - only rebuilds when this changes
+    final selectedDate = context.select(
+      (DailyIntakeViewModel vm) => vm.selectedDate,
+    );
+
+    // Get updateSelectedDate method without listening (no rebuilds)
+    final updateSelectedDate =
+        context.read<DailyIntakeViewModel>().updateSelectedDate;
+
+    if (totalNutrients == null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            DateSectionWidget(
+              selectedDate: selectedDate,
+              onDateSelected: updateSelectedDate,
+            ),
+            const SizedBox(height: 100),
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          const UserSwitchCard(),
+          const SizedBox(height: 16),
+          DateSectionWidget(
+            selectedDate: selectedDate,
+            onDateSelected: updateSelectedDate,
+          ),
+          const SizedBox(height: 24),
+          CalorieCard(calories: totalNutrients[AppConstants.calories]),
+          const SizedBox(height: 16),
+          MacronutrientsIndicatorCard(totalNutrients: totalNutrients),
+          const SizedBox(height: 24),
+          const FoodHistoryCard(),
+          const SizedBox(height: 16),
+          DetailedNutrientsCard(totalNutrients: totalNutrients),
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 }

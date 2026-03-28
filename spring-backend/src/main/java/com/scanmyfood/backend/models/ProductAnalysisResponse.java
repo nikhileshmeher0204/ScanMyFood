@@ -24,16 +24,6 @@ public class ProductAnalysisResponse {
     }
 
     @Data
-    public static class Nutrient {
-        private String name;
-        private Quantity quantity;
-        private String dailyValue;
-        private String dvStatus;
-        private String goal;
-        private String healthImpact;
-    }
-
-    @Data
     public static class PrimaryConcern {
         private String issue;
         private String explanation;
@@ -45,11 +35,5 @@ public class ProductAnalysisResponse {
         private String food;
         private String quantity;
         private String reasoning;
-    }
-
-    @Data
-    public static class Quantity {
-        private double value;
-        private String unit;
     }
 }

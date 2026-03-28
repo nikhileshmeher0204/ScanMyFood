@@ -32,9 +32,6 @@ class _OnboardingFoodpreferenceScreenState
 
   @override
   Widget build(BuildContext context) {
-    final onboardingViewModel =
-        Provider.of<OnboardingViewModel>(context, listen: false);
-
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(

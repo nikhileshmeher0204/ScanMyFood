@@ -1,5 +1,6 @@
 package com.scanmyfood.backend.controllers;
 
+import com.scanmyfood.backend.constants.ResponseCodeConstants;
 import com.scanmyfood.backend.models.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,6 @@ public class HealthController {
         healthData.put("status", "UP");
         healthData.put("service", "Food Scan AI Backend");
 
-        return ResponseEntity.ok(ApiResponse.success(healthData));
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.SUCCESS, healthData));
     }
 }

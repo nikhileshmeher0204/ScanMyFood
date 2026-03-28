@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
+import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class EnergyDistributionBar extends StatelessWidget {
-  final Map<String, Quantity> originalNutrients;
+  final List<FoodNutrient> originalNutrients;
 
   const EnergyDistributionBar({
     super.key,
@@ -15,9 +17,28 @@ class EnergyDistributionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final protein = originalNutrients['protein']?.value ?? 0.0;
-    final carbs = originalNutrients['carbohydrates']?.value ?? 0.0;
-    final fat = originalNutrients['fat']?.value ?? 0.0;
+    final protein = originalNutrients
+        .firstWhere((nutrient) => nutrient.name == AppConstants.protein,
+            orElse: () => FoodNutrient(
+                name: AppConstants.protein,
+                quantity: Quantity(value: 0.0, unit: 'g')))
+        .quantity
+        .value;
+    final carbs = originalNutrients
+        .firstWhere(
+            (nutrient) => nutrient.name == AppConstants.totalCarbohydrate,
+            orElse: () => FoodNutrient(
+                name: AppConstants.totalCarbohydrate,
+                quantity: Quantity(value: 0.0, unit: 'g')))
+        .quantity
+        .value;
+    final fat = originalNutrients
+        .firstWhere((nutrient) => nutrient.name == AppConstants.totalFat,
+            orElse: () => FoodNutrient(
+                name: AppConstants.totalFat,
+                quantity: Quantity(value: 0.0, unit: 'g')))
+        .quantity
+        .value;
 
     // Calculate calories from each macronutrient
     final proteinCals = protein * 4;
@@ -52,8 +73,14 @@ class EnergyDistributionBar extends StatelessWidget {
                   uiViewModel.calculateAdjustedNutrients(originalNutrients);
 
               // Safe access to calories value with null checks
-              final caloriesQuantity =
-                  adjustedNutrients['calories']?.value ?? 0.0;
+              final caloriesQuantity = adjustedNutrients
+                  .firstWhere(
+                      (nutrient) => nutrient.name == AppConstants.calories,
+                      orElse: () => FoodNutrient(
+                          name: AppConstants.calories,
+                          quantity: Quantity(value: 0.0, unit: 'kcal')))
+                  .quantity
+                  .value;
               final caloriesValue = caloriesQuantity;
 
               return RichText(
