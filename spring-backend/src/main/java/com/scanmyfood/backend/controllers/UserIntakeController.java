@@ -17,7 +17,7 @@ import static com.scanmyfood.backend.constants.ResponseCodeConstants.ERROR;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users/intake")
 public class UserIntakeController {
 
     @Autowired
@@ -26,7 +26,7 @@ public class UserIntakeController {
     @Autowired
     FileStorageService fileStorageService;
 
-    @PostMapping("save/scannedFood")
+    @PostMapping("/scanned-food")
     public ResponseEntity<ApiResponse<SaveIntakeOutput>> saveScannedFood(
             @RequestPart(value = "foodImage", required = false) MultipartFile foodImage,
             @RequestPart("saveScannedFoodInput") SaveScannedFoodInput saveScannedFoodInput) {
@@ -55,7 +55,7 @@ public class UserIntakeController {
         }
     }
 
-    @PostMapping("save/scannedLabel")
+    @PostMapping("/scanned-label")
     public ResponseEntity<ApiResponse<SaveIntakeOutput>> saveScannedLabel(
             @RequestPart("productImage") MultipartFile productImage,
             @RequestPart("saveScannedLabelInput") SaveScannedLabelInput saveScannedLabelInput) {
@@ -81,7 +81,7 @@ public class UserIntakeController {
         }
     }
 
-    @GetMapping("/intake")
+    @GetMapping("/daily-intake")
     public ResponseEntity<ApiResponse<UserIntakeOutput>> getDailyIntake(
             @RequestParam("userId") String userId,
             @RequestParam("date") LocalDate date
@@ -92,4 +92,14 @@ public class UserIntakeController {
         return ResponseEntity.ok(ApiResponse.success(dailyIntake, ResponseCodeConstants.DAILY_INTAKE_FETCHED, "Daily intake fetched successfully"));
 
     }
+
+    @GetMapping("/intake-record")
+    public ResponseEntity<ApiResponse<FoodAnalysisResponse>> getIntake(
+            @RequestParam("userId") String userId,
+            @RequestParam("dailyIntakeId") int dailyIntakeId
+    ) throws Exception {
+        FoodAnalysisResponse intakeDetails = userIntakeService.getIntakeDetails(userId, dailyIntakeId);
+        return ResponseEntity.ok(ApiResponse.success(intakeDetails, ResponseCodeConstants.INTAKE_ITEM_FETCHED, "Intake item fetched successfully"));
+    }
+
 }

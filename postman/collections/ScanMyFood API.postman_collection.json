@@ -1,0 +1,516 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "name": "ScanMyFood API",
+    "description": "API collection for the ScanMyFood Backend - a Spring Boot application for food scanning and nutritional analysis.\n\n## Base URL\n`http://localhost:8080`\n\n## Features\n- AI-powered food and product image analysis\n- User management and onboarding\n- Health metrics tracking\n- Daily intake monitoring\n\n## Response Format\nAll responses follow the standard ApiResponse format:\n```json\n{\n  \"status\": \"success\" | \"error\",\n  \"message\": \"optional message\",\n  \"data\": { ... }\n}\n```",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Check Health",
+          "id": "07336895-38ad-4376-8640-083aacc23196",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            },
+            "description": "Check the health status of the ScanMyFood Backend service.\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"data\": {\n    \"status\": \"UP\",\n    \"service\": \"Food Scan AI Backend\"\n  }\n}\n```"
+          },
+          "response": []
+        }
+      ],
+      "id": "76566039-d659-48a6-a612-a7afbeb45f32",
+      "description": "Health check endpoints for monitoring service status"
+    },
+    {
+      "name": "AI Analysis",
+      "item": [
+        {
+          "name": "Analyze Product Images",
+          "id": "4c80e15f-ca4a-4e97-9da5-7a773d570e9c",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "frontImage",
+                  "description": "Front image of the product",
+                  "type": "file",
+                  "src": [
+                    "/C:/Users/nikhi/OneDrive/Desktop/81x6KodxNZL._UF350,350_QL80_.jpg"
+                  ]
+                },
+                {
+                  "key": "labelImage",
+                  "description": "Nutrition label image of the product",
+                  "type": "file",
+                  "src": [
+                    "/C:/Users/nikhi/OneDrive/Desktop/maggi-2-minute-masala-instant-noodles-280-g-legal-images-o490000365-p490000365-4-202204291232.jpg"
+                  ]
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/analyze/product",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ai",
+                "analyze",
+                "product"
+              ]
+            },
+            "description": "Analyze product images (front and nutrition label) using AI to extract nutritional information.\n\n**Request:**\n- Content-Type: multipart/form-data\n- frontImage: Product front image file\n- labelImage: Nutrition label image file\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"data\": {\n    \"product\": {\n      \"name\": \"string\",\n      \"category\": \"string\"\n    },\n    \"nutritionAnalysis\": {\n      \"totalQuantity\": { \"value\": 0, \"unit\": \"string\" },\n      \"servingSize\": { \"value\": 0, \"unit\": \"string\" },\n      \"nutrients\": [...],\n      \"primaryConcerns\": [...]\n    }\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Analyze Food Image",
+          "id": "955c9413-c5a8-45ea-8c2e-f04e8c280691",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "description": "Food image to analyze",
+                  "type": "file",
+                  "src": [
+                    "/C:/Users/nikhi/Downloads/maggi_coocked.jpg"
+                  ]
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/analyze/image",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ai",
+                "analyze",
+                "image"
+              ]
+            },
+            "description": "Analyze a food image using AI to identify food items and estimate nutritional content.\n\n**Request:**\n- Content-Type: multipart/form-data\n- image: Food image file\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"data\": {\n    \"mealName\": \"string\",\n    \"analyzedFoodItems\": [...],\n    \"totalPlateNutrients\": [...]\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Analyze Food Description",
+          "id": "1c377fca-1e14-4b0a-bcf1-bc57970b2fee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"description\": \"A bowl of rice with grilled chicken and vegetables\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/analyze/description",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ai",
+                "analyze",
+                "description"
+              ]
+            },
+            "description": "Analyze a text description of food using AI to estimate nutritional content.\n\n**Request Body:**\n```json\n{\n  \"description\": \"string - description of the food/meal\"\n}\n```\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"data\": {\n    \"mealName\": \"string\",\n    \"analyzedFoodItems\": [...],\n    \"totalPlateNutrients\": [...]\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Food Image",
+          "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"description\": \"A bowl of pasta with tomato sauce and fresh basil\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/generate/intake-description-image",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ai",
+                "generate",
+                "intake-description-image"
+              ]
+            },
+            "description": "Generate a professional food photography image from a text description using AI (Gemini 2.5 Flash Image model).\n\n**Request Body:**\n```json\n{\n  \"description\": \"string - description of the food/meal to generate\"\n}\n```\n\n**Example descriptions:**\n- \"A bowl of pasta with tomato sauce and fresh basil\"\n- \"Grilled salmon with steamed vegetables\"\n- \"A stack of fluffy pancakes with maple syrup and berries\"\n\n**Response:**\n- Content-Type: image/png\n- Content-Disposition: inline; filename=\"generated-food.png\"\n- Body: Raw PNG image bytes\n\n**Features:**\n- Professional food photography style (Canon EOS R5)\n- 16:9 landscape format, 8K resolution\n- Natural soft daylight lighting\n- Restaurant quality presentation\n- Appropriate cutlery and dinnerware\n- Steam effect for hot dishes"
+          },
+          "response": []
+        }
+      ],
+      "id": "53182956-bfd9-4640-8600-65bf9cbf2851",
+      "description": "AI-powered endpoints for analyzing food images and product labels"
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Check If New User",
+          "id": "04942b78-e0e7-458c-b677-1a69654923e4",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/check/new-user/:firebaseUid",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "check",
+                "new-user",
+                ":firebaseUid"
+              ],
+              "variable": [
+                {
+                  "key": "firebaseUid",
+                  "value": "",
+                  "description": "Firebase User ID"
+                }
+              ]
+            },
+            "description": "Check if a user is new (not yet registered in the system).\n\n**Path Parameters:**\n- firebaseUid: Firebase User ID\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"data\": {\n    \"isNewUser\": true | false\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Create User",
+          "id": "a1d821a7-e6a0-44ba-a6b8-ee019b86a78f",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firebaseUid\": \"user-firebase-uid\",\n    \"email\": \"user@example.com\",\n    \"displayName\": \"John Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/create-user",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "create-user"
+              ]
+            },
+            "description": "Create a new user or find existing user by Firebase UID.\n\n**Request Body:**\n```json\n{\n  \"firebaseUid\": \"string\",\n  \"email\": \"string\",\n  \"displayName\": \"string\"\n}\n```\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"data\": {\n    \"userId\": \"string\",\n    \"created\": true\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Onboarding",
+          "id": "c8dd595f-7d21-41b8-b034-cbf2c790dc78",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firebaseUid\": \"user-firebase-uid\",\n    \"preferences\": {\n        \"dietaryPreference\": \"vegetarian\",\n        \"country\": \"US\"\n    },\n    \"healthMetrics\": {\n        \"heightFeet\": 5,\n        \"heightInches\": 10,\n        \"weightKg\": 70.5,\n        \"goal\": \"maintain\"\n    }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/complete-onboarding",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "complete-onboarding"
+              ]
+            },
+            "description": "Complete user onboarding with preferences and health metrics.\n\n**Request Body:**\n```json\n{\n  \"firebaseUid\": \"string\",\n  \"preferences\": {\n    \"dietaryPreference\": \"string\",\n    \"country\": \"string\"\n  },\n  \"healthMetrics\": {\n    \"heightFeet\": number,\n    \"heightInches\": number,\n    \"weightKg\": number,\n    \"goal\": \"string\"\n  }\n}\n```\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"data\": {\n    \"success\": true,\n    \"message\": \"Onboarding completed successfully\"\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Check Onboarding Status",
+          "id": "c8581bda-526e-44d9-adad-7740bfe16d92",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/check/onboarding-status/:firebaseUid",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "check",
+                "onboarding-status",
+                ":firebaseUid"
+              ],
+              "variable": [
+                {
+                  "key": "firebaseUid",
+                  "value": "",
+                  "description": "Firebase User ID"
+                }
+              ]
+            },
+            "description": "Check if a user has completed the onboarding process.\n\n**Path Parameters:**\n- firebaseUid: Firebase User ID\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"data\": {\n    \"isOnboardingComplete\": true | false\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Save User Preferences",
+          "id": "3be59359-6072-4f76-8846-651db76648b7",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firebaseUid\": \"user-firebase-uid\",\n    \"dietaryPreference\": \"vegetarian\",\n    \"country\": \"US\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "preferences"
+              ]
+            },
+            "description": "Save or update user dietary preferences.\n\n**Request Body:**\n```json\n{\n  \"firebaseUid\": \"string\",\n  \"dietaryPreference\": \"string\",\n  \"country\": \"string\"\n}\n```\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"data\": {\n    \"success\": true,\n    \"message\": \"Preferences saved successfully\"\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Save Health Metrics",
+          "id": "ac83b756-b122-419f-88f7-3cac5210b1c2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firebaseUid\": \"user-firebase-uid\",\n    \"heightFeet\": 5,\n    \"heightInches\": 10,\n    \"weightKg\": 70.5,\n    \"goal\": \"lose_weight\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/health-metrics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "health-metrics"
+              ]
+            },
+            "description": "Save or update user health metrics.\n\n**Request Body:**\n```json\n{\n  \"firebaseUid\": \"string\",\n  \"heightFeet\": number,\n  \"heightInches\": number,\n  \"weightKg\": number,\n  \"goal\": \"string\" (e.g., \"lose_weight\", \"gain_weight\", \"maintain\")\n}\n```\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"data\": {\n    \"success\": true,\n    \"message\": \"Health metrics saved successfully\"\n  }\n}\n```"
+          },
+          "response": []
+        }
+      ],
+      "id": "d0454915-8a7a-4280-a6f4-1bb0b12d4c38",
+      "description": "User management endpoints for registration, onboarding, and preferences"
+    },
+    {
+      "name": "User Intake",
+      "item": [
+        {
+          "name": "Save Scanned Food",
+          "id": "5786a426-74c5-4211-a794-3631ddee29f4",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "foodImage",
+                  "description": "Image of the scanned food",
+                  "type": "file",
+                  "src": [
+                    ""
+                  ]
+                },
+                {
+                  "key": "saveScannedFoodInput",
+                  "value": "{\n    \"userId\": \"user-firebase-uid\",\n    \"foodAnalysisResponse\": {\n        \"mealName\": \"Grilled Chicken Salad\",\n        \"analyzedFoodItems\": [],\n        \"totalPlateNutrients\": []\n    }\n}",
+                  "description": "JSON object containing userId and food analysis response",
+                  "type": "text",
+                  "contentType": "application/json"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/intake/scanned-food",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "intake",
+                "scanned-food"
+              ]
+            },
+            "description": "Save a scanned food item with its analysis to the user's intake history.\n\n**Request:**\n- Content-Type: multipart/form-data\n- foodImage: Image file of the food\n- saveScannedFoodInput: JSON object with userId and foodAnalysisResponse\n\n**saveScannedFoodInput structure:**\n```json\n{\n  \"userId\": \"string\",\n  \"foodAnalysisResponse\": {\n    \"mealName\": \"string\",\n    \"analyzedFoodItems\": [...],\n    \"totalPlateNutrients\": [...]\n  }\n}\n```\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"message\": \"Scanned food intake saved successfully.\"\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Save Scanned Label",
+          "id": "06ef763a-f449-4f53-a48c-69356bc2f96c",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "foodImage",
+                  "description": "Image of the product/label",
+                  "type": "file",
+                  "src": [
+                    ""
+                  ]
+                },
+                {
+                  "key": "saveScannedLabelInput",
+                  "value": "{\n    \"userId\": \"user-firebase-uid\",\n    \"productAnalysisResponse\": {\n        \"product\": {\n            \"name\": \"Product Name\",\n            \"category\": \"Snacks\"\n        },\n        \"nutritionAnalysis\": {\n            \"totalQuantity\": { \"value\": 100, \"unit\": \"g\" },\n            \"servingSize\": { \"value\": 30, \"unit\": \"g\" },\n            \"nutrients\": [],\n            \"primaryConcerns\": []\n        }\n    }\n}",
+                  "description": "JSON object containing userId and product analysis response",
+                  "type": "text",
+                  "contentType": "application/json"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/intake/scanned-label",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "intake",
+                "scanned-label"
+              ]
+            },
+            "description": "Save a scanned product label with its analysis to the user's intake history.\n\n**Request:**\n- Content-Type: multipart/form-data\n- foodImage: Image file of the product\n- saveScannedLabelInput: JSON object with userId and productAnalysisResponse\n\n**saveScannedLabelInput structure:**\n```json\n{\n  \"userId\": \"string\",\n  \"productAnalysisResponse\": {\n    \"product\": {\n      \"name\": \"string\",\n      \"category\": \"string\"\n    },\n    \"nutritionAnalysis\": {\n      \"totalQuantity\": {...},\n      \"servingSize\": {...},\n      \"nutrients\": [...],\n      \"primaryConcerns\": [...]\n    }\n  }\n}\n```\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"message\": \"Scanned food intake saved successfully.\"\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Daily Intake",
+          "id": "5b3b7606-05c6-4de0-98a0-d0892fab2c21",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/user/intake?userId=VzvYVBFUlxP0apdJmkGdO0XzDe82&date=2026-01-08",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "intake"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "VzvYVBFUlxP0apdJmkGdO0XzDe82",
+                  "description": "Firebase User ID",
+                  "uuid": "6f913b11-2e34-4800-8528-3668052b1593"
+                },
+                {
+                  "key": "date",
+                  "value": "2026-01-08",
+                  "description": "Date in YYYY-MM-DD format",
+                  "uuid": "c0002383-74f7-4076-8694-a15fde8306a5"
+                }
+              ]
+            },
+            "description": "Get the user's food intake for a specific date.\n\n**Query Parameters:**\n- userId: Firebase User ID\n- date: Date in YYYY-MM-DD format (LocalDate)\n\n**Response:**\n- 200 OK with intake data\n- 204 No Content if no intake records found for the date\n\n```json\n{\n  \"status\": \"success\",\n  \"message\": \"Daily intake fetched successfully.\",\n  \"data\": {\n    \"foodAnalysisResponse\": [...]\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Intake Details",
+          "id": "17ca0428-b54f-4d97-8b69-94a746983e08",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "7ae184bb-ed7e-4552-8885-fe420fdd07a7",
+      "description": "Endpoints for tracking and managing user food intake"
+    }
+  ],
+  "variable": [
+    {
+      "id": "fbc95aee-d8ab-4485-9e01-5ce343dd2249",
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ]
+}

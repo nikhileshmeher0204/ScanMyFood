@@ -219,6 +219,46 @@ public class UserIntakeServiceImpl implements UserIntakeService {
         }
     }
 
+    @Override
+    public FoodAnalysisResponse getIntakeDetails(String userId, int dailyIntakeId) throws Exception {
+        try{
+            FoodAnalysisResponse intakeResponse = new FoodAnalysisResponse();
+            List<FoodNutrient> totalNutrients = new ArrayList<>();
+            List<FoodItem> foodItems = new ArrayList<>();
+            DailyIntakeRecord intakeRecord = userIntakeMapper.fetchIntakeById(userId, dailyIntakeId);
+            totalNutrients.add(new FoodNutrient(CALORIES, new Quantity(intakeRecord.getCaloriesValue(), intakeRecord.getCaloriesUnit())));
+            totalNutrients.add(new FoodNutrient(PROTEIN, new Quantity(intakeRecord.getProteinValue(), intakeRecord.getProteinUnit())));
+            totalNutrients.add(new FoodNutrient(TOTAL_CARBOHYDRATE, new Quantity(intakeRecord.getTotalCarbohydrateValue(), intakeRecord.getTotalCarbohydrateUnit())));
+            totalNutrients.add(new FoodNutrient(TOTAL_FAT, new Quantity(intakeRecord.getTotalFatValue(), intakeRecord.getTotalFatUnit())));
+            totalNutrients.add(new FoodNutrient(DIETARY_FIBER, new Quantity(intakeRecord.getDietaryFiberValue(), intakeRecord.getDietaryFiberUnit())));
+            totalNutrients.add(new FoodNutrient(TOTAL_SUGARS, new Quantity(intakeRecord.getTotalSugarsValue(), intakeRecord.getTotalSugarsUnit())));
+            totalNutrients.add(new FoodNutrient(SODIUM, new Quantity(intakeRecord.getSodiumValue(), intakeRecord.getSodiumUnit())));
+            List<FoodItemRecord> foodItemRecords = userIntakeMapper.fetchFoodItemsByDailyIntakeId(dailyIntakeId);
+            for(FoodItemRecord record : foodItemRecords) {
+                FoodItem foodItem = new FoodItem();
+                foodItem.setName(record.getItemName());
+                foodItem.setQuantity(new Quantity(record.getQuantityValue(), record.getQuantityUnit()));
+                List<FoodNutrient> nutrients = new ArrayList<>();
+                Double factor = record.getQuantityValue() / 100.0;
+                nutrients.add(new FoodNutrient(CALORIES, new Quantity(record.getCaloriesValuePer100g() * factor, record.getCaloriesUnit())));
+                nutrients.add(new FoodNutrient(PROTEIN, new Quantity(record.getProteinValuePer100g() * factor, record.getProteinUnit())));
+                nutrients.add(new FoodNutrient(TOTAL_CARBOHYDRATE, new Quantity(record.getTotalCarbohydrateValuePer100g() * factor, record.getTotalCarbohydrateUnit())));
+                nutrients.add(new FoodNutrient(TOTAL_FAT, new Quantity(record.getTotalFatValuePer100g() * factor, record.getTotalFatUnit())));
+                nutrients.add(new FoodNutrient(DIETARY_FIBER, new Quantity(record.getDietaryFiberValuePer100g() * factor, record.getDietaryFiberUnit())));
+                nutrients.add(new FoodNutrient(TOTAL_SUGARS, new Quantity(record.getTotalSugarsValuePer100g() * factor, record.getTotalSugarsUnit())));
+                nutrients.add(new FoodNutrient(SODIUM, new Quantity(record.getSodiumValuePer100g() * factor, record.getSodiumUnit())));
+                foodItem.setNutrients(nutrients);
+                foodItems.add(foodItem);
+            }
+            intakeResponse.setMealName(intakeRecord.getIntakeName());
+            intakeResponse.setAnalyzedFoodItems(foodItems);
+            intakeResponse.setTotalPlateNutrients(totalNutrients);
+            return intakeResponse;
+        }catch (Exception exception){
+            throw new Exception("Error fetching user intake", exception);
+        }
+    }
+
     private void setTotalValues(List<DailyIntakeRecord> records, List<FoodNutrient> totalNutrients) {
 
         double totalCalories = 0;

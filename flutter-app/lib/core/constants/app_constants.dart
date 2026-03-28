@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class AppConstants {
   static const String appName = "Read The Label";
   static const String scanLabel = "SL";
@@ -5,6 +7,20 @@ class AppConstants {
   static const String scanDescription = "SD";
   static const String goodHealthImpact = "Good";
   static const String moderateHealthImpact = "Moderate";
+
+  // Pick Image Card
+  static const IconData foodIcon = Icons.restaurant_outlined;
+  static const String foodScanDescription = "Snap a picture of your meal or pick one from your gallery";
+  static const String cameraButtonText = "Take Photo";
+  static const String galleryButtonText = "Gallery";
+  static const IconData productIcon = Icons.document_scanner;
+  static const String productScanDescription = "To get started, scan product front or choose from gallery!";
+  static const String scanNowButtonText = "Scan Now";
+
+  // Time-based greetings
+  static const String greetingMorning = "Good Morning";
+  static const String greetingAfternoon = "Good Afternoon";
+  static const String greetingEvening = "Good Evening";
 
   // Nutrient constants
   static const String calories = "calories";

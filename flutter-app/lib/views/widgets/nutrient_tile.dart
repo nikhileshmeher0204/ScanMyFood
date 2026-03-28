@@ -28,6 +28,7 @@ class _NutrientGridState extends State<NutrientGrid> {
                 goal: nutrient.goal,
                 healthSign: nutrient.healthSign,
                 quantity: nutrient.quantity,
+                unit: nutrient.unit,
                 dailyValue: nutrient.dailyValue,
                 insight: nutrient.insight,
               ))
@@ -41,8 +42,9 @@ class NutrientTile extends StatefulWidget {
   final String dvStatus;
   final String goal;
   final String healthSign;
-  final String quantity;
-  final String dailyValue;
+  final double quantity;
+  final String unit;
+  final double dailyValue;
   final String? insight;
 
   const NutrientTile({
@@ -52,6 +54,7 @@ class NutrientTile extends StatefulWidget {
     required this.goal,
     required this.healthSign,
     required this.quantity,
+    required this.unit,
     required this.dailyValue,
     this.insight,
   });
@@ -174,7 +177,7 @@ class _NutrientTileState extends State<NutrientTile>
                                         child: Container(),
                                       ),
                                       Text(
-                                        widget.quantity,
+                                        "${widget.quantity} ${widget.unit}",
                                         style: AppTextStyles.bodyLargeBold,
                                       ),
                                     ],
@@ -272,8 +275,9 @@ class NutrientData {
   final String healthSign;
   final String dvStatus;
   final String goal;
-  final String quantity;
-  final String dailyValue;
+  final double quantity;
+  final String unit;
+  final double dailyValue;
   final String? insight;
 
   NutrientData({
@@ -282,6 +286,7 @@ class NutrientData {
     required this.dvStatus,
     required this.goal,
     required this.quantity,
+    required this.unit,
     required this.dailyValue,
     this.insight,
   });

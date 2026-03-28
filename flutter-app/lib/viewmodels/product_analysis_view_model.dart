@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:read_the_label/core/constants/app_constants.dart';
+import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/models/quantity.dart';
@@ -68,6 +70,50 @@ class ProductAnalysisViewModel extends BaseViewModel {
         _nutritionLabelImage = File(image.path);
       }
       notifyListeners();
+    }
+  }
+
+  Future<void> handleImageCapture(BuildContext context, ImageSource source) async {
+    // First, capture front image
+    await captureImage(
+      source: source,
+      isFrontImage: true,
+    );
+
+    if (_frontImage != null) {
+      // Show dialog for nutrition label
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            title: Text(
+              'Now capture nutrition label',
+              style: AppTextStyles.heading2,
+            ),
+            content: Text(
+              'Please capture or select the nutrition facts label of the product',
+              style: AppTextStyles.bodyMedium,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await captureImage(
+                    source: source,
+                    isFrontImage: false,
+                  );
+                  if (canAnalyze()) {
+                    await analyzeImages();
+                  }
+                },
+                child: Text('Continue', style: AppTextStyles.buttonTextWhite),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 
