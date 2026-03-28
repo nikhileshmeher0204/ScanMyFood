@@ -13,6 +13,9 @@ class AppConstants {
   static const String foodScanDescription = "Snap a picture of your meal or pick one from your gallery";
   static const String cameraButtonText = "Take Photo";
   static const String galleryButtonText = "Gallery";
+  static const IconData productIcon = Icons.document_scanner;
+  static const String productScanDescription = "To get started, scan product front or choose from gallery!";
+  static const String scanNowButtonText = "Scan Now";
 
   // Time-based greetings
   static const String greetingMorning = "Good Morning";

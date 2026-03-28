@@ -152,12 +152,12 @@ class MealAnalysisViewModel extends BaseViewModel {
 
         var nutrientInfoItem = {
           'name': nutrientName,
-          'quantity': value.toStringAsFixed(1),
+          'quantity': value.toDouble(),
           'unit': matchingNutrient['Unit'] ?? '',
           'dv_status': dvStatus,
           'insight': nutrientInsights[nutrientName],
           'goal': goal,
-          'daily_value': dailyValuePercent.toStringAsFixed(1),
+          'daily_value': dailyValuePercent.toDouble(),
           'health_impact': healthImpact,
         };
 

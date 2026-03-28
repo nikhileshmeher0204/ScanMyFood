@@ -95,7 +95,7 @@ class NutritionAnalysis {
 class Nutrient {
   final String name;
   final Quantity quantity;
-  final String dailyValue;
+  final double dailyValue;
   final String dvStatus;
   final String goal;
   final String healthImpact;

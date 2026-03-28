@@ -179,7 +179,7 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
           'dv_status': dvStatus,
           'insight': nutrientInsights[nutrientName],
           'goal': goal,
-          'daily_value': dailyValuePercent.toStringAsFixed(1),
+          'daily_value': dailyValuePercent.toDouble(),
           'health_impact': healthImpact,
         };
 

@@ -42,9 +42,9 @@ class NutrientTile extends StatefulWidget {
   final String dvStatus;
   final String goal;
   final String healthSign;
-  final String quantity;
+  final double quantity;
   final String unit;
-  final String dailyValue;
+  final double dailyValue;
   final String? insight;
 
   const NutrientTile({
@@ -275,9 +275,9 @@ class NutrientData {
   final String healthSign;
   final String dvStatus;
   final String goal;
-  final String quantity;
+  final double quantity;
   final String unit;
-  final String dailyValue;
+  final double dailyValue;
   final String? insight;
 
   NutrientData({

@@ -44,84 +44,90 @@ class PickImageCard extends StatelessWidget {
         color: AppColors.onSurface.withOpacity(0.2),
         strokeWidth: 1,
         dashPattern: const [6, 4],
-        child: Column(
-          spacing: 20,
-          children: [
-            if (image != null)
-              Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image(
-                      image: FileImage(image!),
-                    ),
-                  ),
-                  if (isLoading)
-                    const Positioned.fill(
-                      left: 5,
-                      right: 5,
-                      top: 5,
-                      bottom: 5,
-                      child: rive.RiveAnimation.asset(
-                        'assets/riveAssets/qr_code_scanner.riv',
-                        fit: BoxFit.fill,
-                        artboard: 'scan_board',
-                        animations: ['anim1'],
-                        stateMachines: ['State Machine 1'],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10.0),
+          child: Column(
+            spacing: 20,
+            children: [
+              if (image != null)
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image(
+                        image: FileImage(image!),
                       ),
                     ),
+                    if (isLoading)
+                      const Positioned.fill(
+                        left: 5,
+                        right: 5,
+                        top: 5,
+                        bottom: 5,
+                        child: rive.RiveAnimation.asset(
+                          'assets/riveAssets/qr_code_scanner.riv',
+                          fit: BoxFit.fill,
+                          artboard: 'scan_board',
+                          animations: ['anim1'],
+                          stateMachines: ['State Machine 1'],
+                        ),
+                      ),
+                  ],
+                )
+              else
+                Icon(
+                  icon,
+                  size: 70,
+                  color: AppColors.onSurface.withOpacity(0.5),
+                ),
+              Text(
+                titleDescription,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.onSurface,
+                  fontSize: 14,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 16,
+                children: [
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.camera_alt_outlined,
+                        color: AppColors.primaryBlack),
+                    label: Text(cameraButtonText,
+                        style: AppTextStyles.buttonTextBlack),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      backgroundColor: AppColors.primaryWhite,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                    ),
+                    onPressed: () => onImageCapturePressed(ImageSource.camera),
+                  ),
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.photo_library,
+                        color: Theme.of(context).colorScheme.onPrimary),
+                    label: Text(galleryButtonText,
+                        style: AppTextStyles.buttonTextWhite),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      backgroundColor:
+                          Theme.of(context).colorScheme.cardBackground,
+                      foregroundColor: Theme.of(context).colorScheme.onSurface,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                    ),
+                    onPressed: () => onImageCapturePressed(ImageSource.gallery),
+                  ),
                 ],
-              )
-            else
-              Icon(
-                icon,
-                size: 70,
-                color: AppColors.onSurface.withOpacity(0.5),
               ),
-            Text(
-              titleDescription,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.onSurface,
-                fontSize: 14,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.camera_alt_outlined,
-                      color: AppColors.primaryBlack),
-                  label: Text(cameraButtonText, style: AppTextStyles.buttonTextBlack),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    backgroundColor: AppColors.primaryWhite,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                  ),
-                  onPressed: () => onImageCapturePressed(ImageSource.camera),
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton.icon(
-                  icon: Icon(Icons.photo_library,
-                      color: Theme.of(context).colorScheme.onPrimary),
-                  label: Text(galleryButtonText, style: AppTextStyles.buttonTextWhite),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    backgroundColor: Theme.of(context).colorScheme.cardBackground,
-                    foregroundColor: Theme.of(context).colorScheme.onSurface,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                  ),
-                  onPressed: () => onImageCapturePressed(ImageSource.gallery),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -203,13 +203,14 @@ class DailyIntakeViewModel extends BaseViewModel {
 
     // Perform calculations on the totalPlateNutrients
     for (FoodNutrient nutrient in totalScannedPlateNutrients) {
-      logger.i(
-          "Processing nutrient: ${nutrient.name} with value: ${nutrient.quantity.value} ${nutrient.quantity.unit}");
-
       double value = nutrient.quantity.value;
+      String unit = nutrient.quantity.unit;
       String dvStatus = '';
       String goal = '';
       String healthImpact = '';
+
+      logger.i(
+          "Processing nutrient: ${nutrient.name} with value: ${nutrient.quantity.value} ${nutrient.quantity.unit}");
 
       // Get the proper nutrient name for insights lookup
       String nutrientName =
@@ -266,12 +267,12 @@ class DailyIntakeViewModel extends BaseViewModel {
 
         var nutrientInfoItem = {
           'name': nutrientName,
-          'quantity':
-              '${value.toStringAsFixed(1)}${matchingNutrient['Unit'] ?? ''}',
+          'quantity': value,
+          'unit': unit,
           'dv_status': dvStatus,
           'insight': nutrientInsights[nutrientName],
           'goal': goal,
-          'daily_value': dailyValuePercent.toStringAsFixed(1),
+          'daily_value': dailyValuePercent.toDouble(),
           'health_impact': healthImpact,
         };
 

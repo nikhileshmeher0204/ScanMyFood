@@ -35,7 +35,7 @@ class FoodIntakeDetailSheetView extends StatelessWidget {
                     edges: [
                       EdgeBlur(
                         type: EdgeType.bottomEdge,
-                        size: 50,
+                        size: 80,
                         sigma: 5,
                         tintColor: Colors.black.withValues(alpha: 0.2),
                         controlPoints: [
@@ -112,6 +112,25 @@ class FoodIntakeDetailSheetView extends StatelessWidget {
                       ),
                     ),
                   ),
+                  Positioned(
+                    bottom: 16,
+                    left: 20,
+                    right: 20,
+                    child: Builder(
+                      builder: (context) {
+                        final vm = context.watch<DailyIntakeViewModel>();
+                        if (vm.loading) return const SizedBox.shrink();
+                        return Text(
+                          vm.scannedMealName,
+                          style: AppTextStyles.heading2Bold.copyWith(
+                            color: Colors.white.withValues(alpha: 0.9),
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
               Builder(
@@ -135,13 +154,6 @@ class FoodIntakeDetailSheetView extends StatelessWidget {
                       context.read<DailyIntakeViewModel>();
                   return Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Text(
-                          dailyIntakeProvider.scannedMealName,
-                          style: AppTextStyles.heading2BoldClose,
-                        ),
-                      ),
                       const SizedBox(height: 16),
 
                       // Food item cards

@@ -44,7 +44,7 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
         ),
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            padding: const EdgeInsets.symmetric(horizontal: 14.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -60,7 +60,8 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                           galleryButtonText: AppConstants.galleryButtonText,
                           image: mealAnalysisProvider.foodImage,
                           isLoading: isLoading,
-                          onImageCapturePressed: mealAnalysisProvider.handleFoodImageCapture,
+                          onImageCapturePressed:
+                              mealAnalysisProvider.handleFoodImageCapture,
                         );
                       },
                     );
