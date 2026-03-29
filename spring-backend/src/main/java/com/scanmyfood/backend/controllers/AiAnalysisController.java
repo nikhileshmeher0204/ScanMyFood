@@ -2,7 +2,6 @@ package com.scanmyfood.backend.controllers;
 
 import com.scanmyfood.backend.constants.ResponseCodeConstants;
 import com.scanmyfood.backend.models.*;
-import com.scanmyfood.backend.services.AiResponseProcessingService;
 import com.scanmyfood.backend.services.AiService;
 import com.scanmyfood.backend.services.UserIntakeService;
 import com.scanmyfood.backend.services.storage.FileStorageService;
@@ -15,23 +14,20 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Base64;
-import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/ai")
 public class AiAnalysisController {
     private final AiService aiService;
-    private final AiResponseProcessingService aiResponseProcessingService;
     private final UserIntakeService userIntakeService;
     private final FileStorageService fileStorageService;
 
 
     @Autowired
-    public AiAnalysisController(AiService aiService, AiResponseProcessingService aiResponseProcessingService, 
+    public AiAnalysisController(AiService aiService, 
                                 UserIntakeService userIntakeService, FileStorageService fileStorageService) {
         this.aiService = aiService;
-        this.aiResponseProcessingService = aiResponseProcessingService;
         this.userIntakeService = userIntakeService;
         this.fileStorageService = fileStorageService;
     }
@@ -41,20 +37,18 @@ public class AiAnalysisController {
             @RequestParam("frontImage") MultipartFile frontImage,
             @RequestParam("labelImage") MultipartFile labelImage) {
         log.info("Analyzing product images");
-        Map<String, Object> analysis = aiService.analyzeProductImages(frontImage, labelImage);
-        ProductAnalysisResponse processedAnalysis = aiResponseProcessingService.processProductImagesResponse(analysis);
+        ProductAnalysisResponse analysis = aiService.analyzeProductImages(frontImage, labelImage);
         log.info("Product images analyzed successfully");
-        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.PRODUCT_ANALYZED, processedAnalysis));
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.PRODUCT_ANALYZED, analysis));
     }
 
     @PostMapping(value = "/analyze/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<FoodAnalysisResponse>> analyzeFoodImage(
             @RequestParam("image") MultipartFile imageFile) {
         log.info("Analyzing food image");
-        Map<String, Object> analysis = aiService.analyzeFoodImage(imageFile);
-        FoodAnalysisResponse processedAnalysis = aiResponseProcessingService.processFoodImageResponse(analysis);
+        FoodAnalysisResponse analysis = aiService.analyzeFoodImage(imageFile);
         log.info("Food image analyzed successfully");
-        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.FOOD_ANALYZED, processedAnalysis));
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.FOOD_ANALYZED, analysis));
     }
 
     @PostMapping("/analyze/description")
@@ -62,10 +56,9 @@ public class AiAnalysisController {
             @RequestBody IntakeDescriptionRequest request) {
         log.info("Analyzing food description");
         String description = request.getDescription();
-        Map<String, Object> analysis = aiService.analyzeFoodDescription(description);
-        FoodAnalysisResponse processedAnalysis = aiResponseProcessingService.processFoodDescriptionResponse(analysis);
+        FoodAnalysisResponse analysis = aiService.analyzeFoodDescription(description);
         log.info("Food description analyzed successfully");
-        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.DESCRIPTION_ANALYZED, processedAnalysis));
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.DESCRIPTION_ANALYZED, analysis));
     }
 
     @PostMapping("/generate/intake-description-image")

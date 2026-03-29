@@ -1,7 +1,6 @@
 package com.scanmyfood.backend.mapper;
 
 import com.scanmyfood.backend.models.DailyIntakeRecord;
-import com.scanmyfood.backend.models.FoodItem;
 import com.scanmyfood.backend.models.FoodItemRecord;
 import org.apache.ibatis.annotations.*;
 
@@ -106,7 +105,7 @@ public interface UserIntakeMapper {
     );
 
     Integer insertProductLabel(
-            @Param("intakeName") String intakeName,
+            @Param("productName") String productName,
             @Param("category") String category,
             @Param("totalQuantityValue") double totalQuantityValue,
             @Param("totalQuantityUnit") String totalQuantityUnit,

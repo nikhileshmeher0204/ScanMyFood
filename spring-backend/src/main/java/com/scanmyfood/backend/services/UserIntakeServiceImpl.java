@@ -226,7 +226,21 @@ public class UserIntakeServiceImpl implements UserIntakeService {
             List<FoodNutrient> totalNutrients = new ArrayList<>();
             List<FoodItem> foodItems = new ArrayList<>();
             DailyIntakeRecord intakeRecord = userIntakeMapper.fetchIntakeById(userId, dailyIntakeId);
-            totalNutrients.add(new FoodNutrient(CALORIES, new Quantity(intakeRecord.getCaloriesValue(), intakeRecord.getCaloriesUnit())));
+            if (intakeRecord.getCaloriesValue() != null && intakeRecord.getCaloriesValue() != 0) {
+                totalNutrients.add(
+                        new FoodNutrient(
+                                CALORIES,
+                                new Quantity(intakeRecord.getCaloriesValue(), intakeRecord.getCaloriesUnit())
+                        )
+                );
+            } else if (intakeRecord.getEnergyValue() != null && intakeRecord.getEnergyValue() != 0) {
+                totalNutrients.add(
+                        new FoodNutrient(
+                                ENERGY,
+                                new Quantity(intakeRecord.getEnergyValue(), intakeRecord.getEnergyUnit())
+                        )
+                );
+            }
             totalNutrients.add(new FoodNutrient(PROTEIN, new Quantity(intakeRecord.getProteinValue(), intakeRecord.getProteinUnit())));
             totalNutrients.add(new FoodNutrient(TOTAL_CARBOHYDRATE, new Quantity(intakeRecord.getTotalCarbohydrateValue(), intakeRecord.getTotalCarbohydrateUnit())));
             totalNutrients.add(new FoodNutrient(TOTAL_FAT, new Quantity(intakeRecord.getTotalFatValue(), intakeRecord.getTotalFatUnit())));

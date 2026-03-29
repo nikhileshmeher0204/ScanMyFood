@@ -1,12 +1,12 @@
 package com.scanmyfood.backend.services;
 
+import com.scanmyfood.backend.models.FoodAnalysisResponse;
+import com.scanmyfood.backend.models.ProductAnalysisResponse;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Map;
-
 public interface AiService {
-    Map<String, Object> analyzeProductImages(MultipartFile frontImage, MultipartFile labelImage);
-    Map<String, Object> analyzeFoodImage(MultipartFile imageFile);
-    Map<String, Object> analyzeFoodDescription(String description);
+    ProductAnalysisResponse analyzeProductImages(MultipartFile frontImage, MultipartFile labelImage);
+    FoodAnalysisResponse analyzeFoodImage(MultipartFile imageFile);
+    FoodAnalysisResponse analyzeFoodDescription(String description);
     byte[] generateFoodImage(String foodDescription);
 }
