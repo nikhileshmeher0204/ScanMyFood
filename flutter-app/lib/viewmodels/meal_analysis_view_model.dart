@@ -125,6 +125,7 @@ class MealAnalysisViewModel extends BaseViewModel {
 
         // Calculate daily value percentage
         double dailyValuePercent = (value / currentDV) * 100;
+        dailyValuePercent = double.parse(dailyValuePercent.toStringAsFixed(2));
         logger.i("Calculated DV%: $dailyValuePercent");
 
         // Determine DV status
