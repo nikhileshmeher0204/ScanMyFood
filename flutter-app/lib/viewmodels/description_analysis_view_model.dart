@@ -115,6 +115,7 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
       logger.i(
           "Processing nutrient: ${nutrient.name} with value: ${nutrient.quantity}");
 
+      double value = nutrient.quantity.value;
       String dvStatus = '';
       String goal = '';
       String healthImpact = '';
@@ -147,6 +148,7 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
 
         // Calculate daily value percentage
         double dailyValuePercent = (nutrient.quantity.value / currentDV) * 100;
+        dailyValuePercent = double.parse(dailyValuePercent.toStringAsFixed(2));
         logger.i("Calculated DV%: $dailyValuePercent");
 
         // Determine DV status
@@ -174,8 +176,8 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
 
         var nutrientInfoItem = {
           'name': nutrientName,
-          'quantity':
-              '${nutrient.quantity.value.toStringAsFixed(1)}${matchingNutrient['Unit'] ?? ''}',
+          'quantity': value.toDouble(),
+          'unit': matchingNutrient['Unit'] ?? '',
           'dv_status': dvStatus,
           'insight': nutrientInsights[nutrientName],
           'goal': goal,

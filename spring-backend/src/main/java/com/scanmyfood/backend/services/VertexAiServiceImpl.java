@@ -1,10 +1,11 @@
 package com.scanmyfood.backend.services;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.scanmyfood.backend.models.FoodAnalysisResponse;
+import com.scanmyfood.backend.models.ProductAnalysisResponse;
 
 import com.scanmyfood.backend.constants.NutrientConstants;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class VertexAiServiceImpl implements AiService {
   private GenerativeModel imageGenerativeModel;
 
   @Override
-  public Map<String, Object> analyzeProductImages(MultipartFile frontImage, MultipartFile labelImage) {
+  public ProductAnalysisResponse analyzeProductImages(MultipartFile frontImage, MultipartFile labelImage) {
 
     try {
       String frontMimeType = determineMimeType(frontImage);
@@ -61,7 +62,7 @@ public class VertexAiServiceImpl implements AiService {
               {
                 "name": "nutrient name in snake_case from the list below",
                 "quantity": {"value": "Quantity of nutrient in per serving of food product", "unit": "unit in packet"},
-                "daily_value": "daily value percentage without %% symbol in per serving of food product",
+                "daily_value": 0,
                 "dv_status": "High/Moderate/Low based on calculated DV%%",
                 "goal": "Goal of consumption of a nutrient can be - 'At least' or 'Less than' based on recommended DV%%",
                 "health_impact": "Good/Moderate/Bad"
@@ -90,7 +91,7 @@ public class VertexAiServiceImpl implements AiService {
         4. Calculate DV%% using these reference values: 
            %s
            Formula: (nutrient_quantity_per_serving / daily_value_reference) × 100
-        5. Return calculated DV%%, and not the ones found in label
+        5. Return calculated DV%% in double, and not the ones found in label
         6. Do not include any extra characters or formatting outside of the JSON object
         7. Use accurate escape sequences for any special characters
         8. For primary_concerns, focus on major nutritional imbalances
@@ -122,9 +123,10 @@ public class VertexAiServiceImpl implements AiService {
       // Generate content
       GenerateContentResponse response = generativeModel.generateContent(content);
 
-      // Extract and parse JSON from response
+      // Extract JSON and deserialize directly into ProductAnalysisResponse
       String responseText = response.getCandidates(0).getContent().getParts(0).getText();
-      return extractJsonFromResponse(responseText);
+      String jsonString = extractJsonString(responseText);
+      return objectMapper.readValue(jsonString, ProductAnalysisResponse.class);
 
     } catch (Exception e) {
       logger.error("Error analyzing product images", e);
@@ -133,54 +135,49 @@ public class VertexAiServiceImpl implements AiService {
   }
 
   @Override
-  public Map<String, Object> analyzeFoodImage(MultipartFile imageFile) {
+  public FoodAnalysisResponse analyzeFoodImage(MultipartFile imageFile) {
     try {
       String foodMimeType = determineMimeType(imageFile);
-
 
       // Create prompt
       String prompt = """
               Analyze this food image and break down each visible food item.
               Provide response in this strict JSON format:
               {
-                "plate_analysis": {
                 "meal_name": "Name of the meal",
-                  "items": [
-                    {
-                      "food_name": "Name of the food item",
-                      "estimated_quantity": {
-                        "amount": 0,
-                        "unit": "g",
-                      },
-                      "nutrients_in_estimated_quantity": {
-                        "calories": {"value": 0, "unit": "kcal"},
-                        "protein": {"value": 0, "unit": "g"},
-                        "total_carbohydrate": {"value": 0, "unit": "g"},
-                        "total_fat": {"value": 0, "unit": "g"},
-                        "dietary_fiber": {"value": 0, "unit": "g"},
-                        "total_sugars": {"value": 0, "unit": "g"},
-                        "sodium": {"value": 0, "unit": "mg"},
-                      },
-                      "visual_cues": ["List of visual indicators used for estimation"],
-                      "position": "Description of item location in the image"
-                    }
-                  ],
-                  "total_plate_nutrients": {
-                    "calories": {"value": 0, "unit": "kcal"},
-                    "protein": {"value": 0, "unit": "g"},
-                    "total_carbohydrate": {"value": 0, "unit": "g"},
-                    "total_fat": {"value": 0, "unit": "g"},
-                    "dietary_fiber": {"value": 0, "unit": "g"},
-                    "total_sugars": {"value": 0, "unit": "g"},
-                    "sodium": {"value": 0, "unit": "mg"},
+                "analyzed_food_items": [
+                  {
+                    "name": "Name of the food item",
+                    "quantity": {
+                      "value": 0,
+                      "unit": "g"
+                    },
+                    "nutrients": [
+                      {"name": "calories", "quantity": {"value": 0, "unit": "kcal"}},
+                      {"name": "protein", "quantity": {"value": 0, "unit": "g"}},
+                      {"name": "total_carbohydrate", "quantity": {"value": 0, "unit": "g"}},
+                      {"name": "total_fat", "quantity": {"value": 0, "unit": "g"}},
+                      {"name": "dietary_fiber", "quantity": {"value": 0, "unit": "g"}},
+                      {"name": "total_sugars", "quantity": {"value": 0, "unit": "g"}},
+                      {"name": "sodium", "quantity": {"value": 0, "unit": "mg"}}
+                    ]
                   }
-                }
+                ],
+                "total_plate_nutrients": [
+                  {"name": "calories", "quantity": {"value": 0, "unit": "kcal"}},
+                  {"name": "protein", "quantity": {"value": 0, "unit": "g"}},
+                  {"name": "total_carbohydrate", "quantity": {"value": 0, "unit": "g"}},
+                  {"name": "total_fat", "quantity": {"value": 0, "unit": "g"}},
+                  {"name": "dietary_fiber", "quantity": {"value": 0, "unit": "g"}},
+                  {"name": "total_sugars", "quantity": {"value": 0, "unit": "g"}},
+                  {"name": "sodium", "quantity": {"value": 0, "unit": "mg"}}
+                ]
               }
               
               Consider:
               1. Use visual cues to estimate portions (size relative to plate, height of food, etc.)
               2. Take a deeper look into the container size of food, don't consider a zoomed in container to be a big container
-              3. Provide nutrients both per 100g and for estimated total quantity
+              3. Provide nutrients for the estimated total quantity of each food item
               4. Prioritize using values from the USDA FoodData Central database
               5. Consider common serving sizes and preparation methods
               6. Account for density and volume-to-weight conversions
@@ -196,9 +193,10 @@ public class VertexAiServiceImpl implements AiService {
       // Generate content
       GenerateContentResponse response = generativeModel.generateContent(content);
 
-      // Extract and parse JSON from response
+      // Extract JSON and deserialize directly into FoodAnalysisResponse
       String responseText = response.getCandidates(0).getContent().getParts(0).getText();
-      return extractJsonFromResponse(responseText);
+      String jsonString = extractJsonString(responseText);
+      return objectMapper.readValue(jsonString, FoodAnalysisResponse.class);
 
     } catch (Exception e) {
       logger.error("Error analyzing food image", e);
@@ -207,7 +205,7 @@ public class VertexAiServiceImpl implements AiService {
   }
 
   @Override
-  public Map<String, Object> analyzeFoodDescription(String description) {
+  public FoodAnalysisResponse analyzeFoodDescription(String description) {
     try {
       // Create prompt
       String prompt = """
@@ -218,36 +216,34 @@ public class VertexAiServiceImpl implements AiService {
 
           Generate nutritional info for each of the mentioned food items and their respective quantities and respond using this JSON schema:
           {
-            "meal_analysis": {
             "meal_name": "Name of the meal",
-              "items": [
-                {
-                  "food_name": "Name of the food item",
-                  "mentioned_quantity": {
-                    "amount": 0,
-                    "unit": "g",
-                  },
-                  "nutrients_in_mentioned_quantity": {
-                    "calories": {"value": 0, "unit": "kcal"},
-                    "protein": {"value": 0, "unit": "g"},
-                    "total_carbohydrate": {"value": 0, "unit": "g"},
-                    "total_fat": {"value": 0, "unit": "g"},
-                    "dietary_fiber": {"value": 0, "unit": "g"},
-                    "total_sugars": {"value": 0, "unit": "g"},
-                    "sodium": {"value": 0, "unit": "mg"},
-                  },
-                }
-              ],
-              "total_nutrients": {
-                "calories": {"value": 0, "unit": "kcal"},
-                "protein": {"value": 0, "unit": "g"},
-                "total_carbohydrate": {"value": 0, "unit": "g"},
-                "total_fat": {"value": 0, "unit": "g"},
-                "dietary_fiber": {"value": 0, "unit": "g"},
-                "total_sugars": {"value": 0, "unit": "g"},
-                "sodium": {"value": 0, "unit": "mg"},
+            "analyzed_food_items": [
+              {
+                "name": "Name of the food item",
+                "quantity": {
+                  "value": 0,
+                  "unit": "g"
+                },
+                "nutrients": [
+                  {"name": "calories", "quantity": {"value": 0, "unit": "kcal"}},
+                  {"name": "protein", "quantity": {"value": 0, "unit": "g"}},
+                  {"name": "total_carbohydrate", "quantity": {"value": 0, "unit": "g"}},
+                  {"name": "total_fat", "quantity": {"value": 0, "unit": "g"}},
+                  {"name": "dietary_fiber", "quantity": {"value": 0, "unit": "g"}},
+                  {"name": "total_sugars", "quantity": {"value": 0, "unit": "g"}},
+                  {"name": "sodium", "quantity": {"value": 0, "unit": "mg"}}
+                ]
               }
-            }
+            ],
+            "total_plate_nutrients": [
+              {"name": "calories", "quantity": {"value": 0, "unit": "kcal"}},
+              {"name": "protein", "quantity": {"value": 0, "unit": "g"}},
+              {"name": "total_carbohydrate", "quantity": {"value": 0, "unit": "g"}},
+              {"name": "total_fat", "quantity": {"value": 0, "unit": "g"}},
+              {"name": "dietary_fiber", "quantity": {"value": 0, "unit": "g"}},
+              {"name": "total_sugars", "quantity": {"value": 0, "unit": "g"}},
+              {"name": "sodium", "quantity": {"value": 0, "unit": "mg"}}
+            ]
           }
           
           
@@ -271,9 +267,10 @@ public class VertexAiServiceImpl implements AiService {
       // Generate content
       GenerateContentResponse response = generativeModel.generateContent(content);
 
-      // Extract and parse JSON from response
+      // Extract JSON and deserialize directly into FoodAnalysisResponse
       String responseText = response.getCandidates(0).getContent().getParts(0).getText();
-      return extractJsonFromResponse(responseText);
+      String jsonString = extractJsonString(responseText);
+      return objectMapper.readValue(jsonString, FoodAnalysisResponse.class);
 
     } catch (Exception e) {
       logger.error("Error analyzing food description", e);
@@ -383,16 +380,14 @@ public class VertexAiServiceImpl implements AiService {
     return mimeType;
   }
 
-  private Map<String, Object> extractJsonFromResponse(String responseText) throws IOException {
-    // Extract JSON from the response text using regex
+  private String extractJsonString(String responseText) throws IOException {
     Pattern pattern = Pattern.compile("\\{.*\\}", Pattern.DOTALL);
     Matcher matcher = pattern.matcher(responseText);
-
     if (matcher.find()) {
-      String jsonString = matcher.group(0);
-      return objectMapper.readValue(jsonString, HashMap.class);
+      return matcher.group(0);
     } else {
       throw new IOException("No valid JSON found in the response");
     }
   }
+
 }
