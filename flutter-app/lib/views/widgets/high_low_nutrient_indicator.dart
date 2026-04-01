@@ -6,12 +6,16 @@ class HighLowNutrientIndicator extends StatefulWidget {
   final String nutrientName;
   final String dvStatus;
   final String healthImpact;
+  final double quantity;
+  final String unit;
 
   const HighLowNutrientIndicator({
     super.key,
     required this.nutrientName,
     required this.dvStatus,
     required this.healthImpact,
+    required this.quantity,
+    required this.unit,
   });
 
   @override
@@ -63,13 +67,13 @@ class _HighLowNutrientIndicatorState extends State<HighLowNutrientIndicator>
   Widget build(BuildContext context) {
     String displayName = widget.nutrientName.toLowerCase();
     if (displayName.contains('total carbohydrate')) {
-      displayName = 'Carbs';
+      displayName = 'CARBS';
     } else if (displayName.contains('dietary fiber')) {
-      displayName = 'Fiber';
+      displayName = 'FIBER';
     } else if (displayName.contains('protein')) {
-      displayName = 'Protein';
+      displayName = 'PROTEIN';
     } else if (displayName.contains('total fat')) {
-      displayName = 'Fat';
+      displayName = 'FAT';
     } else {
       displayName = displayName[0].toUpperCase() + displayName.substring(1);
     }
@@ -81,31 +85,45 @@ class _HighLowNutrientIndicatorState extends State<HighLowNutrientIndicator>
         widget.dvStatus == 'High' ? Icons.arrow_upward : Icons.arrow_downward;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Row(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          AnimatedBuilder(
-            animation: _animation,
-            builder: (context, child) {
-              return Transform.translate(
-                offset: Offset(0, _animation.value),
-                child: child,
-              );
-            },
-            child: Icon(icon, color: iconColor, size: 16),
-          ),
-          const SizedBox(width: 6),
+          // Quantity and Unit in big font
           Text(
-            '${widget.dvStatus} $displayName',
-            style: AppTextStyles.bodyMediumBold.copyWith(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: 12,
-            ),
+            '${widget.quantity}${widget.unit}',
+            style: AppTextStyles.heading2Close
+                .copyWith(color: Colors.white, fontSize: 20),
+          ),
+          const SizedBox(height: 6),
+          // Arrow + Display Name below
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedBuilder(
+                animation: _animation,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, _animation.value),
+                    child: child,
+                  );
+                },
+                child: Icon(icon, color: iconColor, size: 14),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                displayName,
+                style: AppTextStyles.bodyMediumBold.copyWith(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ),
         ],
       ),

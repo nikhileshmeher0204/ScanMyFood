@@ -390,6 +390,8 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                   nutrientName: nutrient['name'],
                                   dvStatus: nutrient['dv_status'],
                                   healthImpact: nutrient['health_impact'],
+                                  quantity: nutrient['quantity'],
+                                  unit: nutrient['unit'],
                                 );
                               }).toList(),
                             );

@@ -33,7 +33,7 @@ class AppTextStyles {
     fontFamily: fontFamily,
     fontSize: 30,
     fontWeight: FontWeight.w400,
-    letterSpacing: -2.0,
+    letterSpacing: -1.0,
     height: 1.3,
   );
 
