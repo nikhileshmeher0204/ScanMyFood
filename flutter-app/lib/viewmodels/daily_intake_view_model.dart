@@ -33,7 +33,6 @@ class DailyIntakeViewModel extends BaseViewModel {
   String _scannedMealName = "Unknown Meal";
   Map<String, FoodNutrient>? _totalNutrientsMap;
   DateTime _selectedDate = DateTime.now();
-  final Map<String, Color> _colorCache = {};
   String _descriptionText = "";
   bool _isImageGenerating = false;
 
@@ -81,35 +80,7 @@ class DailyIntakeViewModel extends BaseViewModel {
     await getDailyIntake(user.uid, newDate);
   }
 
-  Future<Color> extractDominantColor(String? imagePath) async {
-    // Check cache first
-    if (_colorCache.containsKey(imagePath)) {
-      return _colorCache[imagePath]!;
-    }
 
-    try {
-      final imageProvider = FileImage(File(imagePath!));
-      final colorScheme = await ColorScheme.fromImageProvider(
-        provider: imageProvider,
-        brightness:
-            Brightness.dark, // Use dark for better contrast with white text
-      );
-
-      // Get the primary color and apply some opacity for the tint effect
-      final extractedColor = colorScheme.primary;
-
-      // Cache the result
-      _colorCache[imagePath] = extractedColor;
-
-      return extractedColor;
-    } catch (e) {
-      debugPrint("Error extracting color from image: $e");
-      // Return fallback color
-      final fallbackColor = Colors.black.withOpacity(0.3);
-      _colorCache[imagePath!] = fallbackColor;
-      return fallbackColor;
-    }
-  }
 
   Future<SaveIntakeOutput> saveScannedFood(String userId, File? foodImage,
       String source, FoodAnalysisResponse? foodAnalysis) async {

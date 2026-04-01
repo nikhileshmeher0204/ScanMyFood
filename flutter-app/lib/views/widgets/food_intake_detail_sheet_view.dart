@@ -7,6 +7,7 @@ import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/widgets/food_history_item_card.dart';
 import 'package:read_the_label/views/widgets/food_item_card.dart';
 import 'package:read_the_label/views/widgets/food_item_card_shimmer.dart';
@@ -14,18 +15,49 @@ import 'package:read_the_label/views/widgets/total_nutrients_card.dart';
 import 'package:read_the_label/views/widgets/total_nutrients_card_shimmer.dart';
 import 'package:soft_edge_blur/soft_edge_blur.dart';
 
-class FoodIntakeDetailSheetView extends StatelessWidget {
+class FoodIntakeDetailSheetView extends StatefulWidget {
   const FoodIntakeDetailSheetView({
     super.key,
-    required this.widget,
+    required this.itemCard,
   });
 
-  final FoodHistoryItemCard widget;
+  final FoodHistoryItemCard itemCard;
+
+  @override
+  State<FoodIntakeDetailSheetView> createState() =>
+      _FoodIntakeDetailSheetViewState();
+}
+
+class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
+  Color? _dominantColor;
+  bool _isFavorited = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _extractColor();
+  }
+
+  Future<void> _extractColor() async {
+    final imageUrl = widget.itemCard.item.imageUrl;
+    if (imageUrl == null || imageUrl.isEmpty) return;
+
+    final vm = context.read<UiViewModel>();
+    final color = await vm.extractDominantColor(imageUrl);
+
+    if (mounted) {
+      setState(() {
+        _dominantColor = color;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Material(
+      color: _dominantColor ?? Theme.of(context).scaffoldBackgroundColor,
       child: CupertinoPageScaffold(
+        backgroundColor: _dominantColor,
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -35,12 +67,13 @@ class FoodIntakeDetailSheetView extends StatelessWidget {
                     edges: [
                       EdgeBlur(
                         type: EdgeType.bottomEdge,
-                        size: 80,
-                        sigma: 5,
-                        tintColor: Colors.black.withValues(alpha: 0.2),
+                        size: 220,
+                        sigma: 8,
+                        tintColor: _dominantColor ??
+                            Colors.black.withValues(alpha: 0.2),
                         controlPoints: [
                           ControlPoint(
-                            position: 0.5,
+                            position: 0.2,
                             type: ControlPointType.visible,
                           ),
                           ControlPoint(
@@ -51,13 +84,13 @@ class FoodIntakeDetailSheetView extends StatelessWidget {
                       )
                     ],
                     child: Image.network(
-                      widget.item.imageUrl!,
+                      widget.itemCard.item.imageUrl!,
                       fit: BoxFit.cover,
-                      height: 150,
+                      height: 400,
                       width: double.infinity,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
-                          height: 150,
+                          height: 400,
                           width: double.infinity,
                           color: Colors.grey,
                           child: const Icon(Icons.broken_image,
@@ -67,7 +100,7 @@ class FoodIntakeDetailSheetView extends StatelessWidget {
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) return child;
                         return Container(
-                          height: 150,
+                          height: 400,
                           width: double.infinity,
                           color: Colors.grey.shade800,
                           child: Center(
@@ -91,11 +124,11 @@ class FoodIntakeDetailSheetView extends StatelessWidget {
                         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.1),
+                            color: Colors.white.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                             border: Border.all(
                               color:
-                                  AppColors.primaryWhite.withValues(alpha: 0.3),
+                                  AppColors.primaryWhite.withValues(alpha: 0.2),
                               width: 1,
                             ),
                           ),
@@ -113,20 +146,181 @@ class FoodIntakeDetailSheetView extends StatelessWidget {
                     ),
                   ),
                   Positioned(
-                    bottom: 16,
+                    top: 8,
+                    right: 8,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(25),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                              color:
+                                  AppColors.primaryWhite.withValues(alpha: 0.2),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                onPressed: () {},
+                                icon: Icon(
+                                  CupertinoIcons.share,
+                                  color: AppColors.primaryWhite
+                                      .withValues(alpha: 0.8),
+                                  size: 26,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {},
+                                icon: const Icon(
+                                  CupertinoIcons.delete,
+                                  color: Colors.redAccent,
+                                  size: 26,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 60,
                     left: 20,
                     right: 20,
                     child: Builder(
                       builder: (context) {
                         final vm = context.watch<DailyIntakeViewModel>();
                         if (vm.loading) return const SizedBox.shrink();
-                        return Text(
-                          vm.scannedMealName,
-                          style: AppTextStyles.heading2Bold.copyWith(
-                            color: Colors.white.withValues(alpha: 0.9),
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          spacing: 10,
+                          children: [
+                            Text(
+                              vm.scannedMealName,
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.heading2Bold.copyWith(
+                                color: Colors.white.withValues(alpha: 0.9),
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              "North Indian • 300 Calories • 1 Bowl • 10:00 AM",
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.bodyMediumBold.copyWith(
+                                color: Colors.white.withValues(alpha: 0.7),
+                                fontSize: 12,
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // Left Circle Button
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(25),
+                                  child: BackdropFilter(
+                                    filter:
+                                        ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color:
+                                            Colors.white.withValues(alpha: 0.1),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: AppColors.primaryWhite
+                                              .withValues(alpha: 0.2),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: IconButton(
+                                        padding: EdgeInsets.zero,
+                                        icon: const Icon(CupertinoIcons.plus,
+                                            color: Colors.white, size: 22),
+                                        onPressed: () {},
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                // Middle Pill Button
+                                ElevatedButton(
+                                  onPressed: () {},
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    foregroundColor: _dominantColor != null
+                                        ? HSLColor.fromColor(_dominantColor!)
+                                            .withLightness(0.3)
+                                            .toColor()
+                                        : Colors.black,
+                                    elevation: 0,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12, horizontal: 40),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.edit_rounded, size: 22),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        "Edit",
+                                        style: AppTextStyles.bodyMediumBold
+                                            .copyWith(
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                // Right Circle Button
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(25),
+                                  child: BackdropFilter(
+                                    filter:
+                                        ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color:
+                                            Colors.white.withValues(alpha: 0.1),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: AppColors.primaryWhite
+                                              .withValues(alpha: 0.2),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: IconButton(
+                                        padding: EdgeInsets.zero,
+                                        icon: Icon(
+                                          _isFavorited
+                                              ? CupertinoIcons.heart_solid
+                                              : CupertinoIcons.heart,
+                                          color: _isFavorited
+                                              ? Colors.redAccent
+                                              : Colors.white,
+                                          size: 24,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            _isFavorited = !_isFavorited;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         );
                       },
                     ),
@@ -157,25 +351,25 @@ class FoodIntakeDetailSheetView extends StatelessWidget {
                       const SizedBox(height: 16),
 
                       // Food item cards
-                      ...dailyIntakeProvider.analyzedScannedFoodItems
-                          .asMap()
-                          .entries
-                          .map((entry) => FoodItemCard(
-                                item: entry.value,
-                                index: entry.key,
-                              )),
+                      // ...dailyIntakeProvider.analyzedScannedFoodItems
+                      //     .asMap()
+                      //     .entries
+                      //     .map((entry) => FoodItemCard(
+                      //           item: entry.value,
+                      //           index: entry.key,
+                      //         )),
 
-                      TotalNutrientsCard(
-                        source: AppConstants.scanMeal,
-                        foodAnalysis: dailyIntakeProvider.intakeDetails,
-                        mealName: dailyIntakeProvider.scannedMealName,
-                        numberOfFoodItems:
-                            dailyIntakeProvider.analyzedScannedFoodItems.length,
-                        totalPlateNutrients:
-                            dailyIntakeProvider.totalScannedPlateNutrients,
-                        nutrientInfo: dailyIntakeProvider.nutrientInfo,
-                        showSaveOptions: false,
-                      ),
+                      // TotalNutrientsCard(
+                      //   source: AppConstants.scanMeal,
+                      //   foodAnalysis: dailyIntakeProvider.intakeDetails,
+                      //   mealName: dailyIntakeProvider.scannedMealName,
+                      //   numberOfFoodItems:
+                      //       dailyIntakeProvider.analyzedScannedFoodItems.length,
+                      //   totalPlateNutrients:
+                      //       dailyIntakeProvider.totalScannedPlateNutrients,
+                      //   nutrientInfo: dailyIntakeProvider.nutrientInfo,
+                      //   showSaveOptions: false,
+                      // ),
                     ],
                   );
                 },
