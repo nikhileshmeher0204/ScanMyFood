@@ -29,6 +29,14 @@ class AppTextStyles {
     height: 1.0,
   );
 
+  static TextStyle heading2Close = const TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 30,
+    fontWeight: FontWeight.w400,
+    letterSpacing: -2.0,
+    height: 1.3,
+  );
+
   static TextStyle heading2BoldClose = const TextStyle(
     fontFamily: fontFamily,
     fontSize: 30,

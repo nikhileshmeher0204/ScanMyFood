@@ -13,6 +13,9 @@ import 'package:read_the_label/views/widgets/food_item_card.dart';
 import 'package:read_the_label/views/widgets/food_item_card_shimmer.dart';
 import 'package:read_the_label/views/widgets/total_nutrients_card.dart';
 import 'package:read_the_label/views/widgets/total_nutrients_card_shimmer.dart';
+import 'package:read_the_label/views/widgets/list_tile.dart';
+import 'package:read_the_label/views/widgets/high_low_nutrient_indicator.dart';
+import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:soft_edge_blur/soft_edge_blur.dart';
 
 class FoodIntakeDetailSheetView extends StatefulWidget {
@@ -211,10 +214,10 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
-                              "North Indian • 300 Calories • 1 Bowl • 10:00 AM",
+                              "North Indian • 1 Serving • 10:00 AM",
                               textAlign: TextAlign.center,
                               style: AppTextStyles.bodyMediumBold.copyWith(
-                                color: Colors.white.withValues(alpha: 0.7),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 12,
                               ),
                             ),
@@ -334,43 +337,100 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                   );
 
                   if (isLoading) {
-                    return const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        FoodItemCardShimmer(),
-                        FoodItemCardShimmer(),
-                        TotalNutrientsCardShimmer(),
-                      ],
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          FoodItemCardShimmer(),
+                          FoodItemCardShimmer(),
+                          TotalNutrientsCardShimmer(),
+                        ],
+                      ),
                     );
                   }
 
                   final dailyIntakeProvider =
                       context.read<DailyIntakeViewModel>();
-                  return Column(
-                    children: [
-                      const SizedBox(height: 16),
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 16,
+                      children: [
+                        Builder(
+                          builder: (context) {
+                            final targetNutrients = <String>[
+                              AppConstants.protein,
+                              AppConstants.totalCarbohydrate,
+                              AppConstants.dietaryFiber,
+                              AppConstants.totalFat
+                            ];
 
-                      // Food item cards
-                      // ...dailyIntakeProvider.analyzedScannedFoodItems
-                      //     .asMap()
-                      //     .entries
-                      //     .map((entry) => FoodItemCard(
-                      //           item: entry.value,
-                      //           index: entry.key,
-                      //         )),
+                            final indicators =
+                                dailyIntakeProvider.nutrientInfo.where((n) {
+                              final name = n['name'] as String?;
+                              final status = n['dv_status'] as String?;
+                              return name != null &&
+                                  targetNutrients.contains(
+                                      NutrientUtils.toSnakeCase(name)) &&
+                                  (status == 'High' || status == 'Low');
+                            }).toList();
 
-                      // TotalNutrientsCard(
-                      //   source: AppConstants.scanMeal,
-                      //   foodAnalysis: dailyIntakeProvider.intakeDetails,
-                      //   mealName: dailyIntakeProvider.scannedMealName,
-                      //   numberOfFoodItems:
-                      //       dailyIntakeProvider.analyzedScannedFoodItems.length,
-                      //   totalPlateNutrients:
-                      //       dailyIntakeProvider.totalScannedPlateNutrients,
-                      //   nutrientInfo: dailyIntakeProvider.nutrientInfo,
-                      //   showSaveOptions: false,
-                      // ),
-                    ],
+                            if (indicators.isEmpty)
+                              return const SizedBox.shrink();
+
+                            return Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: indicators.map((nutrient) {
+                                return HighLowNutrientIndicator(
+                                  nutrientName: nutrient['name'],
+                                  dvStatus: nutrient['dv_status'],
+                                  healthImpact: nutrient['health_impact'],
+                                );
+                              }).toList(),
+                            );
+                          },
+                        ),
+                        Text(
+                          "Includes",
+                          style: AppTextStyles.heading2Close.copyWith(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontSize: 30,
+                          ),
+                        ),
+
+                        // Food item cards
+                        Column(
+                          children: dailyIntakeProvider.analyzedScannedFoodItems
+                              .asMap()
+                              .entries
+                              .map((entry) => AppListTile(
+                                    item: entry.value,
+                                    index: entry.key,
+                                  ))
+                              .toList(),
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: TotalNutrientsCard(
+                            source: AppConstants.scanMeal,
+                            foodAnalysis: dailyIntakeProvider.intakeDetails,
+                            mealName: dailyIntakeProvider.scannedMealName,
+                            numberOfFoodItems: dailyIntakeProvider
+                                .analyzedScannedFoodItems.length,
+                            totalPlateNutrients:
+                                dailyIntakeProvider.totalScannedPlateNutrients,
+                            nutrientInfo: dailyIntakeProvider.nutrientInfo,
+                            showSaveOptions: false,
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),

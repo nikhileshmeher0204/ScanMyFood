@@ -12,6 +12,7 @@ import 'package:read_the_label/models/user_intake_output.dart';
 import 'package:read_the_label/repositories/ai_repository_interface.dart';
 import 'package:read_the_label/repositories/intake_repository_interface.dart';
 import 'package:read_the_label/services/auth_service.dart';
+import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'base_view_model.dart';
 
@@ -79,8 +80,6 @@ class DailyIntakeViewModel extends BaseViewModel {
     _selectedDate = newDate;
     await getDailyIntake(user.uid, newDate);
   }
-
-
 
   Future<SaveIntakeOutput> saveScannedFood(String userId, File? foodImage,
       String source, FoodAnalysisResponse? foodAnalysis) async {
@@ -184,8 +183,7 @@ class DailyIntakeViewModel extends BaseViewModel {
           "Processing nutrient: ${nutrient.name} with value: ${nutrient.quantity.value} ${nutrient.quantity.unit}");
 
       // Get the proper nutrient name for insights lookup
-      String nutrientName =
-          keyMapping[nutrient.name.toLowerCase()] ?? nutrient.name;
+      String nutrientName = NutrientUtils.toTitleCase(nutrient.name);
       logger.i("Mapped nutrient name: $nutrientName");
 
       // Find the matching nutrient data
