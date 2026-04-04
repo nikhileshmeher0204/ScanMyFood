@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/quantity.dart';
@@ -20,6 +21,52 @@ class UiViewModel extends BaseViewModel {
   bool get loading => _isLoading;
   DateTime get selectedTime => _selectedTime;
   double get portionMultiplier => _portionMultiplier; // Add getter
+
+  final Map<String, Future<Color>> _dominantColorCache = {};
+
+  Future<Color> extractDominantColor(String? imagePathOrUrl) {
+    if (imagePathOrUrl == null || imagePathOrUrl.isEmpty) {
+      return Future.value(Colors.black.withValues(alpha: 0.3));
+    }
+
+    if (_dominantColorCache.containsKey(imagePathOrUrl)) {
+      return _dominantColorCache[imagePathOrUrl]!;
+    }
+
+    final future = _performColorExtraction(imagePathOrUrl);
+    _dominantColorCache[imagePathOrUrl] = future;
+    return future;
+  }
+
+  Future<Color> _performColorExtraction(String imagePathOrUrl) async {
+    try {
+      final ImageProvider imageProvider;
+      if (imagePathOrUrl.startsWith('http') ||
+          imagePathOrUrl.startsWith('https')) {
+        imageProvider = NetworkImage(imagePathOrUrl);
+      } else {
+        imageProvider = FileImage(File(imagePathOrUrl));
+      }
+
+      final colorScheme = await ColorScheme.fromImageProvider(
+        provider: imageProvider,
+        brightness: Brightness.light,
+      );
+
+      // Apple Music backgrounds are a dark, rich version of the image's dominant color.
+      // We grab the true vibrant color, and manually shape it to be a sleek dark background.
+      final seedColor = colorScheme.primary;
+      final hsl = HSLColor.fromColor(seedColor);
+
+      // Force it to be dark (lightness 0.15 - 0.2) but keep the rich hue and saturation
+      final darkBackground = hsl.withLightness(0.18).toColor();
+
+      return darkBackground;
+    } catch (e) {
+      debugPrint("Error extracting color from image: $e");
+      return Colors.black.withValues(alpha: 0.3);
+    }
+  }
 
   void setLoading(bool loading) {
     print("UiProvider: Setting loading to $loading");

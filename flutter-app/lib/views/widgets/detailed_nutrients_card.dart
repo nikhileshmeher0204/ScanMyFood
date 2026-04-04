@@ -122,7 +122,7 @@ class DetailedNutrientsCard extends StatelessWidget {
               childAspectRatio: 1.5,
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,
-              children: nutrientData
+              children: nutrientDataMap.values
                   .where((nutrient) {
                     final name = nutrient['Nutrient'];
                     final current =

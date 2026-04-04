@@ -24,7 +24,7 @@ public class VertexAIConfig {
     @Value("${google.cloud.location:us-central1}")
     private String location;
 
-    @Value("${vertex.ai.model.name:gemini-2.0-flash}")
+    @Value("${vertex.ai.model.name:gemini-2.5-flash}")
     private String MODEL_NAME;
 
     @Value("${vertex.ai.image.model.name:gemini-2.5-flash-image}")

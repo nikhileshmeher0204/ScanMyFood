@@ -9,6 +9,7 @@ import 'package:read_the_label/models/daily_intake_record.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/widgets/food_intake_detail_sheet_view.dart';
 import 'package:soft_edge_blur/soft_edge_blur.dart';
 
@@ -30,6 +31,7 @@ class FoodHistoryItemCard extends StatefulWidget {
 class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _shimmerController;
+  Color? _dominantColor;
 
   @override
   void initState() {
@@ -38,6 +40,21 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
       duration: const Duration(milliseconds: 5000),
       vsync: this,
     )..repeat();
+    _loadDominantColor();
+  }
+
+  void _loadDominantColor() async {
+    final imageUrl = widget.item.imageUrl;
+    if (imageUrl == null || imageUrl.isEmpty) return;
+
+    final vm = context.read<UiViewModel>();
+    final color = await vm.extractDominantColor(imageUrl);
+
+    if (mounted) {
+      setState(() {
+        _dominantColor = color;
+      });
+    }
   }
 
   @override
@@ -59,7 +76,7 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
       onTap: () {
         showCupertinoSheet<void>(
           context: context,
-          builder: (context) => FoodIntakeDetailSheetView(widget: widget),
+          builder: (context) => FoodIntakeDetailSheetView(itemCard: widget),
         );
         final userId =
             context.read<DailyIntakeViewModel>().authService.currentUser?.uid;

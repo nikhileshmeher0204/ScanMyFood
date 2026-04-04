@@ -109,6 +109,7 @@ class FoodItemCard extends StatelessWidget {
                     NutrientUtils.getNutrientValue(item, AppConstants.protein),
                 unit: NutrientUtils.getNutrientUnit(item, AppConstants.protein),
                 icon: Icons.fitness_center_outlined,
+                iconPath: NutrientUtils.getNutrientIcon(AppConstants.protein),
               ),
               FoodNutrientTile(
                 label: NutrientUtils.toTitleCase(AppConstants.carbohydrate),
@@ -117,6 +118,8 @@ class FoodItemCard extends StatelessWidget {
                 unit: NutrientUtils.getNutrientUnit(
                     item, AppConstants.totalCarbohydrate),
                 icon: Icons.grain_outlined,
+                iconPath:
+                    NutrientUtils.getNutrientIcon(AppConstants.carbohydrate),
               ),
               FoodNutrientTile(
                 label: NutrientUtils.toTitleCase(AppConstants.fat),
@@ -125,6 +128,7 @@ class FoodItemCard extends StatelessWidget {
                 unit:
                     NutrientUtils.getNutrientUnit(item, AppConstants.totalFat),
                 icon: Icons.opacity_outlined,
+                iconPath: NutrientUtils.getNutrientIcon(AppConstants.fat),
               ),
               FoodNutrientTile(
                 label: NutrientUtils.toTitleCase(AppConstants.dietaryFiber),
@@ -133,6 +137,8 @@ class FoodItemCard extends StatelessWidget {
                 unit: NutrientUtils.getNutrientUnit(
                     item, AppConstants.dietaryFiber),
                 icon: Icons.grass_outlined,
+                iconPath:
+                    NutrientUtils.getNutrientIcon(AppConstants.dietaryFiber),
               ),
               FoodNutrientTile(
                 label: NutrientUtils.toTitleCase(AppConstants.sugar),
@@ -141,6 +147,7 @@ class FoodItemCard extends StatelessWidget {
                 unit: NutrientUtils.getNutrientUnit(
                     item, AppConstants.totalSugars),
                 icon: Icons.cake_outlined,
+                iconPath: NutrientUtils.getNutrientIcon(AppConstants.sugar),
               ),
               FoodNutrientTile(
                 label: NutrientUtils.toTitleCase(AppConstants.sodium),
@@ -148,6 +155,7 @@ class FoodItemCard extends StatelessWidget {
                     NutrientUtils.getNutrientValue(item, AppConstants.sodium),
                 unit: NutrientUtils.getNutrientUnit(item, AppConstants.sodium),
                 icon: Icons.grain_sharp,
+                iconPath: NutrientUtils.getNutrientIcon(AppConstants.sodium),
               ),
             ],
           ),
