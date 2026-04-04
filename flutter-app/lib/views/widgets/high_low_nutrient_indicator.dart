@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
+import 'package:read_the_label/utils/nutrient_utils.dart';
 
 class HighLowNutrientIndicator extends StatefulWidget {
   final String nutrientName;
@@ -65,15 +67,15 @@ class _HighLowNutrientIndicatorState extends State<HighLowNutrientIndicator>
 
   @override
   Widget build(BuildContext context) {
-    String displayName = widget.nutrientName.toLowerCase();
-    if (displayName.contains('total carbohydrate')) {
-      displayName = 'CARBS';
-    } else if (displayName.contains('dietary fiber')) {
-      displayName = 'FIBER';
-    } else if (displayName.contains('protein')) {
-      displayName = 'PROTEIN';
-    } else if (displayName.contains('total fat')) {
-      displayName = 'FAT';
+    String displayName = NutrientUtils.toSnakeCase(widget.nutrientName);
+    if (displayName.contains(AppConstants.totalCarbohydrate)) {
+      displayName = 'Carbs';
+    } else if (displayName.contains(AppConstants.dietaryFiber)) {
+      displayName = 'Fiber';
+    } else if (displayName.contains(AppConstants.protein)) {
+      displayName = 'Protein';
+    } else if (displayName.contains(AppConstants.totalFat)) {
+      displayName = 'Fat';
     } else {
       displayName = displayName[0].toUpperCase() + displayName.substring(1);
     }
@@ -81,49 +83,45 @@ class _HighLowNutrientIndicatorState extends State<HighLowNutrientIndicator>
     final bool isGood = widget.healthImpact == 'Good';
     final Color iconColor =
         isGood ? Colors.greenAccent.shade400 : Colors.redAccent.shade400;
-    final IconData icon =
+    final IconData arrowIcon =
         widget.dvStatus == 'High' ? Icons.arrow_upward : Icons.arrow_downward;
 
+    final String? nutrientIcon =
+        NutrientUtils.getNutrientIcon(widget.nutrientName);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Quantity and Unit in big font
-          Text(
-            '${widget.quantity}${widget.unit}',
-            style: AppTextStyles.heading2Close
-                .copyWith(color: Colors.white, fontSize: 20),
+          AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              return Transform.translate(
+                offset: Offset(0, _animation.value),
+                child: child,
+              );
+            },
+            child: Icon(arrowIcon, color: iconColor, size: 12),
           ),
-          const SizedBox(height: 6),
-          // Arrow + Display Name below
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedBuilder(
-                animation: _animation,
-                builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(0, _animation.value),
-                    child: child,
-                  );
-                },
-                child: Icon(icon, color: iconColor, size: 14),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                displayName,
-                style: AppTextStyles.bodyMediumBold.copyWith(
-                  color: Colors.white.withValues(alpha: 0.7),
-                  fontSize: 12,
-                ),
-              ),
-            ],
+          const SizedBox(width: 4),
+          Text(
+            '${widget.dvStatus} $displayName',
+            style: AppTextStyles.bodyMediumBold.copyWith(
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 10,
+            ),
+          ),
+          Text(
+            ' • ${widget.quantity}${widget.unit}',
+            style: AppTextStyles.bodyMediumBold.copyWith(
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 10,
+            ),
           ),
         ],
       ),

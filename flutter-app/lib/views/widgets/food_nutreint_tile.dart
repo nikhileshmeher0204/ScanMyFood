@@ -7,6 +7,7 @@ class FoodNutrientTile extends StatelessWidget {
   final double value;
   final String unit;
   final IconData icon;
+  final String? iconPath;
 
   const FoodNutrientTile({
     super.key,
@@ -14,6 +15,7 @@ class FoodNutrientTile extends StatelessWidget {
     required this.value,
     required this.unit,
     required this.icon,
+    this.iconPath,
   });
 
   @override
@@ -26,16 +28,23 @@ class FoodNutrientTile extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: AppColors.secondaryGreen.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              icon,
-              color: AppColors.secondaryGreen,
-              size: 16,
+          SizedBox(
+            width: 28,
+            height: 28,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: iconPath != null
+                  ? Image.asset(
+                      iconPath!,
+                      width: 20,
+                      height: 20,
+                      fit: BoxFit.contain,
+                    )
+                  : Icon(
+                      icon,
+                      color: AppColors.secondaryGreen,
+                      size: 16,
+                    ),
             ),
           ),
           const SizedBox(width: 8),

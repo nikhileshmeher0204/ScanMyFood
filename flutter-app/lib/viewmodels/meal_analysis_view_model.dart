@@ -7,6 +7,7 @@ import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
+import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
 
 class MealAnalysisViewModel extends BaseViewModel {
@@ -75,18 +76,6 @@ class MealAnalysisViewModel extends BaseViewModel {
     // Clear previous data
     _nutrientInfo.clear();
 
-    // Map from nutrient keys to display names
-    Map<String, String> keyMapping = {
-      'calories': 'Energy',
-      'protein': 'Protein',
-      'total_carbohydrate': 'Carbohydrate',
-      'total_fat': 'Fat',
-      'dietary_fiber': 'Fiber',
-      'sodium': 'Sodium',
-      'total_sugars': 'Total Sugars',
-      'saturated_fat': 'Saturated Fat',
-    };
-
     // Perform calculations on the totalPlateNutrients
     for (FoodNutrient nutrient in totalScannedPlateNutrients) {
       logger.i(
@@ -98,18 +87,13 @@ class MealAnalysisViewModel extends BaseViewModel {
       String healthImpact = '';
 
       // Get the proper nutrient name for insights lookup
-      String nutrientName =
-          keyMapping[nutrient.name.toLowerCase()] ?? nutrient.name;
-      logger.i("Mapped nutrient name: $nutrientName");
+      String nutrientName = NutrientUtils.toTitleCase(nutrient.name);
+      logger.i("Nutrient name for lookup: $nutrientName");
 
       // Find the matching nutrient data
-      try {
-        var matchingNutrient = nutrientData.firstWhere(
-          (nutrient) =>
-              nutrient['Nutrient'].toString().toLowerCase() ==
-              nutrientName.toLowerCase(),
-        );
+      var matchingNutrient = nutrientDataMap[nutrientName];
 
+      if (matchingNutrient != null) {
         logger.i("Found matching nutrient: ${matchingNutrient['Nutrient']}");
 
         // Convert string values to numbers
@@ -164,9 +148,9 @@ class MealAnalysisViewModel extends BaseViewModel {
 
         _nutrientInfo.add(nutrientInfoItem);
         logger.i("Added nutrient info: $nutrientInfoItem");
-      } catch (e) {
+      } else {
         // Handle case where nutrient is not found in nutrientData
-        logger.w("Nutrient '$nutrientName' not found in nutrient data: $e");
+        logger.w("Nutrient '$nutrientName' not found in nutrient data");
       }
     }
 

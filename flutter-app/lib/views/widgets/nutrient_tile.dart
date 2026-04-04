@@ -168,6 +168,24 @@ class _NutrientTileState extends State<NutrientTile>
                                 children: [
                                   Row(
                                     children: [
+                                      SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: NutrientUtils.getNutrientIcon(
+                                                    widget.nutrient) !=
+                                                null
+                                            ? Align(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: Image.asset(
+                                                  NutrientUtils.getNutrientIcon(
+                                                      widget.nutrient)!,
+                                                  fit: BoxFit.contain,
+                                                ),
+                                              )
+                                            : null,
+                                      ),
+                                      const SizedBox(width: 8),
                                       Text(
                                         NutrientUtils.toTitleCase(
                                             widget.nutrient),

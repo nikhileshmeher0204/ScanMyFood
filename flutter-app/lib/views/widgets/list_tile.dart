@@ -37,8 +37,8 @@ class _AppListTileState extends State<AppListTile> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
+      // Slightly lighter background when expanded to give card expression
       decoration: BoxDecoration(
-        // Slightly lighter background when expanded to give card expression
         color: _isExpanded
             ? Colors.white.withValues(alpha: 0.05)
             : Colors.transparent,
@@ -205,8 +205,10 @@ class _AppListTileState extends State<AppListTile> {
   }
 
   Widget _buildNutrient(String label, double value, String unit) {
+    final String? nutrientIcon = NutrientUtils.getNutrientIcon(label);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white
             .withValues(alpha: 0.05), // highly translucent to blend with sheet
@@ -214,28 +216,48 @@ class _AppListTileState extends State<AppListTile> {
         border:
             Border.all(color: Colors.white.withValues(alpha: 0.1), width: 1),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Row(
         children: [
-          Text(
-            label,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: Colors.white.withValues(alpha: 0.6),
-              fontSize: 12,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: nutrientIcon != null
+                ? Align(
+                    alignment: Alignment.centerRight,
+                    child: Image.asset(
+                      nutrientIcon,
+                      fit: BoxFit.contain,
+                    ),
+                  )
+                : null,
           ),
-          const SizedBox(height: 2),
-          Text(
-            '$value $unit',
-            style: AppTextStyles.bodyMediumBold.copyWith(
-              color: Colors.white,
-              fontSize: 14,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  label,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    fontSize: 15,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 1),
+                Text(
+                  '$value $unit',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 13,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

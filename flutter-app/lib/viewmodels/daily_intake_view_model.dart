@@ -159,18 +159,6 @@ class DailyIntakeViewModel extends BaseViewModel {
     // Clear previous data
     _nutrientInfo.clear();
 
-    // Map from nutrient keys to display names
-    Map<String, String> keyMapping = {
-      'calories': 'Energy',
-      'protein': 'Protein',
-      'total_carbohydrate': 'Carbohydrate',
-      'total_fat': 'Fat',
-      'dietary_fiber': 'Fiber',
-      'sodium': 'Sodium',
-      'total_sugars': 'Total Sugars',
-      'saturated_fat': 'Saturated Fat',
-    };
-
     // Perform calculations on the totalPlateNutrients
     for (FoodNutrient nutrient in totalScannedPlateNutrients) {
       double value = nutrient.quantity.value;
@@ -184,16 +172,12 @@ class DailyIntakeViewModel extends BaseViewModel {
 
       // Get the proper nutrient name for insights lookup
       String nutrientName = NutrientUtils.toTitleCase(nutrient.name);
-      logger.i("Mapped nutrient name: $nutrientName");
+      logger.i("Nutrient name for lookup: $nutrientName");
 
       // Find the matching nutrient data
-      try {
-        var matchingNutrient = nutrientData.firstWhere(
-          (nutrient) =>
-              nutrient['Nutrient'].toString().toLowerCase() ==
-              nutrientName.toLowerCase(),
-        );
+      var matchingNutrient = nutrientDataMap[nutrientName];
 
+      if (matchingNutrient != null) {
         logger.i("Found matching nutrient: ${matchingNutrient['Nutrient']}");
 
         // Convert string values to numbers
@@ -248,9 +232,9 @@ class DailyIntakeViewModel extends BaseViewModel {
 
         _nutrientInfo.add(nutrientInfoItem);
         logger.i("Added nutrient info: $nutrientInfoItem");
-      } catch (e) {
+      } else {
         // Handle case where nutrient is not found in nutrientData
-        logger.w("Nutrient '$nutrientName' not found in nutrient data: $e");
+        logger.w("Nutrient '$nutrientName' not found in nutrient data");
       }
     }
 
