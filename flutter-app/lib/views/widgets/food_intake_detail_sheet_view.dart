@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/theme/app_colors.dart';
@@ -143,7 +144,7 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
-                                  "North Indian • 1 Serving • 10:00 AM",
+                                  "North Indian • 1 Serving • ${DateFormat('h:mm a').format(widget.itemCard.item.createdAt!)}",
                                   textAlign: TextAlign.center,
                                   style: AppTextStyles.bodyMediumBold.copyWith(
                                     color: Colors.white.withValues(alpha: 0.8),
@@ -303,9 +304,8 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                   AppConstants.totalFat
                                 ];
 
-                                final indicators = dailyIntakeProvider
-                                    .nutrientInfo
-                                    .where((n) {
+                                final indicators =
+                                    dailyIntakeProvider.nutrientInfo.where((n) {
                                   final name = n['name'] as String?;
                                   final status = n['dv_status'] as String?;
                                   return name != null &&
@@ -360,15 +360,15 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
 
                             // Food item cards
                             Column(
-                              children: dailyIntakeProvider
-                                  .analyzedScannedFoodItems
-                                  .asMap()
-                                  .entries
-                                  .map((entry) => AppListTile(
-                                        item: entry.value,
-                                        index: entry.key,
-                                      ))
-                                  .toList(),
+                              children:
+                                  dailyIntakeProvider.analyzedScannedFoodItems
+                                      .asMap()
+                                      .entries
+                                      .map((entry) => AppListTile(
+                                            item: entry.value,
+                                            index: entry.key,
+                                          ))
+                                      .toList(),
                             ),
 
                             Padding(
@@ -445,7 +445,8 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                           onPressed: () {},
                           icon: Icon(
                             CupertinoIcons.share,
-                            color: AppColors.primaryWhite.withValues(alpha: 0.8),
+                            color:
+                                AppColors.primaryWhite.withValues(alpha: 0.8),
                             size: 26,
                           ),
                         ),

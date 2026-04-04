@@ -46,6 +46,7 @@ class NutrientUtils {
     if (name.contains('fiber')) return 'assets/icons/fibre_icon.png';
     if (name.contains('sugar')) return 'assets/icons/sugar_icon.png';
     if (name.contains('sodium')) return 'assets/icons/sodium_icon.png';
+    if (name.contains('iron')) return 'assets/icons/iron_icon.png';
     if (name.contains('energy') || name.contains("calories")) {
       return 'assets/icons/energy_icon.png';
     }

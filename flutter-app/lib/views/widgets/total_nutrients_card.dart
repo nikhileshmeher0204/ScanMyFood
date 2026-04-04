@@ -51,7 +51,7 @@ class TotalNutrientsCard extends StatelessWidget {
         children: [
           Container(
             decoration: const BoxDecoration(
-              color: AppColors.primaryBlack,
+              color: AppColors.cardBackground,
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: Padding(
@@ -90,22 +90,64 @@ class TotalNutrientsCard extends StatelessWidget {
               spacing: 15,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: Column(
-                    children: nutrientInfo
-                        .map((nutrient) => NutrientTile(
-                              nutrient: nutrient['name'],
-                              dvStatus: nutrient['dv_status'],
-                              goal: nutrient['goal'],
-                              healthSign: nutrient['health_impact'],
-                              quantity: nutrient['quantity'],
-                              unit: nutrient['unit'],
-                              insight: nutrientInsights[nutrient['name']],
-                              dailyValue: nutrient['daily_value'],
-                            ))
-                        .toList(),
-                  ),
+                Builder(
+                  builder: (context) {
+                    final groupedNutrients =
+                        <String, List<Map<String, dynamic>>>{
+                      "Limit": [],
+                      "Insufficient": [],
+                      "Moderate": [],
+                      "Good": [],
+                    };
+
+                    for (var nutrient in nutrientInfo) {
+                      final dvStatus = nutrient['dv_status'] ?? "";
+                      final goal = nutrient['goal'] ?? "";
+
+                      String category;
+                      if ((dvStatus == "High" && goal == "At least") ||
+                          (dvStatus == "Low" && goal == "Less than")) {
+                        category = "Good";
+                      } else if (dvStatus == "Low" && goal == "At least") {
+                        category = "Insufficient";
+                      } else if (dvStatus == "High") {
+                        category = "Limit";
+                      } else {
+                        category = "Moderate";
+                      }
+                      groupedNutrients[category]!.add(nutrient);
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ..._buildNutrientSection(
+                          Icons.check_circle_rounded,
+                          "OPTIMAL QUANTITY",
+                          groupedNutrients["Good"]!,
+                          AppColors.secondaryGreen,
+                        ),
+                        ..._buildNutrientSection(
+                          Icons.info_rounded,
+                          "MODERATE QUANTITY",
+                          groupedNutrients["Moderate"]!,
+                          AppColors.secondaryOrange,
+                        ),
+                        ..._buildNutrientSection(
+                          Icons.warning_outlined,
+                          "EXCESSIVE QUANTITY",
+                          groupedNutrients["Limit"]!,
+                          AppColors.secondaryRed,
+                        ),
+                        ..._buildNutrientSection(
+                          Icons.warning_outlined,
+                          "LIMITED QUANTITY",
+                          groupedNutrients["Insufficient"]!,
+                          AppColors.secondaryRed,
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 EnergyDistributionBar(originalNutrients: totalPlateNutrients),
                 if (showSaveOptions) ...[
@@ -125,5 +167,52 @@ class TotalNutrientsCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  List<Widget> _buildNutrientSection(
+    IconData icon,
+    String title,
+    List<Map<String, dynamic>> nutrients,
+    Color color,
+  ) {
+    if (nutrients.isEmpty) return [];
+
+    return [
+      Padding(
+        padding: const EdgeInsets.only(top: 8.0, left: 8.0, bottom: 4),
+        child: Row(
+          spacing: 5,
+          children: [
+            Text(
+              title,
+              style: AppTextStyles.bodyLargeBold
+                  .copyWith(color: color, letterSpacing: -1.0),
+            ),
+            Icon(
+              icon,
+              color: color,
+              size: 18,
+            ),
+          ],
+        ),
+      ),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: Column(
+          children: nutrients
+              .map((nutrient) => NutrientTile(
+                    nutrient: nutrient['name'],
+                    dvStatus: nutrient['dv_status'],
+                    goal: nutrient['goal'],
+                    healthSign: nutrient['health_impact'],
+                    quantity: nutrient['quantity'],
+                    unit: nutrient['unit'],
+                    insight: nutrientInsights[nutrient['name']],
+                    dailyValue: nutrient['daily_value'],
+                  ))
+              .toList(),
+        ),
+      ),
+    ];
   }
 }

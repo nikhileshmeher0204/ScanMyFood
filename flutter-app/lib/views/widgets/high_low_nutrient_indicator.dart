@@ -106,14 +106,19 @@ class _HighLowNutrientIndicatorState extends State<HighLowNutrientIndicator>
                 child: child,
               );
             },
-            child: Icon(arrowIcon, color: iconColor, size: 12),
+            child: Icon(
+              arrowIcon,
+              color: iconColor,
+              size: 12,
+              fontWeight: FontWeight.w900,
+            ),
           ),
           const SizedBox(width: 4),
           Text(
             '${widget.dvStatus} $displayName',
             style: AppTextStyles.bodyMediumBold.copyWith(
               color: Colors.white.withValues(alpha: 0.7),
-              fontSize: 10,
+              fontSize: 12,
             ),
           ),
           Text(
