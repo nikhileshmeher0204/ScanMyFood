@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
@@ -76,6 +75,8 @@ class _HighLowNutrientIndicatorState extends State<HighLowNutrientIndicator>
       displayName = 'Protein';
     } else if (displayName.contains(AppConstants.totalFat)) {
       displayName = 'Fat';
+    } else if (displayName.contains(AppConstants.sugar)) {
+      displayName = 'Sugar';
     } else {
       displayName = displayName[0].toUpperCase() + displayName.substring(1);
     }
@@ -86,49 +87,55 @@ class _HighLowNutrientIndicatorState extends State<HighLowNutrientIndicator>
     final IconData arrowIcon =
         widget.dvStatus == 'High' ? Icons.arrow_upward : Icons.arrow_downward;
 
-    final String? nutrientIcon =
-        NutrientUtils.getNutrientIcon(widget.nutrientName);
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedBuilder(
-            animation: _animation,
-            builder: (context, child) {
-              return Transform.translate(
-                offset: Offset(0, _animation.value),
-                child: child,
-              );
-            },
-            child: Icon(
-              arrowIcon,
-              color: iconColor,
-              size: 12,
-              fontWeight: FontWeight.w900,
+      child: Padding(
+        padding: const EdgeInsets.all(2.0),
+        child: Column(
+          spacing: 2,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              '${widget.quantity}${widget.unit}',
+              style: AppTextStyles.heading2Close.copyWith(
+                color: Colors.white.withValues(alpha: 0.9),
+                fontSize: 20,
+              ),
             ),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            '${widget.dvStatus} $displayName',
-            style: AppTextStyles.bodyMediumBold.copyWith(
-              color: Colors.white.withValues(alpha: 0.7),
-              fontSize: 12,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedBuilder(
+                  animation: _animation,
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(0, _animation.value),
+                      child: child,
+                    );
+                  },
+                  child: Icon(
+                    arrowIcon,
+                    color: iconColor,
+                    size: 12,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  displayName.toUpperCase(),
+                  style: AppTextStyles.bodyMediumBold.copyWith(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 10,
+                  ),
+                ),
+              ],
             ),
-          ),
-          Text(
-            ' • ${widget.quantity}${widget.unit}',
-            style: AppTextStyles.bodyMediumBold.copyWith(
-              color: Colors.white.withValues(alpha: 0.7),
-              fontSize: 10,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
