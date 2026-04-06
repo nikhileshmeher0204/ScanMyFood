@@ -290,7 +290,7 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                           context.read<DailyIntakeViewModel>();
                       return Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 16,
@@ -301,7 +301,8 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                   AppConstants.protein,
                                   AppConstants.totalCarbohydrate,
                                   AppConstants.dietaryFiber,
-                                  AppConstants.totalFat
+                                  AppConstants.totalFat,
+                                  AppConstants.totalSugars,
                                 ];
 
                                 final indicators =
@@ -314,23 +315,14 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                       (status == 'High' || status == 'Low');
                                 }).toList();
 
-                                if (indicators.isEmpty)
+                                if (indicators.isEmpty) {
                                   return const SizedBox.shrink();
+                                }
 
                                 return Column(
                                   spacing: 20,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      "INDICATORS",
-                                      style:
-                                          AppTextStyles.bodyMediumBold.copyWith(
-                                        fontWeight: FontWeight.w800,
-                                        color:
-                                            Colors.white.withValues(alpha: 0.9),
-                                        fontSize: 15,
-                                      ),
-                                    ),
                                     Wrap(
                                       spacing: 8,
                                       runSpacing: 8,
@@ -349,19 +341,22 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                 );
                               },
                             ),
-                            Text(
-                              "INCLUDES",
-                              style: AppTextStyles.bodyMediumBold.copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white.withValues(alpha: 0.8),
-                                fontSize: 15,
-                              ),
-                            ),
-
-                            // Food item cards
+                            // Group Includes title and list to control internal spacing
                             Column(
-                              children:
-                                  dailyIntakeProvider.analyzedScannedFoodItems
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 8),
+                                Text(
+                                  "Includes",
+                                  style: AppTextStyles.heading2Close.copyWith(
+                                    color: AppColors.primaryWhite,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                // Food item cards
+                                Column(
+                                  children: dailyIntakeProvider
+                                      .analyzedScannedFoodItems
                                       .asMap()
                                       .entries
                                       .map((entry) => AppListTile(
@@ -369,6 +364,8 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                             index: entry.key,
                                           ))
                                       .toList(),
+                                ),
+                              ],
                             ),
 
                             Padding(
