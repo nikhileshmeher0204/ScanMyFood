@@ -7,6 +7,7 @@ import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/image_generation_response.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
+import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
 
 class DescriptionAnalysisViewModel extends BaseViewModel {
@@ -98,40 +99,24 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
     // Clear previous data
     _nutrientInfo.clear();
 
-    // Map from nutrient keys to display names
-    Map<String, String> keyMapping = {
-      'calories': 'Energy',
-      'protein': 'Protein',
-      'total_carbohydrate': 'Carbohydrate',
-      'total_fat': 'Fat',
-      'dietary_fiber': 'Fiber',
-      'sodium': 'Sodium',
-      'total_sugars': 'Total Sugars',
-      'saturated_fat': 'Saturated Fat',
-    };
-
     // Perform calculations on the totalPlateNutrients
     totalScannedPlateNutrients.forEach((nutrient) {
       logger.i(
           "Processing nutrient: ${nutrient.name} with value: ${nutrient.quantity}");
 
+      double value = nutrient.quantity.value;
       String dvStatus = '';
       String goal = '';
       String healthImpact = '';
 
       // Get the proper nutrient name for insights lookup
-      String nutrientName =
-          keyMapping[nutrient.name.toLowerCase()] ?? nutrient.name;
-      logger.i("Mapped nutrient name: $nutrientName");
+      String nutrientName = NutrientUtils.toTitleCase(nutrient.name);
+      logger.i("Nutrient name for lookup: $nutrientName");
 
       // Find the matching nutrient data
-      try {
-        var matchingNutrient = nutrientData.firstWhere(
-          (nutrient) =>
-              nutrient['Nutrient'].toString().toLowerCase() ==
-              nutrientName.toLowerCase(),
-        );
+      var matchingNutrient = nutrientDataMap[nutrientName];
 
+      if (matchingNutrient != null) {
         logger.i("Found matching nutrient: ${matchingNutrient['Nutrient']}");
 
         // Convert string values to numbers
@@ -147,6 +132,7 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
 
         // Calculate daily value percentage
         double dailyValuePercent = (nutrient.quantity.value / currentDV) * 100;
+        dailyValuePercent = double.parse(dailyValuePercent.toStringAsFixed(2));
         logger.i("Calculated DV%: $dailyValuePercent");
 
         // Determine DV status
@@ -174,8 +160,8 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
 
         var nutrientInfoItem = {
           'name': nutrientName,
-          'quantity':
-              '${nutrient.quantity.value.toStringAsFixed(1)}${matchingNutrient['Unit'] ?? ''}',
+          'quantity': value.toDouble(),
+          'unit': matchingNutrient['Unit'] ?? '',
           'dv_status': dvStatus,
           'insight': nutrientInsights[nutrientName],
           'goal': goal,
@@ -185,9 +171,9 @@ class DescriptionAnalysisViewModel extends BaseViewModel {
 
         _nutrientInfo.add(nutrientInfoItem);
         logger.i("Added nutrient info: $nutrientInfoItem");
-      } catch (e) {
+      } else {
         // Handle case where nutrient is not found in nutrientData
-        logger.w("Nutrient '$nutrientName' not found in nutrient data: $e");
+        logger.w("Nutrient '$nutrientName' not found in nutrient data");
       }
     });
 

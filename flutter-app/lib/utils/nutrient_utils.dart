@@ -21,6 +21,9 @@ class NutrientUtils {
   }
 
   static String toTitleCase(String nutrientName) {
+    final name = nutrientName.toLowerCase();
+    if (name == 'calories' || name == 'energy') return 'Energy';
+
     return nutrientName
         .split('_')
         .map((word) => word[0].toUpperCase() + word.substring(1))
@@ -33,5 +36,20 @@ class NutrientUtils {
         .split(' ')
         .map((word) => word.toLowerCase())
         .join('_');
+  }
+
+  static String? getNutrientIcon(String nutrientName) {
+    final name = nutrientName.toLowerCase();
+    if (name.contains('protein')) return 'assets/icons/protein_icon.png';
+    if (name.contains('carbohydrate')) return 'assets/icons/carbs_icon.png';
+    if (name.contains('fat')) return 'assets/icons/fat_icon.png';
+    if (name.contains('fiber')) return 'assets/icons/fibre_icon.png';
+    if (name.contains('sugar')) return 'assets/icons/sugar_icon.png';
+    if (name.contains('sodium')) return 'assets/icons/sodium_icon.png';
+    if (name.contains('iron')) return 'assets/icons/iron_icon.png';
+    if (name.contains('energy') || name.contains("calories")) {
+      return 'assets/icons/energy_icon.png';
+    }
+    return null;
   }
 }

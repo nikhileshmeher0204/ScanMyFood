@@ -38,16 +38,16 @@ class MealDescriptionAnalysisView extends StatelessWidget {
           ),
           child: Consumer<DescriptionAnalysisViewModel>(
             builder: (context, descriptionViewModel, _) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (descriptionViewModel.isLoading)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
+              return Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (descriptionViewModel.isLoading)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
                             'Analysis Results',
                             textAlign: TextAlign.left,
                             style: TextStyle(
@@ -56,21 +56,19 @@ class MealDescriptionAnalysisView extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Inter'),
                           ),
-                        ),
-                        const FoodItemCardShimmer(),
-                        const FoodItemCardShimmer(),
-                        const TotalNutrientsCardShimmer(),
-                      ],
-                    ),
-                  // Results Section
-                  if (descriptionViewModel.analyzedFoodItems.isNotEmpty &&
-                      !descriptionViewModel.isLoading)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
+                          const FoodItemCardShimmer(),
+                          const FoodItemCardShimmer(),
+                          const TotalNutrientsCardShimmer(),
+                        ],
+                      ),
+                    // Results Section
+                    if (descriptionViewModel.analyzedFoodItems.isNotEmpty &&
+                        !descriptionViewModel.isLoading)
+                      Column(
+                        spacing: 16,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
                             'Analysis Results',
                             style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSurface,
@@ -78,57 +76,57 @@ class MealDescriptionAnalysisView extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Inter'),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        ...descriptionViewModel.analyzedFoodItems
-                            .asMap()
-                            .entries
-                            .map((entry) => FoodItemCard(
-                                  item: entry.value,
-                                  index: entry.key,
-                                )),
-                        TotalNutrientsCard(
-                          source: AppConstants.scanDescription,
-                          mealName: descriptionViewModel.mealName,
-                          numberOfFoodItems:
-                              descriptionViewModel.analyzedFoodItems.length,
-                          totalPlateNutrients:
-                              descriptionViewModel.totalPlateNutrients,
-                          nutrientInfo: descriptionViewModel.nutrientInfo,
-                          foodAnalysis: descriptionViewModel.foodAnalysis,
-                          showSaveOptions: true,
-                        ),
-                      ],
-                    ),
-                  // No results state
-                  if (!descriptionViewModel.isLoading &&
-                      descriptionViewModel.analyzedFoodItems.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Center(
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.search_off,
-                              size: 64,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withOpacity(0.5),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No food items analyzed yet',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontSize: 18,
+                          ...descriptionViewModel.analyzedFoodItems
+                              .asMap()
+                              .entries
+                              .map((entry) => FoodItemCard(
+                                    item: entry.value,
+                                    index: entry.key,
+                                  )),
+                          TotalNutrientsCard(
+                            source: AppConstants.scanDescription,
+                            mealName: descriptionViewModel.mealName,
+                            numberOfFoodItems:
+                                descriptionViewModel.analyzedFoodItems.length,
+                            totalPlateNutrients:
+                                descriptionViewModel.totalPlateNutrients,
+                            nutrientInfo: descriptionViewModel.nutrientInfo,
+                            foodAnalysis: descriptionViewModel.foodAnalysis,
+                            showSaveOptions: true,
+                          ),
+                        ],
+                      ),
+                    // No results state
+                    if (!descriptionViewModel.isLoading &&
+                        descriptionViewModel.analyzedFoodItems.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Center(
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.search_off,
+                                size: 64,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.5),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 16),
+                              Text(
+                                'No food items analyzed yet',
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               );
             },
           ),

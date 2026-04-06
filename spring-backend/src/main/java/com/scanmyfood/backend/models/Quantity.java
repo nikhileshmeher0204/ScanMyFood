@@ -8,6 +8,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Quantity {
-    private double value;
+    private Double value;
     private String unit;
+
+    public void setValue(Double value) {
+        if (value != null){
+            this.value = Math.round(value * 100.0) / 100.0;
+        } else {
+            this.value = null;
+        }
+    }
 }

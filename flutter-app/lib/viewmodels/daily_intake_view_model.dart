@@ -12,6 +12,7 @@ import 'package:read_the_label/models/user_intake_output.dart';
 import 'package:read_the_label/repositories/ai_repository_interface.dart';
 import 'package:read_the_label/repositories/intake_repository_interface.dart';
 import 'package:read_the_label/services/auth_service.dart';
+import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'base_view_model.dart';
 
@@ -33,7 +34,6 @@ class DailyIntakeViewModel extends BaseViewModel {
   String _scannedMealName = "Unknown Meal";
   Map<String, FoodNutrient>? _totalNutrientsMap;
   DateTime _selectedDate = DateTime.now();
-  final Map<String, Color> _colorCache = {};
   String _descriptionText = "";
   bool _isImageGenerating = false;
 
@@ -79,36 +79,6 @@ class DailyIntakeViewModel extends BaseViewModel {
 
     _selectedDate = newDate;
     await getDailyIntake(user.uid, newDate);
-  }
-
-  Future<Color> extractDominantColor(String? imagePath) async {
-    // Check cache first
-    if (_colorCache.containsKey(imagePath)) {
-      return _colorCache[imagePath]!;
-    }
-
-    try {
-      final imageProvider = FileImage(File(imagePath!));
-      final colorScheme = await ColorScheme.fromImageProvider(
-        provider: imageProvider,
-        brightness:
-            Brightness.dark, // Use dark for better contrast with white text
-      );
-
-      // Get the primary color and apply some opacity for the tint effect
-      final extractedColor = colorScheme.primary;
-
-      // Cache the result
-      _colorCache[imagePath] = extractedColor;
-
-      return extractedColor;
-    } catch (e) {
-      debugPrint("Error extracting color from image: $e");
-      // Return fallback color
-      final fallbackColor = Colors.black.withOpacity(0.3);
-      _colorCache[imagePath!] = fallbackColor;
-      return fallbackColor;
-    }
   }
 
   Future<SaveIntakeOutput> saveScannedFood(String userId, File? foodImage,
@@ -189,18 +159,6 @@ class DailyIntakeViewModel extends BaseViewModel {
     // Clear previous data
     _nutrientInfo.clear();
 
-    // Map from nutrient keys to display names
-    Map<String, String> keyMapping = {
-      'calories': 'Energy',
-      'protein': 'Protein',
-      'total_carbohydrate': 'Carbohydrate',
-      'total_fat': 'Fat',
-      'dietary_fiber': 'Fiber',
-      'sodium': 'Sodium',
-      'total_sugars': 'Total Sugars',
-      'saturated_fat': 'Saturated Fat',
-    };
-
     // Perform calculations on the totalPlateNutrients
     for (FoodNutrient nutrient in totalScannedPlateNutrients) {
       double value = nutrient.quantity.value;
@@ -213,18 +171,13 @@ class DailyIntakeViewModel extends BaseViewModel {
           "Processing nutrient: ${nutrient.name} with value: ${nutrient.quantity.value} ${nutrient.quantity.unit}");
 
       // Get the proper nutrient name for insights lookup
-      String nutrientName =
-          keyMapping[nutrient.name.toLowerCase()] ?? nutrient.name;
-      logger.i("Mapped nutrient name: $nutrientName");
+      String nutrientName = NutrientUtils.toTitleCase(nutrient.name);
+      logger.i("Nutrient name for lookup: $nutrientName");
 
       // Find the matching nutrient data
-      try {
-        var matchingNutrient = nutrientData.firstWhere(
-          (nutrient) =>
-              nutrient['Nutrient'].toString().toLowerCase() ==
-              nutrientName.toLowerCase(),
-        );
+      var matchingNutrient = nutrientDataMap[nutrientName];
 
+      if (matchingNutrient != null) {
         logger.i("Found matching nutrient: ${matchingNutrient['Nutrient']}");
 
         // Convert string values to numbers
@@ -240,6 +193,7 @@ class DailyIntakeViewModel extends BaseViewModel {
 
         // Calculate daily value percentage
         double dailyValuePercent = (value / currentDV) * 100;
+        dailyValuePercent = double.parse(dailyValuePercent.toStringAsFixed(2));
         logger.i("Calculated DV%: $dailyValuePercent");
 
         // Determine DV status
@@ -278,9 +232,9 @@ class DailyIntakeViewModel extends BaseViewModel {
 
         _nutrientInfo.add(nutrientInfoItem);
         logger.i("Added nutrient info: $nutrientInfoItem");
-      } catch (e) {
+      } else {
         // Handle case where nutrient is not found in nutrientData
-        logger.w("Nutrient '$nutrientName' not found in nutrient data: $e");
+        logger.w("Nutrient '$nutrientName' not found in nutrient data");
       }
     }
 
