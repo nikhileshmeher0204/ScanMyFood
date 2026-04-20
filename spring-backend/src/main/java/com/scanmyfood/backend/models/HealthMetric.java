@@ -10,11 +10,8 @@ import lombok.Setter;
 @Table(name = "health_metrics")
 public class HealthMetric {
     @Id
+    @Column(name = "firebase_uid")
     private String firebaseUid;
-
-    @OneToOne
-    @JoinColumn(name = "firebase_uid", referencedColumnName = "firebaseUid")
-    private User user;
 
     private Integer heightFeet;
     private Integer heightInches;

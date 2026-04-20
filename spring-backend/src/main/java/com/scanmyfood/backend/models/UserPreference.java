@@ -11,11 +11,8 @@ import lombok.Setter;
 @Table(name = "user_preferences")
 public class UserPreference {
     @Id
+    @Column(name = "firebase_uid")
     private String firebaseUid;
-
-    @OneToOne
-    @JoinColumn(name = "firebase_uid", referencedColumnName = "firebaseUid")
-    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

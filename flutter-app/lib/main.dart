@@ -27,7 +27,9 @@ import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/screens/sign_in_screen.dart';
+import 'package:read_the_label/views/screens/settings_view.dart';
 import 'views/screens/home_page.dart';
+import 'package:read_the_label/views/widgets/auth_wrapper.dart';
 
 final logger = AppLogger();
 
@@ -68,12 +70,7 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.darkTheme(),
         initialRoute: '/',
         routes: {
-          '/': (context) => Consumer<User?>(builder: (context, user, _) {
-                if (user != null) {
-                  return const HomePage();
-                }
-                return const OnboardingGetstartedScreen();
-              }),
+          '/': (context) => const AuthWrapper(),
           '/sign-in': (context) => const SignInScreen(),
 
           // Onboarding flow
@@ -91,6 +88,7 @@ class MyApp extends StatelessWidget {
           '/food-analysis': (context) => const FoodAnalysisView(),
           '/meal-analysis': (context) => const MealDescriptionAnalysisView(),
           '/daily-intake': (context) => const DailyIntakeView(),
+          '/settings': (context) => const SettingsView(),
         },
       ),
     );

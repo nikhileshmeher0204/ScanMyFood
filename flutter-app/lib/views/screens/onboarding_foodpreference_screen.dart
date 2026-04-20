@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/main.dart';
+import 'package:read_the_label/repositories/user_repository.dart';
+import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/onboarding_view_model.dart';
@@ -15,7 +18,6 @@ class OnboardingFoodPreferenceScreen extends StatefulWidget {
 
 class _OnboardingFoodpreferenceScreenState
     extends State<OnboardingFoodPreferenceScreen> {
-  String _selectedCountry = "United States";
   final List<String> _countries = [
     "United States",
     "India",
@@ -29,9 +31,12 @@ class _OnboardingFoodpreferenceScreenState
     // Add more countries as needed
   ];
   int _selectedDietIndex = -1; // -1 means no selection
+  bool _isSaving = false;
 
   @override
   Widget build(BuildContext context) {
+    final onboardingViewModel = Provider.of<OnboardingViewModel>(context);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
@@ -116,7 +121,7 @@ class _OnboardingFoodpreferenceScreenState
                                 child: CupertinoButton(
                                   padding: EdgeInsets.zero,
                                   onPressed: () {
-                                    _showCountryPicker(context);
+                                    _showCountryPicker(context, onboardingViewModel);
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
@@ -127,7 +132,7 @@ class _OnboardingFoodpreferenceScreenState
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          _selectedCountry,
+                                          onboardingViewModel.selectedCountry,
                                           style: AppTextStyles.withColor(
                                             AppTextStyles.bodyLarge,
                                             AppColors.primaryWhite,
@@ -179,10 +184,62 @@ class _OnboardingFoodpreferenceScreenState
                           children: [
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                      context, '/onboarding-health-metrics');
-                                },
+                                onPressed: _isSaving
+                                    ? null
+                                    : () async {
+                                        setState(() {
+                                          _isSaving = true;
+                                        });
+
+                                        try {
+                                          final authService =
+                                              Provider.of<AuthService>(context,
+                                                  listen: false);
+                                          final userRepo =
+                                              Provider.of<UserRepository>(
+                                                  context,
+                                                  listen: false);
+                                          final user = authService.currentUser;
+
+                                          if (user == null) {
+                                            throw Exception(
+                                                "User not logged in");
+                                          }
+
+                                          await userRepo.saveUserPreferences(
+                                            firebaseUid: user.uid,
+                                            dietaryPreference:
+                                                onboardingViewModel
+                                                    .getDietaryPreferenceString(),
+                                            country: onboardingViewModel
+                                                .selectedCountry,
+                                          );
+
+                                          if (context.mounted) {
+                                            Navigator.pushNamed(context,
+                                                '/onboarding-health-metrics');
+                                          }
+                                        } catch (e) {
+                                          logger.e(
+                                              "Error saving preferences: $e");
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    "Failed to save preferences: ${e.toString()}"),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                          }
+                                        } finally {
+                                          if (mounted) {
+                                            setState(() {
+                                              _isSaving = false;
+                                            });
+                                          }
+                                        }
+                                      },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primaryWhite,
                                   foregroundColor: AppColors.primaryBlack,
@@ -194,10 +251,19 @@ class _OnboardingFoodpreferenceScreenState
                                     vertical: 16,
                                   ),
                                 ),
-                                child: Text(
-                                  "Continue",
-                                  style: AppTextStyles.buttonTextBlack,
-                                ),
+                                child: _isSaving
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: AppColors.primaryBlack,
+                                        ),
+                                      )
+                                    : Text(
+                                        "Continue",
+                                        style: AppTextStyles.buttonTextBlack,
+                                      ),
                               ),
                             ),
                           ],
@@ -212,7 +278,7 @@ class _OnboardingFoodpreferenceScreenState
     );
   }
 
-  void _showCountryPicker(BuildContext context) {
+  void _showCountryPicker(BuildContext context, OnboardingViewModel onboardingViewModel) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) {
@@ -265,12 +331,9 @@ class _OnboardingFoodpreferenceScreenState
                   backgroundColor: AppColors.cardBackground,
                   itemExtent: 40,
                   scrollController: FixedExtentScrollController(
-                    initialItem: _countries.indexOf(_selectedCountry),
+                    initialItem: _countries.indexOf(onboardingViewModel.selectedCountry),
                   ),
                   onSelectedItemChanged: (int index) {
-                    final onboardingViewModel =
-                        Provider.of<OnboardingViewModel>(context,
-                            listen: false);
                     onboardingViewModel.setCountry(_countries[index]);
                   },
                   children: _countries.map((String country) {

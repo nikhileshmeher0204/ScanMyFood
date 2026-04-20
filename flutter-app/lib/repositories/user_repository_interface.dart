@@ -24,22 +24,8 @@ abstract class UserRepositoryInterface {
   ///
   /// Parameters:
   /// - firebaseUid: The user's Firebase UID
-  /// - dietaryPreference: The user's dietary preference
-  /// - country: The user's country
-  /// - heightFeet: Height in feet
-  /// - heightInches: Height in inches
-  /// - weightKg: Weight in kilograms
-  /// - goal: Health goal
   /// Returns a Future that completes when the onboarding is complete
-  Future<void> completeOnboarding({
-    required String firebaseUid,
-    required String dietaryPreference,
-    required String country,
-    required int heightFeet,
-    required int heightInches,
-    required double weightKg,
-    required String goal,
-  });
+  Future<void> completeOnboarding({required String firebaseUid});
 
   /// Saves the user's dietary preferences and country
   ///

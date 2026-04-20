@@ -50,6 +50,17 @@ class UserSwitchCard extends StatelessWidget {
                 ),
               ],
             ),
+            const Spacer(),
+            IconButton(
+              icon: const Icon(
+                Icons.settings_rounded,
+                color: AppColors.primaryWhite,
+                size: 28,
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, '/settings');
+              },
+            ),
           ],
         ),
       ],

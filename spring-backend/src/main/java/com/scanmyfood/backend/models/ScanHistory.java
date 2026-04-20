@@ -16,7 +16,7 @@ public class ScanHistory {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "firebaseUid", nullable = false)
     private User user;
 
     @Column(nullable = false)
