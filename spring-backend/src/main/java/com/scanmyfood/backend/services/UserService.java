@@ -1,8 +1,6 @@
 package com.scanmyfood.backend.services;
 
-import com.scanmyfood.backend.models.HealthMetric;
 import com.scanmyfood.backend.models.User;
-import com.scanmyfood.backend.models.UserPreference;
 import com.scanmyfood.backend.mapper.UserMapper;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -63,19 +61,7 @@ public class UserService {
         // Ensure user exists
         getUserByFirebaseUid(firebaseUid);
 
-        HealthMetric existingMetric = userMapper.findHealthMetricByFirebaseUid(firebaseUid);
-        HealthMetric metric = new HealthMetric();
-        metric.setFirebaseUid(firebaseUid);
-        metric.setHeightFeet(heightFeet);
-        metric.setHeightInches(heightInches);
-        metric.setWeightKg(weightKg);
-        metric.setGoal(HealthMetric.Goal.valueOf(goal));
-
-        if (existingMetric == null) {
-            userMapper.insertHealthMetric(firebaseUid, metric);
-        } else {
-            userMapper.updateHealthMetric(firebaseUid, metric);
-        }
+        userMapper.updateHealthMetrics(firebaseUid, heightFeet, heightInches, weightKg, User.Goal.valueOf(goal));
     }
 
     @Transactional
@@ -83,17 +69,7 @@ public class UserService {
         // Ensure user exists
         getUserByFirebaseUid(firebaseUid);
 
-        UserPreference existingPreference = userMapper.findPreferenceByFirebaseUid(firebaseUid);
-        UserPreference preference = new UserPreference();
-        preference.setFirebaseUid(firebaseUid);
-        preference.setDietaryPreference(UserPreference.DietType.valueOf(dietaryPreference));
-        preference.setCountry(country);
-
-        if (existingPreference == null) {
-            userMapper.insertUserPreference(firebaseUid, preference);
-        } else {
-            userMapper.updateUserPreference(firebaseUid, preference);
-        }
+        userMapper.updatePreferences(firebaseUid, User.DietType.valueOf(dietaryPreference), country);
     }
 
     @Transactional

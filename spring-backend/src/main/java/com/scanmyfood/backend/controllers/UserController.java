@@ -68,22 +68,20 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.ONBOARDING_STATUS_CHECKED, response));
     }
 
-    @PostMapping("/preferences")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> saveUserPreferences(@RequestBody UserPreferencesRequest request) {
-        log.info("Saving preferences for user: {} - diet: {}, country: {}", request.getFirebaseUid(), request.getDietaryPreference(), request.getCountry());
-
-        userService.saveUserPreferences(request.getFirebaseUid(), request.getDietaryPreference(), request.getCountry());
-
-        return ResponseEntity.ok(ApiResponse.success(Map.of(
-                "success", true,
-                "message", "Preferences saved successfully"
-        ), ResponseCodeConstants.PREFERENCES_SAVED, "Preferences saved successfully"));
+    @PutMapping("/preferences")
+    public ResponseEntity<ApiResponse<Void>> savePreferences(@RequestBody UserPreferencesRequest request) {
+        log.info("Saving preferences for user {}", request.getFirebaseUid());
+        userService.saveUserPreferences(
+                request.getFirebaseUid(),
+                request.getDietaryPreference(),
+                request.getCountry()
+        );
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.PREFERENCES_SAVED, null));
     }
 
-    @PostMapping("/health-metrics")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> saveHealthMetrics(@RequestBody HealthMetricsRequest request) {
-        log.info("Saving health metrics for user: {}", request.getFirebaseUid());
-
+    @PutMapping("/health-metrics")
+    public ResponseEntity<ApiResponse<Void>> saveHealthMetrics(@RequestBody HealthMetricsRequest request) {
+        log.info("Saving health metrics for user {}", request.getFirebaseUid());
         userService.saveHealthMetrics(
                 request.getFirebaseUid(),
                 request.getHeightFeet(),
@@ -91,10 +89,6 @@ public class UserController {
                 request.getWeightKg(),
                 request.getGoal()
         );
-
-        return ResponseEntity.ok(ApiResponse.success(Map.of(
-                "success", true,
-                "message", "Health metrics saved successfully"
-        ), ResponseCodeConstants.HEALTH_METRICS_SAVED, "Health metrics saved successfully"));
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.HEALTH_METRICS_SAVED, null));
     }
 }
