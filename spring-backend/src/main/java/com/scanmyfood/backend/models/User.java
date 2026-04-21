@@ -16,6 +16,9 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(nullable = false, unique = true)
     private String firebaseUid;
 
@@ -27,17 +30,24 @@ public class User {
 
     private String displayName;
 
+    // Denormalized Preference Fields
+    @Enumerated(EnumType.STRING)
+    private DietType dietaryPreference;
+    private String country;
+
+    // Denormalized Health Metric Fields
+    private Integer heightFeet;
+    private Integer heightInches;
+    private Double weightKg;
+
+    @Enumerated(EnumType.STRING)
+    private Goal goal;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private UserPreference userPreference;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private HealthMetric healthMetric;
 
     @PrePersist
     protected void onCreate() {
@@ -48,5 +58,14 @@ public class User {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    // Enums
+    public enum DietType {
+        VEG, NON_VEG, VEGAN
+    }
+
+    public enum Goal {
+        BALANCED_DIET, MUSCLE_GAIN, WEIGHT_LOSS
     }
 }

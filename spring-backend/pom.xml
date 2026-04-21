@@ -101,6 +101,9 @@
 							<artifactId>lombok</artifactId>
 						</path>
 					</annotationProcessorPaths>
+					<compilerArgs>
+						<arg>-parameters</arg>
+					</compilerArgs>
 				</configuration>
 			</plugin>
 			<plugin>

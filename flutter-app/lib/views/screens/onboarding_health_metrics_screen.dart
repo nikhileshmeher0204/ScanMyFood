@@ -27,6 +27,7 @@ class _OnboardingHealthMetricsScreenState
   int _selectedWeight = 65; // Default weight in kg instead of 140 lb
 
   int _selectedGoalIndex = -1;
+  bool _isSaving = false;
 
   @override
   Widget build(BuildContext context) {
@@ -182,58 +183,71 @@ class _OnboardingHealthMetricsScreenState
                           children: [
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () async {
-                                  try {
-                                    final authService =
-                                        Provider.of<AuthService>(context,
-                                            listen: false);
-                                    final user = authService.currentUser;
-                                    if (user == null) {
-                                      logger.e(
-                                          'User is null, cannot complete onboarding');
-                                      return;
-                                    }
+                                onPressed: _isSaving
+                                    ? null
+                                    : () async {
+                                        setState(() {
+                                          _isSaving = true;
+                                        });
+                                        try {
+                                          final authService =
+                                              Provider.of<AuthService>(context,
+                                                  listen: false);
+                                          final user = authService.currentUser;
+                                          if (user == null) {
+                                            logger.e(
+                                                'User is null, cannot complete onboarding');
+                                            return;
+                                          }
 
-                                    // Single API call to complete all onboarding data
-                                    await userRepo.completeOnboarding(
-                                      firebaseUid: user.uid,
-                                      dietaryPreference: onboardingViewModel
-                                          .getDietaryPreferenceString(),
-                                      country:
-                                          onboardingViewModel.selectedCountry,
-                                      heightFeet: onboardingViewModel
-                                          .selectedHeightFeet,
-                                      heightInches: onboardingViewModel
-                                          .selectedHeightInches,
-                                      weightKg: onboardingViewModel
-                                          .selectedWeight
-                                          .toDouble(),
-                                      goal: onboardingViewModel.getGoalString(),
-                                    );
+                                          // 1. Save Health Metrics
+                                          await userRepo.saveHealthMetrics(
+                                            firebaseUid: user.uid,
+                                            heightFeet: onboardingViewModel
+                                                .selectedHeightFeet,
+                                            heightInches: onboardingViewModel
+                                                .selectedHeightInches,
+                                            weightKg: onboardingViewModel
+                                                .selectedWeight
+                                                .toDouble(),
+                                            goal: onboardingViewModel
+                                                .getGoalString(),
+                                          );
 
-                                    // Navigate to home screen
-                                    if (context.mounted) {
-                                      Navigator.pushNamedAndRemoveUntil(
-                                        context,
-                                        '/home',
-                                        (route) => false,
-                                      );
-                                    }
-                                  } catch (e) {
-                                    logger.e('Error completing onboarding: $e');
-                                    // Show error to user
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                              'Error saving information: ${e.toString()}'),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                    }
-                                  }
-                                },
+                                          // 2. Complete onboarding (marks flag in DB)
+                                          await userRepo.completeOnboarding(
+                                              firebaseUid: user.uid);
+
+                                          // Navigate to home screen
+                                          if (context.mounted) {
+                                            Navigator.pushNamedAndRemoveUntil(
+                                              context,
+                                              '/home',
+                                              (route) => false,
+                                            );
+                                          }
+                                        } catch (e) {
+                                          logger.e(
+                                              'Error completing onboarding: $e');
+                                          // Show error to user
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    'Error saving information: ${e.toString()}'),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                          }
+                                        } finally {
+                                          if (mounted) {
+                                            setState(() {
+                                              _isSaving = false;
+                                            });
+                                          }
+                                        }
+                                      },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primaryWhite,
                                   foregroundColor: AppColors.primaryBlack,
@@ -245,10 +259,19 @@ class _OnboardingHealthMetricsScreenState
                                     vertical: 16,
                                   ),
                                 ),
-                                child: Text(
-                                  "Continue",
-                                  style: AppTextStyles.buttonTextBlack,
-                                ),
+                                child: _isSaving
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: AppColors.primaryBlack,
+                                        ),
+                                      )
+                                    : Text(
+                                        "Continue",
+                                        style: AppTextStyles.buttonTextBlack,
+                                      ),
                               ),
                             ),
                           ],
