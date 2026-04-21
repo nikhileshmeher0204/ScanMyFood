@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
-import 'package:read_the_label/repositories/user_repository.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
@@ -475,73 +474,9 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
 
                                                   logger.i(
                                                       "Successfully signed in with Google: ${user.email}");
-
-                                                  final userRepository =
-                                                      Provider.of<
-                                                              UserRepository>(
-                                                          context,
-                                                          listen: false);
-                                                  final isNewUser =
-                                                      await userRepository
-                                                          .isNewUser();
-                                                  logger.i(
-                                                      "Is new user: $isNewUser");
-
-                                                  if (isNewUser) {
-                                                    await userRepository
-                                                        .createUser(
-                                                      user.uid,
-                                                      user.email ?? "",
-                                                      user.displayName ?? "",
-                                                    );
-                                                    // New user - go through onboarding
-                                                    logger.i(
-                                                        "Navigating to onboarding flow");
-                                                    if (context.mounted) {
-                                                      Navigator.pushNamed(
-                                                          context,
-                                                          '/onboarding-food-preference');
-                                                    }
-                                                  } else {
-                                                    // Check if User onboarding completed
-                                                    logger.i(
-                                                        "Checking if onboarding is completed");
-                                                    final onboardingCompleted =
-                                                        await userRepository
-                                                            .isOnboardingComplete(
-                                                      firebaseUid: user.uid,
-                                                    );
-
-                                                    if (!onboardingCompleted) {
-                                                      logger.i(
-                                                          "User onboarding not completed");
-                                                      logger.i(
-                                                          "Navigating to onboarding flow");
-                                                      if (context.mounted) {
-                                                        Navigator.pushNamed(
-                                                            context,
-                                                            '/onboarding-food-preference');
-                                                      }
-                                                    } else {
-                                                      logger.i(
-                                                          "User onboarding completed");
-                                                      // Existing user - straight to home
-                                                      logger.i(
-                                                          "Navigating directly to home");
-
-                                                      if (context.mounted) {
-                                                        // Get user data here if needed (preferences, etc.)
-                                                        // await userRepository.getUserDetails();
-
-                                                        Navigator
-                                                            .pushNamedAndRemoveUntil(
-                                                          context,
-                                                          '/home',
-                                                          (route) => false,
-                                                        );
-                                                      }
-                                                    }
-                                                  }
+                                                  
+                                                  // No manual navigation here - AuthWrapper in main.dart
+                                                  // will automatically react to the auth change.
                                                 }
                                               } else {
                                                 // User cancelled the sign-in flow

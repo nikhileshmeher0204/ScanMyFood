@@ -1,4 +1,10 @@
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/models/create_user_request.dart';
+import 'package:read_the_label/models/health_metrics_request.dart';
+import 'package:read_the_label/models/onboarding_request.dart';
+import 'package:read_the_label/models/onboarding_status_response.dart';
+import 'package:read_the_label/models/user_check_response.dart';
+import 'package:read_the_label/models/user_preferences_request.dart';
 import 'package:read_the_label/repositories/api_client.dart';
 import 'package:read_the_label/repositories/user_repository_interface.dart';
 
@@ -20,8 +26,8 @@ class UserRepository implements UserRepositoryInterface {
       logger.d('Response: $response');
       if (response is Map && response.containsKey('data')) {
         final data = response['data'];
-        if (data is Map && data.containsKey('isNewUser')) {
-          return data['isNewUser'] ?? true;
+        if (data is Map<String, dynamic>) {
+          return UserCheckResponse.fromJson(data).isNewUser;
         }
       }
       logger.w('Could not parse isNewUser from response');
@@ -41,8 +47,8 @@ class UserRepository implements UserRepositoryInterface {
 
       if (response is Map && response.containsKey('data')) {
         final data = response['data'];
-        if (data is Map && data.containsKey('isOnboardingComplete')) {
-          return data['isOnboardingComplete'] ?? true;
+        if (data is Map<String, dynamic>) {
+          return OnboardingStatusResponse.fromJson(data).isOnboardingComplete;
         }
       }
       logger.w('Could not parse isOnboardingComplete from response');
@@ -56,28 +62,13 @@ class UserRepository implements UserRepositoryInterface {
   @override
   Future<void> completeOnboarding({
     required String firebaseUid,
-    required String dietaryPreference,
-    required String country,
-    required int heightFeet,
-    required int heightInches,
-    required double weightKg,
-    required String goal,
   }) async {
     logger.d('Completing onboarding...');
     try {
-      await _apiClient.post('/users/complete-onboarding', {
-        'firebaseUid': firebaseUid,
-        'preferences': {
-          'dietaryPreference': dietaryPreference,
-          'country': country,
-        },
-        'healthMetrics': {
-          'heightFeet': heightFeet,
-          'heightInches': heightInches,
-          'weightKg': weightKg,
-          'goal': goal,
-        }
-      });
+      final request = OnboardingRequest(
+        firebaseUid: firebaseUid,
+      );
+      await _apiClient.post('/users/complete-onboarding', request.toJson());
       logger.d('Onboarding completed successfully');
     } catch (e) {
       logger.e('Failed to complete onboarding: $e');
@@ -92,11 +83,12 @@ class UserRepository implements UserRepositoryInterface {
     required String country,
   }) async {
     logger.d('Saving user preferences...');
-    await _apiClient.post('/users/preferences', {
-      'firebaseUid': firebaseUid,
-      'dietaryPreference': dietaryPreference,
-      'country': country,
-    });
+    final request = UserPreferencesRequest(
+      firebaseUid: firebaseUid,
+      dietaryPreference: dietaryPreference,
+      country: country,
+    );
+    await _apiClient.post('/users/preferences', request.toJson());
   }
 
   @override
@@ -108,23 +100,25 @@ class UserRepository implements UserRepositoryInterface {
     required String goal,
   }) async {
     logger.d('Saving health metrics...');
-    await _apiClient.post('/users/health-metrics', {
-      'firebaseUid': firebaseUid,
-      'heightFeet': heightFeet,
-      'heightInches': heightInches,
-      'weightKg': weightKg,
-      'goal': goal,
-    });
+    final request = HealthMetricsRequest(
+      firebaseUid: firebaseUid,
+      heightFeet: heightFeet,
+      heightInches: heightInches,
+      weightKg: weightKg,
+      goal: goal,
+    );
+    await _apiClient.post('/users/health-metrics', request.toJson());
   }
 
   @override
   Future<void> createUser(
       String firebaseUid, String email, String displayName) async {
     logger.d('Creating user...');
-    await _apiClient.post('/users/create-user', {
-      'firebaseUid': firebaseUid,
-      'email': email,
-      'displayName': displayName,
-    });
+    final request = CreateUserRequest(
+      firebaseUid: firebaseUid,
+      email: email,
+      displayName: displayName,
+    );
+    await _apiClient.post('/users/create-user', request.toJson());
   }
 }
