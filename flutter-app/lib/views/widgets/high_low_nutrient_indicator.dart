@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:read_the_label/core/constants/app_constants.dart';
+import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/utils/nutrient_utils.dart';
 
@@ -9,6 +10,7 @@ class HighLowNutrientIndicator extends StatefulWidget {
   final String healthImpact;
   final double quantity;
   final String unit;
+  final Color? dominantColor;
 
   const HighLowNutrientIndicator({
     super.key,
@@ -17,6 +19,7 @@ class HighLowNutrientIndicator extends StatefulWidget {
     required this.healthImpact,
     required this.quantity,
     required this.unit,
+    required this.dominantColor,
   });
 
   @override
@@ -102,7 +105,8 @@ class _HighLowNutrientIndicatorState extends State<HighLowNutrientIndicator>
             Text(
               '${widget.quantity}${widget.unit}',
               style: AppTextStyles.heading2Close.copyWith(
-                color: Colors.white.withValues(alpha: 0.9),
+                color: AppColors.getTitleColor(
+                    widget.dominantColor ?? Colors.black),
                 fontSize: 20,
               ),
             ),
@@ -127,9 +131,14 @@ class _HighLowNutrientIndicatorState extends State<HighLowNutrientIndicator>
                 const SizedBox(width: 4),
                 Text(
                   displayName.toUpperCase(),
-                  style: AppTextStyles.bodyMediumBold.copyWith(
-                    color: Colors.white.withValues(alpha: 0.7),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.getSubtitleColor(
+                        widget.dominantColor ?? Colors.black),
                     fontSize: 10,
+                    fontWeight:
+                        FontWeight.w500, // ❗ not bold, slight emphasis ok
+                    letterSpacing: 0.6, // caps need spacing
+                    height: 1.2,
                   ),
                 ),
               ],

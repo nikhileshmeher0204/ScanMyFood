@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/models/food_item.dart';
@@ -8,12 +9,14 @@ import 'package:read_the_label/utils/nutrient_utils.dart';
 class AppListTile extends StatefulWidget {
   final FoodItem item;
   final int index;
+  final Color? dominantColor;
   final VoidCallback? onTap;
 
   const AppListTile({
     super.key,
     required this.item,
     required this.index,
+    required this.dominantColor,
     this.onTap,
   });
 
@@ -82,7 +85,9 @@ class _AppListTileState extends State<AppListTile> {
                       border: !_isExpanded
                           ? Border(
                               bottom: BorderSide(
-                                color: Colors.white.withValues(alpha: 0.15),
+                                color: AppColors.getSubtitleColor(
+                                        widget.dominantColor ?? Colors.black)
+                                    .withOpacity(0.15),
                                 width: 0.5, // Standard thin divider
                               ),
                             )
@@ -100,24 +105,26 @@ class _AppListTileState extends State<AppListTile> {
                               Text(
                                 title,
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  color: Colors.white
-                                      .withValues(alpha: 0.9), // Opaque title
-                                  fontSize: 16,
+                                  color: AppColors.getTitleColor(
+                                      widget.dominantColor ?? Colors.black),
+                                  fontSize: 17, // slightly bigger
+                                  fontWeight:
+                                      FontWeight.w500, // semibold (important)
+                                  height: 1.1,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 2),
+                              const SizedBox(height: 4),
                               Text(
                                 subtitle,
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  color: Colors.white.withValues(
-                                      alpha: 0.7), // 0.7 opacity subtitle
-                                  fontSize: 14,
+                                  color: AppColors.getSubtitleColor(
+                                      widget.dominantColor ?? Colors.black),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400, // ❗ NOT bold
+                                  letterSpacing: 0.2,
+                                  height: 1.2,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                              )
                             ],
                           ),
                         ),

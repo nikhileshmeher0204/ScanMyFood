@@ -48,4 +48,39 @@ class AppColors {
   static const Color onCardBackground = Color.fromARGB(255, 38, 38, 38);
 
   static const Color inputBackground = Color(0xFF1A1A1A);
+
+  static Color getTitleColor(Color bg) {
+    final luminance = bg.computeLuminance();
+
+    if (luminance < 0.45) {
+      final isWarm = bg.red > bg.blue;
+
+      return isWarm
+          ? const Color(0xFFFFFAF5).withOpacity(0.96) // warm white
+          : const Color(0xFFF5F9FF).withOpacity(0.96); // cool white
+    }
+
+    return const Color(0xFF111111).withOpacity(0.9);
+  }
+
+  static Color getSubtitleColor(Color bg) {
+    final luminance = bg.computeLuminance();
+
+    // Dark backgrounds (most food cards)
+    if (luminance < 0.45) {
+      // Adjust tint based on warmth of color
+      final isWarm = bg.red > bg.blue;
+
+      if (isWarm) {
+        // Brown / warm food → slightly warm white
+        return const Color(0xFFFFF1E6).withOpacity(0.9);
+      } else {
+        // Cool backgrounds → cool white (Apple style)
+        return const Color(0xFFEAF2FF).withOpacity(0.88);
+      }
+    }
+
+    // Light backgrounds
+    return const Color(0xFF1A1A1A).withOpacity(0.75);
+  }
 }

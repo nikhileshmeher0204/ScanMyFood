@@ -52,4 +52,17 @@ class NutrientUtils {
     }
     return null;
   }
+
+  static String getNutrientCategory(String dvStatus, String goal) {
+    if ((dvStatus == "High" && goal == "At least") ||
+        (dvStatus == "Low" && goal == "Less than")) {
+      return "Good";
+    } else if (dvStatus == "Low" && goal == "At least") {
+      return "Insufficient";
+    } else if (dvStatus == "High") {
+      return "Limit";
+    } else {
+      return "Moderate";
+    }
+  }
 }

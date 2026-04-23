@@ -7,6 +7,7 @@ import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
+import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:read_the_label/views/widgets/add_to_intake_button.dart';
 import 'package:read_the_label/views/widgets/energy_distribution_bar.dart';
 import 'package:read_the_label/views/widgets/nutrient_tile.dart';
@@ -100,17 +101,8 @@ class TotalNutrientsCard extends StatelessWidget {
                     final dvStatus = nutrient['dv_status'] ?? "";
                     final goal = nutrient['goal'] ?? "";
 
-                    String category;
-                    if ((dvStatus == "High" && goal == "At least") ||
-                        (dvStatus == "Low" && goal == "Less than")) {
-                      category = "Good";
-                    } else if (dvStatus == "Low" && goal == "At least") {
-                      category = "Insufficient";
-                    } else if (dvStatus == "High") {
-                      category = "Limit";
-                    } else {
-                      category = "Moderate";
-                    }
+                    String category =
+                        NutrientUtils.getNutrientCategory(dvStatus, goal);
                     groupedNutrients[category]!.add(nutrient);
                   }
 
