@@ -35,13 +35,10 @@ Built with **Flutter** and **Spring Boot**, leveraging **Google Cloud's Vertex A
 
 ## 📱 Screenshots
 
-|                   Discover & Scan                   |                     Product Analysis                     |                      Meal Analysis                      |
-| :-------------------------------------------------: | :------------------------------------------------------: | :-----------------------------------------------------: |
-| <img src="screenshots/scan_food.png" width="250" /> | <img src="screenshots/label_analysis.png" width="250" /> | <img src="screenshots/food_analysis.png" width="250" /> |
-
-|                     Daily Tracking                     |                        Food Details                        |                      Onboarding                      |
-| :----------------------------------------------------: | :--------------------------------------------------------: | :--------------------------------------------------: |
-| <img src="screenshots/daily_intake.png" width="250" /> | <img src="screenshots/detail_food_view.png" width="250" /> | <img src="screenshots/onboarding.png" width="250" /> |
+|                                                      |                                                          |                                                            |
+| :--------------------------------------------------: | :------------------------------------------------------: | :--------------------------------------------------------: |
+| <img src="screenshots/onboarding.png" width="250" /> |  <img src="screenshots/daily_intake.png" width="250" />  | <img src="screenshots/detail_food_view.png" width="250" /> |
+| <img src="screenshots/scan_food.png" width="250" />  | <img src="screenshots/label_analysis.png" width="250" /> |  <img src="screenshots/food_analysis.png" width="250" />   |
 
 ## 🏗️ Architecture
 
@@ -131,8 +128,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 - Icons by Material Design and custom brand assets.
 
 <p align="center">Made with ❤️ for a healthier world</p>
-oud Vertex AI for powerful AI capabilities
-- Spring Boot team for the excellent backend framework
-- Flutter team for the amazing cross-platform UI toolkit
-- Firebase for seamless authentication
-- PostgreSQL for reliable data storage
