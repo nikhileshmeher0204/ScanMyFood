@@ -1,240 +1,138 @@
-# Food Scan AI
+<p align="center">
+  <img src="flutter-app/assets/icons/app_logo.png" width="120" height="120" alt="ScanMyFood Logo">
+</p>
 
-A comprehensive nutrition analysis platform that helps users track their nutritional intake by analyzing food product labels and meals using AI. Built with a Flutter frontend and Spring Boot backend, leveraging Google Cloud's Vertex AI for intelligent food analysis.
+<h1 align="center">ScanMyFood</h1>
 
-## Features
+<p align="center">
+  <strong>AI-Powered Nutrition Intelligence — Know what you eat, instantly.</strong>
+</p>
 
-- 📸 Scan product labels and food items using your device's camera
-- 🔍 AI-powered nutrition analysis using Google Cloud Vertex AI
-- 📊 Track daily nutrient intake with detailed breakdowns
-- 📅 View historical food consumption data
-- 📈 Visual representations of macronutrient distribution
-- 👤 User profiles with personalized dietary preferences and health metrics
-- ⚡ Real-time nutritional insights and recommendations
-- 🔐 Secure Firebase authentication integration
-- 🌐 Cross-platform support with synchronized data
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-3.4.3-02569B?logo=flutter&logoColor=white" alt="Flutter">
+  <img src="https://img.shields.io/badge/Spring_Boot-3.5.0-6DB33F?logo=spring-boot&logoColor=white" alt="Spring Boot">
+  <img src="https://img.shields.io/badge/Google_Cloud-Vertex_AI-4285F4?logo=google-cloud&logoColor=white" alt="Google Cloud Vertex AI">
+  <img src="https://img.shields.io/badge/Firebase-Auth-FFCA28?logo=firebase&logoColor=black" alt="Firebase Auth">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
+  <img src="https://img.shields.io/badge/PRs-Welcome-brightgreen.svg" alt="PRs Welcome">
+</p>
 
-## Screenshots
+## 📖 Overview
 
-https://github.com/user-attachments/assets/82553c7d-5d61-4d22-9d99-2c2e15fa215b
+**ScanMyFood** is a comprehensive nutrition analysis platform designed to empower users with deep insights into their dietary habits. By combining high-fidelity mobile experience with state-of-the-art AI, we transform complex nutritional labels and meal images into actionable health data.
 
-| <img src="https://github.com/user-attachments/assets/a0a85d4f-26b6-44ea-a4f4-46f80bae9907" width="300" alt="Screenshot 1" /> | <img src="https://github.com/user-attachments/assets/a76ef71a-ce2f-402e-863d-baa435ddb938" width="300" alt="Screenshot 2" /> | <img src="https://github.com/user-attachments/assets/2b758598-71ae-4d8b-9406-73b2b52a8019" width="300" alt="Screenshot 3" /> |
-|:---------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|
-| <img src="https://github.com/user-attachments/assets/be941868-2eb8-4785-8a9e-d0d91bce66b3" width="300" alt="Screenshot 4" /> | <img src="https://github.com/user-attachments/assets/c0067fb8-136b-400e-b97e-f3e2c1a44c40" width="300" alt="Screenshot 5" /> | <img src="https://github.com/user-attachments/assets/a2387fc5-d440-4c82-9b79-da18c1723247" width="300" alt="Screenshot 6" /> |
+Built with **Flutter** and **Spring Boot**, leveraging **Google Cloud's Vertex AI (Gemini 2.0 Flash)**, ScanMyFood provides real-time analysis, historical tracking, and personalized recommendations.
 
-## Architecture
+## ✨ Key Features
 
-Food Scan AI follows a modern, scalable architecture:
+- **📸 Intelligent Scanning**: Use your device's camera to capture product labels or entire meals.
+- **🔍 AI Analysis**: Powered by Gemini 2.0 Flash for accurate nutritional extraction and food identification.
+- **📊 Personalized Dashboard**: Track daily macro and micronutrient intake with beautiful visualizations.
+- **📅 Nutrition History**: Maintain a comprehensive log of your consumption patterns over time.
+- **👤 Health Profiles**: Tailor insights based on your specific health metrics and dietary preferences.
+- **🔐 Secure Sync**: Seamless Firebase authentication and cloud-synchronized data across devices.
+- **⚡ Real-time Insights**: Get instant feedback on whether a product fits your dietary goals.
 
-- **Frontend**: Flutter mobile app with MVVM architecture
-- **Backend**: Spring Boot RESTful API service
-- **Database**: PostgreSQL for persistent storage
-- **Authentication**: Firebase Authentication
-- **AI Analysis**: Google Cloud Vertex AI (Gemini 2.0 Flash)
-- **Cloud Infrastructure**: Google Cloud Platform
+## 📱 Screenshots
 
-### Project Structure
+|                   Discover & Scan                   |                     Product Analysis                     |                      Meal Analysis                      |
+| :-------------------------------------------------: | :------------------------------------------------------: | :-----------------------------------------------------: |
+| <img src="screenshots/scan_food.png" width="250" /> | <img src="screenshots/label_analysis.png" width="250" /> | <img src="screenshots/food_analysis.png" width="250" /> |
 
-```
-/
-├── flutter-app/              # Flutter frontend application
-│   ├── lib/
-│   │   ├── core/             # App-wide constants
-│   │   ├── config/           # Environment configuration
-│   │   ├── models/           # Data models
-│   │   ├── repositories/     # Data access layer with interfaces
-│   │   ├── services/         # Business logic services
-│   │   ├── theme/            # App theme definitions  
-│   │   ├── viewmodels/       # ViewModels for business logic
-│   │   ├── views/            # UI components
-│   │   │   ├── screens/      # Full page views
-│   │   │   └── widgets/      # Reusable UI components
-│   │   └── main.dart         # Application entry point
-│   └── assets/               # App resources (images, fonts, etc.)
-│
-└── spring-backend/           # Spring Boot backend service
-    ├── src/
-    │   ├── main/
-    │   │   ├── java/com/scanmyfood/backend/
-    │   │   │   ├── configurations/  # App configs
-    │   │   │   ├── controllers/     # REST API endpoints
-    │   │   │   ├── models/          # Data entities
-    │   │   │   ├── repositories/    # Database access
-    │   │   │   ├── services/        # Business logic
-    │   │   │   └── ScanMyFoodBackendApplication.java
-    │   │   └── resources/           # Application properties
-    │   └── test/                    # Unit and integration tests
-    └── pom.xml                      # Maven dependencies
+|                     Daily Tracking                     |                        Food Details                        |                      Onboarding                      |
+| :----------------------------------------------------: | :--------------------------------------------------------: | :--------------------------------------------------: |
+| <img src="screenshots/daily_intake.png" width="250" /> | <img src="screenshots/detail_food_view.png" width="250" /> | <img src="screenshots/onboarding.png" width="250" /> |
+
+## 🏗️ Architecture
+
+ScanMyFood follows a modern, decoupled architecture designed for scale and maintainability.
+
+```mermaid
+graph TD
+    A[Flutter App] <--> B[Spring Boot API]
+    A <--> C[Firebase Auth]
+    B <--> D[(PostgreSQL)]
+    B <--> E[Vertex AI Gemini]
+    B <--> C
 ```
 
-## Getting Started
+### Project Map
+
+```bash
+├── flutter-app/       # Mobile Frontend (Flutter/Dart)
+│   ├── lib/           # Core logic, ViewModels, and UI
+│   └── assets/        # Branding, Icons, and Rive Animations
+└── spring-backend/    # RESTful Backend (Spring Boot/Java)
+    ├── src/main/java/ # Domain logic, Services, and Controllers
+    └── resources/     # Configuration and Cloud Credentials
+```
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+- **Framework**: [Flutter](https://flutter.dev/) (MVVM Architecture)
+- **State Management**: Provider
+- **Visuals**: Rive (Animations), fl_chart (Data Viz)
+- **Authentication**: Firebase Auth / Google Sign-In
+
+### Backend
+
+- **Framework**: [Spring Boot 3.5.0](https://spring.io/projects/spring-boot)
+- **Database**: PostgreSQL with Spring Data JPA & MyBatis
+- **AI Engine**: Google Cloud Vertex AI (Gemini 2.0 Flash)
+- **Security**: Firebase Admin SDK
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Flutter SDK (>=3.4.3)
-- Java JDK 17+
-- Maven 3.6+
-- PostgreSQL 14+
-- Firebase project with Authentication enabled
-- Google Cloud project with Vertex AI API enabled
+- **Flutter SDK**: `>=3.4.3`
+- **JDK**: `17+`
+- **Database**: PostgreSQL `14+`
+- **Cloud**: GCP Project with Vertex AI enabled & Firebase Project
 
-### Frontend Setup
+### 1. Backend Setup
 
-1. Clone the repository
-```bash
-git clone https://github.com/nikhileshmeher0204/read_the_label.git
-cd read_the_label
-```
+1. Navigate to `spring-backend/`.
+2. Configure `application.properties` with your PostgreSQL credentials.
+3. Place your Google Cloud service account key as `firebase-service-account.json` in `src/main/resources/`.
+4. Run: `./mvnw spring-boot:run`
 
-2. Navigate to the Flutter app directory
-```bash
-cd flutter-app
-```
+### 2. Frontend Setup
 
-3. Set up Firebase
-   - Create a Firebase project at [firebase.google.com](https://firebase.google.com)
-   - Add Android and iOS apps to your project
-   - Download and add the configuration files (`google-services.json` for Android and `GoogleService-Info.plist` for iOS)
-   - Enable Authentication with Email/Password provider
+1. Navigate to `flutter-app/`.
+2. Add your `google-services.json` (Android) or `GoogleService-Info.plist` (iOS).
+3. Install dependencies: `flutter pub get`
+4. Run: `flutter run`
 
-4. Create a `.env` file in the Flutter app directory:
-```
-# Optional local development URL (if not using default)
-API_BASE_URL=http://localhost:8080/api
-```
+---
 
-5. Install dependencies
-```bash
-flutter pub get
-```
+## 🤝 Contributing
 
-6. Run the app
-```bash
-flutter run
-```
+We welcome contributions! Please follow these steps:
 
-### Backend Setup
-
-1. Navigate to the Spring Boot backend directory
-```bash
-cd spring-backend
-```
-
-2. Configure Google Cloud credentials
-   - Create a service account in your Google Cloud project
-   - Grant it access to Vertex AI API
-   - Download the service account key file as `firebase-service-account.json` 
-   - Place it in `src/main/resources/`
-
-3. Configure PostgreSQL
-   - Create a PostgreSQL database named `scanmyfood`
-   - Update database connection details in `application.properties` if needed:
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/scanmyfood
-spring.datasource.username=your_username
-spring.datasource.password=your_password
-```
-
-4. Build and run the Spring Boot application
-```bash
-# Using Maven
-mvn spring-boot:run
-
-# Or using the Maven wrapper
-./mvnw spring-boot:run
-```
-
-## State Management
-
-This application uses a combination of state management approaches:
-
-- **Frontend**: Provider for Flutter app state management
-  - **ViewModels**: 
-    - `UiViewModel`: Handles UI state and navigation
-    - `ProductAnalysisViewModel`: Manages product scanning and analysis
-    - `MealAnalysisViewModel`: Handles food image analysis
-    - `DailyIntakeViewModel`: Controls daily consumption tracking
-    - `OnboardingViewModel`: Manages user onboarding flow
-
-- **Backend**: Spring services for business logic
-  - `UserService`: User profile and preferences management
-  - `VertexAiServiceImpl`: AI analysis implementation
-  - Authentication handled via Firebase integration
-
-## Technologies Used
-
-### Frontend
-- **Flutter SDK** (>=3.4.3)
-- **Dart SDK** 
-- **Firebase Authentication** for user management
-- **Provider** for state management
-- **SharedPreferences** for local storage
-- **Material Design 3** with custom theme
-- **Key Flutter packages**:
-  - `image_picker` for camera integration
-  - `flutter_dotenv` for environment variables
-  - `fl_chart` for data visualization
-  - `rive` for animations
-  - `http` for API communication
-
-### Backend
-- **Spring Boot 3.4.5** for RESTful API development
-- **Spring Data JPA** for database operations
-- **PostgreSQL** for data persistence
-- **Google Cloud Vertex AI** for AI-powered analysis
-- **Firebase Admin SDK** for authentication verification
-- **Maven** for dependency management
-
-### Infrastructure
-- **Google Cloud Platform**:
-  - Vertex AI (Gemini 2.0 Flash model)
-  - Firebase Authentication
-  - Cloud Storage (optional for production)
-
-## Deployment
-
-### Frontend
-- Build the Flutter app for production:
-```bash
-flutter build apk --release  # for Android
-flutter build ios --release  # for iOS
-```
-
-### Backend
-- Package the Spring Boot application:
-```bash
-mvn clean package
-```
-- Deploy the resulting JAR file to your server or cloud provider
-
-## Future Enhancements
-
-- Real-time data synchronization between devices
-- Advanced meal planning with AI recommendations
-- Barcode scanning for quick product lookup
-- Machine learning for personalized nutritional insights
-- Dietary goal tracking and achievement rewards
-- Social sharing and community features
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## License
+## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+Distributed under the MIT License. See `LICENSE` for more information.
 
-## Acknowledgments
+## 💖 Acknowledgments
 
-- Google Cloud Vertex AI for powerful AI capabilities
+- [Google Vertex AI](https://cloud.google.com/vertex-ai) for the intelligence.
+- [Flutter](https://flutter.dev/) and [Spring Boot](https://spring.io/) communities.
+- Icons by Material Design and custom brand assets.
+
+<p align="center">Made with ❤️ for a healthier world</p>
+oud Vertex AI for powerful AI capabilities
 - Spring Boot team for the excellent backend framework
 - Flutter team for the amazing cross-platform UI toolkit
 - Firebase for seamless authentication
 - PostgreSQL for reliable data storage
-
