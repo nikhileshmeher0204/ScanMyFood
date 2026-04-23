@@ -2,8 +2,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:read_the_label/core/constants/app_constants.dart';
+import 'package:read_the_label/theme/app_colors.dart';
+import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
+import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/repositories/spring_backend_repository.dart';
@@ -23,7 +26,8 @@ class ProductAnalysisViewModel extends BaseViewModel {
   List<FoodNutrient> _nutrients = [];
   List<Nutrient> optimalNutrients = [];
   List<Nutrient> moderateNutrients = [];
-  List<Nutrient> watchOutNutrients = [];
+  List<Nutrient> limitNutrients = [];
+  List<Nutrient> insufficientNutrients = [];
   List<PrimaryConcern> _primaryConcerns = [];
   Map<String, dynamic> totalPlateNutrients = {};
 
@@ -47,7 +51,8 @@ class ProductAnalysisViewModel extends BaseViewModel {
   List<FoodNutrient> get nutrients => _nutrients;
   List<Nutrient> getOptimalNutrients() => optimalNutrients;
   List<Nutrient> getModerateNutrients() => moderateNutrients;
-  List<Nutrient> getWatchOutNutrients() => watchOutNutrients;
+  List<Nutrient> getLimitNutrients() => limitNutrients;
+  List<Nutrient> getInsufficientNutrients() => insufficientNutrients;
   List<PrimaryConcern> get primaryConcerns => _primaryConcerns;
 
   void setLoading(bool loading) {
@@ -133,7 +138,8 @@ class ProductAnalysisViewModel extends BaseViewModel {
       allNutrients = [];
       optimalNutrients = [];
       moderateNutrients = [];
-      watchOutNutrients = [];
+      limitNutrients = [];
+      insufficientNutrients = [];
       _primaryConcerns = [];
 
       for (Nutrient nutrient in productAnalysis!.nutritionAnalysis.nutrients) {
@@ -141,13 +147,18 @@ class ProductAnalysisViewModel extends BaseViewModel {
           allNutrients.add(nutrient);
           _nutrients.add(
               FoodNutrient(name: nutrient.name, quantity: nutrient.quantity));
-          if (nutrient.healthImpact == AppConstants.goodHealthImpact) {
+
+          final category = NutrientUtils.getNutrientCategory(
+              nutrient.dvStatus, nutrient.goal);
+
+          if (category == "Good") {
             optimalNutrients.add(nutrient);
-          } else if (nutrient.healthImpact ==
-              AppConstants.moderateHealthImpact) {
+          } else if (category == "Moderate") {
             moderateNutrients.add(nutrient);
-          } else {
-            watchOutNutrients.add(nutrient);
+          } else if (category == "Limit") {
+            limitNutrients.add(nutrient);
+          } else if (category == "Insufficient") {
+            insufficientNutrients.add(nutrient);
           }
         }
       }
@@ -158,7 +169,8 @@ class ProductAnalysisViewModel extends BaseViewModel {
       print("📝 Product: $_productName");
       print("📊 Good nutrients: ${optimalNutrients.length}");
       print("⚠️ Moderate nutrients: ${moderateNutrients.length}");
-      print("⚠️ Bad nutrients: ${watchOutNutrients.length}");
+      print("⚠️ Limit nutrients: ${limitNutrients.length}");
+      print("⚠️ Insufficient nutrients: ${insufficientNutrients.length}");
 
       notifyListeners();
     } catch (e) {

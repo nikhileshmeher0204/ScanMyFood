@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
+import 'package:read_the_label/theme/app_colors.dart';
+import 'package:read_the_label/theme/app_text_styles.dart';
 
-class NutrientBalanceCard extends StatelessWidget {
+class NutrientBalanceCard extends StatefulWidget {
   final PrimaryConcern concern;
 
   const NutrientBalanceCard({
@@ -10,83 +13,102 @@ class NutrientBalanceCard extends StatelessWidget {
   });
 
   @override
+  State<NutrientBalanceCard> createState() => _NutrientBalanceCardState();
+}
+
+class _NutrientBalanceCardState extends State<NutrientBalanceCard> {
+  bool _isExpanded = false;
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.secondary.withOpacity(0.2),
-            Colors.transparent,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: ExpansionTile(
-        backgroundColor: Colors.transparent,
-        collapsedBackgroundColor: Colors.transparent,
-        title: Row(
-          children: [
-            Icon(
-              Icons.warning_amber_rounded,
-              color: Theme.of(context).colorScheme.error,
-              size: 24,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                concern.issue,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Inter',
-                ),
+      color: Theme.of(context).colorScheme.surface,
+      child: GestureDetector(
+        onTap: () => setState(() => _isExpanded = !_isExpanded),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.fastOutSlowIn,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: AppColors.cardBackground,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.fastOutSlowIn,
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.warning_amber_rounded,
+                        color: AppColors.secondaryRed,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          widget.concern.issue,
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        _isExpanded
+                            ? CupertinoIcons.chevron_up
+                            : CupertinoIcons.chevron_down,
+                        color: AppColors.primaryWhite.withValues(alpha: 0.7),
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                  if (_isExpanded) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      widget.concern.explanation,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Text(
+                          'RECOMMENDATIONS',
+                          style: AppTextStyles.bodyLargeBold.copyWith(
+                            color: AppColors.secondaryGreen,
+                            letterSpacing: -1.0,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(
+                          Icons.check_circle_rounded,
+                          color: AppColors.secondaryGreen,
+                          size: 18,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    ...widget.concern.recommendations
+                        .map((rec) => _RecommendationItem(
+                              food: rec.food,
+                              quantity: rec.quantity,
+                              reasoning: rec.reasoning,
+                            )),
+                  ],
+                ],
               ),
             ),
-          ],
-        ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  concern.explanation,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 14,
-                    height: 1.5,
-                    fontFamily: 'Inter',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Recommendations:',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'Inter',
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ...concern.recommendations.map((rec) => _RecommendationItem(
-                      food: rec.food,
-                      quantity: rec.quantity,
-                      reasoning: rec.reasoning,
-                    )),
-              ],
-            ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -107,41 +129,35 @@ class _RecommendationItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
+        color: AppColors.primaryBlack,
+        borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.restaurant_menu,
-                color: Theme.of(context).colorScheme.secondary,
-                size: 16,
+                color: AppColors.secondaryGreen,
+                size: 18,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               Expanded(
                 child: RichText(
                   text: TextSpan(
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Inter',
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      fontWeight: FontWeight.w500,
                     ),
                     children: [
-                      TextSpan(
-                        text: food,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      TextSpan(text: food),
                       TextSpan(
                         text: ' • $quantity',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     ],
@@ -153,11 +169,9 @@ class _RecommendationItem extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             reasoning,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 12,
-              height: 1.5,
-              fontFamily: 'Inter',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.4,
             ),
           ),
         ],

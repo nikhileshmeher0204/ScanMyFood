@@ -138,7 +138,10 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                   vm.scannedMealName,
                                   textAlign: TextAlign.center,
                                   style: AppTextStyles.heading2Bold.copyWith(
-                                    color: Colors.white.withValues(alpha: 0.9),
+                                    color: AppColors.getTitleColor(
+                                        _dominantColor ?? Colors.black),
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.15,
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -146,9 +149,13 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                 Text(
                                   "North Indian • 1 Serving • ${DateFormat('h:mm a').format(widget.itemCard.item.createdAt!)}",
                                   textAlign: TextAlign.center,
-                                  style: AppTextStyles.bodyMediumBold.copyWith(
-                                    color: Colors.white.withValues(alpha: 0.8),
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: AppColors.getSubtitleColor(
+                                        _dominantColor ?? Colors.black),
                                     fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.2,
+                                    height: 1.2,
                                   ),
                                 ),
                                 Row(
@@ -334,6 +341,7 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                               nutrient['health_impact'],
                                           quantity: nutrient['quantity'],
                                           unit: nutrient['unit'],
+                                          dominantColor: _dominantColor,
                                         );
                                       }).toList(),
                                     ),
@@ -362,6 +370,7 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                       .map((entry) => AppListTile(
                                             item: entry.value,
                                             index: entry.key,
+                                            dominantColor: _dominantColor,
                                           ))
                                       .toList(),
                                 ),

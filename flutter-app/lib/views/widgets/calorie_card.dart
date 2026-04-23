@@ -24,8 +24,8 @@ class CalorieCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Today\'s Calories 🔥',
-                style: AppTextStyles.bodyLarge.copyWith(
+                'TODAY\'S CALORIES',
+                style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.onPrimary.withOpacity(0.8),
                   fontWeight: FontWeight.w500,
                 ),
@@ -84,23 +84,12 @@ class CalorieCard extends StatelessWidget {
                   strokeCap: StrokeCap.round,
                 ),
               ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '${(caloriePercent * 100).toStringAsFixed(0)}%',
-                    style: AppTextStyles.heading2.copyWith(
-                      color: AppColors.onPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    'complete',
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.onPrimary.withOpacity(0.7),
-                    ),
-                  ),
-                ],
+              Text(
+                '${(caloriePercent * 100).toStringAsFixed(0)}%',
+                style: AppTextStyles.heading2.copyWith(
+                  color: AppColors.onPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
