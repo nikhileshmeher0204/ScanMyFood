@@ -66,10 +66,8 @@ class _AuthWrapperState extends State<AuthWrapper> {
       // 3. All clear, go home
       logger.i("AuthWrapper: User verified, going to home");
       return const HomePage();
-    } catch (e) {
-      logger.e("AuthWrapper: Error checking user status: $e");
-      // On error, we might want to still try to go home or show an error screen
-      // For now, let's fallback to home if they are at least authenticated
+    } catch (e, st) {
+      logger.e('AuthWrapper: Unexpected error checking user status', e, st);
       return const HomePage();
     }
   }
