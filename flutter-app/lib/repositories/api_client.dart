@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/models/api_exception.dart';
 
 class ApiClient {
   final String baseUrl;
@@ -41,6 +42,7 @@ class ApiClient {
         uri,
         headers: {
           'Content-Type': 'application/json',
+          'X-Firebase-Uid': getCurrentUid() ?? '',
           if (token != null) 'Authorization': 'Bearer $token',
         },
       ).timeout(const Duration(seconds: 15)); // Add timeout
@@ -58,7 +60,7 @@ class ApiClient {
           return {"rawResponse": response.body};
         }
       } else {
-        throw Exception('Failed with status code: ${response.statusCode}');
+        _throwApiException(response);
       }
     } catch (e) {
       logger.d("API call error with details: $e");
@@ -100,11 +102,60 @@ class ApiClient {
           return {"rawResponse": response.body};
         }
       } else {
-        throw Exception('POST failed with status code: ${response.statusCode}');
+        _throwApiException(response);
       }
     } catch (e) {
       logger.d("API POST call error: $e");
       rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> put(
+      String endpoint, Map<String, dynamic> data) async {
+    try {
+      final uri = Uri.parse('$baseUrl$endpoint');
+      logger.d("Making PUT request to: $uri");
+      final token = await getAuthToken();
+
+      final response = await http.put(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(data),
+      );
+
+      logger.d("PUT Response status code: ${response.statusCode}");
+      logger.d("PUT Response body: ${response.body}");
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        if (response.body.isEmpty) {
+          return {};
+        }
+        try {
+          return jsonDecode(response.body);
+        } catch (e) {
+          return {"rawResponse": response.body};
+        }
+      } else {
+        _throwApiException(response);
+      }
+    } catch (e) {
+      logger.d("API PUT call error: $e");
+      rethrow;
+    }
+  }
+
+  /// Parses the backend [ErrorResponse] body and throws a typed [ApiException].
+  /// Falls back to [ApiException.raw] if the body is not valid JSON.
+  Never _throwApiException(http.Response response) {
+    try {
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      throw ApiException.fromJson(response.statusCode, body);
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException.raw(response.statusCode, response.body);
     }
   }
 }

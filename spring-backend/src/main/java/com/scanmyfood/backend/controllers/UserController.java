@@ -4,6 +4,7 @@ import com.scanmyfood.backend.constants.ResponseCodeConstants;
 import com.scanmyfood.backend.dto.*;
 import com.scanmyfood.backend.models.ApiResponse;
 import com.scanmyfood.backend.models.User;
+import com.scanmyfood.backend.services.HealthConditionService;
 import com.scanmyfood.backend.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,19 +20,22 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/check/new-user/{firebaseUid}")
-    public ResponseEntity<ApiResponse<UserCheckResponse>> checkIfNewUser(@PathVariable("firebaseUid") String firebaseUid) {
+    @Autowired
+    private HealthConditionService healthConditionService;
+
+    @GetMapping("/user")
+    public ResponseEntity<ApiResponse<UserCheckResponse>> checkIfNewUser(
+            @RequestHeader("X-Firebase-Uid") String firebaseUid) {
         log.info("Checking if user with uid {} is new", firebaseUid);
-        boolean isNewUser = userService.isNewUser(firebaseUid);
-        log.info("User with uid {} is new: {}", firebaseUid, isNewUser);
-        UserCheckResponse response = UserCheckResponse.builder().isNewUser(isNewUser).build();
-        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.NEW_USER_CHECKED, response));
+        UserCheckResponse userCheckResponse = userService.isNewUser(firebaseUid);
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.NEW_USER_CHECKED, userCheckResponse));
     }
 
     @PostMapping("/create-user")
     public ResponseEntity<ApiResponse<CreateUserResponse>> createUser(@RequestBody CreateUserRequest request) {
         log.info("Creating user with uid {}", request.getFirebaseUid());
-        User user = userService.findOrCreateUser(request.getFirebaseUid(), request.getEmail(), request.getDisplayName());
+        User user = userService.findOrCreateUser(request.getFirebaseUid(), request.getEmail(),
+                request.getDisplayName());
 
         CreateUserResponse response = CreateUserResponse.builder()
                 .userId(user.getFirebaseUid())
@@ -46,26 +50,12 @@ public class UserController {
         log.info("Completing onboarding for user {}", request.getFirebaseUid());
 
         userService.completeUserOnboarding(
-                request.getFirebaseUid()
-        );
+                request.getFirebaseUid());
 
         return ResponseEntity.ok(ApiResponse.success(Map.of(
                 "success", true,
-                "message", "Onboarding completed successfully"
-        ), ResponseCodeConstants.ONBOARDING_COMPLETED, "Onboarding completed successfully"));
-    }
-
-    @GetMapping("/check/onboarding-status/{firebaseUid}")
-    public ResponseEntity <ApiResponse<OnboardingStatusResponse>> checkIfOnboardingComplete(@PathVariable("firebaseUid") String firebaseUid) {
-        log.info("Checking if user with uid {} is onboarding complete", firebaseUid);
-        boolean isOnboardingComplete = userService.isOnboardingComplete(firebaseUid);
-
-        OnboardingStatusResponse response = OnboardingStatusResponse.builder()
-                .isOnboardingComplete(isOnboardingComplete)
-                .build();
-        log.info("User {} onboarding complete status: {}", firebaseUid, isOnboardingComplete);
-
-        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.ONBOARDING_STATUS_CHECKED, response));
+                "message", "Onboarding completed successfully"), ResponseCodeConstants.ONBOARDING_COMPLETED,
+                "Onboarding completed successfully"));
     }
 
     @PutMapping("/preferences")
@@ -74,8 +64,7 @@ public class UserController {
         userService.saveUserPreferences(
                 request.getFirebaseUid(),
                 request.getDietaryPreference(),
-                request.getCountry()
-        );
+                request.getCountry());
         return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.PREFERENCES_SAVED, null));
     }
 
@@ -87,8 +76,16 @@ public class UserController {
                 request.getHeightFeet(),
                 request.getHeightInches(),
                 request.getWeightKg(),
-                request.getGoal()
-        );
+                request.getGoal());
         return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.HEALTH_METRICS_SAVED, null));
+    }
+
+    @PutMapping("/health-conditions")
+    public ResponseEntity<ApiResponse<Void>> saveHealthConditions(@RequestBody SaveUserConditionsRequest request) {
+        log.info("Saving health conditions for user {}", request.getFirebaseUid());
+        healthConditionService.saveUserConditions(
+                request.getFirebaseUid(),
+                request.getConditionNames());
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.SUCCESS, null));
     }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/models/api_exception.dart';
 import 'package:read_the_label/repositories/user_repository.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
@@ -217,17 +218,33 @@ class _OnboardingFoodpreferenceScreenState
 
                                           if (context.mounted) {
                                             Navigator.pushNamed(context,
-                                                '/onboarding-health-metrics');
+                                                '/onboarding-health-conditions');
                                           }
-                                        } catch (e) {
+                                        } on ApiException catch (e) {
                                           logger.e(
-                                              "Error saving preferences: $e");
+                                              'ApiException saving preferences: $e');
                                           if (context.mounted) {
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                    "Failed to save preferences: ${e.toString()}"),
+                                                  e.isNotFound
+                                                      ? 'Your account was not found. Please sign out and sign in again.'
+                                                      : 'Failed to save preferences: ${e.message}',
+                                                ),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                          }
+                                        } catch (e) {
+                                          logger.e(
+                                              'Unexpected error saving preferences: $e');
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    'Unexpected error: ${e.toString()}'),
                                                 backgroundColor: Colors.red,
                                               ),
                                             );

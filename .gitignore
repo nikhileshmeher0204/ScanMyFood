@@ -3,6 +3,7 @@
 *.tmp
 *.temp
 *.bak
+*agents/
 
 # Flutter/Dart specific
 flutter-app/.dart_tool/
@@ -85,3 +86,22 @@ spring-backend/src/main/resources/firebase-service-account.json
 # Documentation and help files (optional)
 HELP.md
 flutter-app/android/.settings/org.eclipse.buildship.core.prefs
+
+# Postman
+## Auto-generated resource/definition files inside collections
+postman/**/.resources/
+postman/**/*.resources/
+postman/**/definition.yaml
+postman/**/definition.json
+
+## Postman environment files (may contain secrets/tokens)
+postman/environments/
+*.postman_environment.json
+*.postman_globals.json
+*.globals.yaml
+*.request.yaml
+## Exported collection dumps
+*.postman_collection.json
+
+## Postman local config & cache
+.postman/

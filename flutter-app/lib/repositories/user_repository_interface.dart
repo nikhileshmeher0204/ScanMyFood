@@ -1,7 +1,10 @@
+import 'package:read_the_label/models/health_condition.dart';
+import 'package:read_the_label/models/user_check_response.dart';
+
 abstract class UserRepositoryInterface {
-  /// Checks if the current user is new
-  /// Returns true if user is new, false otherwise
-  Future<bool> isNewUser();
+  /// Checks if the current user is new.
+  /// Returns a [UserCheckResponse] containing [isNewUser] and [isOnboardingComplete] flags.
+  Future<UserCheckResponse> isNewUser();
 
   /// Checks if the current user is new
   /// Returns true if user is new, false otherwise
@@ -11,14 +14,6 @@ abstract class UserRepositoryInterface {
   /// - email: The user's email
   /// - displayName: The user's display name
   Future<void> createUser(String firebaseUid, String email, String displayName);
-
-  /// Checks if the onboarding process is complete
-  ///
-  /// Parameters:
-  /// - firebaseUid: The user's Firebase UID
-  Future<bool> isOnboardingComplete({
-    required String firebaseUid,
-  });
 
   /// Completes the onboarding process
   ///
@@ -51,5 +46,14 @@ abstract class UserRepositoryInterface {
     required int heightInches,
     required double weightKg,
     required String goal,
+  });
+
+  /// Fetches the master list of health conditions
+  Future<List<HealthCondition>> getHealthConditions();
+
+  /// Saves the user's selected health conditions
+  Future<void> saveUserHealthConditions({
+    required String firebaseUid,
+    required List<String> conditionNames,
   });
 }

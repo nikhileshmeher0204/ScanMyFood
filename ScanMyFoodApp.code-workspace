@@ -7,6 +7,19 @@
 	],
 	"settings": {
 		"java.configuration.updateBuildConfiguration": "automatic",
-		"java.compile.nullAnalysis.mode": "automatic"
+		"java.compile.nullAnalysis.mode": "automatic",
+		"sqltools.connections": [
+			{
+				"ssh": "Disabled",
+				"previewLimit": 50,
+				"server": "localhost",
+				"port": 5432,
+				"askForPassword": true,
+				"driver": "PostgreSQL",
+				"username": "postgres",
+				"database": "scanmyfood",
+				"name": "ScanMyFood DB"
+			}
+		]
 	}
 }

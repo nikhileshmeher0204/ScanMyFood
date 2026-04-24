@@ -5,6 +5,8 @@ import 'package:read_the_label/models/onboarding_request.dart';
 import 'package:read_the_label/models/onboarding_status_response.dart';
 import 'package:read_the_label/models/user_check_response.dart';
 import 'package:read_the_label/models/user_preferences_request.dart';
+import 'package:read_the_label/models/health_condition.dart';
+import 'package:read_the_label/models/save_user_conditions_request.dart';
 import 'package:read_the_label/repositories/api_client.dart';
 import 'package:read_the_label/repositories/user_repository_interface.dart';
 
@@ -14,48 +16,32 @@ class UserRepository implements UserRepositoryInterface {
   UserRepository(this._apiClient);
 
   @override
-  Future<bool> isNewUser() async {
+  Future<UserCheckResponse> isNewUser() async {
     logger.d('Checking if user is new...');
-    try {
-      final token = await _apiClient.getAuthToken();
-      final uid = _apiClient.getCurrentUid();
-      if (token == null || uid == null) return true;
 
-      logger.d('User ID: $uid');
-      final response = await _apiClient.get('/users/check/new-user/$uid');
-      logger.d('Response: $response');
-      if (response is Map && response.containsKey('data')) {
-        final data = response['data'];
-        if (data is Map<String, dynamic>) {
-          return UserCheckResponse.fromJson(data).isNewUser;
-        }
-      }
-      logger.w('Could not parse isNewUser from response');
-      return true;
-    } catch (e) {
-      logger.d('Error checking if user is new: $e');
-      return true; // Default to treating as new user on error
+    final uid = _apiClient.getCurrentUid();
+    if (uid == null) {
+      logger.w('isNewUser called with no authenticated user; treating as new.');
+      return UserCheckResponse(isNewUser: true, isOnboardingComplete: false);
     }
-  }
 
-  @override
-  Future<bool> isOnboardingComplete({required String firebaseUid}) async {
     try {
-      final response =
-          await _apiClient.get('/users/check/onboarding-status/$firebaseUid');
-      logger.d('Response: $response');
-
-      if (response is Map && response.containsKey('data')) {
-        final data = response['data'];
-        if (data is Map<String, dynamic>) {
-          return OnboardingStatusResponse.fromJson(data).isOnboardingComplete;
-        }
+      final response = await _apiClient.get('/users/user');
+      final data = response['data'];
+      if (data is! Map<String, dynamic>) {
+        throw const FormatException(
+            'Unexpected response shape for /users/user');
       }
-      logger.w('Could not parse isOnboardingComplete from response');
-      return false;
-    } catch (e) {
-      logger.d('Error checking if user\'s onboarinng is completed: $e');
-      return false;
+      final result = UserCheckResponse.fromJson(data);
+      logger.d(
+          'isNewUser=${result.isNewUser}, onboardingComplete=${result.isOnboardingComplete}');
+      return result;
+    } on FormatException catch (e, st) {
+      logger.e('Failed to parse UserCheckResponse', e, st);
+      rethrow;
+    } catch (e, st) {
+      logger.e('Failed to check if user is new', e, st);
+      rethrow;
     }
   }
 
@@ -88,7 +74,7 @@ class UserRepository implements UserRepositoryInterface {
       dietaryPreference: dietaryPreference,
       country: country,
     );
-    await _apiClient.post('/users/preferences', request.toJson());
+    await _apiClient.put('/users/preferences', request.toJson());
   }
 
   @override
@@ -107,7 +93,7 @@ class UserRepository implements UserRepositoryInterface {
       weightKg: weightKg,
       goal: goal,
     );
-    await _apiClient.post('/users/health-metrics', request.toJson());
+    await _apiClient.put('/users/health-metrics', request.toJson());
   }
 
   @override
@@ -120,5 +106,34 @@ class UserRepository implements UserRepositoryInterface {
       displayName: displayName,
     );
     await _apiClient.post('/users/create-user', request.toJson());
+  }
+
+  @override
+  Future<List<HealthCondition>> getHealthConditions() async {
+    logger.d('Fetching health conditions...');
+    try {
+      final response = await _apiClient.get('/health-conditions');
+      if (response is Map && response.containsKey('data')) {
+        final List<dynamic> data = response['data'];
+        return data.map((json) => HealthCondition.fromJson(json)).toList();
+      }
+      return [];
+    } catch (e) {
+      logger.e('Failed to fetch health conditions: $e');
+      return [];
+    }
+  }
+
+  @override
+  Future<void> saveUserHealthConditions({
+    required String firebaseUid,
+    required List<String> conditionNames,
+  }) async {
+    logger.d('Saving user health conditions...');
+    final request = SaveUserConditionsRequest(
+      firebaseUid: firebaseUid,
+      conditionNames: conditionNames,
+    );
+    await _apiClient.put('/users/health-conditions', request.toJson());
   }
 }

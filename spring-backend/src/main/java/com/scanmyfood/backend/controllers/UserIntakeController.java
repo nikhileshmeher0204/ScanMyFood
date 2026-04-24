@@ -98,7 +98,9 @@ public class UserIntakeController {
             @RequestParam("userId") String userId,
             @RequestParam("dailyIntakeId") int dailyIntakeId
     ) throws Exception {
+        log.info("Fetching intake record for userId: {}, dailyIntakeId: {}", userId, dailyIntakeId);
         FoodAnalysisResponse intakeDetails = userIntakeService.getIntakeDetails(userId, dailyIntakeId);
+        log.info("Intake record fetched for userId: {}, dailyIntakeId: {}", userId, dailyIntakeId);
         return ResponseEntity.ok(ApiResponse.success(intakeDetails, ResponseCodeConstants.INTAKE_ITEM_FETCHED, "Intake item fetched successfully"));
     }
 

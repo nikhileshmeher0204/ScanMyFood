@@ -15,6 +15,7 @@ import 'package:read_the_label/views/screens/food_analysis_view.dart';
 import 'package:read_the_label/views/screens/meal_description_analysis_view.dart';
 import 'package:read_the_label/views/screens/onboarding_foodpreference_screen.dart';
 import 'package:read_the_label/views/screens/onboarding_getstarted_screen.dart';
+import 'package:read_the_label/views/screens/onboarding_health_conditions_screen.dart';
 import 'package:read_the_label/views/screens/onboarding_health_metrics_screen.dart';
 import 'package:read_the_label/views/screens/product_analysis_view.dart';
 import 'firebase_options.dart';
@@ -78,6 +79,8 @@ class MyApp extends StatelessWidget {
               const OnboardingGetstartedScreen(),
           '/onboarding-food-preference': (context) =>
               const OnboardingFoodPreferenceScreen(),
+          '/onboarding-health-conditions': (context) =>
+              const OnboardingHealthConditionsScreen(),
           '/onboarding-health-metrics': (context) =>
               const OnboardingHealthMetricsScreen(),
 

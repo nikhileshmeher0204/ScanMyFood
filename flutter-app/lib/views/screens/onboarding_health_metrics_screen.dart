@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/models/api_exception.dart';
 import 'package:read_the_label/repositories/user_repository.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
@@ -226,16 +227,32 @@ class _OnboardingHealthMetricsScreenState
                                               (route) => false,
                                             );
                                           }
+                                        } on ApiException catch (e) {
+                                          logger.e(
+                                              'ApiException completing onboarding: $e');
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  e.isNotFound
+                                                      ? 'Your account was not found. Please sign out and sign in again.'
+                                                      : 'Failed to save information: ${e.message}',
+                                                ),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                          }
                                         } catch (e) {
                                           logger.e(
-                                              'Error completing onboarding: $e');
+                                              'Unexpected error completing onboarding: $e');
                                           // Show error to user
                                           if (context.mounted) {
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                    'Error saving information: ${e.toString()}'),
+                                                    'Unexpected error: ${e.toString()}'),
                                                 backgroundColor: Colors.red,
                                               ),
                                             );
