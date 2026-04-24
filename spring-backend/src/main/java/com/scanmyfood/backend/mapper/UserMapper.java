@@ -1,5 +1,6 @@
 package com.scanmyfood.backend.mapper;
 
+import com.scanmyfood.backend.dto.UserCheckResponse;
 import com.scanmyfood.backend.models.User;
 import org.apache.ibatis.annotations.*;
 
@@ -24,8 +25,8 @@ public interface UserMapper {
     })
     User findByFirebaseUid(@Param("firebaseUid") String firebaseUid);
 
-    @Select("SELECT COUNT(*) > 0 FROM users WHERE firebase_uid = #{firebaseUid}")
-    boolean existsByFirebaseUid(@Param("firebaseUid") String firebaseUid);
+    @Select("SELECT firebase_uid, is_onboarding_complete FROM users WHERE firebase_uid = #{firebaseUid}")
+    UserCheckResponse existsByFirebaseUid(@Param("firebaseUid") String firebaseUid);
 
     @Insert("INSERT INTO users (firebase_uid, email, display_name, is_onboarding_complete, created_at, updated_at, " +
             "dietary_preference, country, height_feet, height_inches, weight_kg, goal) " +

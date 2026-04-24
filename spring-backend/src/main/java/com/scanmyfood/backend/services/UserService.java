@@ -1,5 +1,8 @@
 package com.scanmyfood.backend.services;
 
+import com.scanmyfood.backend.constants.ErrorCodes;
+import com.scanmyfood.backend.dto.UserCheckResponse;
+import com.scanmyfood.backend.exceptions.NotFoundException;
 import com.scanmyfood.backend.models.User;
 import com.scanmyfood.backend.mapper.UserMapper;
 import jakarta.transaction.Transactional;
@@ -17,7 +20,8 @@ public class UserService {
     private User getUserByFirebaseUid(String firebaseUid) {
         User user = userMapper.findByFirebaseUid(firebaseUid);
         if (user == null) {
-            throw new IllegalArgumentException("User not found with firebaseUid: " + firebaseUid);
+            throw new NotFoundException(ErrorCodes.ERR_USER_NOT_FOUND,
+                    "No user exists with firebase uid: " + firebaseUid);
         }
         return user;
     }
@@ -28,7 +32,7 @@ public class UserService {
         if (user != null) {
             return user;
         }
-        
+
         User newUser = new User();
         log.info("Creating new user with uid {}", firebaseUid);
         newUser.setFirebaseUid(firebaseUid);
@@ -39,25 +43,17 @@ public class UserService {
         return newUser;
     }
 
-    public boolean isNewUser(String firebaseUid) {
-        return !userMapper.existsByFirebaseUid(firebaseUid);
+    public UserCheckResponse isNewUser(String firebaseUid) {
+        User user = getUserByFirebaseUid(firebaseUid);
+        UserCheckResponse userCheckResponse = new UserCheckResponse();
+        userCheckResponse.setNewUser(true);
+        userCheckResponse.setOnboardingComplete(user.isOnboardingComplete());
+        return userCheckResponse;
     }
-
-    public boolean isOnboardingComplete(String firebaseUid) {
-        User user = userMapper.findByFirebaseUid(firebaseUid);
-        if (user != null) {
-            boolean isMarkedComplete = user.isOnboardingComplete();
-            log.info("User {} onboarding status: markedComplete={}",
-                    firebaseUid, isMarkedComplete);
-            return isMarkedComplete;
-        }
-        return false;
-    }
-
 
     @Transactional
     public void saveHealthMetrics(String firebaseUid, Integer heightFeet, Integer heightInches,
-                                  Double weightKg, String goal) {
+            Double weightKg, String goal) {
         // Ensure user exists
         getUserByFirebaseUid(firebaseUid);
 

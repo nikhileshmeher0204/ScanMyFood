@@ -217,7 +217,7 @@ class _OnboardingFoodpreferenceScreenState
 
                                           if (context.mounted) {
                                             Navigator.pushNamed(context,
-                                                '/onboarding-health-metrics');
+                                                '/onboarding-health-conditions');
                                           }
                                         } catch (e) {
                                           logger.e(

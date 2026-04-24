@@ -41,6 +41,7 @@ class ApiClient {
         uri,
         headers: {
           'Content-Type': 'application/json',
+          'X-Firebase-Uid': getCurrentUid() ?? '',
           if (token != null) 'Authorization': 'Bearer $token',
         },
       ).timeout(const Duration(seconds: 15)); // Add timeout
@@ -104,6 +105,43 @@ class ApiClient {
       }
     } catch (e) {
       logger.d("API POST call error: $e");
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> put(
+      String endpoint, Map<String, dynamic> data) async {
+    try {
+      final uri = Uri.parse('$baseUrl$endpoint');
+      logger.d("Making PUT request to: $uri");
+      final token = await getAuthToken();
+
+      final response = await http.put(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(data),
+      );
+
+      logger.d("PUT Response status code: ${response.statusCode}");
+      logger.d("PUT Response body: ${response.body}");
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        if (response.body.isEmpty) {
+          return {};
+        }
+        try {
+          return jsonDecode(response.body);
+        } catch (e) {
+          return {"rawResponse": response.body};
+        }
+      } else {
+        throw Exception('PUT failed with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      logger.d("API PUT call error: $e");
       rethrow;
     }
   }

@@ -49,6 +49,18 @@ class AppColors {
 
   static const Color inputBackground = Color(0xFF1A1A1A);
 
+  // Apple system dark-mode colors (HIG)
+  // https://developer.apple.com/design/human-interface-guidelines/color
+  static const Color appleLabel = Color(0xFFFFFFFF);                        // label
+  static const Color appleSecondaryLabel = Color.fromRGBO(235, 235, 245, 0.6); // secondaryLabel
+  static const Color appleTertiaryLabel = Color.fromRGBO(235, 235, 245, 0.3);  // tertiaryLabel
+  static const Color appleQuaternaryLabel = Color.fromRGBO(235, 235, 245, 0.18); // quaternaryLabel
+  static const Color appleSeparator = Color.fromRGBO(84, 84, 88, 0.6);     // separator
+  static const Color appleIconUnselected = Color.fromRGBO(255, 255, 255, 0.38); // icon unselected tint
+  static const Color appleCheckmarkUnselected = Color.fromRGBO(255, 255, 255, 0.24); // unchecked circle
+  static const Color appleHighlight = Color.fromRGBO(255, 255, 255, 0.04); // cell press highlight
+  static const Color appleGroupedBackground = Color(0xFF1C1C1E);            // systemGroupedBackground
+
   static Color getTitleColor(Color bg) {
     final luminance = bg.computeLuminance();
 

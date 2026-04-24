@@ -23,7 +23,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final user = Provider.of<User?>(context);
-    
+
     // Only re-run the check if the user has changed
     if (user?.uid != _lastUid) {
       _lastUid = user?.uid;
@@ -41,11 +41,13 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
     try {
       // 1. Check if user is known to our backend
-      final isNewUser = await userRepository.isNewUser();
-      logger.i("AuthWrapper: Is new user: $isNewUser");
-
-      if (isNewUser) {
-        logger.i("AuthWrapper: User is new, creating record and going to onboarding");
+      final userCheckResponse = await userRepository.isNewUser();
+      logger.i("AuthWrapper: Is new user: ${userCheckResponse.isNewUser}");
+      logger.i(
+          "AuthWrapper: Onboarding completed: ${userCheckResponse.isOnboardingComplete}");
+      if (userCheckResponse.isNewUser) {
+        logger.i(
+            "AuthWrapper: User is new, creating record and going to onboarding");
         await userRepository.createUser(
           user.uid,
           user.email ?? "",
@@ -55,13 +57,9 @@ class _AuthWrapperState extends State<AuthWrapper> {
       }
 
       // 2. Check if onboarding is complete
-      final onboardingCompleted = await userRepository.isOnboardingComplete(
-        firebaseUid: user.uid,
-      );
-      logger.i("AuthWrapper: Onboarding completed: $onboardingCompleted");
-
-      if (!onboardingCompleted) {
-        logger.i("AuthWrapper: Onboarding not complete, going to onboarding flow");
+      if (!userCheckResponse.isOnboardingComplete) {
+        logger.i(
+            "AuthWrapper: Onboarding not complete, going to onboarding flow");
         return const OnboardingFoodPreferenceScreen();
       }
 
