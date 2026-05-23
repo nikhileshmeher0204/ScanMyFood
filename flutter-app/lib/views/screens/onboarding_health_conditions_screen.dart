@@ -6,7 +6,9 @@ import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/onboarding_view_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:read_the_label/views/widgets/health_condition_card.dart';
+import 'package:read_the_label/views/screens/onboarding_health_metrics_screen.dart';
 
 class OnboardingHealthConditionsScreen extends StatefulWidget {
   const OnboardingHealthConditionsScreen({super.key});
@@ -118,12 +120,11 @@ class _OnboardingHealthConditionsScreenState
                   Padding(
                     padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
                     child: Text(
-                      "This helps us tailor better recommendations for your unique needs.",
+                      "Get personalized insights and warnings\ntailored to your conditions and eating habits.",
                       style: AppTextStyles.bodyMedium,
                     ),
                   ),
 
-                  // ── Apple-style inset grouped list ───────────────────────
                   Expanded(
                     child: vm.isLoadingConditions
                         ? const Center(
@@ -140,8 +141,8 @@ class _OnboardingHealthConditionsScreenState
                               )
                             : Padding(
                                 // Horizontal inset — Apple's inset grouped style
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(16),
                                   child: Container(
@@ -247,12 +248,17 @@ class _OnboardingHealthConditionsScreenState
       if (user == null) throw Exception("User not logged in");
 
       await userRepo.saveUserHealthConditions(
-        firebaseUid: user.uid,
+        userId: user.uid,
         conditionNames: vm.selectedConditionNames.toList(),
       );
 
       if (mounted) {
-        Navigator.pushNamed(context, '/onboarding-health-metrics');
+        Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (_) => const OnboardingHealthMetricsScreen(),
+          ),
+        );
       }
     } catch (e) {
       logger.e("Error saving health conditions: $e");

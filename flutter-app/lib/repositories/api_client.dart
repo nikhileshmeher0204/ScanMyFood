@@ -26,9 +26,9 @@ class ApiClient {
   }
 
   // Get the current user's UID
-  String? getCurrentUid() {
+  String getCurrentUid() {
     final user = FirebaseAuth.instance.currentUser;
-    return user?.uid;
+    return user!.uid;
   }
 
   // Helper method for GET requests
@@ -42,7 +42,7 @@ class ApiClient {
         uri,
         headers: {
           'Content-Type': 'application/json',
-          'X-Firebase-Uid': getCurrentUid() ?? '',
+          'X-User-Id': getCurrentUid(),
           if (token != null) 'Authorization': 'Bearer $token',
         },
       ).timeout(const Duration(seconds: 15)); // Add timeout
@@ -84,6 +84,7 @@ class ApiClient {
         uri,
         headers: {
           'Content-Type': 'application/json',
+          'X-User-Id': getCurrentUid(),
           if (token != null) 'Authorization': 'Bearer $token',
         },
         body: jsonEncode(data),
@@ -121,6 +122,7 @@ class ApiClient {
         uri,
         headers: {
           'Content-Type': 'application/json',
+          'X-User-Id': getCurrentUid(),
           if (token != null) 'Authorization': 'Bearer $token',
         },
         body: jsonEncode(data),

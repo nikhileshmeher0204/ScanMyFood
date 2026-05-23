@@ -11,11 +11,11 @@ import java.util.List;
 @Mapper
 public interface HealthConditionMapper {
     List<HealthCondition> findAll();
-    
+
     @Insert("INSERT INTO user_health_conditions (user_id, condition_name, date_added, status, severity) " +
-            "VALUES (#{user.id}, #{condition.name}, #{dateAdded}, #{status}, #{severity})")
+            "VALUES (#{user.userId}, #{condition.name}, #{dateAdded}, #{status}, #{severity})")
     void insertUserCondition(UserHealthCondition userHealthCondition);
-    
+
     @Delete("DELETE FROM user_health_conditions WHERE user_id = #{userId}")
-    void deleteUserConditions(@Param("userId") Long userId);
+    void deleteUserConditions(@Param("userId") String userId);
 }

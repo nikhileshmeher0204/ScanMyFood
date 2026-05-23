@@ -35,9 +35,10 @@ public class AiAnalysisController {
     @PostMapping(value = "/analyze/product", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ProductAnalysisResponse>> analyzeProductImages(
             @RequestParam("frontImage") MultipartFile frontImage,
-            @RequestParam("labelImage") MultipartFile labelImage) {
+            @RequestParam("labelImage") MultipartFile labelImage,
+            @RequestHeader("X-User-Id") String userId) {
         log.info("Analyzing product images");
-        ProductAnalysisResponse analysis = aiService.analyzeProductImages(frontImage, labelImage);
+        ProductAnalysisResponse analysis = aiService.analyzeProductImages(frontImage, labelImage, userId);
         log.info("Product images analyzed successfully");
         return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.PRODUCT_ANALYZED, analysis));
     }

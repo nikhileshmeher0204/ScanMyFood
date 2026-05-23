@@ -25,32 +25,31 @@ public class UserController {
 
     @GetMapping("/user")
     public ResponseEntity<ApiResponse<UserCheckResponse>> checkIfNewUser(
-            @RequestHeader("X-Firebase-Uid") String firebaseUid) {
-        log.info("Checking if user with uid {} is new", firebaseUid);
-        UserCheckResponse userCheckResponse = userService.isNewUser(firebaseUid);
+            @RequestHeader("X-User-Id") String userId) {
+        log.info("Checking if user with id {} is new", userId);
+        UserCheckResponse userCheckResponse = userService.isNewUser(userId);
         return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.NEW_USER_CHECKED, userCheckResponse));
     }
 
     @PostMapping("/create-user")
     public ResponseEntity<ApiResponse<CreateUserResponse>> createUser(@RequestBody CreateUserRequest request) {
-        log.info("Creating user with uid {}", request.getFirebaseUid());
-        User user = userService.findOrCreateUser(request.getFirebaseUid(), request.getEmail(),
+        log.info("Creating user with id {}", request.getUserId());
+        User user = userService.findOrCreateUser(request.getUserId(), request.getEmail(),
                 request.getDisplayName());
 
         CreateUserResponse response = CreateUserResponse.builder()
-                .userId(user.getFirebaseUid())
+                .userId(user.getUserId())
                 .created(true)
                 .build();
-        log.info("User with uid {} created successfully", request.getFirebaseUid());
+        log.info("User with id {} created successfully", request.getUserId());
         return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.USER_CREATED, response));
     }
 
     @PostMapping("/complete-onboarding")
     public ResponseEntity<ApiResponse<Map<String, Object>>> completeOnboarding(@RequestBody OnboardingRequest request) {
-        log.info("Completing onboarding for user {}", request.getFirebaseUid());
+        log.info("Completing onboarding for user {}", request.getUserId());
 
-        userService.completeUserOnboarding(
-                request.getFirebaseUid());
+        userService.completeUserOnboarding(request.getUserId());
 
         return ResponseEntity.ok(ApiResponse.success(Map.of(
                 "success", true,
@@ -60,9 +59,9 @@ public class UserController {
 
     @PutMapping("/preferences")
     public ResponseEntity<ApiResponse<Void>> savePreferences(@RequestBody UserPreferencesRequest request) {
-        log.info("Saving preferences for user {}", request.getFirebaseUid());
+        log.info("Saving preferences for user {}", request.getUserId());
         userService.saveUserPreferences(
-                request.getFirebaseUid(),
+                request.getUserId(),
                 request.getDietaryPreference(),
                 request.getCountry());
         return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.PREFERENCES_SAVED, null));
@@ -70,9 +69,9 @@ public class UserController {
 
     @PutMapping("/health-metrics")
     public ResponseEntity<ApiResponse<Void>> saveHealthMetrics(@RequestBody HealthMetricsRequest request) {
-        log.info("Saving health metrics for user {}", request.getFirebaseUid());
+        log.info("Saving health metrics for user {}", request.getUserId());
         userService.saveHealthMetrics(
-                request.getFirebaseUid(),
+                request.getUserId(),
                 request.getHeightFeet(),
                 request.getHeightInches(),
                 request.getWeightKg(),
@@ -82,9 +81,9 @@ public class UserController {
 
     @PutMapping("/health-conditions")
     public ResponseEntity<ApiResponse<Void>> saveHealthConditions(@RequestBody SaveUserConditionsRequest request) {
-        log.info("Saving health conditions for user {}", request.getFirebaseUid());
+        log.info("Saving health conditions for user {}", request.getUserId());
         healthConditionService.saveUserConditions(
-                request.getFirebaseUid(),
+                request.getUserId(),
                 request.getConditionNames());
         return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.SUCCESS, null));
     }

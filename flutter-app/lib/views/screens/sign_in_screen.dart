@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/views/screens/home_page.dart';
@@ -131,7 +132,7 @@ class SignInScreen extends StatelessWidget {
 
               // Navigate to home page
               Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const HomePage()),
+                CupertinoPageRoute(builder: (_) => const HomePage()),
               );
             }
           }

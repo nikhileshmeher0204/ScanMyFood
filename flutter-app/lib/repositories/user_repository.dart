@@ -19,12 +19,6 @@ class UserRepository implements UserRepositoryInterface {
   Future<UserCheckResponse> isNewUser() async {
     logger.d('Checking if user is new...');
 
-    final uid = _apiClient.getCurrentUid();
-    if (uid == null) {
-      logger.w('isNewUser called with no authenticated user; treating as new.');
-      return UserCheckResponse(isNewUser: true, isOnboardingComplete: false);
-    }
-
     try {
       final response = await _apiClient.get('/users/user');
       final data = response['data'];
@@ -47,13 +41,11 @@ class UserRepository implements UserRepositoryInterface {
 
   @override
   Future<void> completeOnboarding({
-    required String firebaseUid,
+    required String userId,
   }) async {
     logger.d('Completing onboarding...');
     try {
-      final request = OnboardingRequest(
-        firebaseUid: firebaseUid,
-      );
+      final request = OnboardingRequest(userId: userId);
       await _apiClient.post('/users/complete-onboarding', request.toJson());
       logger.d('Onboarding completed successfully');
     } catch (e) {
@@ -64,13 +56,13 @@ class UserRepository implements UserRepositoryInterface {
 
   @override
   Future<void> saveUserPreferences({
-    required String firebaseUid,
+    required String userId,
     required String dietaryPreference,
     required String country,
   }) async {
     logger.d('Saving user preferences...');
     final request = UserPreferencesRequest(
-      firebaseUid: firebaseUid,
+      userId: userId,
       dietaryPreference: dietaryPreference,
       country: country,
     );
@@ -79,7 +71,7 @@ class UserRepository implements UserRepositoryInterface {
 
   @override
   Future<void> saveHealthMetrics({
-    required String firebaseUid,
+    required String userId,
     required int heightFeet,
     required int heightInches,
     required double weightKg,
@@ -87,7 +79,7 @@ class UserRepository implements UserRepositoryInterface {
   }) async {
     logger.d('Saving health metrics...');
     final request = HealthMetricsRequest(
-      firebaseUid: firebaseUid,
+      userId: userId,
       heightFeet: heightFeet,
       heightInches: heightInches,
       weightKg: weightKg,
@@ -98,10 +90,10 @@ class UserRepository implements UserRepositoryInterface {
 
   @override
   Future<void> createUser(
-      String firebaseUid, String email, String displayName) async {
+      String userId, String email, String displayName) async {
     logger.d('Creating user...');
     final request = CreateUserRequest(
-      firebaseUid: firebaseUid,
+      userId: userId,
       email: email,
       displayName: displayName,
     );
@@ -126,12 +118,12 @@ class UserRepository implements UserRepositoryInterface {
 
   @override
   Future<void> saveUserHealthConditions({
-    required String firebaseUid,
+    required String userId,
     required List<String> conditionNames,
   }) async {
     logger.d('Saving user health conditions...');
     final request = SaveUserConditionsRequest(
-      firebaseUid: firebaseUid,
+      userId: userId,
       conditionNames: conditionNames,
     );
     await _apiClient.put('/users/health-conditions', request.toJson());

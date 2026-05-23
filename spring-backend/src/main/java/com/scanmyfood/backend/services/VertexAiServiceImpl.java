@@ -8,6 +8,7 @@ import com.scanmyfood.backend.models.FoodAnalysisResponse;
 import com.scanmyfood.backend.models.ProductAnalysisResponse;
 
 import com.scanmyfood.backend.constants.NutrientConstants;
+import com.scanmyfood.backend.models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.cloud.vertexai.VertexAI;
 import com.google.cloud.vertexai.api.Content;
 import com.google.cloud.vertexai.api.GenerateContentResponse;
 import com.google.cloud.vertexai.generativeai.ContentMaker;
@@ -32,88 +32,89 @@ public class VertexAiServiceImpl implements AiService {
   private ObjectMapper objectMapper;
 
   @Autowired
-  private VertexAI vertexAI;
-
-  @Autowired
   private GenerativeModel generativeModel;
 
   @Autowired
   private GenerativeModel imageGenerativeModel;
 
+  @Autowired
+  private UserService userService;
+
   @Override
-  public ProductAnalysisResponse analyzeProductImages(MultipartFile frontImage, MultipartFile labelImage) {
+  public ProductAnalysisResponse analyzeProductImages(MultipartFile frontImage, MultipartFile labelImage, String userId) {
 
     try {
       String frontMimeType = determineMimeType(frontImage);
       String labelMimeType = determineMimeType(labelImage);
+      User user = userService.getUserByUserId(userId);
 
       // Create prompt
-      String prompt = """
-          Analyze the food product, product name and its nutrition label. Provide response in this strict JSON format:
-          {
-            "product": {
-              "name": "Product name from front image",
-              "category": "Food category (e.g., snack, beverage, etc.)"
-            },
-            "nutrition_analysis": {
-              "total_quantity": {"value": 0, "unit": "unit in packet"},
-              "serving_size": {"value": 0, "unit": "unit in packet"},
-              "nutrients": [
-                {
-                  "name": "nutrient name in snake_case from the list below",
-                  "quantity": {"value": "Quantity of nutrient in per serving of food product", "unit": "unit in packet"},
-                  "daily_value": 0,
-                  "dv_status": "High/Moderate/Low based on calculated DV%%",
-                  "goal": "Goal of consumption of a nutrient can be - 'At least' or 'Less than' based on recommended DV%%",
-                  "health_impact": "Good/Moderate/Bad"
-                }
-              ],
-              "primary_concerns": [
-                {
-                  "issue": "Primary nutritional concern",
-                  "explanation": "Brief explanation of health impact",
-                  "recommendations": [
+          String prompt = """
+              Analyze the food product, product name and its nutrition label. Provide response in this strict JSON format:
+              {
+                "product": {
+                  "name": "Product name from front image",
+                  "category": "Food category (e.g., snack, beverage, etc.)"
+                },
+                "nutrition_analysis": {
+                  "total_quantity": {"value": 0, "unit": "unit in packet"},
+                  "serving_size": {"value": 0, "unit": "unit in packet"},
+                  "nutrients": [
                     {
-                      "food": "Complementary food to add",
-                      "quantity": "Recommended quantity to add",
-                      "reasoning": "How this helps balance nutrition"
+                      "name": "nutrient name in snake_case from the list below",
+                      "quantity": {"value": "Quantity of nutrient in per serving of food product", "unit": "unit in packet"},
+                      "daily_value": 0,
+                      "dv_status": "High/Moderate/Low based on calculated DV%%",
+                      "goal": "Goal of consumption of a nutrient can be - 'At least' or 'Less than' based on recommended DV%%",
+                      "health_impact": "Good/Moderate/Bad"
+                    }
+                  ],
+                  "primary_concerns": [
+                    {
+                      "issue": "Primary nutritional concern",
+                      "explanation": "Brief explanation of health impact",
+                      "recommendations": [
+                        {
+                          "food": "Complementary food to add",
+                          "quantity": "Recommended quantity to add",
+                          "reasoning": "How this helps balance nutrition"
+                        }
+                      ]
                     }
                   ]
                 }
-              ]
-            }
-          }
+              }
 
-          Strictly follow these rules:
-          1. MUST include ALL nutrients from this list: %s
-          2. If a nutrient is not found on the label, set its value to 0.0 and use standard unit
-          3. Extract total nutrient (e.g., Total Sugars, Total Fat) and its sub-nutrients (e.g., Added Sugars, Saturated Fat, Trans Fat) if mentioned in the label
-          4. Calculate DV%% using these reference values:
-             %s
-             Formula: (nutrient_quantity_per_serving / daily_value_reference) × 100
-          5. Return calculated DV%% in double, and not the ones found in label
-          6. Do not include any extra characters or formatting outside of the JSON object
-          7. Use accurate escape sequences for any special characters
-          8. For primary_concerns, focus on major nutritional imbalances
-          9. For recommendations:
-             - Suggest foods that can be added to complement the product
-             - Focus on practical additions
-             - Explain how each addition helps balance nutrition
-          10. Use %%DV guidelines:
-             5%% DV or less is considered low dv_status
-             20%% DV or more is considered high dv_status
-             5%% < DV < 20%% is considered moderate dv_status
-          11. For health_impact determination:
-             "At least" nutrients (like fiber, protein):
-               High dv_status → Good health_impact
-               Moderate dv_status → Moderate health_impact
-               Low dv_status → Bad health_impact
-             "Less than" nutrients (like sodium, saturated fat, trans fat, sugar, cholesterol):
-               Low dv_status → Good health_impact
-               Moderate dv_status → Moderate health_impact
-               High dv_status → Bad health_impact
-          """
-          .formatted(NutrientConstants.ALL_NUTRIENT_NAMES, NutrientConstants.DAILY_VALUES_REFERENCE);
+              Strictly follow these rules:
+              1. MUST include ALL nutrients from this list: %s
+              2. If a nutrient is not found on the label, set its value to 0.0 and use standard unit
+              3. Extract total nutrient (e.g., Total Sugars, Total Fat) and its sub-nutrients (e.g., Added Sugars, Saturated Fat, Trans Fat) if mentioned in the label
+              4. Calculate DV%% using these reference values:
+                 %s
+                 Formula: (nutrient_quantity_per_serving / daily_value_reference) × 100
+              5. Return calculated DV%% in double, and not the ones found in label
+              6. Do not include any extra characters or formatting outside of the JSON object
+              7. Use accurate escape sequences for any special characters
+              8. For primary_concerns, focus on major nutritional imbalances
+              9. For recommendations:
+                 - Suggest foods that can be added to complement the product
+                 - Focus on practical additions
+                 - Explain how each addition helps balance nutrition
+              10. Use %%DV guidelines:
+                 5%% DV or less is considered low dv_status
+                 20%% DV or more is considered high dv_status
+                 5%% < DV < 20%% is considered moderate dv_status
+              11. For health_impact determination:
+                 "At least" nutrients (like fiber, protein):
+                   High dv_status → Good health_impact
+                   Moderate dv_status → Moderate health_impact
+                   Low dv_status → Bad health_impact
+                 "Less than" nutrients (like sodium, saturated fat, trans fat, sugar, cholesterol):
+                   Low dv_status → Good health_impact
+                   Moderate dv_status → Moderate health_impact
+                   High dv_status → Bad health_impact
+              """
+              .formatted(NutrientConstants.ALL_NUTRIENT_NAMES, NutrientConstants.DAILY_VALUES_REFERENCE);
 
       // Use ContentMaker and PartMaker
       Content content = ContentMaker.fromMultiModalData(
