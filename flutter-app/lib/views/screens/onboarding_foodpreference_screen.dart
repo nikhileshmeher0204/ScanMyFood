@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/main.dart';
+import 'package:read_the_label/models/api_exception.dart';
+import 'package:read_the_label/repositories/user_repository.dart';
+import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/onboarding_view_model.dart';
+import 'package:read_the_label/views/widgets/choice_card.dart';
+import 'package:read_the_label/views/widgets/app_selection_field.dart';
+import 'package:read_the_label/views/widgets/app_cupertino_picker.dart';
+import 'package:read_the_label/views/widgets/app_picker_modal.dart';
+import 'package:read_the_label/views/screens/onboarding_health_conditions_screen.dart';
 
 class OnboardingFoodPreferenceScreen extends StatefulWidget {
   const OnboardingFoodPreferenceScreen({super.key});
@@ -15,7 +24,6 @@ class OnboardingFoodPreferenceScreen extends StatefulWidget {
 
 class _OnboardingFoodpreferenceScreenState
     extends State<OnboardingFoodPreferenceScreen> {
-  String _selectedCountry = "United States";
   final List<String> _countries = [
     "United States",
     "India",
@@ -28,12 +36,12 @@ class _OnboardingFoodpreferenceScreenState
     "China",
     // Add more countries as needed
   ];
-  int _selectedDietIndex = -1; // -1 means no selection
+
+  bool _isSaving = false;
 
   @override
   Widget build(BuildContext context) {
-    final onboardingViewModel =
-        Provider.of<OnboardingViewModel>(context, listen: false);
+    final onboardingViewModel = Provider.of<OnboardingViewModel>(context);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -99,54 +107,12 @@ class _OnboardingFoodpreferenceScreenState
                           ),
                         ),
                         // Country dropdown section
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Country",
-                              style: AppTextStyles.withColor(
-                                  AppTextStyles.bodyMedium, Colors.white70),
-                            ),
-                            const SizedBox(height: 8),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryWhite.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(15),
-                                border: Border.all(color: Colors.white30),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: CupertinoButton(
-                                  padding: EdgeInsets.zero,
-                                  onPressed: () {
-                                    _showCountryPicker(context);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 12),
-                                    width: double.infinity,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          _selectedCountry,
-                                          style: AppTextStyles.withColor(
-                                            AppTextStyles.bodyLarge,
-                                            AppColors.primaryWhite,
-                                          ),
-                                        ),
-                                        const Icon(
-                                          Icons.keyboard_arrow_down,
-                                          color: AppColors.primaryWhite,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                        AppSelectionField(
+                          label: "Country",
+                          icon: Icons.public,
+                          value: onboardingViewModel.selectedCountry,
+                          onTap: () =>
+                              _showCountryPicker(context, onboardingViewModel),
                         ),
 
                         const SizedBox(height: 24),
@@ -161,31 +127,156 @@ class _OnboardingFoodpreferenceScreenState
                                   AppTextStyles.bodyMedium, Colors.white70),
                             ),
                             const SizedBox(height: 12),
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: [
-                                  _buildPreferenceButton("Veg", 0),
-                                  const SizedBox(width: 12),
-                                  _buildPreferenceButton("Non-Veg", 1),
-                                  const SizedBox(width: 12),
-                                  _buildPreferenceButton("Vegan", 2),
-                                ],
-                              ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ChoiceCard(
+                                    title: "Veg",
+                                    iconPath: "assets/icons/veg_icon.png",
+                                    accentColor: AppColors.secondaryGreen,
+                                    isSelected: onboardingViewModel
+                                            .getDietaryPreferenceIndex() ==
+                                        0,
+                                    onTap: () => onboardingViewModel
+                                        .setDietaryPreference(
+                                            DietaryPreference.vegetarian),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: ChoiceCard(
+                                    title: "Non-Veg",
+                                    iconPath: "assets/icons/non_veg_icon.png",
+                                    accentColor: AppColors.secondaryRed,
+                                    isSelected: onboardingViewModel
+                                            .getDietaryPreferenceIndex() ==
+                                        1,
+                                    onTap: () => onboardingViewModel
+                                        .setDietaryPreference(
+                                            DietaryPreference.nonVegetarian),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: ChoiceCard(
+                                    title: "Vegan",
+                                    iconPath: "assets/icons/vegan_icon.png",
+                                    accentColor: AppColors.secondaryGreen,
+                                    isSelected: onboardingViewModel
+                                            .getDietaryPreferenceIndex() ==
+                                        2,
+                                    onTap: () => onboardingViewModel
+                                        .setDietaryPreference(
+                                            DietaryPreference.vegan),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
 
+                        const SizedBox(height: 32),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(top: 3.0),
+                              child: Icon(
+                                Icons.info_outline,
+                                size: 14,
+                                color: AppColors.primaryWhite,
+                              ),
+                            ),
+                            const SizedBox(width: 8.0),
+                            Expanded(
+                              child: Text(
+                                "Insights and recommendations will be tailored for your region and dietary preference.",
+                                style: AppTextStyles.bodyMedium,
+                              ),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 32),
 
                         Row(
                           children: [
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                      context, '/onboarding-health-metrics');
-                                },
+                                onPressed: _isSaving
+                                    ? null
+                                    : () async {
+                                        setState(() {
+                                          _isSaving = true;
+                                        });
+
+                                        try {
+                                          final authService =
+                                              Provider.of<AuthService>(context,
+                                                  listen: false);
+                                          final userRepo =
+                                              Provider.of<UserRepository>(
+                                                  context,
+                                                  listen: false);
+                                          final user = authService.currentUser;
+
+                                          if (user == null) {
+                                            throw Exception(
+                                                "User not logged in");
+                                          }
+
+                                          await userRepo.saveUserPreferences(
+                                            userId: user.uid,
+                                            dietaryPreference: onboardingViewModel
+                                                .getDietaryPreferenceString(),
+                                            country: onboardingViewModel
+                                                .selectedCountry,
+                                          );
+
+                                          if (context.mounted) {
+                                            Navigator.push(
+                                              context,
+                                              CupertinoPageRoute(
+                                                builder: (_) => const OnboardingHealthConditionsScreen(),
+                                              ),
+                                            );
+                                          }
+                                        } on ApiException catch (e) {
+                                          logger.e(
+                                              'ApiException saving preferences: $e');
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  e.isNotFound
+                                                      ? 'Your account was not found. Please sign out and sign in again.'
+                                                      : 'Failed to save preferences: ${e.message}',
+                                                ),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                          }
+                                        } catch (e) {
+                                          logger.e(
+                                              'Unexpected error saving preferences: $e');
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    'Unexpected error: ${e.toString()}'),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                          }
+                                        } finally {
+                                          if (mounted) {
+                                            setState(() {
+                                              _isSaving = false;
+                                            });
+                                          }
+                                        }
+                                      },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primaryWhite,
                                   foregroundColor: AppColors.primaryBlack,
@@ -197,10 +288,19 @@ class _OnboardingFoodpreferenceScreenState
                                     vertical: 16,
                                   ),
                                 ),
-                                child: Text(
-                                  "Continue",
-                                  style: AppTextStyles.buttonTextBlack,
-                                ),
+                                child: _isSaving
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: AppColors.primaryBlack,
+                                        ),
+                                      )
+                                    : Text(
+                                        "Continue",
+                                        style: AppTextStyles.buttonTextBlack,
+                                      ),
                               ),
                             ),
                           ],
@@ -215,149 +315,28 @@ class _OnboardingFoodpreferenceScreenState
     );
   }
 
-  void _showCountryPicker(BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: 300,
-          decoration: const BoxDecoration(
-            color: AppColors.primaryBlack,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Colors.white24,
-                      width: 0.5,
-                    ),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CupertinoButton(
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                    CupertinoButton(
-                      child: const Text(
-                        'Done',
-                        style: TextStyle(color: AppColors.secondaryGreen),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: CupertinoPicker(
-                  magnification: 1.22,
-                  squeeze: 1.2,
-                  useMagnifier: true,
-                  backgroundColor: AppColors.cardBackground,
-                  itemExtent: 40,
-                  scrollController: FixedExtentScrollController(
-                    initialItem: _countries.indexOf(_selectedCountry),
-                  ),
-                  onSelectedItemChanged: (int index) {
-                    final onboardingViewModel =
-                        Provider.of<OnboardingViewModel>(context,
-                            listen: false);
-                    onboardingViewModel.setCountry(_countries[index]);
-                  },
-                  children: _countries.map((String country) {
-                    return Center(
-                      child: Text(
-                        country,
-                        style: const TextStyle(
-                          color: AppColors.primaryWhite,
-                          fontSize: 16,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildPreferenceButton(String label, int index) {
-    final onboardingViewModel = Provider.of<OnboardingViewModel>(context);
-    final isSelected = onboardingViewModel.getDietaryPreferenceIndex() == index;
-    IconData getIconForIndex() {
-      switch (index) {
-        case 0: // Veg
-          return Icons.spa_outlined;
-        case 1: // Non-Veg
-          return Icons.restaurant_outlined;
-        case 2: // Vegan
-          return Icons.eco_outlined;
-        default:
-          return Icons.circle_outlined;
-      }
-    }
-
-    return GestureDetector(
-      onTap: () {
-        DietaryPreference preference;
-        switch (index) {
-          case 0:
-            preference = DietaryPreference.vegetarian;
-            break;
-          case 1:
-            preference = DietaryPreference.nonVegetarian;
-            break;
-          case 2:
-            preference = DietaryPreference.vegan;
-            break;
-          default:
-            preference = DietaryPreference.none;
-        }
-        onboardingViewModel.setDietaryPreference(preference);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.secondaryGreen : AppColors.primaryBlack,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(
-            color: isSelected ? AppColors.secondaryGreen : Colors.white30,
-            width: 1,
-          ),
+  void _showCountryPicker(
+      BuildContext context, OnboardingViewModel onboardingViewModel) {
+    showAppPickerModal(
+      context,
+      picker: AppCupertinoPicker(
+        scrollController: FixedExtentScrollController(
+          initialItem: _countries.indexOf(onboardingViewModel.selectedCountry),
         ),
-        child: Row(
-          children: [
-            Icon(
-              getIconForIndex(),
-              color:
-                  isSelected ? AppColors.primaryBlack : AppColors.primaryWhite,
-              size: 18,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: AppTextStyles.withColor(
-                AppTextStyles.bodyMedium,
-                isSelected ? AppColors.primaryBlack : AppColors.primaryWhite,
+        onSelectedItemChanged: (int index) {
+          onboardingViewModel.setCountry(_countries[index]);
+        },
+        children: _countries.map((String country) {
+          return Center(
+            child: Text(
+              country,
+              style: const TextStyle(
+                color: AppColors.primaryWhite,
+                fontSize: 16,
               ),
             ),
-          ],
-        ),
+          );
+        }).toList(),
       ),
     );
   }

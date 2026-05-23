@@ -4,11 +4,6 @@ import 'package:read_the_label/theme/app_colors.dart';
 class AppTextStyles {
   static const String fontFamily = 'Inter';
 
-  // Primary colors for text styles
-  static const Color primaryTextColor = Colors.black;
-  static const Color secondaryTextColor = Colors.white54;
-  static const Color accentTextColor = Color(0xFF9ACD32); // Lime green accent
-
   // Heading styles
   static TextStyle heading1 = const TextStyle(
     fontFamily: fontFamily,
@@ -26,6 +21,22 @@ class AppTextStyles {
     height: 1.3,
   );
 
+  static TextStyle heading2Bold = const TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 30,
+    fontWeight: FontWeight.w700, // Bold
+    letterSpacing: -2.5,
+    height: 1.0,
+  );
+
+  static TextStyle heading2Close = const TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 30,
+    fontWeight: FontWeight.w400,
+    letterSpacing: -1.0,
+    height: 1.3,
+  );
+
   static TextStyle heading2BoldClose = const TextStyle(
     fontFamily: fontFamily,
     fontSize: 30,
@@ -40,6 +51,12 @@ class AppTextStyles {
     fontWeight: FontWeight.w500, // SemiBold
     letterSpacing: -0.3,
     height: 1.3,
+  );
+
+  static TextStyle heading3Bold = const TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 18,
+    fontWeight: FontWeight.w800, // SemiBold
   );
 
   static TextStyle heading4 = const TextStyle(
@@ -71,6 +88,14 @@ class AppTextStyles {
     fontFamily: fontFamily,
     fontSize: 14,
     fontWeight: FontWeight.w400, // Regular
+    letterSpacing: -0.1,
+    height: 1.5,
+  );
+
+  static TextStyle bodyMediumBold = const TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 14,
+    fontWeight: FontWeight.w600, // Semi-Bold
     letterSpacing: -0.1,
     height: 1.5,
   );

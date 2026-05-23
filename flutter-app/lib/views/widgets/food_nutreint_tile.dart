@@ -4,9 +4,10 @@ import 'package:read_the_label/theme/app_text_styles.dart';
 
 class FoodNutrientTile extends StatelessWidget {
   final String label;
-  final String value;
+  final double value;
   final String unit;
   final IconData icon;
+  final String? iconPath;
 
   const FoodNutrientTile({
     super.key,
@@ -14,6 +15,7 @@ class FoodNutrientTile extends StatelessWidget {
     required this.value,
     required this.unit,
     required this.icon,
+    this.iconPath,
   });
 
   @override
@@ -26,16 +28,23 @@ class FoodNutrientTile extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: AppColors.secondaryGreen.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              icon,
-              color: AppColors.secondaryGreen,
-              size: 16,
+          SizedBox(
+            width: 28,
+            height: 28,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: iconPath != null
+                  ? Image.asset(
+                      iconPath!,
+                      width: 20,
+                      height: 20,
+                      fit: BoxFit.contain,
+                    )
+                  : Icon(
+                      icon,
+                      color: AppColors.secondaryGreen,
+                      size: 16,
+                    ),
             ),
           ),
           const SizedBox(width: 8),
@@ -47,7 +56,7 @@ class FoodNutrientTile extends StatelessWidget {
               children: [
                 Text(label, style: AppTextStyles.bodyLarge),
                 const SizedBox(height: 2),
-                Text('$value$unit', style: AppTextStyles.bodyMedium),
+                Text('$value $unit', style: AppTextStyles.bodyMedium),
               ],
             ),
           ),

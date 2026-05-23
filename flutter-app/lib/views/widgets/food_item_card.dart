@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
-import 'package:read_the_label/theme/app_theme.dart';
-import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
+import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:read_the_label/views/widgets/food_nutreint_tile.dart';
 import '../../models/food_item.dart';
 
@@ -20,7 +19,6 @@ class FoodItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
@@ -54,21 +52,35 @@ class FoodItemCard extends StatelessWidget {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: AppColors.onSecondaryContainer,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(10),
                         ),
+                        padding: const EdgeInsets.all(4),
                         child: Text(
-                          '${item.quantity}${item.unit}',
+                          '🔥 ${NutrientUtils.getNutrientValue(item, AppConstants.calories)} ${NutrientUtils.getNutrientUnit(item, AppConstants.calories)}',
                           style: AppTextStyles.withColor(
-                            AppTextStyles.bodyLargeBold,
+                            AppTextStyles.bodyMediumBold,
+                            AppColors.primaryBlack,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.onSecondaryContainer,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        child: Text(
+                          '🍽️ ${item.quantity.value}${item.quantity.unit}',
+                          style: AppTextStyles.withColor(
+                            AppTextStyles.bodyMediumBold,
                             AppColors.primaryBlack,
                           ),
                         ),
                       ),
                       IconButton(
+                        padding: EdgeInsets.zero,
                         icon: const Icon(
                           Icons.edit_outlined,
                           size: 20,
@@ -81,9 +93,7 @@ class FoodItemCard extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 8),
-          // Nutrient grid
+          ), // Nutrient grid
           GridView.count(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
             shrinkWrap: true,
@@ -94,48 +104,58 @@ class FoodItemCard extends StatelessWidget {
             childAspectRatio: 2.5,
             children: [
               FoodNutrientTile(
-                label: 'Calories',
-                value: item
-                        .calculateTotalNutrients()['calories']
-                        ?.toStringAsFixed(1) ??
-                    '0',
-                unit: 'kcal',
-                icon: Icons.local_fire_department_outlined,
-              ),
-              FoodNutrientTile(
-                label: 'Protein',
-                value: item
-                        .calculateTotalNutrients()['protein']
-                        ?.toStringAsFixed(1) ??
-                    '0',
-                unit: 'g',
-                icon: Icons.fitness_center_outlined,
-              ),
-              FoodNutrientTile(
-                label: 'Carbohydrates',
-                value: item
-                        .calculateTotalNutrients()['carbohydrates']
-                        ?.toStringAsFixed(1) ??
-                    '0',
-                unit: 'g',
-                icon: Icons.grain_outlined,
-              ),
-              FoodNutrientTile(
-                label: 'Fat',
+                label: NutrientUtils.toTitleCase(AppConstants.protein),
                 value:
-                    item.calculateTotalNutrients()['fat']?.toStringAsFixed(1) ??
-                        '0',
-                unit: 'g',
-                icon: Icons.opacity_outlined,
+                    NutrientUtils.getNutrientValue(item, AppConstants.protein),
+                unit: NutrientUtils.getNutrientUnit(item, AppConstants.protein),
+                icon: Icons.fitness_center_outlined,
+                iconPath: NutrientUtils.getNutrientIcon(AppConstants.protein),
               ),
               FoodNutrientTile(
-                label: 'Fiber',
-                value: item
-                        .calculateTotalNutrients()['fiber']
-                        ?.toStringAsFixed(1) ??
-                    '0',
-                unit: 'g',
+                label: NutrientUtils.toTitleCase(AppConstants.carbohydrate),
+                value: NutrientUtils.getNutrientValue(
+                    item, AppConstants.totalCarbohydrate),
+                unit: NutrientUtils.getNutrientUnit(
+                    item, AppConstants.totalCarbohydrate),
+                icon: Icons.grain_outlined,
+                iconPath:
+                    NutrientUtils.getNutrientIcon(AppConstants.carbohydrate),
+              ),
+              FoodNutrientTile(
+                label: NutrientUtils.toTitleCase(AppConstants.fat),
+                value:
+                    NutrientUtils.getNutrientValue(item, AppConstants.totalFat),
+                unit:
+                    NutrientUtils.getNutrientUnit(item, AppConstants.totalFat),
+                icon: Icons.opacity_outlined,
+                iconPath: NutrientUtils.getNutrientIcon(AppConstants.fat),
+              ),
+              FoodNutrientTile(
+                label: NutrientUtils.toTitleCase(AppConstants.dietaryFiber),
+                value: NutrientUtils.getNutrientValue(
+                    item, AppConstants.dietaryFiber),
+                unit: NutrientUtils.getNutrientUnit(
+                    item, AppConstants.dietaryFiber),
                 icon: Icons.grass_outlined,
+                iconPath:
+                    NutrientUtils.getNutrientIcon(AppConstants.dietaryFiber),
+              ),
+              FoodNutrientTile(
+                label: NutrientUtils.toTitleCase(AppConstants.sugar),
+                value: NutrientUtils.getNutrientValue(
+                    item, AppConstants.totalSugars),
+                unit: NutrientUtils.getNutrientUnit(
+                    item, AppConstants.totalSugars),
+                icon: Icons.cake_outlined,
+                iconPath: NutrientUtils.getNutrientIcon(AppConstants.sugar),
+              ),
+              FoodNutrientTile(
+                label: NutrientUtils.toTitleCase(AppConstants.sodium),
+                value:
+                    NutrientUtils.getNutrientValue(item, AppConstants.sodium),
+                unit: NutrientUtils.getNutrientUnit(item, AppConstants.sodium),
+                icon: Icons.grain_sharp,
+                iconPath: NutrientUtils.getNutrientIcon(AppConstants.sodium),
               ),
             ],
           ),
@@ -153,7 +173,7 @@ class FoodItemCard extends StatelessWidget {
         backgroundColor: AppColors.cardBackground,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
+          side: const BorderSide(
             color: AppColors.divider,
             width: 1,
           ),
@@ -173,7 +193,7 @@ class FoodItemCard extends StatelessWidget {
             AppColors.primaryWhite,
           ),
           decoration: InputDecoration(
-            hintText: 'Enter quantity in ${item.unit}',
+            hintText: 'Enter quantity in ${item.quantity.unit}',
             hintStyle: AppTextStyles.withColor(
               AppTextStyles.bodyMedium,
               AppColors.textSecondary,
@@ -217,8 +237,8 @@ class FoodItemCard extends StatelessWidget {
             onPressed: () {
               double? newQuantity = double.tryParse(controller.text);
               if (newQuantity != null) {
-                item.quantity = newQuantity;
-                context.read<MealAnalysisViewModel>().updateTotalNutrients();
+                // item.updateQuantity(newQuantity);
+                // context.read<MealAnalysisViewModel>().updateTotalNutrients();
               }
               Navigator.of(context).pop();
             },

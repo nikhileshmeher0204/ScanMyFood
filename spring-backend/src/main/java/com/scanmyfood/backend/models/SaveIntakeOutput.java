@@ -1,0 +1,8 @@
+package com.scanmyfood.backend.models;
+
+import lombok.Data;
+
+@Data
+public class SaveIntakeOutput {
+    int dailyIntakeId;
+}

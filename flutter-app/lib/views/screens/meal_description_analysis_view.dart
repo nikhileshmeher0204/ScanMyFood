@@ -2,32 +2,17 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
-import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/widgets/food_item_card.dart';
 import 'package:read_the_label/views/widgets/total_nutrients_card.dart';
 import '../widgets/food_item_card_shimmer.dart';
 import '../widgets/total_nutrients_card_shimmer.dart';
 
-class MealDescriptionAnalysisView extends StatefulWidget {
+class MealDescriptionAnalysisView extends StatelessWidget {
   const MealDescriptionAnalysisView({
     super.key,
   });
-
-  @override
-  _MealDescriptionAnalysisViewState createState() =>
-      _MealDescriptionAnalysisViewState();
-}
-
-class _MealDescriptionAnalysisViewState
-    extends State<MealDescriptionAnalysisView> {
-  late int currentIndex;
-  @override
-  void initState() {
-    super.initState();
-    // Initialize with a default value or get from provider
-    currentIndex = context.read<UiViewModel>().currentIndex;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,18 +36,18 @@ class _MealDescriptionAnalysisViewState
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).padding.bottom + 80,
           ),
-          child: Consumer2<UiViewModel, DescriptionAnalysisViewModel>(
-            builder: (context, uiViewModel, descriptionViewModel, _) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (uiViewModel.loading)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
+          child: Consumer<DescriptionAnalysisViewModel>(
+            builder: (context, descriptionViewModel, _) {
+              return Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (descriptionViewModel.isLoading)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
                             'Analysis Results',
                             textAlign: TextAlign.left,
                             style: TextStyle(
@@ -71,20 +56,19 @@ class _MealDescriptionAnalysisViewState
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Inter'),
                           ),
-                        ),
-                        const FoodItemCardShimmer(),
-                        const FoodItemCardShimmer(),
-                        const TotalNutrientsCardShimmer(),
-                      ],
-                    ),
-                  // Results Section
-                  if (descriptionViewModel.analyzedFoodItems.isNotEmpty)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
+                          const FoodItemCardShimmer(),
+                          const FoodItemCardShimmer(),
+                          const TotalNutrientsCardShimmer(),
+                        ],
+                      ),
+                    // Results Section
+                    if (descriptionViewModel.analyzedFoodItems.isNotEmpty &&
+                        !descriptionViewModel.isLoading)
+                      Column(
+                        spacing: 16,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
                             'Analysis Results',
                             style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSurface,
@@ -92,54 +76,57 @@ class _MealDescriptionAnalysisViewState
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Inter'),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        ...descriptionViewModel.analyzedFoodItems
-                            .asMap()
-                            .entries
-                            .map((entry) => FoodItemCard(
-                                  item: entry.value,
-                                  index: entry.key,
-                                )),
-                        TotalNutrientsCard(
-                          mealName: descriptionViewModel.mealName,
-                          numberOfFoodItems:
-                              descriptionViewModel.analyzedFoodItems.length,
-                          totalPlateNutrients:
-                              descriptionViewModel.totalPlateNutrients,
-                          nutrientInfo: [],
-                        ),
-                      ],
-                    ),
-                  // No results state
-                  if (!uiViewModel.loading &&
-                      descriptionViewModel.analyzedFoodItems.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Center(
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.search_off,
-                              size: 64,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withOpacity(0.5),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No food items analyzed yet',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontSize: 18,
+                          ...descriptionViewModel.analyzedFoodItems
+                              .asMap()
+                              .entries
+                              .map((entry) => FoodItemCard(
+                                    item: entry.value,
+                                    index: entry.key,
+                                  )),
+                          TotalNutrientsCard(
+                            source: AppConstants.scanDescription,
+                            mealName: descriptionViewModel.mealName,
+                            numberOfFoodItems:
+                                descriptionViewModel.analyzedFoodItems.length,
+                            totalPlateNutrients:
+                                descriptionViewModel.totalPlateNutrients,
+                            nutrientInfo: descriptionViewModel.nutrientInfo,
+                            foodAnalysis: descriptionViewModel.foodAnalysis,
+                            showSaveOptions: true,
+                          ),
+                        ],
+                      ),
+                    // No results state
+                    if (!descriptionViewModel.isLoading &&
+                        descriptionViewModel.analyzedFoodItems.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Center(
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.search_off,
+                                size: 64,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.5),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 16),
+                              Text(
+                                'No food items analyzed yet',
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               );
             },
           ),

@@ -17,19 +17,10 @@ public class ProductAnalysisResponse {
 
     @Data
     public static class NutritionAnalysis {
-        private String servingSize;
+        private Quantity totalQuantity;
+        private Quantity servingSize;
         private List<Nutrient> nutrients;
         private List<PrimaryConcern> primaryConcerns;
-    }
-
-    @Data
-    public static class Nutrient {
-        private String name;
-        private String quantity;
-        private String dailyValue;
-        private String dvStatus;
-        private String goal;
-        private String healthImpact;
     }
 
     @Data

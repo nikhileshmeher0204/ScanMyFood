@@ -1,3 +1,5 @@
+import 'package:read_the_label/models/quantity.dart';
+
 class ProductAnalysisResponse {
   final ProductInfo product;
   final NutritionAnalysis nutritionAnalysis;
@@ -10,8 +12,15 @@ class ProductAnalysisResponse {
   factory ProductAnalysisResponse.fromJson(Map<String, dynamic> json) {
     return ProductAnalysisResponse(
       product: ProductInfo.fromJson(json['product']),
-      nutritionAnalysis: NutritionAnalysis.fromJson(json['nutritionAnalysis']),
+      nutritionAnalysis: NutritionAnalysis.fromJson(json['nutrition_analysis']),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'product': product.toJson(),
+      'nutrition_analysis': nutritionAnalysis.toJson(),
+    };
   }
 }
 
@@ -27,38 +36,66 @@ class ProductInfo {
       category: json['category'] ?? 'Unknown Category',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'category': category,
+    };
+  }
 }
 
 class NutritionAnalysis {
-  final String servingSize;
+  final Quantity totalQuantity;
+  final Quantity servingSize;
   final List<Nutrient> nutrients;
   final List<PrimaryConcern> primaryConcerns;
+  final Map<String, Quantity>? nutrientsMap;
 
   NutritionAnalysis({
+    required this.totalQuantity,
     required this.servingSize,
     required this.nutrients,
     required this.primaryConcerns,
+    this.nutrientsMap,
   });
 
   factory NutritionAnalysis.fromJson(Map<String, dynamic> json) {
     return NutritionAnalysis(
-      servingSize: json['servingSize'] ?? 'Unknown',
+      totalQuantity: json['total_quantity'] != null
+          ? Quantity.fromJson(json['total_quantity'])
+          : Quantity(value: 0, unit: 'g'),
+      servingSize: json['serving_size'] != null
+          ? Quantity.fromJson(json['serving_size'])
+          : Quantity(value: 0, unit: 'g'),
       nutrients: (json['nutrients'] as List?)
               ?.map((n) => Nutrient.fromJson(n))
               .toList() ??
           [],
-      primaryConcerns: (json['primaryConcerns'] as List?)
+      primaryConcerns: (json['primary_concerns'] as List?)
               ?.map((c) => PrimaryConcern.fromJson(c))
               .toList() ??
           [],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total_quantity': totalQuantity.toJson(),
+      'serving_size': servingSize.toJson(),
+      'nutrients': nutrients.map((n) => n.toJson()).toList(),
+      'primary_concerns': primaryConcerns.map((c) => c.toJson()).toList(),
+      if (nutrientsMap != null)
+        'nutrients_map':
+            nutrientsMap!.map((key, value) => MapEntry(key, value.toJson())),
+    };
+  }
 }
 
 class Nutrient {
   final String name;
-  final String quantity;
-  final String dailyValue;
+  final Quantity quantity;
+  final double dailyValue;
   final String dvStatus;
   final String goal;
   final String healthImpact;
@@ -75,12 +112,25 @@ class Nutrient {
   factory Nutrient.fromJson(Map<String, dynamic> json) {
     return Nutrient(
       name: json['name'] ?? 'Unknown',
-      quantity: json['quantity'] ?? '0',
-      dailyValue: json['dailyValue'] ?? '0',
-      dvStatus: json['dvStatus'] ?? '',
+      quantity: json['quantity'] != null
+          ? Quantity.fromJson(json['quantity'])
+          : Quantity(value: 0, unit: 'g'),
+      dailyValue: json['daily_value'] ?? '0',
+      dvStatus: json['dv_status'] ?? '',
       goal: json['goal'] ?? 'At least',
-      healthImpact: json['healthImpact'] ?? 'Moderate',
+      healthImpact: json['health_impact'] ?? 'Moderate',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'quantity': quantity.toJson(),
+      'daily_value': dailyValue,
+      'dv_status': dvStatus,
+      'goal': goal,
+      'health_impact': healthImpact,
+    };
   }
 }
 
@@ -105,6 +155,14 @@ class PrimaryConcern {
           [],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'issue': issue,
+      'explanation': explanation,
+      'recommendations': recommendations.map((r) => r.toJson()).toList(),
+    };
+  }
 }
 
 class Recommendation {
@@ -124,5 +182,13 @@ class Recommendation {
       quantity: json['quantity'] ?? '',
       reasoning: json['reasoning'] ?? '',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'food': food,
+      'quantity': quantity,
+      'reasoning': reasoning,
+    };
   }
 }

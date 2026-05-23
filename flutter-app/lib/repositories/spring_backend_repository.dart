@@ -1,4 +1,6 @@
 import 'package:read_the_label/models/food_analysis_response.dart';
+import 'package:read_the_label/models/image_generation_response.dart';
+import 'package:read_the_label/models/intake_description_request.dart';
 import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/repositories/api_client.dart';
 
@@ -119,12 +121,13 @@ class SpringBackendRepository implements AiRepositoryInterface {
       if (token != null) {
         headers['Authorization'] = 'Bearer $token';
       }
-
+      IntakeDescriptionRequest requestBody =
+          IntakeDescriptionRequest(description: description);
       // Send request with JSON body
       final response = await http.post(
         uri,
         headers: headers,
-        body: jsonEncode({'description': description}),
+        body: jsonEncode(requestBody.toJson()),
       );
 
       // Debug the raw response
@@ -148,6 +151,55 @@ class SpringBackendRepository implements AiRepositoryInterface {
       }
     } catch (e) {
       throw Exception('Error analyzing food description: $e');
+    }
+  }
+
+  @override
+  Future<ImageGenerationResponse> generateIntakeImage(
+      String description, int dailyIntakeId) async {
+    try {
+      // Create request
+      var uri = Uri.parse(
+          '${_apiClient.baseUrl}/ai/generate/intake-description-image');
+
+      // Add auth header if available
+      final token = await _apiClient.getAuthToken();
+      Map<String, String> headers = {
+        'Content-Type': 'application/json',
+      };
+
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+      IntakeDescriptionRequest requestBody = IntakeDescriptionRequest(
+          description: description, dailyIntakeId: dailyIntakeId);
+      // Send request with JSON body
+      final response = await http.post(
+        uri,
+        headers: headers,
+        body: jsonEncode(requestBody.toJson()),
+      );
+
+      // Debug the raw response
+      print("Raw response: ${response.body}");
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        // Check response structure
+        if (jsonResponse['status'] == 'success' &&
+            jsonResponse['data'] != null) {
+          // Convert data to FoodAnalysisResponse
+          return ImageGenerationResponse.fromJson(jsonResponse['data']);
+        } else {
+          throw Exception(
+              'Invalid response format: ${jsonResponse['message'] ?? "Unknown error"}');
+        }
+      } else {
+        throw Exception('Failed to generate image: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error generating image: $e');
     }
   }
 }

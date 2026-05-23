@@ -1,4 +1,5 @@
 import 'package:read_the_label/viewmodels/base_view_model.dart';
+import 'package:read_the_label/models/health_condition.dart';
 
 enum DietaryPreference { vegetarian, nonVegetarian, vegan, none }
 
@@ -111,5 +112,33 @@ class OnboardingViewModel extends BaseViewModel {
       case FitnessGoal.none:
         return -1;
     }
+  }
+
+  // Health Conditions State
+  List<HealthCondition> _availableConditions = [];
+  final Set<String> _selectedConditionNames = {};
+  bool _isLoadingConditions = false;
+
+  List<HealthCondition> get availableConditions => _availableConditions;
+  Set<String> get selectedConditionNames => _selectedConditionNames;
+  bool get isLoadingConditions => _isLoadingConditions;
+
+  void setAvailableConditions(List<HealthCondition> conditions) {
+    _availableConditions = conditions;
+    notifyListeners();
+  }
+
+  void toggleCondition(String conditionName) {
+    if (_selectedConditionNames.contains(conditionName)) {
+      _selectedConditionNames.remove(conditionName);
+    } else {
+      _selectedConditionNames.add(conditionName);
+    }
+    notifyListeners();
+  }
+
+  void setLoadingConditions(bool loading) {
+    _isLoadingConditions = loading;
+    notifyListeners();
   }
 }

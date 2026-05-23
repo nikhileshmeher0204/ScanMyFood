@@ -1,8 +1,8 @@
-import 'dart:ui';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
+import 'package:read_the_label/utils/nutrient_utils.dart';
 
 class NutrientGrid extends StatefulWidget {
   final List<NutrientData> nutrients;
@@ -29,6 +29,7 @@ class _NutrientGridState extends State<NutrientGrid> {
                 goal: nutrient.goal,
                 healthSign: nutrient.healthSign,
                 quantity: nutrient.quantity,
+                unit: nutrient.unit,
                 dailyValue: nutrient.dailyValue,
                 insight: nutrient.insight,
               ))
@@ -42,8 +43,9 @@ class NutrientTile extends StatefulWidget {
   final String dvStatus;
   final String goal;
   final String healthSign;
-  final String quantity;
-  final String dailyValue;
+  final double quantity;
+  final String unit;
+  final double dailyValue;
   final String? insight;
 
   const NutrientTile({
@@ -53,6 +55,7 @@ class NutrientTile extends StatefulWidget {
     required this.goal,
     required this.healthSign,
     required this.quantity,
+    required this.unit,
     required this.dailyValue,
     this.insight,
   });
@@ -84,7 +87,6 @@ class _NutrientTileState extends State<NutrientTile>
   @override
   Widget build(BuildContext context) {
     Color backgroundColor = AppColors.cardBackground;
-    IconData statusIcon;
 
     // Debug print to see actual values
     print('Nutrient: ${widget.nutrient}');
@@ -105,20 +107,6 @@ class _NutrientTileState extends State<NutrientTile>
       displayText = "Limit";
     } else {
       displayText = "Moderate";
-    }
-
-    print('Calculated displayText: $displayText');
-    print('===================');
-
-    switch (widget.healthSign) {
-      case "Good":
-        statusIcon = Icons.check_circle_rounded;
-        break;
-      case "Bad":
-        statusIcon = Icons.warning_outlined;
-        break;
-      default:
-        statusIcon = Icons.warning_outlined;
     }
 
     return Container(
@@ -152,7 +140,7 @@ class _NutrientTileState extends State<NutrientTile>
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 24.0, vertical: 16.0),
+                        horizontal: 16.0, vertical: 16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -165,53 +153,37 @@ class _NutrientTileState extends State<NutrientTile>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
+                                    spacing: 8,
                                     children: [
+                                      SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: NutrientUtils.getNutrientIcon(
+                                                    widget.nutrient) !=
+                                                null
+                                            ? Align(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: Image.asset(
+                                                  NutrientUtils.getNutrientIcon(
+                                                      widget.nutrient)!,
+                                                  fit: BoxFit.contain,
+                                                ),
+                                              )
+                                            : null,
+                                      ),
                                       Text(
-                                        widget.nutrient,
-                                        style: AppTextStyles.bodyLargeBold,
-                                      ),
-                                      Expanded(
-                                        child: Container(),
-                                      ),
-                                      Text(
-                                        widget.quantity,
-                                        style: AppTextStyles.bodyLargeBold,
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        statusIcon,
-                                        size: 16,
-                                        color: displayText == "Good"
-                                            ? AppColors.secondaryGreen
-                                            : displayText == "Limit" ||
-                                                    displayText ==
-                                                        "Insufficient"
-                                                ? AppColors.secondaryRed
-                                                : AppColors.secondaryOrange,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        displayText,
-                                        style: displayText == "Good"
-                                            ? AppTextStyles
-                                                .bodyMediumGreenAccent
-                                            : displayText == "Limit" ||
-                                                    displayText ==
-                                                        "Insufficient"
-                                                ? AppTextStyles
-                                                    .bodyMediumRedAccent
-                                                : AppTextStyles
-                                                    .bodyMediumOrangeAccent,
+                                        NutrientUtils.toTitleCase(
+                                            widget.nutrient),
+                                        style: AppTextStyles.bodyLarge.copyWith(
+                                            fontWeight: FontWeight.w500),
                                       ),
                                       Expanded(
                                         child: Container(),
                                       ),
                                       Text(
                                         "${widget.dailyValue} DV%",
-                                        style: TextStyle(
+                                        style: AppTextStyles.bodyLarge.copyWith(
                                           color: displayText == "Good"
                                               ? AppColors.secondaryGreen
                                               : displayText == "Limit" ||
@@ -219,12 +191,29 @@ class _NutrientTileState extends State<NutrientTile>
                                                           "Insufficient"
                                                   ? AppColors.secondaryRed
                                                   : AppColors.secondaryOrange,
-                                          fontSize: 16,
-                                          letterSpacing: -0.2,
-                                          height: 1.5,
                                           fontWeight: FontWeight.w500,
-                                          fontFamily: 'Inter',
                                         ),
+                                      ),
+                                      Icon(
+                                        _isExpanded
+                                            ? CupertinoIcons.chevron_up
+                                            : CupertinoIcons.chevron_down,
+                                        color: AppColors.primaryWhite
+                                            .withValues(alpha: 0.7),
+                                      )
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      const SizedBox(
+                                        width: 28,
+                                      ),
+                                      Text(
+                                        "${widget.quantity} ${widget.unit}",
+                                        style: AppTextStyles.bodyLarge.copyWith(
+                                            color: AppColors.primaryWhite
+                                                .withValues(alpha: 0.7),
+                                            fontWeight: FontWeight.w500),
                                       ),
                                     ],
                                   ),
@@ -272,8 +261,9 @@ class NutrientData {
   final String healthSign;
   final String dvStatus;
   final String goal;
-  final String quantity;
-  final String dailyValue;
+  final double quantity;
+  final String unit;
+  final double dailyValue;
   final String? insight;
 
   NutrientData({
@@ -282,6 +272,7 @@ class NutrientData {
     required this.dvStatus,
     required this.goal,
     required this.quantity,
+    required this.unit,
     required this.dailyValue,
     this.insight,
   });

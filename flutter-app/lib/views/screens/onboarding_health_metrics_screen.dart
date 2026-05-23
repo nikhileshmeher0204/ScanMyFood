@@ -2,12 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/models/api_exception.dart';
 import 'package:read_the_label/repositories/user_repository.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/onboarding_view_model.dart';
-import 'package:read_the_label/views/widgets/goal_button.dart';
+import 'package:read_the_label/views/widgets/choice_card.dart';
+import 'package:read_the_label/views/widgets/app_cupertino_picker.dart';
+import 'package:read_the_label/views/widgets/app_picker_modal.dart';
+import 'package:read_the_label/views/screens/home_page.dart';
 
 class OnboardingHealthMetricsScreen extends StatefulWidget {
   const OnboardingHealthMetricsScreen({super.key});
@@ -26,7 +30,8 @@ class _OnboardingHealthMetricsScreenState
   // Weight value
   int _selectedWeight = 65; // Default weight in kg instead of 140 lb
 
-  int _selectedGoalIndex = -1;
+
+  bool _isSaving = false;
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +125,7 @@ class _OnboardingHealthMetricsScreenState
                         Row(
                           children: [
                             Expanded(
-                              child: GoalButton(
+                              child: ChoiceCard(
                                 title: "Balanced\nDiet",
                                 iconPath: "assets/icons/balanced_diet_icon.png",
                                 isSelected: onboardingViewModel.fitnessGoal ==
@@ -135,7 +140,7 @@ class _OnboardingHealthMetricsScreenState
                             ),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: GoalButton(
+                              child: ChoiceCard(
                                 title: "Muscle\nGain",
                                 iconPath: "assets/icons/muscle_gain_icon.png",
                                 isSelected: onboardingViewModel.fitnessGoal ==
@@ -149,7 +154,7 @@ class _OnboardingHealthMetricsScreenState
                             ),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: GoalButton(
+                              child: ChoiceCard(
                                 title: "Weight\nLoss",
                                 iconPath: "assets/icons/weight_loss_icon.png",
                                 isSelected: onboardingViewModel.fitnessGoal ==
@@ -182,58 +187,89 @@ class _OnboardingHealthMetricsScreenState
                           children: [
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () async {
-                                  try {
-                                    final authService =
-                                        Provider.of<AuthService>(context,
-                                            listen: false);
-                                    final user = authService.currentUser;
-                                    if (user == null) {
-                                      logger.e(
-                                          'User is null, cannot complete onboarding');
-                                      return;
-                                    }
+                                onPressed: _isSaving
+                                    ? null
+                                    : () async {
+                                        setState(() {
+                                          _isSaving = true;
+                                        });
+                                        try {
+                                          final authService =
+                                              Provider.of<AuthService>(context,
+                                                  listen: false);
+                                          final user = authService.currentUser;
+                                          if (user == null) {
+                                            logger.e(
+                                                'User is null, cannot complete onboarding');
+                                            return;
+                                          }
 
-                                    // Single API call to complete all onboarding data
-                                    await userRepo.completeOnboarding(
-                                      firebaseUid: user.uid,
-                                      dietaryPreference: onboardingViewModel
-                                          .getDietaryPreferenceString(),
-                                      country:
-                                          onboardingViewModel.selectedCountry,
-                                      heightFeet: onboardingViewModel
-                                          .selectedHeightFeet,
-                                      heightInches: onboardingViewModel
-                                          .selectedHeightInches,
-                                      weightKg: onboardingViewModel
-                                          .selectedWeight
-                                          .toDouble(),
-                                      goal: onboardingViewModel.getGoalString(),
-                                    );
+                                          // 1. Save Health Metrics
+                                          await userRepo.saveHealthMetrics(
+                                            userId: user.uid,
+                                            heightFeet: onboardingViewModel
+                                                .selectedHeightFeet,
+                                            heightInches: onboardingViewModel
+                                                .selectedHeightInches,
+                                            weightKg: onboardingViewModel
+                                                .selectedWeight
+                                                .toDouble(),
+                                            goal: onboardingViewModel
+                                                .getGoalString(),
+                                          );
 
-                                    // Navigate to home screen
-                                    if (context.mounted) {
-                                      Navigator.pushNamedAndRemoveUntil(
-                                        context,
-                                        '/home',
-                                        (route) => false,
-                                      );
-                                    }
-                                  } catch (e) {
-                                    logger.e('Error completing onboarding: $e');
-                                    // Show error to user
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                              'Error saving information: ${e.toString()}'),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                    }
-                                  }
-                                },
+                                          // 2. Complete onboarding (marks flag in DB)
+                                          await userRepo.completeOnboarding(
+                                              userId: user.uid);
+
+                                          // Navigate to home screen
+                                          if (context.mounted) {
+                                            Navigator.pushAndRemoveUntil(
+                                              context,
+                                              CupertinoPageRoute(
+                                                builder: (_) => const HomePage(),
+                                              ),
+                                              (route) => false,
+                                            );
+                                          }
+                                        } on ApiException catch (e) {
+                                          logger.e(
+                                              'ApiException completing onboarding: $e');
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  e.isNotFound
+                                                      ? 'Your account was not found. Please sign out and sign in again.'
+                                                      : 'Failed to save information: ${e.message}',
+                                                ),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                          }
+                                        } catch (e) {
+                                          logger.e(
+                                              'Unexpected error completing onboarding: $e');
+                                          // Show error to user
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    'Unexpected error: ${e.toString()}'),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                          }
+                                        } finally {
+                                          if (mounted) {
+                                            setState(() {
+                                              _isSaving = false;
+                                            });
+                                          }
+                                        }
+                                      },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primaryWhite,
                                   foregroundColor: AppColors.primaryBlack,
@@ -245,10 +281,19 @@ class _OnboardingHealthMetricsScreenState
                                     vertical: 16,
                                   ),
                                 ),
-                                child: Text(
-                                  "Continue",
-                                  style: AppTextStyles.buttonTextBlack,
-                                ),
+                                child: _isSaving
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: AppColors.primaryBlack,
+                                        ),
+                                      )
+                                    : Text(
+                                        "Continue",
+                                        style: AppTextStyles.buttonTextBlack,
+                                      ),
                               ),
                             ),
                           ],
@@ -287,7 +332,7 @@ class _OnboardingHealthMetricsScreenState
               children: [
                 Icon(
                   icon,
-                  color: AppTextStyles.secondaryTextColor,
+                  color: AppColors.secondaryBlackTextColor,
                   size: 24,
                 ),
                 const SizedBox(width: 16),
@@ -306,7 +351,7 @@ class _OnboardingHealthMetricsScreenState
                 ),
                 const Icon(
                   Icons.chevron_right,
-                  color: AppTextStyles.secondaryTextColor,
+                  color: AppColors.secondaryBlackTextColor,
                 ),
               ],
             ),
@@ -339,7 +384,7 @@ class _OnboardingHealthMetricsScreenState
         spans.add(TextSpan(
           text: "${parts[1]} ",
           style: const TextStyle(
-            color: AppTextStyles.secondaryTextColor,
+            color: AppColors.secondaryBlackTextColor,
             fontSize: 20,
             fontWeight: FontWeight.w500,
             fontFamily: AppTextStyles.fontFamily,
@@ -361,7 +406,7 @@ class _OnboardingHealthMetricsScreenState
         spans.add(TextSpan(
           text: parts[3],
           style: const TextStyle(
-            color: AppTextStyles.secondaryTextColor,
+            color: AppColors.secondaryBlackTextColor,
             fontSize: 20,
             fontWeight: FontWeight.w500,
             fontFamily: AppTextStyles.fontFamily,
@@ -388,7 +433,7 @@ class _OnboardingHealthMetricsScreenState
         spans.add(TextSpan(
           text: parts[1],
           style: const TextStyle(
-            color: AppTextStyles.secondaryTextColor,
+            color: AppColors.secondaryBlackTextColor,
             fontSize: 20,
             fontWeight: FontWeight.w500,
             fontFamily: AppTextStyles.fontFamily,
@@ -414,254 +459,140 @@ class _OnboardingHealthMetricsScreenState
 
   // Height picker
   void _showHeightPicker(BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: 300,
-          decoration: const BoxDecoration(
-            color: AppColors.cardBackground,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
+    showAppPickerModal(
+      context,
+      picker: Row(
+        children: [
+          // Feet picker
+          Expanded(
+            child: AppCupertinoPicker(
+              scrollController: FixedExtentScrollController(
+                initialItem: _selectedHeightFeet - 3,
+              ),
+              onSelectedItemChanged: (int index) {
+                setState(() {
+                  _selectedHeightFeet = index + 3; // Starting from 3 feet
+                });
+              },
+              children: List<Widget>.generate(
+                8,
+                (index) {
+                  return Center(
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "${index + 3} ",
+                            style: const TextStyle(
+                              color: AppColors.primaryWhite,
+                              fontSize: 22,
+                            ),
+                          ),
+                          const TextSpan(
+                            text: "ft",
+                            style: TextStyle(
+                              color: AppColors.secondaryBlackTextColor,
+                              fontSize: 22,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: AppTextStyles.secondaryTextColor,
-                      width: 0.5,
-                    ),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CupertinoButton(
-                      child: const Text(
-                        'Cancel',
-                        style:
-                            TextStyle(color: AppTextStyles.secondaryTextColor),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                    CupertinoButton(
-                      child: const Text(
-                        'Done',
-                        style: TextStyle(color: AppColors.secondaryGreen),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
+          // Inches picker
+          Expanded(
+            child: AppCupertinoPicker(
+              scrollController: FixedExtentScrollController(
+                initialItem: _selectedHeightInches,
               ),
-              Expanded(
-                child: Row(
-                  children: [
-                    // Feet picker
-                    Expanded(
-                      child: CupertinoPicker(
-                        magnification: 1.22,
-                        squeeze: 1.2,
-                        useMagnifier: true,
-                        backgroundColor: AppColors.cardBackground,
-                        itemExtent: 40,
-                        scrollController: FixedExtentScrollController(
-                          initialItem: _selectedHeightFeet - 3,
-                        ),
-                        onSelectedItemChanged: (int index) {
-                          setState(() {
-                            _selectedHeightFeet =
-                                index + 3; // Starting from 3 feet
-                          });
-                        },
-                        children: List<Widget>.generate(
-                          8,
-                          (index) {
-                            return Center(
-                              child: RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: "${index + 3} ",
-                                      style: const TextStyle(
-                                        color: AppColors.primaryWhite,
-                                        fontSize: 22,
-                                      ),
-                                    ),
-                                    const TextSpan(
-                                      text: "ft",
-                                      style: TextStyle(
-                                        color: AppTextStyles.secondaryTextColor,
-                                        fontSize: 22,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+              onSelectedItemChanged: (int index) {
+                setState(() {
+                  _selectedHeightInches = index;
+                });
+              },
+              children: List<Widget>.generate(
+                12,
+                (index) {
+                  return Center(
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "$index ",
+                            style: const TextStyle(
+                              color: AppColors.primaryWhite,
+                              fontSize: 22,
+                            ),
+                          ),
+                          const TextSpan(
+                            text: "in",
+                            style: TextStyle(
+                              color: AppColors.secondaryBlackTextColor,
+                              fontSize: 22,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    // Inches picker
-                    Expanded(
-                      child: CupertinoPicker(
-                        magnification: 1.22,
-                        squeeze: 1.2,
-                        useMagnifier: true,
-                        backgroundColor: AppColors.cardBackground,
-                        itemExtent: 40,
-                        scrollController: FixedExtentScrollController(
-                          initialItem: _selectedHeightInches,
-                        ),
-                        onSelectedItemChanged: (int index) {
-                          setState(() {
-                            _selectedHeightInches = index;
-                          });
-                        },
-                        children: List<Widget>.generate(
-                          12,
-                          (index) {
-                            return Center(
-                              child: RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: "$index ",
-                                      style: const TextStyle(
-                                        color: AppColors.primaryWhite,
-                                        fontSize: 22,
-                                      ),
-                                    ),
-                                    const TextSpan(
-                                      text: "in",
-                                      style: TextStyle(
-                                        color: AppTextStyles.secondaryTextColor,
-                                        fontSize: 22,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
-            ],
+            ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 
   // Weight picker
   void _showWeightPicker(BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: 300,
-          decoration: const BoxDecoration(
-            color: AppColors.cardBackground,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: AppTextStyles.secondaryTextColor,
-                      width: 0.5,
+    showAppPickerModal(
+      context,
+      picker: Row(
+        children: [
+          // Weight picker
+          Expanded(
+            child: AppCupertinoPicker(
+              scrollController: FixedExtentScrollController(
+                initialItem: _selectedWeight - 20, // Start at 20 kg
+              ),
+              onSelectedItemChanged: (int index) {
+                setState(() {
+                  _selectedWeight = index + 20; // 20 kg to 220 kg
+                });
+              },
+              children: List<Widget>.generate(201, (index) {
+                return Center(
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "${index + 20} ",
+                          style: const TextStyle(
+                            color: AppColors.primaryWhite,
+                            fontSize: 22,
+                          ),
+                        ),
+                        const TextSpan(
+                          text: "kg",
+                          style: TextStyle(
+                            color: AppColors.secondaryBlackTextColor,
+                            fontSize: 22,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CupertinoButton(
-                      child: const Text(
-                        'Cancel',
-                        style:
-                            TextStyle(color: AppTextStyles.secondaryTextColor),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                    CupertinoButton(
-                      child: const Text(
-                        'Done',
-                        style: TextStyle(color: AppColors.secondaryGreen),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Row(
-                  children: [
-                    // Weight picker
-                    Expanded(
-                      child: CupertinoPicker(
-                        magnification: 1.22,
-                        squeeze: 1.2,
-                        useMagnifier: true,
-                        backgroundColor: AppColors.cardBackground,
-                        itemExtent: 40,
-                        scrollController: FixedExtentScrollController(
-                          initialItem: _selectedWeight - 20, // Start at 20 kg
-                        ),
-                        onSelectedItemChanged: (int index) {
-                          setState(() {
-                            _selectedWeight = index + 20; // 20 kg to 220 kg
-                          });
-                        },
-                        children: List<Widget>.generate(201, (index) {
-                          return Center(
-                            child: RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: "${index + 20} ",
-                                    style: const TextStyle(
-                                      color: AppColors.primaryWhite,
-                                      fontSize: 22,
-                                    ),
-                                  ),
-                                  const TextSpan(
-                                    text: "kg",
-                                    style: TextStyle(
-                                      color: AppTextStyles.secondaryTextColor,
-                                      fontSize: 22,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                );
+              }),
+            ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }

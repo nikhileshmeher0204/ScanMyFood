@@ -19,7 +19,7 @@ const Map<String, String> nutrientInsights = {
       "Chromium helps regulate blood sugar levels and plays a role in metabolism. Adequate intake supports overall metabolic health.",
   'Copper':
       "Copper is essential for iron metabolism, nerve function, and immune health. Proper intake is required for good health.",
-  'Fiber':
+  'Dietary Fiber':
       "Dietary fiber promotes digestive health, helps regulate blood sugar levels, and can lower cholesterol. A good amount of fiber should be consumed for overall health.",
   'Fat':
       "Excessive fat intake can contribute to weight gain, high cholesterol levels, and increased risk of heart disease. Focus on healthy fats and minimize trans fat consumption.",
@@ -49,15 +49,17 @@ const Map<String, String> nutrientInsights = {
       "Riboflavin is essential for energy production and cell growth. It helps in various metabolic processes.",
   'Saturated fat':
       "High saturated fat intake can raise LDL ('bad') cholesterol levels, increasing the risk of heart disease. Consume less food that has saturated fat.",
-  'Saturated Fat':
-      "High saturated fat intake can raise LDL ('bad') cholesterol levels, increasing the risk of heart disease. Consume less food that has saturated fat.",
+  'Trans Fat':
+      "High trans fat intake can raise LDL ('bad') cholesterol levels, increasing the risk of heart disease. Consume less food that has trans fat.",
+  'Total Fat':
+      "Excessive fat intake can contribute to weight gain, high cholesterol levels, and increased risk of heart disease. Focus on healthy fats and minimize trans fat consumption.",
   'Selenium':
       "Selenium is an antioxidant and supports thyroid function. Proper level is essential for various metabolic processes.",
   'Sodium':
       "High sodium intake can increase blood pressure, which elevates the risk of heart disease and stroke. It can also lead to fluid retention. It is best to consume less salt.",
   'Thiamin':
       "Thiamin supports energy production, nerve function, and metabolism. Adequate level is essential for various bodily processes.",
-  'Carbohydrate':
+  'Total Carbohydrate':
       "Carbohydrates are a primary source of energy. Balance with fiber, protein, and healthy fats for sustained energy.",
   'Vitamin A':
       "Vitamin A is crucial for vision, immune function, and cell growth. Adequate amount is necessary for overall health.",

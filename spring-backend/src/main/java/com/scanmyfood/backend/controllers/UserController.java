@@ -1,13 +1,15 @@
 package com.scanmyfood.backend.controllers;
 
+import com.scanmyfood.backend.constants.ResponseCodeConstants;
+import com.scanmyfood.backend.dto.*;
 import com.scanmyfood.backend.models.ApiResponse;
 import com.scanmyfood.backend.models.User;
+import com.scanmyfood.backend.services.HealthConditionService;
 import com.scanmyfood.backend.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -18,102 +20,71 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/check/new-user/{firebaseUid}")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> checkIfNewUser(@PathVariable String firebaseUid) {
-        log.info("Checking if user with uid {} is new", firebaseUid);
-        boolean isNewUser = userService.isNewUser(firebaseUid);
-        Map<String, Object> response = new HashMap<>();
-        log.info("User with uid {} is new: {}", firebaseUid, isNewUser);
-        response.put("isNewUser", isNewUser);
-        return ResponseEntity.ok(ApiResponse.success(response));
+    @Autowired
+    private HealthConditionService healthConditionService;
+
+    @GetMapping("/user")
+    public ResponseEntity<ApiResponse<UserCheckResponse>> checkIfNewUser(
+            @RequestHeader("X-User-Id") String userId) {
+        log.info("Checking if user with id {} is new", userId);
+        UserCheckResponse userCheckResponse = userService.isNewUser(userId);
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.NEW_USER_CHECKED, userCheckResponse));
     }
 
     @PostMapping("/create-user")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> createUser(@RequestBody Map<String, String> userData) {
-        log.info("Creating user with uid {}", userData.get("firebaseUid"));
-        String firebaseUid = userData.get("firebaseUid");
-        String email = userData.get("email");
-        String displayName = userData.get("displayName");
+    public ResponseEntity<ApiResponse<CreateUserResponse>> createUser(@RequestBody CreateUserRequest request) {
+        log.info("Creating user with id {}", request.getUserId());
+        User user = userService.findOrCreateUser(request.getUserId(), request.getEmail(),
+                request.getDisplayName());
 
-        User user = userService.findOrCreateUser(firebaseUid, email, displayName);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("userId", user.getId());
-        response.put("created", true);
-        log.info("User with uid {} created successfully", firebaseUid);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        CreateUserResponse response = CreateUserResponse.builder()
+                .userId(user.getUserId())
+                .created(true)
+                .build();
+        log.info("User with id {} created successfully", request.getUserId());
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.USER_CREATED, response));
     }
 
     @PostMapping("/complete-onboarding")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> completeOnboarding(@RequestBody Map<String, Object> onboardingData) {
-        String firebaseUid = (String) onboardingData.get("firebaseUid");
-        log.info("Completing onboarding for user {}", firebaseUid);
+    public ResponseEntity<ApiResponse<Map<String, Object>>> completeOnboarding(@RequestBody OnboardingRequest request) {
+        log.info("Completing onboarding for user {}", request.getUserId());
 
-        // Extract preferences
-        Map<String, String> preferences = (Map<String, String>) onboardingData.get("preferences");
-
-        // Extract health metrics
-        Map<String, Object> healthMetrics = (Map<String, Object>) onboardingData.get("healthMetrics");
-
-        userService.completeUserOnboarding(
-                firebaseUid,
-                preferences.get("dietaryPreference"),
-                preferences.get("country"),
-                (Integer) healthMetrics.get("heightFeet"),
-                (Integer) healthMetrics.get("heightInches"),
-                Double.valueOf(healthMetrics.get("weightKg").toString()),
-                (String) healthMetrics.get("goal")
-        );
+        userService.completeUserOnboarding(request.getUserId());
 
         return ResponseEntity.ok(ApiResponse.success(Map.of(
                 "success", true,
-                "message", "Onboarding completed successfully"
-        )));
+                "message", "Onboarding completed successfully"), ResponseCodeConstants.ONBOARDING_COMPLETED,
+                "Onboarding completed successfully"));
     }
 
-    @GetMapping("/check/onboarding-status/{firebaseUid}")
-    public ResponseEntity <ApiResponse<Map<String, Object>>> checkIfOnboardingComplete(@PathVariable String firebaseUid) {
-        log.info("Checking if user with uid {} is onboarding complete", firebaseUid);
-        boolean isOnboardingComplete = userService.isOnboardingComplete(firebaseUid);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("isOnboardingComplete", isOnboardingComplete);
-        log.info("User {} onboarding complete status: {}", firebaseUid, isOnboardingComplete);
-
-        return ResponseEntity.ok(ApiResponse.success(response));
+    @PutMapping("/preferences")
+    public ResponseEntity<ApiResponse<Void>> savePreferences(@RequestBody UserPreferencesRequest request) {
+        log.info("Saving preferences for user {}", request.getUserId());
+        userService.saveUserPreferences(
+                request.getUserId(),
+                request.getDietaryPreference(),
+                request.getCountry());
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.PREFERENCES_SAVED, null));
     }
 
-    @PostMapping("/preferences")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> saveUserPreferences(@RequestBody Map<String, String> preferences) {
-        String dietaryPreference = preferences.get("dietaryPreference");
-        String country = preferences.get("country");
-        String firebaseUid = preferences.get("firebaseUid");
-
-        log.info("Saving preferences for user: {} - diet: {}, country: {}", firebaseUid, dietaryPreference, country);
-
-        userService.saveUserPreferences(firebaseUid, dietaryPreference, country);
-
-        return ResponseEntity.ok(ApiResponse.success(Map.of(
-                "success", true,
-                "message", "Preferences saved successfully"
-        )));
+    @PutMapping("/health-metrics")
+    public ResponseEntity<ApiResponse<Void>> saveHealthMetrics(@RequestBody HealthMetricsRequest request) {
+        log.info("Saving health metrics for user {}", request.getUserId());
+        userService.saveHealthMetrics(
+                request.getUserId(),
+                request.getHeightFeet(),
+                request.getHeightInches(),
+                request.getWeightKg(),
+                request.getGoal());
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.HEALTH_METRICS_SAVED, null));
     }
 
-    @PostMapping("/health-metrics")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> saveHealthMetrics(@RequestBody Map<String, Object> metrics) {
-        log.info("Saving health metrics: {}", metrics);
-
-        String firebaseUid = (String) metrics.get("firebaseUid");
-        Integer heightFeet = (Integer) metrics.get("heightFeet");
-        Integer heightInches = (Integer) metrics.get("heightInches");
-        Double weightKg = Double.valueOf(metrics.get("weightKg").toString());
-        String goal = (String) metrics.get("goal");
-
-        userService.saveHealthMetrics(firebaseUid, heightFeet, heightInches, weightKg, goal);
-
-        return ResponseEntity.ok(ApiResponse.success(Map.of(
-                "success", true,
-                "message", "Health metrics saved successfully"
-        )));
+    @PutMapping("/health-conditions")
+    public ResponseEntity<ApiResponse<Void>> saveHealthConditions(@RequestBody SaveUserConditionsRequest request) {
+        log.info("Saving health conditions for user {}", request.getUserId());
+        healthConditionService.saveUserConditions(
+                request.getUserId(),
+                request.getConditionNames());
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.SUCCESS, null));
     }
 }

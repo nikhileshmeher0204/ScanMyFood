@@ -1,6 +1,5 @@
 package com.scanmyfood.backend.models;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,46 +9,34 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String firebaseUid;
-
-    @Column(nullable = false)
+    private String userId;
     private String email;
-
-    @Column(nullable = false)
     private boolean isOnboardingComplete;
-
     private String displayName;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
+    // Denormalized Preference Fields
+    private DietType dietaryPreference;
+    private String country;
 
-    @Column(nullable = false)
+    // Denormalized Health Metric Fields
+    private Integer heightFeet;
+    private Integer heightInches;
+    private Double weightKg;
+    private Goal goal;
+
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private UserPreference userPreference;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private HealthMetric healthMetric;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+    // Enums
+    public enum DietType {
+        VEG, NON_VEG, VEGAN
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+    public enum Goal {
+        BALANCED_DIET, MUSCLE_GAIN, WEIGHT_LOSS
     }
 }

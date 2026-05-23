@@ -1,4 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:read_the_label/models/food_nutrient.dart';
+import 'package:read_the_label/models/quantity.dart';
+import 'package:read_the_label/theme/app_colors.dart';
+import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/base_view_model.dart';
 
 class UiViewModel extends BaseViewModel {
@@ -7,11 +12,61 @@ class UiViewModel extends BaseViewModel {
   double _sliderValue = 0.0;
   int _currentIndex = 0;
   bool _isLoading = false;
+  DateTime _selectedTime = DateTime.now();
+  double _portionMultiplier = 1.0; // Add portion state
 
   int get currentIndex => _currentIndex;
   double get servingSize => _servingSize;
   double get sliderValue => _sliderValue;
   bool get loading => _isLoading;
+  DateTime get selectedTime => _selectedTime;
+  double get portionMultiplier => _portionMultiplier; // Add getter
+
+  final Map<String, Future<Color>> _dominantColorCache = {};
+
+  Future<Color> extractDominantColor(String? imagePathOrUrl) {
+    if (imagePathOrUrl == null || imagePathOrUrl.isEmpty) {
+      return Future.value(Colors.black.withValues(alpha: 0.3));
+    }
+
+    if (_dominantColorCache.containsKey(imagePathOrUrl)) {
+      return _dominantColorCache[imagePathOrUrl]!;
+    }
+
+    final future = _performColorExtraction(imagePathOrUrl);
+    _dominantColorCache[imagePathOrUrl] = future;
+    return future;
+  }
+
+  Future<Color> _performColorExtraction(String imagePathOrUrl) async {
+    try {
+      final ImageProvider imageProvider;
+      if (imagePathOrUrl.startsWith('http') ||
+          imagePathOrUrl.startsWith('https')) {
+        imageProvider = NetworkImage(imagePathOrUrl);
+      } else {
+        imageProvider = FileImage(File(imagePathOrUrl));
+      }
+
+      final colorScheme = await ColorScheme.fromImageProvider(
+        provider: imageProvider,
+        brightness: Brightness.light,
+      );
+
+      // Apple Music backgrounds are a dark, rich version of the image's dominant color.
+      // We grab the true vibrant color, and manually shape it to be a sleek dark background.
+      final seedColor = colorScheme.primary;
+      final hsl = HSLColor.fromColor(seedColor);
+
+      // Force it to be dark (lightness 0.15 - 0.2) but keep the rich hue and saturation
+      final darkBackground = hsl.withLightness(0.18).toColor();
+
+      return darkBackground;
+    } catch (e) {
+      debugPrint("Error extracting color from image: $e");
+      return Colors.black.withValues(alpha: 0.3);
+    }
+  }
 
   void setLoading(bool loading) {
     print("UiProvider: Setting loading to $loading");
@@ -33,6 +88,33 @@ class UiViewModel extends BaseViewModel {
   void updateSliderValue(double value) {
     _sliderValue = value;
     notifyListeners();
+  }
+
+  void updateSelectedTime(DateTime time) {
+    _selectedTime = time;
+    notifyListeners();
+  }
+
+  void updatePortionMultiplier(double multiplier) {
+    _portionMultiplier = multiplier;
+    notifyListeners();
+  }
+
+  // Helper method to calculate adjusted nutrients
+  List<FoodNutrient> calculateAdjustedNutrients(
+      List<FoodNutrient> originalNutrients) {
+    final List<FoodNutrient> result = [];
+    for (var nutrient in originalNutrients) {
+      // Create new FoodNutrient with adjusted value but same unit
+      result.add(FoodNutrient(
+        name: nutrient.name,
+        quantity: Quantity(
+          value: nutrient.quantity.value * _portionMultiplier,
+          unit: nutrient.quantity.unit,
+        ),
+      ));
+    }
+    return result;
   }
 
   Color getColorForPercent(double percent) {
@@ -68,23 +150,46 @@ class UiViewModel extends BaseViewModel {
     }
   }
 
-  String getUnit(String nutrient) {
-    switch (nutrient.toLowerCase()) {
-      case 'energy':
-        return ' kcal';
-      case 'protein':
-      case 'carbohydrate':
-      case 'fat':
-      case 'fiber':
-      case 'sugar':
-        return 'g';
-      case 'sodium':
-      case 'potassium':
-      case 'calcium':
-      case 'iron':
-        return 'mg';
-      default:
-        return '';
+  String getFormattedTime() {
+    final hour = _selectedTime.hour == 0
+        ? 12
+        : (_selectedTime.hour > 12
+            ? _selectedTime.hour - 12
+            : _selectedTime.hour);
+    final minute = _selectedTime.minute.toString().padLeft(2, '0');
+    final period = _selectedTime.hour >= 12 ? 'PM' : 'AM';
+    return '$hour:$minute $period';
+  }
+
+  List<TextSpan> buildTimeTextSpans() {
+    final timeString = getFormattedTime();
+    final parts = timeString.split(' ');
+    List<TextSpan> spans = [];
+
+    if (parts.length >= 2) {
+      // Time part (HH:MM)
+      spans.add(TextSpan(
+        text: "${parts[0]} ",
+        style: const TextStyle(
+          color: AppColors.primaryWhite,
+          fontSize: 20,
+          fontWeight: FontWeight.w500,
+          fontFamily: AppTextStyles.fontFamily,
+        ),
+      ));
+
+      // AM/PM part
+      spans.add(TextSpan(
+        text: parts[1],
+        style: const TextStyle(
+          color: AppColors.secondaryBlackTextColor,
+          fontSize: 20,
+          fontWeight: FontWeight.w500,
+          fontFamily: AppTextStyles.fontFamily,
+        ),
+      ));
     }
+
+    return spans;
   }
 }

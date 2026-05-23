@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.scanmyfood.backend.mapper.HealthConditionMapper">
+
+    <resultMap id="HealthConditionResultMap" type="com.scanmyfood.backend.models.HealthCondition">
+        <id property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="nutrientsToLimit" column="nutrients_to_limit" typeHandler="com.scanmyfood.backend.mapper.StringListTypeHandler"/>
+        <result property="nutrientsToIncrease" column="nutrients_to_increase" typeHandler="com.scanmyfood.backend.mapper.StringListTypeHandler"/>
+        <result property="ingredientsToLimit" column="ingredients_to_limit" typeHandler="com.scanmyfood.backend.mapper.StringListTypeHandler"/>
+        <result property="dietaryTagsToLimit" column="dietary_tags_to_limit" typeHandler="com.scanmyfood.backend.mapper.StringListTypeHandler"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="HealthConditionResultMap">
+        SELECT * FROM health_conditions ORDER BY name ASC
+    </select>
+
+</mapper>
