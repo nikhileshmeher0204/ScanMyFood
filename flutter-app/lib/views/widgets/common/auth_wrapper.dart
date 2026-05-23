@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/repositories/user_repository.dart';
-import 'package:read_the_label/views/screens/home_page.dart';
-import 'package:read_the_label/views/screens/onboarding_foodpreference_screen.dart';
-import 'package:read_the_label/views/screens/onboarding_getstarted_screen.dart';
+import 'package:read_the_label/views/screens/home/home_page.dart';
+import 'package:read_the_label/views/screens/onboarding/onboarding_foodpreference_screen.dart';
+import 'package:read_the_label/views/screens/onboarding/onboarding_getstarted_screen.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 
 class AuthWrapper extends StatefulWidget {

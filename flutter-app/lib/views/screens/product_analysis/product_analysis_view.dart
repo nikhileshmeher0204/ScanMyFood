@@ -7,15 +7,15 @@ import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
-import 'package:read_the_label/views/screens/ask_ai_view.dart';
-import 'package:read_the_label/views/widgets/add_to_intake_button.dart';
-import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
-import 'package:read_the_label/views/widgets/nutrient_balance_card.dart';
-import 'package:read_the_label/views/widgets/nutrient_info_shimmer.dart';
-import 'package:read_the_label/views/widgets/nutrient_tile.dart';
-import 'package:read_the_label/views/widgets/pick_image_card.dart';
-import 'package:read_the_label/views/widgets/quantity_selector.dart';
-import 'package:read_the_label/views/widgets/time_selector.dart';
+import 'package:read_the_label/views/screens/ask_ai/ask_ai_view.dart';
+import 'package:read_the_label/views/widgets/common/add_to_intake_button.dart';
+import 'package:read_the_label/views/widgets/common/ask_ai_widget.dart';
+import 'package:read_the_label/views/widgets/product_analysis/nutrient_balance_card.dart';
+import 'package:read_the_label/views/widgets/product_analysis/nutrient_info_shimmer.dart';
+import 'package:read_the_label/views/widgets/common/nutrient_tile.dart';
+import 'package:read_the_label/views/widgets/common/pick_image_card.dart';
+import 'package:read_the_label/views/widgets/common/quantity_selector.dart';
+import 'package:read_the_label/views/widgets/common/time_selector.dart';
 
 class ProductAnalysisView extends StatefulWidget {
   const ProductAnalysisView({super.key});

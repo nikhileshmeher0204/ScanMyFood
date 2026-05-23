@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/theme/app_colors.dart';
-import 'package:read_the_label/views/widgets/macronutrient_indicator.dart';
+import 'package:read_the_label/views/widgets/daily_intake/macronutrient_indicator.dart';
 
 class MacronutrientsIndicatorCard extends StatelessWidget {
   final Map<String, FoodNutrient> totalNutrients;

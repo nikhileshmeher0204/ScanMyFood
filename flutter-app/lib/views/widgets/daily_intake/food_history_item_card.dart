@@ -10,7 +10,7 @@ import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
-import 'package:read_the_label/views/widgets/food_intake_detail_sheet_view.dart';
+import 'package:read_the_label/views/widgets/daily_intake/food_intake_detail_sheet_view.dart';
 import 'package:soft_edge_blur/soft_edge_blur.dart';
 
 class FoodHistoryItemCard extends StatefulWidget {

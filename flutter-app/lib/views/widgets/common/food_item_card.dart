@@ -3,8 +3,8 @@ import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/utils/nutrient_utils.dart';
-import 'package:read_the_label/views/widgets/food_nutreint_tile.dart';
-import '../../models/food_item.dart';
+import 'package:read_the_label/views/widgets/common/food_nutreint_tile.dart';
+import 'package:read_the_label/models/food_item.dart';
 
 class FoodItemCard extends StatelessWidget {
   final FoodItem item;

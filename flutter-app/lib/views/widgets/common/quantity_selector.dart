@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
-import 'package:read_the_label/views/widgets/app_cupertino_picker.dart';
-import 'package:read_the_label/views/widgets/app_picker_modal.dart';
+import 'package:read_the_label/views/widgets/common/app_cupertino_picker.dart';
+import 'package:read_the_label/views/widgets/common/app_picker_modal.dart';
 
 class QuantityOption {
   final double value;

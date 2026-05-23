@@ -1,18 +1,18 @@
 import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
-import 'package:read_the_label/views/screens/ask_ai_view.dart';
+import 'package:read_the_label/views/screens/ask_ai/ask_ai_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
-import 'package:read_the_label/views/widgets/ask_ai_widget.dart';
-import 'package:read_the_label/views/widgets/food_item_card.dart';
-import 'package:read_the_label/views/widgets/food_item_card_shimmer.dart';
-import 'package:read_the_label/views/widgets/pick_image_card.dart';
-import 'package:read_the_label/views/widgets/total_nutrients_card.dart';
-import 'package:read_the_label/views/widgets/total_nutrients_card_shimmer.dart';
+import 'package:read_the_label/views/widgets/common/ask_ai_widget.dart';
+import 'package:read_the_label/views/widgets/common/food_item_card.dart';
+import 'package:read_the_label/views/widgets/daily_intake/food_item_card_shimmer.dart';
+import 'package:read_the_label/views/widgets/common/pick_image_card.dart';
+import 'package:read_the_label/views/widgets/common/total_nutrients_card.dart';
+import 'package:read_the_label/views/widgets/daily_intake/total_nutrients_card_shimmer.dart';
 
 class FoodAnalysisView extends StatefulWidget {
   const FoodAnalysisView({

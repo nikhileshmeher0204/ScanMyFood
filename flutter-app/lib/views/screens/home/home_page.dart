@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
-import 'package:read_the_label/views/screens/product_analysis_view.dart';
-import 'package:read_the_label/views/screens/food_analysis_view.dart';
-import 'package:read_the_label/views/screens/daily_intake_view.dart';
+import 'package:read_the_label/views/screens/product_analysis/product_analysis_view.dart';
+import 'package:read_the_label/views/screens/food_analysis/food_analysis_view.dart';
+import 'package:read_the_label/views/screens/daily_intake/daily_intake_view.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);

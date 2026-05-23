@@ -5,7 +5,7 @@ import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
-import 'package:read_the_label/views/widgets/nutrient_card.dart';
+import 'package:read_the_label/views/widgets/daily_intake/nutrient_card.dart';
 
 class DetailedNutrientsCard extends StatelessWidget {
   const DetailedNutrientsCard({

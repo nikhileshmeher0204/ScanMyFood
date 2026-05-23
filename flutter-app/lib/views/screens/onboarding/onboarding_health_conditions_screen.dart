@@ -7,8 +7,8 @@ import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/onboarding_view_model.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:read_the_label/views/widgets/health_condition_card.dart';
-import 'package:read_the_label/views/screens/onboarding_health_metrics_screen.dart';
+import 'package:read_the_label/views/widgets/onboarding/health_condition_card.dart';
+import 'package:read_the_label/views/screens/onboarding/onboarding_health_metrics_screen.dart';
 
 class OnboardingHealthConditionsScreen extends StatefulWidget {
   const OnboardingHealthConditionsScreen({super.key});

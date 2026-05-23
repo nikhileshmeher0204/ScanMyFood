@@ -8,10 +8,10 @@ import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/onboarding_view_model.dart';
-import 'package:read_the_label/views/widgets/choice_card.dart';
-import 'package:read_the_label/views/widgets/app_cupertino_picker.dart';
-import 'package:read_the_label/views/widgets/app_picker_modal.dart';
-import 'package:read_the_label/views/screens/home_page.dart';
+import 'package:read_the_label/views/widgets/onboarding/choice_card.dart';
+import 'package:read_the_label/views/widgets/common/app_cupertino_picker.dart';
+import 'package:read_the_label/views/widgets/common/app_picker_modal.dart';
+import 'package:read_the_label/views/screens/home/home_page.dart';
 
 class OnboardingHealthMetricsScreen extends StatefulWidget {
   const OnboardingHealthMetricsScreen({super.key});

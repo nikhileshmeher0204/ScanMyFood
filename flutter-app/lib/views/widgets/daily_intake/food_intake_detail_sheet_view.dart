@@ -9,12 +9,12 @@ import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
-import 'package:read_the_label/views/widgets/food_history_item_card.dart';
-import 'package:read_the_label/views/widgets/food_item_card_shimmer.dart';
-import 'package:read_the_label/views/widgets/total_nutrients_card.dart';
-import 'package:read_the_label/views/widgets/total_nutrients_card_shimmer.dart';
-import 'package:read_the_label/views/widgets/list_tile.dart';
-import 'package:read_the_label/views/widgets/high_low_nutrient_indicator.dart';
+import 'package:read_the_label/views/widgets/daily_intake/food_history_item_card.dart';
+import 'package:read_the_label/views/widgets/daily_intake/food_item_card_shimmer.dart';
+import 'package:read_the_label/views/widgets/common/total_nutrients_card.dart';
+import 'package:read_the_label/views/widgets/daily_intake/total_nutrients_card_shimmer.dart';
+import 'package:read_the_label/views/widgets/daily_intake/list_tile.dart';
+import 'package:read_the_label/views/widgets/daily_intake/high_low_nutrient_indicator.dart';
 import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:soft_edge_blur/soft_edge_blur.dart';
 

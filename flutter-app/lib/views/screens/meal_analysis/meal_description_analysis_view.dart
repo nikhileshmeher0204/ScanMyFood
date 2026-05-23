@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/viewmodels/description_analysis_view_model.dart';
-import 'package:read_the_label/views/widgets/food_item_card.dart';
-import 'package:read_the_label/views/widgets/total_nutrients_card.dart';
-import '../widgets/food_item_card_shimmer.dart';
-import '../widgets/total_nutrients_card_shimmer.dart';
+import 'package:read_the_label/views/widgets/common/food_item_card.dart';
+import 'package:read_the_label/views/widgets/common/total_nutrients_card.dart';
+import 'package:read_the_label/views/widgets/daily_intake/food_item_card_shimmer.dart';
+import 'package:read_the_label/views/widgets/daily_intake/total_nutrients_card_shimmer.dart';
 
 class MealDescriptionAnalysisView extends StatelessWidget {
   const MealDescriptionAnalysisView({

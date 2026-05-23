@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
-import 'package:read_the_label/views/widgets/add_intake_desc_button.dart';
-import 'package:read_the_label/views/widgets/food_history_item_card.dart';
-import '../../theme/app_text_styles.dart';
+import 'package:read_the_label/views/widgets/daily_intake/add_intake_desc_button.dart';
+import 'package:read_the_label/views/widgets/daily_intake/food_history_item_card.dart';
+import 'package:read_the_label/theme/app_text_styles.dart';
 
 class FoodHistoryCard extends StatelessWidget {
   const FoodHistoryCard({super.key});
