@@ -5,7 +5,7 @@ import com.scanmyfood.backend.dto.UserCheckResponse;
 import com.scanmyfood.backend.exceptions.NotFoundException;
 import com.scanmyfood.backend.models.User;
 import com.scanmyfood.backend.mapper.UserMapper;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,37 +18,37 @@ public class UserService {
     private UserMapper userMapper;
 
     @Transactional
-    public User findOrCreateUser(String firebaseUid, String email, String displayName) {
-        log.info("findOrCreateUser — firebaseUid: {}", firebaseUid);
-        User user = userMapper.findByFirebaseUid(firebaseUid);
+    public User findOrCreateUser(String userId, String email, String displayName) {
+        log.info("findOrCreateUser — userId: {}", userId);
+        User user = userMapper.findByUserId(userId);
         if (user != null) {
-            log.info("Existing user found for firebaseUid: {}", firebaseUid);
+            log.info("Existing user found for userId: {}", userId);
             return user;
         }
 
-        log.info("Creating new user for firebaseUid: {}", firebaseUid);
+        log.info("Creating new user for userId: {}", userId);
         User newUser = new User();
-        newUser.setFirebaseUid(firebaseUid);
+        newUser.setUserId(userId);
         newUser.setEmail(email);
         newUser.setDisplayName(displayName);
         newUser.setOnboardingComplete(false);
         userMapper.insertUser(newUser);
-        log.info("New user created successfully for firebaseUid: {}", firebaseUid);
+        log.info("New user created successfully for userId: {}", userId);
         return newUser;
     }
 
-    public UserCheckResponse isNewUser(String firebaseUid) {
-        log.info("isNewUser check for firebaseUid: {}", firebaseUid);
+    public UserCheckResponse isNewUser(String userId) {
+        log.info("isNewUser check for userId: {}", userId);
         try {
-            User user = getUserByFirebaseUid(firebaseUid);
+            User user = getUserByUserId(userId);
             UserCheckResponse response = new UserCheckResponse();
             response.setNewUser(false);
             response.setOnboardingComplete(user.isOnboardingComplete());
-            log.info("User {} exists — isNewUser=false, isOnboardingComplete={}", firebaseUid,
+            log.info("User {} exists — isNewUser=false, isOnboardingComplete={}", userId,
                     user.isOnboardingComplete());
             return response;
         } catch (NotFoundException e) {
-            log.info("No backend record for firebaseUid: {} — treating as new user", firebaseUid);
+            log.info("No backend record for userId: {} — treating as new user", userId);
             UserCheckResponse response = new UserCheckResponse();
             response.setNewUser(true);
             response.setOnboardingComplete(false);
@@ -57,41 +57,42 @@ public class UserService {
     }
 
     @Transactional
-    public void saveHealthMetrics(String firebaseUid, Integer heightFeet, Integer heightInches,
+    public void saveHealthMetrics(String userId, Integer heightFeet, Integer heightInches,
             Double weightKg, String goal) {
-        log.info("saveHealthMetrics — firebaseUid: {}, height={}ft {}in, weight={}kg, goal={}",
-                firebaseUid, heightFeet, heightInches, weightKg, goal);
-        getUserByFirebaseUid(firebaseUid);
-        userMapper.updateHealthMetrics(firebaseUid, heightFeet, heightInches, weightKg, User.Goal.valueOf(goal));
-        log.info("Health metrics saved for firebaseUid: {}", firebaseUid);
+        log.info("saveHealthMetrics — userId: {}, height={}ft {}in, weight={}kg, goal={}",
+                userId, heightFeet, heightInches, weightKg, goal);
+        getUserByUserId(userId);
+        userMapper.updateHealthMetrics(userId, heightFeet, heightInches, weightKg, User.Goal.valueOf(goal));
+        log.info("Health metrics saved for userId: {}", userId);
     }
 
     @Transactional
-    public void saveUserPreferences(String firebaseUid, String dietaryPreference, String country) {
-        log.info("saveUserPreferences — firebaseUid: {}, diet={}, country={}", firebaseUid, dietaryPreference, country);
-        getUserByFirebaseUid(firebaseUid);
-        userMapper.updatePreferences(firebaseUid, User.DietType.valueOf(dietaryPreference), country);
-        log.info("Preferences saved for firebaseUid: {}", firebaseUid);
+    public void saveUserPreferences(String userId, String dietaryPreference, String country) {
+        log.info("saveUserPreferences — userId: {}, diet={}, country={}", userId, dietaryPreference, country);
+        getUserByUserId(userId);
+        userMapper.updatePreferences(userId, User.DietType.valueOf(dietaryPreference), country);
+        log.info("Preferences saved for userId: {}", userId);
     }
 
     @Transactional
-    public void completeUserOnboarding(String firebaseUid) {
-        log.info("completeUserOnboarding — firebaseUid: {}", firebaseUid);
-        User user = getUserByFirebaseUid(firebaseUid);
+    public void completeUserOnboarding(String userId) {
+        log.info("completeUserOnboarding — userId: {}", userId);
+        User user = getUserByUserId(userId);
         user.setOnboardingComplete(true);
         userMapper.updateUser(user);
-        log.info("Onboarding completed for firebaseUid: {}", firebaseUid);
+        log.info("Onboarding completed for userId: {}", userId);
     }
 
-    private User getUserByFirebaseUid(String firebaseUid) {
-        log.debug("Looking up user by firebaseUid: {}", firebaseUid);
-        User user = userMapper.findByFirebaseUid(firebaseUid);
+    public User getUserByUserId(String userId) {
+        log.debug("Looking up user by userId: {}", userId);
+        User user = userMapper.findByUserId(userId);
         if (user == null) {
-            log.warn("User not found for firebaseUid: {}", firebaseUid);
+            log.warn("User not found for userId: {}", userId);
             throw new NotFoundException(ErrorCodes.ERR_USER_NOT_FOUND,
-                    "No user exists with firebase uid: " + firebaseUid);
+                    "No user exists with user id: " + userId);
         }
-        log.debug("User found for firebaseUid: {}", firebaseUid);
+        log.debug("User found for userId: {}", userId);
         return user;
     }
+
 }

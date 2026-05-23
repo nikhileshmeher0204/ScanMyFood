@@ -5,6 +5,6 @@ import java.util.List;
 
 @Data
 public class SaveUserConditionsRequest {
-    private String firebaseUid;
+    private String userId;
     private List<String> conditionNames;
 }

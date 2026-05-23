@@ -8,7 +8,7 @@ import com.scanmyfood.backend.mapper.UserMapper;
 import com.scanmyfood.backend.models.HealthCondition;
 import com.scanmyfood.backend.models.User;
 import com.scanmyfood.backend.models.UserHealthCondition;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,18 +35,18 @@ public class HealthConditionService {
     }
 
     @Transactional
-    public void saveUserConditions(String firebaseUid, List<String> conditionNames) {
-        log.info("saveUserConditions — firebaseUid: {}, conditionCount: {}",
-                firebaseUid, conditionNames != null ? conditionNames.size() : 0);
-        User user = userMapper.findByFirebaseUid(firebaseUid);
+    public void saveUserConditions(String userId, List<String> conditionNames) {
+        log.info("saveUserConditions — userId: {}, conditionCount: {}",
+                userId, conditionNames != null ? conditionNames.size() : 0);
+        User user = userMapper.findByUserId(userId);
         if (user == null) {
-            log.warn("User not found for firebaseUid: {} when saving health conditions", firebaseUid);
+            log.warn("User not found for userId: {} when saving health conditions", userId);
             throw new NotFoundException(ErrorCodes.ERR_USER_NOT_FOUND,
-                    "User not found with firebaseUid: " + firebaseUid);
+                    "User not found with userId: " + userId);
         }
 
-        // We completely replace existing conditions with the new list to keep onboarding simple
-        healthConditionMapper.deleteUserConditions(user.getId());
+        // Completely replace existing conditions with the new list to keep onboarding simple
+        healthConditionMapper.deleteUserConditions(user.getUserId());
 
         if (conditionNames != null && !conditionNames.isEmpty()) {
             for (String conditionName : conditionNames) {
@@ -57,11 +57,12 @@ public class HealthConditionService {
                 uhc.setCondition(hc);
                 uhc.setDateAdded(LocalDateTime.now());
                 uhc.setStatus(UserHealthCondition.Status.ACTIVE);
-                
+
                 healthConditionMapper.insertUserCondition(uhc);
             }
         }
-        log.info("Saved {} health conditions for user {}", conditionNames != null ? conditionNames.size() : 0, firebaseUid);
+        log.info("Saved {} health conditions for userId: {}",
+                conditionNames != null ? conditionNames.size() : 0, userId);
     }
 
     private HealthConditionDto mapToDto(HealthCondition condition) {

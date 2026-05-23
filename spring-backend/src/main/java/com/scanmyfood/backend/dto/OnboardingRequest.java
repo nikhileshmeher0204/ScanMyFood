@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OnboardingRequest {
-    private String firebaseUid;
+    private String userId;
 }

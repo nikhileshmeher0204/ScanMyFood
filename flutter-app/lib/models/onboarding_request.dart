@@ -1,11 +1,11 @@
 class OnboardingRequest {
-  final String firebaseUid;
+  final String userId;
 
   OnboardingRequest({
-    required this.firebaseUid,
+    required this.userId,
   });
 
   Map<String, dynamic> toJson() {
-    return {'firebase_uid': firebaseUid};
+    return {'user_id': userId};
   }
 }

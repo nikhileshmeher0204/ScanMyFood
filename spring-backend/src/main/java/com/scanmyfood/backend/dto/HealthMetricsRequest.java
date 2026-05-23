@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HealthMetricsRequest {
-    private String firebaseUid;
+    private String userId;
     private int heightFeet;
     private int heightInches;
     private double weightKg;

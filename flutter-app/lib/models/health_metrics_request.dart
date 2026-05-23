@@ -1,12 +1,12 @@
 class HealthMetricsRequest {
-  final String firebaseUid;
+  final String userId;
   final int heightFeet;
   final int heightInches;
   final double weightKg;
   final String goal;
 
   HealthMetricsRequest({
-    required this.firebaseUid,
+    required this.userId,
     required this.heightFeet,
     required this.heightInches,
     required this.weightKg,
@@ -15,7 +15,7 @@ class HealthMetricsRequest {
 
   Map<String, dynamic> toJson() {
     return {
-      'firebase_uid': firebaseUid,
+      'user_id': userId,
       'height_feet': heightFeet,
       'height_inches': heightInches,
       'weight_kg': weightKg,

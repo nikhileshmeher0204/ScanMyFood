@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserPreferencesRequest {
-    private String firebaseUid;
+    private String userId;
     private String dietaryPreference;
     private String country;
 }

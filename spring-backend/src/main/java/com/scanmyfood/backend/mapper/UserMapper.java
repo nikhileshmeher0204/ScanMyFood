@@ -7,10 +7,9 @@ import org.apache.ibatis.annotations.*;
 @Mapper
 public interface UserMapper {
 
-    @Select("SELECT * FROM users WHERE firebase_uid = #{firebaseUid}")
+    @Select("SELECT * FROM users WHERE user_id = #{userId}")
     @Results({
-        @Result(property = "id", column = "id"),
-        @Result(property = "firebaseUid", column = "firebase_uid"),
+        @Result(property = "userId", column = "user_id"),
         @Result(property = "email", column = "email"),
         @Result(property = "isOnboardingComplete", column = "is_onboarding_complete"),
         @Result(property = "displayName", column = "display_name"),
@@ -23,33 +22,32 @@ public interface UserMapper {
         @Result(property = "weightKg", column = "weight_kg"),
         @Result(property = "goal", column = "goal")
     })
-    User findByFirebaseUid(@Param("firebaseUid") String firebaseUid);
+    User findByUserId(@Param("userId") String userId);
 
-    @Select("SELECT firebase_uid, is_onboarding_complete FROM users WHERE firebase_uid = #{firebaseUid}")
-    UserCheckResponse existsByFirebaseUid(@Param("firebaseUid") String firebaseUid);
+    @Select("SELECT user_id, is_onboarding_complete FROM users WHERE user_id = #{userId}")
+    UserCheckResponse existsByUserId(@Param("userId") String userId);
 
-    @Insert("INSERT INTO users (firebase_uid, email, display_name, is_onboarding_complete, created_at, updated_at, " +
+    @Insert("INSERT INTO users (user_id, email, display_name, is_onboarding_complete, created_at, updated_at, " +
             "dietary_preference, country, height_feet, height_inches, weight_kg, goal) " +
-            "VALUES (#{firebaseUid}, #{email}, #{displayName}, #{isOnboardingComplete}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, " +
+            "VALUES (#{userId}, #{email}, #{displayName}, #{isOnboardingComplete}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, " +
             "#{dietaryPreference}, #{country}, #{heightFeet}, #{heightInches}, #{weightKg}, #{goal})")
-    @Options(useGeneratedKeys = true, keyProperty = "id")
     void insertUser(User user);
 
     @Update("UPDATE users SET display_name = #{displayName}, is_onboarding_complete = #{isOnboardingComplete}, updated_at = CURRENT_TIMESTAMP, " +
             "dietary_preference = #{dietaryPreference}, country = #{country}, " +
             "height_feet = #{heightFeet}, height_inches = #{heightInches}, weight_kg = #{weightKg}, goal = #{goal} " +
-            "WHERE firebase_uid = #{firebaseUid}")
+            "WHERE user_id = #{userId}")
     void updateUser(User user);
 
-    @Update("UPDATE users SET is_onboarding_complete = #{status}, updated_at = CURRENT_TIMESTAMP WHERE firebase_uid = #{firebaseUid}")
-    void updateOnboardingStatus(@Param("firebaseUid") String firebaseUid, @Param("status") boolean status);
+    @Update("UPDATE users SET is_onboarding_complete = #{status}, updated_at = CURRENT_TIMESTAMP WHERE user_id = #{userId}")
+    void updateOnboardingStatus(@Param("userId") String userId, @Param("status") boolean status);
 
     @Update("UPDATE users SET dietary_preference = #{dietary}, country = #{country}, updated_at = CURRENT_TIMESTAMP " +
-            "WHERE firebase_uid = #{firebaseUid}")
-    void updatePreferences(@Param("firebaseUid") String firebaseUid, @Param("dietary") User.DietType dietary, @Param("country") String country);
+            "WHERE user_id = #{userId}")
+    void updatePreferences(@Param("userId") String userId, @Param("dietary") User.DietType dietary, @Param("country") String country);
 
     @Update("UPDATE users SET height_feet = #{hFeet}, height_inches = #{hInches}, weight_kg = #{weight}, goal = #{goal}, " +
-            "updated_at = CURRENT_TIMESTAMP WHERE firebase_uid = #{firebaseUid}")
-    void updateHealthMetrics(@Param("firebaseUid") String firebaseUid, @Param("hFeet") Integer hFeet, 
+            "updated_at = CURRENT_TIMESTAMP WHERE user_id = #{userId}")
+    void updateHealthMetrics(@Param("userId") String userId, @Param("hFeet") Integer hFeet,
                              @Param("hInches") Integer hInches, @Param("weight") Double weight, @Param("goal") User.Goal goal);
 }

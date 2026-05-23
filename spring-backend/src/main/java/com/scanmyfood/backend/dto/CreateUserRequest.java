@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateUserRequest {
-    private String firebaseUid;
+    private String userId;
     private String email;
     private String displayName;
 }

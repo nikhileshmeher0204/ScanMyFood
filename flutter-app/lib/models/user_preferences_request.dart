@@ -1,17 +1,17 @@
 class UserPreferencesRequest {
-  final String firebaseUid;
+  final String userId;
   final String dietaryPreference;
   final String country;
 
   UserPreferencesRequest({
-    required this.firebaseUid,
+    required this.userId,
     required this.dietaryPreference,
     required this.country,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'firebase_uid': firebaseUid,
+      'user_id': userId,
       'dietary_preference': dietaryPreference,
       'country': country,
     };

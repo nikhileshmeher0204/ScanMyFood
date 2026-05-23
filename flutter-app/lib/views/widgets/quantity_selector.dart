@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/views/widgets/app_cupertino_picker.dart';
+import 'package:read_the_label/views/widgets/app_picker_modal.dart';
 
 class QuantityOption {
   final double value;
@@ -76,81 +78,26 @@ class QuantitySelectorState extends State<QuantitySelector> {
   void _showCupertinoSelector(BuildContext context, int initialIndex) {
     final uiViewModel = context.read<UiViewModel>();
     int tempIndex = initialIndex;
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: 300,
-          decoration: const BoxDecoration(
-            color: AppColors.cardBackground,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: AppColors.secondaryBlackTextColor,
-                      width: 0.5,
-                    ),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CupertinoButton(
-                      child: Text(
-                        'Cancel',
-                        style: AppTextStyles.withColor(
-                          AppTextStyles.bodyMedium,
-                          AppColors.textSecondary,
-                        ),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                    CupertinoButton(
-                      child: Text(
-                        'Done',
-                        style: AppTextStyles.withColor(
-                          AppTextStyles.withWeight(
-                            AppTextStyles.bodyMedium,
-                            FontWeight.w600,
-                          ),
-                          AppColors.secondaryGreen,
-                        ),
-                      ),
-                      onPressed: () {
-                        uiViewModel
-                            .updatePortionMultiplier(_options[tempIndex].value);
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: CupertinoPicker(
-                  backgroundColor: AppColors.cardBackground,
-                  itemExtent: 44,
-                  scrollController:
-                      FixedExtentScrollController(initialItem: initialIndex),
-                  onSelectedItemChanged: (int index) {
-                    tempIndex = index;
-                  },
-                  children: _options.map((option) {
-                    return Center(child: _buildServingLabel(option.value));
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-        );
+
+    showAppPickerModal(
+      context,
+      onDone: () {
+        uiViewModel.updatePortionMultiplier(_options[tempIndex].value);
       },
+      picker: AppCupertinoPicker(
+        itemExtent: 44,
+        useMagnifier: false, // matches previous default behavior
+        magnification: 1.0,  // matches previous default behavior
+        squeeze: 1.45,       // default squeeze
+        scrollController:
+            FixedExtentScrollController(initialItem: initialIndex),
+        onSelectedItemChanged: (int index) {
+          tempIndex = index;
+        },
+        children: _options.map((option) {
+          return Center(child: _buildServingLabel(option.value));
+        }).toList(),
+      ),
     );
   }
 
