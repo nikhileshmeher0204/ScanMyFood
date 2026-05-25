@@ -59,7 +59,7 @@ class SpringBackendRepository implements AiRepositoryInterface {
   }
 
   @override
-  Future<FoodAnalysisResponse> analyzeFoodImage(File imageFile) async {
+  Future<FoodAnalysisResponse> analyzeFoodImage(File imageFile, {String? description}) async {
     try {
       // Create multipart request
       var request = http.MultipartRequest(
@@ -71,6 +71,11 @@ class SpringBackendRepository implements AiRepositoryInterface {
       // Add file
       request.files
           .add(await http.MultipartFile.fromPath('image', imageFile.path));
+
+      // Add optional description
+      if (description != null && description.isNotEmpty) {
+        request.fields['description'] = description;
+      }
 
       // Send request
       final streamedResponse = await request.send();

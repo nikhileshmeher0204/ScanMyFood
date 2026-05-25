@@ -82,9 +82,6 @@ class _AskAiWidgetState extends State<AskAiWidget>
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.cardBackground,
-          border: Border.all(
-            color: const Color.fromARGB(255, 255, 119, 0),
-          ),
           borderRadius: BorderRadius.circular(28),
           boxShadow: const [
             BoxShadow(

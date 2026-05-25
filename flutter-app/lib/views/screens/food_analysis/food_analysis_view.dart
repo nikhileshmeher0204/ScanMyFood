@@ -79,8 +79,10 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
     final hasResults = mealAnalysisViewModel.foodImage != null &&
         mealAnalysisViewModel.analyzedScannedFoodItems.isNotEmpty &&
         !mealAnalysisViewModel.loading;
-    
-    final targetColor = hasResults ? (_dominantColor ?? AppColors.background) : AppColors.background;
+
+    final targetColor = hasResults
+        ? (_dominantColor ?? AppColors.background)
+        : AppColors.background;
 
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(
@@ -119,20 +121,24 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                     children: [
                       Consumer<MealAnalysisViewModel>(
                         builder: (context, mealAnalysisProvider, child) {
-                          return Selector<UiViewModel, bool>(
-                            selector: (context, uiViewModel) => uiViewModel.loading,
-                            builder: (context, isLoading, child) {
-                              return PickImageCard(
-                                icon: AppConstants.foodIcon,
-                                titleDescription: AppConstants.foodScanDescription,
-                                cameraButtonText: AppConstants.cameraButtonText,
-                                galleryButtonText: AppConstants.galleryButtonText,
-                                image: mealAnalysisProvider.foodImage,
-                                isLoading: isLoading,
-                                onImageCapturePressed:
-                                    mealAnalysisProvider.handleFoodImageCapture,
-                              );
-                            },
+                          final isAnalysisComplete =
+                              mealAnalysisProvider.foodImage != null &&
+                                  mealAnalysisProvider
+                                      .analyzedScannedFoodItems.isNotEmpty &&
+                                  !mealAnalysisProvider.loading;
+                          return PickImageCard(
+                            icon: AppConstants.foodIcon,
+                            titleDescription: AppConstants.foodScanDescription,
+                            cameraButtonText: AppConstants.cameraButtonText,
+                            galleryButtonText: AppConstants.galleryButtonText,
+                            image: mealAnalysisProvider.foodImage,
+                            isLoading: mealAnalysisProvider.loading,
+                            hasResults: isAnalysisComplete,
+                            onImageCapturePressed:
+                                mealAnalysisProvider.handleFoodImageCapture,
+                            onScanWithDescription: mealAnalysisProvider
+                                .analyzeFoodImageWithDescription,
+                            onScanAnother: mealAnalysisProvider.reset,
                           );
                         },
                       ),
@@ -157,13 +163,19 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                               spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  mealAnalysisProvider.scannedMealName,
-                                  style: AppTextStyles.heading2BoldClose.copyWith(
-                                    color: AppColors.getTitleColor(displayColor),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0),
+                                  child: Text(
+                                    mealAnalysisProvider.scannedMealName,
+                                    style: AppTextStyles.heading2BoldClose
+                                        .copyWith(
+                                      color:
+                                          AppColors.getTitleColor(displayColor),
+                                    ),
                                   ),
                                 ),
-      
+
                                 // Food item cards
                                 ...mealAnalysisProvider.analyzedScannedFoodItems
                                     .asMap()
@@ -173,20 +185,23 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                                           index: entry.key,
                                           dominantColor: displayColor,
                                         )),
-      
+
                                 TotalNutrientsCard(
                                   source: AppConstants.scanMeal,
-                                  foodAnalysis: mealAnalysisProvider.foodAnalysis,
-                                  mealName: mealAnalysisProvider.scannedMealName,
+                                  foodAnalysis:
+                                      mealAnalysisProvider.foodAnalysis,
+                                  mealName:
+                                      mealAnalysisProvider.scannedMealName,
                                   numberOfFoodItems: mealAnalysisProvider
                                       .analyzedScannedFoodItems.length,
-                                  totalPlateNutrients:
-                                      mealAnalysisProvider.totalScannedPlateNutrients,
-                                  nutrientInfo: mealAnalysisProvider.nutrientInfo,
+                                  totalPlateNutrients: mealAnalysisProvider
+                                      .totalScannedPlateNutrients,
+                                  nutrientInfo:
+                                      mealAnalysisProvider.nutrientInfo,
                                   foodImage: mealAnalysisProvider.foodImage,
                                   showSaveOptions: true,
                                 ),
-      
+
                                 InkWell(
                                   onTap: () {
                                     Navigator.push(
@@ -194,9 +209,10 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                                       CupertinoPageRoute(
                                         builder: (context) => AskAiView(
                                           foodContext: "food",
-                                          mealName:
-                                              mealAnalysisProvider.scannedMealName,
-                                          foodImage: mealAnalysisProvider.foodImage!,
+                                          mealName: mealAnalysisProvider
+                                              .scannedMealName,
+                                          foodImage:
+                                              mealAnalysisProvider.foodImage!,
                                         ),
                                       ),
                                     );

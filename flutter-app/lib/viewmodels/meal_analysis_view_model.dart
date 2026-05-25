@@ -46,6 +46,17 @@ class MealAnalysisViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  /// Resets the analysis state to allow scanning a new image.
+  void reset() {
+    _foodImage = null;
+    foodAnalysisResponse = null;
+    _analyzedScannedFoodItems = [];
+    _totalScannedPlateNutrients = [];
+    _scannedMealName = "Unknown Meal";
+    _nutrientInfo = [];
+    notifyListeners();
+  }
+
   // Image capture method
   Future<void> captureImage({
     required ImageSource source,
@@ -162,6 +173,7 @@ class MealAnalysisViewModel extends BaseViewModel {
   // Analyze food image method
   Future<void> analyzeFoodImage({
     required File imageFile,
+    String? description,
   }) async {
     setLoading(true);
 
@@ -170,7 +182,10 @@ class MealAnalysisViewModel extends BaseViewModel {
       _foodImage = imageFile;
 
       // Use repository for AI analysis
-      foodAnalysisResponse = await aiRepository.analyzeFoodImage(imageFile);
+      foodAnalysisResponse = await aiRepository.analyzeFoodImage(
+        imageFile,
+        description: description,
+      );
 
       _analyzedScannedFoodItems.clear();
       _totalScannedPlateNutrients.clear();
@@ -187,6 +202,13 @@ class MealAnalysisViewModel extends BaseViewModel {
       setError("Error analyzing food image: $e");
     } finally {
       setLoading(false);
+    }
+  }
+
+  /// Re-analyzes the current food image with a user-provided description.
+  Future<void> analyzeFoodImageWithDescription(String description) async {
+    if (_foodImage != null) {
+      await analyzeFoodImage(imageFile: _foodImage!, description: description);
     }
   }
 }

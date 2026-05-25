@@ -136,13 +136,17 @@ public class VertexAiServiceImpl implements AiService {
   }
 
   @Override
-  public FoodAnalysisResponse analyzeFoodImage(MultipartFile imageFile) {
+  public FoodAnalysisResponse analyzeFoodImage(MultipartFile imageFile, String description) {
     try {
       String foodMimeType = determineMimeType(imageFile);
 
       // Create prompt
-      String prompt = """
-          Analyze this food image and break down each visible food item.
+      StringBuilder promptBuilder = new StringBuilder();
+      promptBuilder.append("Analyze this food image and break down each visible food item.\n");
+      if (description != null && !description.trim().isEmpty()) {
+        promptBuilder.append(String.format("User's description/context: \"%s\". Use this description to guide your identification and portion estimation of the visible food items.\n", description));
+      }
+      promptBuilder.append("""
           Provide response in this strict JSON format:
           {
             "meal_name": "Name of the meal",
@@ -183,8 +187,8 @@ public class VertexAiServiceImpl implements AiService {
           5. Consider common serving sizes and preparation methods
           6. Account for density and volume-to-weight conversions
           7. Use Atwater factors (Protein=4 kcal/g, Carb=4, Fat=9) for grams to kcal conversion
-
-          """;
+          """);
+      String prompt = promptBuilder.toString();
 
       // Use ContentMaker and PartMaker with the determined MIME type
       Content content = ContentMaker.fromMultiModalData(
