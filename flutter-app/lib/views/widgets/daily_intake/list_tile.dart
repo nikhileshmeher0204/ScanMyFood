@@ -24,8 +24,41 @@ class AppListTile extends StatefulWidget {
   State<AppListTile> createState() => _AppListTileState();
 }
 
-class _AppListTileState extends State<AppListTile> {
+class _AppListTileState extends State<AppListTile>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _expandController;
+  late Animation<double> _expandAnimation;
   bool _isExpanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _expandController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _expandAnimation = CurvedAnimation(
+      parent: _expandController,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _expandController.dispose();
+    super.dispose();
+  }
+
+  void _toggleExpand() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+      if (_isExpanded) {
+        _expandController.forward();
+      } else {
+        _expandController.reverse();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,14 +70,17 @@ class _AppListTileState extends State<AppListTile> {
     final subtitle =
         '$caloriesValue $caloriesUnit • ${widget.item.quantity.value} ${widget.item.quantity.unit}';
 
+    final baseBgColor =
+        widget.dominantColor ?? Theme.of(context).scaffoldBackgroundColor;
+    final hsl = HSLColor.fromColor(baseBgColor);
+    final expandedColor =
+        hsl.withLightness((hsl.lightness - 0.05).clamp(0.0, 1.0)).toColor();
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
-      // Slightly lighter background when expanded to give card expression
       decoration: BoxDecoration(
-        color: _isExpanded
-            ? Colors.white.withValues(alpha: 0.05)
-            : Colors.transparent,
+        color: _isExpanded ? expandedColor : Colors.transparent,
         borderRadius: BorderRadius.circular(16),
       ),
       padding: _isExpanded ? const EdgeInsets.all(12.0) : EdgeInsets.zero,
@@ -54,25 +90,25 @@ class _AppListTileState extends State<AppListTile> {
       child: Column(
         children: [
           InkWell(
-            onTap: widget.onTap ??
-                () {
-                  setState(() {
-                    _isExpanded = !_isExpanded;
-                  });
-                },
+            onTap: () {
+              if (widget.onTap != null) {
+                widget.onTap!();
+              }
+              _toggleExpand();
+            },
             child: Row(
               spacing: 16,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Numbered list
                 SizedBox(
-                  width:
-                      30, // Keeps number column consistently aligned across multiple digits
+                  width: 30,
                   child: Center(
                     child: Text(
                       '${widget.index + 1}',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: Colors.white.withValues(alpha: 0.6),
+                        color: AppColors.getSubtitleColor(
+                            widget.dominantColor ?? Colors.black),
                         fontSize: 24,
                       ),
                     ),
@@ -88,7 +124,7 @@ class _AppListTileState extends State<AppListTile> {
                                 color: AppColors.getSubtitleColor(
                                         widget.dominantColor ?? Colors.black)
                                     .withOpacity(0.15),
-                                width: 0.5, // Standard thin divider
+                                width: 0.5,
                               ),
                             )
                           : null,
@@ -107,9 +143,8 @@ class _AppListTileState extends State<AppListTile> {
                                 style: AppTextStyles.bodyMedium.copyWith(
                                   color: AppColors.getTitleColor(
                                       widget.dominantColor ?? Colors.black),
-                                  fontSize: 17, // slightly bigger
-                                  fontWeight:
-                                      FontWeight.w500, // semibold (important)
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w500,
                                   height: 1.1,
                                 ),
                               ),
@@ -120,7 +155,7 @@ class _AppListTileState extends State<AppListTile> {
                                   color: AppColors.getSubtitleColor(
                                       widget.dominantColor ?? Colors.black),
                                   fontSize: 12,
-                                  fontWeight: FontWeight.w400, // ❗ NOT bold
+                                  fontWeight: FontWeight.w400,
                                   letterSpacing: 0.2,
                                   height: 1.2,
                                 ),
@@ -128,20 +163,13 @@ class _AppListTileState extends State<AppListTile> {
                             ],
                           ),
                         ),
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          icon: Icon(
-                              _isExpanded
-                                  ? CupertinoIcons.chevron_up
-                                  : CupertinoIcons.chevron_down,
-                              color: Colors.white54,
-                              size: 20),
-                          onPressed: () {
-                            setState(() {
-                              _isExpanded = !_isExpanded;
-                            });
-                          },
+                        Icon(
+                          _isExpanded
+                              ? CupertinoIcons.chevron_up
+                              : CupertinoIcons.chevron_down,
+                          color: AppColors.getSubtitleColor(
+                              widget.dominantColor ?? Colors.black),
+                          size: 20,
                         ),
                       ],
                     ),
@@ -150,118 +178,116 @@ class _AppListTileState extends State<AppListTile> {
               ],
             ),
           ),
-          if (_isExpanded) ...[
-            const SizedBox(height: 12),
-            GridView.count(
-              padding: EdgeInsets.zero,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-              childAspectRatio: 2.5,
-              children: [
-                _buildNutrient(
-                  NutrientUtils.toTitleCase(AppConstants.protein),
-                  NutrientUtils.getNutrientValue(
-                      widget.item, AppConstants.protein),
-                  NutrientUtils.getNutrientUnit(
-                      widget.item, AppConstants.protein),
-                ),
-                _buildNutrient(
-                  NutrientUtils.toTitleCase(AppConstants.carbohydrate),
-                  NutrientUtils.getNutrientValue(
-                      widget.item, AppConstants.totalCarbohydrate),
-                  NutrientUtils.getNutrientUnit(
-                      widget.item, AppConstants.totalCarbohydrate),
-                ),
-                _buildNutrient(
-                  NutrientUtils.toTitleCase(AppConstants.fat),
-                  NutrientUtils.getNutrientValue(
-                      widget.item, AppConstants.totalFat),
-                  NutrientUtils.getNutrientUnit(
-                      widget.item, AppConstants.totalFat),
-                ),
-                _buildNutrient(
-                  NutrientUtils.toTitleCase(AppConstants.dietaryFiber),
-                  NutrientUtils.getNutrientValue(
-                      widget.item, AppConstants.dietaryFiber),
-                  NutrientUtils.getNutrientUnit(
-                      widget.item, AppConstants.dietaryFiber),
-                ),
-                _buildNutrient(
-                  NutrientUtils.toTitleCase(AppConstants.sugar),
-                  NutrientUtils.getNutrientValue(
-                      widget.item, AppConstants.totalSugars),
-                  NutrientUtils.getNutrientUnit(
-                      widget.item, AppConstants.totalSugars),
-                ),
-                _buildNutrient(
-                  NutrientUtils.toTitleCase(AppConstants.sodium),
-                  NutrientUtils.getNutrientValue(
-                      widget.item, AppConstants.sodium),
-                  NutrientUtils.getNutrientUnit(
-                      widget.item, AppConstants.sodium),
-                ),
-              ],
+          SizeTransition(
+            sizeFactor: _expandAnimation,
+            axisAlignment: -1.0,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 12.0, left: 4.0, right: 4.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildNutrientRow(
+                    iconPath: 'assets/icons/protein_icon.png',
+                    label: NutrientUtils.toTitleCase(AppConstants.protein),
+                    value: NutrientUtils.getNutrientValue(
+                        widget.item, AppConstants.protein),
+                    unit: NutrientUtils.getNutrientUnit(
+                        widget.item, AppConstants.protein),
+                  ),
+                  _buildNutrientRow(
+                    iconPath: 'assets/icons/carbs_icon.png',
+                    label: NutrientUtils.toTitleCase(AppConstants.carbohydrate),
+                    value: NutrientUtils.getNutrientValue(
+                        widget.item, AppConstants.totalCarbohydrate),
+                    unit: NutrientUtils.getNutrientUnit(
+                        widget.item, AppConstants.totalCarbohydrate),
+                  ),
+                  _buildNutrientRow(
+                    iconPath: 'assets/icons/fat_icon.png',
+                    label: NutrientUtils.toTitleCase(AppConstants.fat),
+                    value: NutrientUtils.getNutrientValue(
+                        widget.item, AppConstants.totalFat),
+                    unit: NutrientUtils.getNutrientUnit(
+                        widget.item, AppConstants.totalFat),
+                  ),
+                  _buildNutrientRow(
+                    iconPath: 'assets/icons/fibre_icon.png',
+                    label: NutrientUtils.toTitleCase(AppConstants.dietaryFiber),
+                    value: NutrientUtils.getNutrientValue(
+                        widget.item, AppConstants.dietaryFiber),
+                    unit: NutrientUtils.getNutrientUnit(
+                        widget.item, AppConstants.dietaryFiber),
+                  ),
+                  _buildNutrientRow(
+                    iconPath: 'assets/icons/sugar_icon.png',
+                    label: NutrientUtils.toTitleCase(AppConstants.sugar),
+                    value: NutrientUtils.getNutrientValue(
+                        widget.item, AppConstants.totalSugars),
+                    unit: NutrientUtils.getNutrientUnit(
+                        widget.item, AppConstants.totalSugars),
+                  ),
+                  _buildNutrientRow(
+                    iconPath: 'assets/icons/sodium_icon.png',
+                    label: NutrientUtils.toTitleCase(AppConstants.sodium),
+                    value: NutrientUtils.getNutrientValue(
+                        widget.item, AppConstants.sodium),
+                    unit: NutrientUtils.getNutrientUnit(
+                        widget.item, AppConstants.sodium),
+                  ),
+                ],
+              ),
             ),
-          ]
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildNutrient(String label, double value, String unit) {
-    final String? nutrientIcon = NutrientUtils.getNutrientIcon(label);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white
-            .withValues(alpha: 0.05), // highly translucent to blend with sheet
-        borderRadius: BorderRadius.circular(12),
-        border:
-            Border.all(color: Colors.white.withValues(alpha: 0.1), width: 1),
-      ),
+  Widget _buildNutrientRow({
+    required String iconPath,
+    required String label,
+    required double value,
+    required String unit,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         children: [
-          SizedBox(
+          Image.asset(
+            iconPath,
             width: 20,
             height: 20,
-            child: nutrientIcon != null
-                ? Align(
-                    alignment: Alignment.centerRight,
-                    child: Image.asset(
-                      nutrientIcon,
-                      fit: BoxFit.contain,
-                    ),
-                  )
-                : null,
           ),
           const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
+          Text.rich(
+            TextSpan(
               children: [
-                Text(
-                  label,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: Colors.white.withValues(alpha: 0.9),
+                TextSpan(
+                  text: label,
+                  style: const TextStyle(
+                    color: AppColors.primaryWhite,
+                    fontWeight: FontWeight.w500,
                     fontSize: 15,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 1),
-                Text(
-                  '$value $unit',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 13,
+                TextSpan(
+                  text: '  •  ',
+                  style: TextStyle(
+                    color: AppColors.getSubtitleColor(
+                            widget.dominantColor ?? Colors.black)
+                        .withOpacity(0.4),
+                    fontWeight: FontWeight.w400,
+                    fontSize: 15,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                ),
+                TextSpan(
+                  text: '$value $unit',
+                  style: TextStyle(
+                    color: AppColors.getSubtitleColor(
+                        widget.dominantColor ?? Colors.black),
+                    fontWeight: FontWeight.w400,
+                    fontSize: 15,
+                  ),
                 ),
               ],
             ),

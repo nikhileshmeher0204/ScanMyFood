@@ -9,27 +9,37 @@ import 'package:read_the_label/models/food_item.dart';
 class FoodItemCard extends StatelessWidget {
   final FoodItem item;
   final int index;
+  final Color? dominantColor;
 
   const FoodItemCard({
     super.key,
     required this.item,
     required this.index,
+    this.dominantColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDynamic = dominantColor != null;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: isDynamic
+            ? Colors.white.withValues(alpha: 0.05)
+            : AppColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
+        border: isDynamic
+            ? Border.all(color: Colors.white.withValues(alpha: 0.08), width: 1.0)
+            : null,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            decoration: const BoxDecoration(
-              color: AppColors.secondary,
-              borderRadius: BorderRadius.vertical(
+            decoration: BoxDecoration(
+              color: isDynamic
+                  ? dominantColor!.withValues(alpha: 0.2)
+                  : AppColors.secondary,
+              borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(15),
               ),
             ),
@@ -43,7 +53,7 @@ class FoodItemCard extends StatelessWidget {
                       item.name,
                       style: AppTextStyles.withColor(
                         AppTextStyles.heading2,
-                        AppColors.primaryBlack,
+                        isDynamic ? Colors.white.withValues(alpha: 0.95) : AppColors.primaryBlack,
                       ),
                       overflow: TextOverflow.visible,
                       softWrap: true,
@@ -53,7 +63,9 @@ class FoodItemCard extends StatelessWidget {
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                          color: AppColors.onSecondaryContainer,
+                          color: isDynamic
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : AppColors.onSecondaryContainer,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         padding: const EdgeInsets.all(4),
@@ -61,13 +73,16 @@ class FoodItemCard extends StatelessWidget {
                           '🔥 ${NutrientUtils.getNutrientValue(item, AppConstants.calories)} ${NutrientUtils.getNutrientUnit(item, AppConstants.calories)}',
                           style: AppTextStyles.withColor(
                             AppTextStyles.bodyMediumBold,
-                            AppColors.primaryBlack,
+                            isDynamic ? Colors.white.withValues(alpha: 0.9) : AppColors.primaryBlack,
                           ),
                         ),
                       ),
+                      const SizedBox(width: 4),
                       Container(
                         decoration: BoxDecoration(
-                          color: AppColors.onSecondaryContainer,
+                          color: isDynamic
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : AppColors.onSecondaryContainer,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         padding: const EdgeInsets.all(4),
@@ -75,7 +90,7 @@ class FoodItemCard extends StatelessWidget {
                           '🍽️ ${item.quantity.value}${item.quantity.unit}',
                           style: AppTextStyles.withColor(
                             AppTextStyles.bodyMediumBold,
-                            AppColors.primaryBlack,
+                            isDynamic ? Colors.white.withValues(alpha: 0.9) : AppColors.primaryBlack,
                           ),
                         ),
                       ),
@@ -85,7 +100,7 @@ class FoodItemCard extends StatelessWidget {
                           Icons.edit_outlined,
                           size: 20,
                         ),
-                        color: AppColors.primaryBlack,
+                        color: isDynamic ? Colors.white.withValues(alpha: 0.8) : AppColors.primaryBlack,
                         onPressed: () => _showEditDialog(context),
                       ),
                     ],
@@ -110,6 +125,7 @@ class FoodItemCard extends StatelessWidget {
                 unit: NutrientUtils.getNutrientUnit(item, AppConstants.protein),
                 icon: Icons.fitness_center_outlined,
                 iconPath: NutrientUtils.getNutrientIcon(AppConstants.protein),
+                dominantColor: dominantColor,
               ),
               FoodNutrientTile(
                 label: NutrientUtils.toTitleCase(AppConstants.carbohydrate),
@@ -120,6 +136,7 @@ class FoodItemCard extends StatelessWidget {
                 icon: Icons.grain_outlined,
                 iconPath:
                     NutrientUtils.getNutrientIcon(AppConstants.carbohydrate),
+                dominantColor: dominantColor,
               ),
               FoodNutrientTile(
                 label: NutrientUtils.toTitleCase(AppConstants.fat),
@@ -129,6 +146,7 @@ class FoodItemCard extends StatelessWidget {
                     NutrientUtils.getNutrientUnit(item, AppConstants.totalFat),
                 icon: Icons.opacity_outlined,
                 iconPath: NutrientUtils.getNutrientIcon(AppConstants.fat),
+                dominantColor: dominantColor,
               ),
               FoodNutrientTile(
                 label: NutrientUtils.toTitleCase(AppConstants.dietaryFiber),
@@ -139,6 +157,7 @@ class FoodItemCard extends StatelessWidget {
                 icon: Icons.grass_outlined,
                 iconPath:
                     NutrientUtils.getNutrientIcon(AppConstants.dietaryFiber),
+                dominantColor: dominantColor,
               ),
               FoodNutrientTile(
                 label: NutrientUtils.toTitleCase(AppConstants.sugar),
@@ -148,6 +167,7 @@ class FoodItemCard extends StatelessWidget {
                     item, AppConstants.totalSugars),
                 icon: Icons.cake_outlined,
                 iconPath: NutrientUtils.getNutrientIcon(AppConstants.sugar),
+                dominantColor: dominantColor,
               ),
               FoodNutrientTile(
                 label: NutrientUtils.toTitleCase(AppConstants.sodium),
@@ -156,6 +176,7 @@ class FoodItemCard extends StatelessWidget {
                 unit: NutrientUtils.getNutrientUnit(item, AppConstants.sodium),
                 icon: Icons.grain_sharp,
                 iconPath: NutrientUtils.getNutrientIcon(AppConstants.sodium),
+                dominantColor: dominantColor,
               ),
             ],
           ),

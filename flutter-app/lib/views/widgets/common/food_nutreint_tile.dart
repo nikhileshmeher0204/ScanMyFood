@@ -8,6 +8,7 @@ class FoodNutrientTile extends StatelessWidget {
   final String unit;
   final IconData icon;
   final String? iconPath;
+  final Color? dominantColor;
 
   const FoodNutrientTile({
     super.key,
@@ -16,15 +17,22 @@ class FoodNutrientTile extends StatelessWidget {
     required this.unit,
     required this.icon,
     this.iconPath,
+    this.dominantColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDynamic = dominantColor != null;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.primaryBlack,
+        color: isDynamic
+            ? Colors.black.withValues(alpha: 0.15)
+            : AppColors.primaryBlack,
         borderRadius: BorderRadius.circular(12),
+        border: isDynamic
+            ? Border.all(color: Colors.white.withValues(alpha: 0.05), width: 0.5)
+            : null,
       ),
       child: Row(
         children: [
@@ -42,7 +50,9 @@ class FoodNutrientTile extends StatelessWidget {
                     )
                   : Icon(
                       icon,
-                      color: AppColors.secondaryGreen,
+                      color: isDynamic
+                          ? Colors.white.withValues(alpha: 0.8)
+                          : AppColors.secondaryGreen,
                       size: 16,
                     ),
             ),
@@ -54,9 +64,23 @@ class FoodNutrientTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: AppTextStyles.bodyLarge),
+                Text(
+                  label,
+                  style: isDynamic
+                      ? AppTextStyles.bodyLarge.copyWith(
+                          color: Colors.white.withValues(alpha: 0.9),
+                        )
+                      : AppTextStyles.bodyLarge,
+                ),
                 const SizedBox(height: 2),
-                Text('$value $unit', style: AppTextStyles.bodyMedium),
+                Text(
+                  '$value $unit',
+                  style: isDynamic
+                      ? AppTextStyles.bodyMedium.copyWith(
+                          color: Colors.white.withValues(alpha: 0.7),
+                        )
+                      : AppTextStyles.bodyMedium,
+                ),
               ],
             ),
           ),

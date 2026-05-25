@@ -22,11 +22,8 @@ class SpringBackendRepository implements AiRepositoryInterface {
       var request = http.MultipartRequest(
           'POST', Uri.parse('${_apiClient.baseUrl}/ai/analyze/product'));
 
-      // Add auth header if available
-      final token = await _apiClient.getAuthToken();
-      if (token != null) {
-        request.headers['Authorization'] = 'Bearer $token';
-      }
+      // Add request headers
+      request.headers.addAll(await _apiClient.getRequestHeaders(includeContentType: false));
 
       // Add files
       request.files.add(
@@ -68,11 +65,8 @@ class SpringBackendRepository implements AiRepositoryInterface {
       var request = http.MultipartRequest(
           'POST', Uri.parse('${_apiClient.baseUrl}/ai/analyze/image'));
 
-      // Add auth header if available
-      final token = await _apiClient.getAuthToken();
-      if (token != null) {
-        request.headers['Authorization'] = 'Bearer $token';
-      }
+      // Add request headers
+      request.headers.addAll(await _apiClient.getRequestHeaders(includeContentType: false));
 
       // Add file
       request.files
@@ -112,15 +106,8 @@ class SpringBackendRepository implements AiRepositoryInterface {
       // Create request
       var uri = Uri.parse('${_apiClient.baseUrl}/ai/analyze/description');
 
-      // Add auth header if available
-      final token = await _apiClient.getAuthToken();
-      Map<String, String> headers = {
-        'Content-Type': 'application/json',
-      };
-
-      if (token != null) {
-        headers['Authorization'] = 'Bearer $token';
-      }
+      // Add request headers
+      final headers = await _apiClient.getRequestHeaders();
       IntakeDescriptionRequest requestBody =
           IntakeDescriptionRequest(description: description);
       // Send request with JSON body
@@ -162,15 +149,8 @@ class SpringBackendRepository implements AiRepositoryInterface {
       var uri = Uri.parse(
           '${_apiClient.baseUrl}/ai/generate/intake-description-image');
 
-      // Add auth header if available
-      final token = await _apiClient.getAuthToken();
-      Map<String, String> headers = {
-        'Content-Type': 'application/json',
-      };
-
-      if (token != null) {
-        headers['Authorization'] = 'Bearer $token';
-      }
+      // Add request headers
+      final headers = await _apiClient.getRequestHeaders();
       IntakeDescriptionRequest requestBody = IntakeDescriptionRequest(
           description: description, dailyIntakeId: dailyIntakeId);
       // Send request with JSON body
