@@ -90,10 +90,16 @@ class _HighLowNutrientIndicatorState extends State<HighLowNutrientIndicator>
     final IconData arrowIcon =
         widget.dvStatus == 'High' ? Icons.arrow_upward : Icons.arrow_downward;
 
+    final baseBgColor =
+        widget.dominantColor ?? Theme.of(context).scaffoldBackgroundColor;
+    final hsl = HSLColor.fromColor(baseBgColor);
+    final backgroundColor =
+        hsl.withLightness((hsl.lightness - 0.05).clamp(0.0, 1.0)).toColor();
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(

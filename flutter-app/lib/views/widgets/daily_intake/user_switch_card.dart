@@ -24,38 +24,70 @@ class UserSwitchCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final User? user =
         context.read<DailyIntakeViewModel>().authService.currentUser;
-    // user.photoURL
+    
+    // Representative background color for the saturated sunset orange header region
+    const bgHeader = Color(0xFFD64D22);
+
+    final titleColor = AppColors.getTitleColor(bgHeader);
+    final subtitleColor = AppColors.getSubtitleColor(bgHeader);
+
     return Column(
       children: [
         Row(
-          spacing: 10,
+          spacing: 12,
           children: [
-            CircleAvatar(
-              radius: 25,
-              backgroundImage: NetworkImage(user?.photoURL ??
-                  'https://www.gravatar.com/avatar/placeholder'),
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: subtitleColor.withValues(alpha: 0.25),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.35),
+                    blurRadius: 12,
+                    spreadRadius: 1,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: CircleAvatar(
+                radius: 24,
+                backgroundColor: AppColors.cardBackground.withValues(alpha: 0.3),
+                backgroundImage: NetworkImage(user?.photoURL ??
+                    'https://www.gravatar.com/avatar/placeholder'),
+              ),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _getGreeting(),
-                  style: AppTextStyles.heading4.copyWith(
-                    color: AppColors.primaryWhite.withValues(alpha: 0.6),
+                  _getGreeting().toUpperCase(),
+                  style: AppTextStyles.caption.copyWith(
+                    color: subtitleColor,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.8,
                   ),
                 ),
+                const SizedBox(height: 2),
                 Text(
                   user?.displayName ?? 'Guest User',
-                  style: AppTextStyles.heading3Bold,
+                  style: AppTextStyles.heading3Bold.copyWith(
+                    color: titleColor,
+                    fontSize: 20,
+                    letterSpacing: -0.5,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),
             const Spacer(),
             IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.settings_rounded,
-                color: AppColors.primaryWhite,
-                size: 28,
+                color: subtitleColor,
+                size: 26,
               ),
               onPressed: () {
                 Navigator.pushNamed(context, '/settings');

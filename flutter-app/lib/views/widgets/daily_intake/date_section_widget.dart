@@ -18,6 +18,9 @@ class DateSectionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const bgTeal = Color(0xFF0E3E39); // Deep teal background region
+    final titleColor = AppColors.getTitleColor(bgTeal);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -30,12 +33,13 @@ class DateSectionWidget extends StatelessWidget {
               Text(
                 DateFormat('EEEE, MMMM d').format(selectedDate),
                 style: AppTextStyles.heading3.copyWith(
-                  color: AppColors.primaryWhite.withValues(alpha: 0.5),
+                  color: titleColor.withValues(alpha: 0.8),
                 ),
               ),
               IconButton(
-                icon: const Icon(
+                icon: Icon(
                   Icons.calendar_today,
+                  color: titleColor.withValues(alpha: 0.8),
                   size: 20,
                 ),
                 onPressed: onCalendarTap ??

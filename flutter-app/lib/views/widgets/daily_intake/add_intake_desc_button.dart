@@ -69,44 +69,51 @@ class _AddIntakeDescButtonState extends State<AddIntakeDescButton>
                 );
               },
               child: Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: const [
-                      Color.fromARGB(255, 237, 202, 149),
-                      Color.fromARGB(255, 253, 142, 81),
-                      Color.fromARGB(255, 255, 0, 85),
-                      Color.fromARGB(255, 0, 21, 255),
+                      Color.fromARGB(255, 40, 24, 78),   // Siri Deep Indigo/Violet
+                      Color.fromARGB(255, 88, 28, 68),   // Siri Dark Plum/Magenta
+                      Color.fromARGB(255, 20, 36, 85),   // Siri Midnight Blue
+                      Color.fromARGB(255, 12, 54, 60),   // Siri Emerald Teal
                     ],
-                    stops: const [0.2, 0.4, 0.6, 1.0],
+                    stops: const [0.1, 0.4, 0.7, 1.0],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     transform:
                         GradientRotation(_shimmerController.value * 6.28),
                   ),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.08),
+                    width: 1.0,
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color.fromARGB(255, 255, 0, 85).withValues(
-                          alpha: 0.3 + (_pulseController.value * 0.2)),
-                      blurRadius: 15 + (_pulseController.value * 5),
-                      spreadRadius: 2,
+                      color: const Color.fromARGB(255, 120, 80, 200).withValues(
+                          alpha: 0.12 + (_pulseController.value * 0.08)),
+                      blurRadius: 16 + (_pulseController.value * 6),
+                      spreadRadius: 1,
                     ),
                   ],
                 ),
                 child: Row(
-                  spacing: 5,
+                  spacing: 8,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(
                       Icons.auto_awesome,
-                      color: Color.fromARGB(255, 0, 21, 255),
-                      size: 20,
+                      color: Color.fromARGB(255, 178, 140, 255),
+                      size: 18,
                     ),
                     Text(
                       "Add intake via text description",
-                      style: AppTextStyles.bodyLarge.copyWith(
+                      style: AppTextStyles.bodyMediumBold.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primaryWhite.withValues(alpha: 0.9),
+                        color: AppColors.appleLabel,
+                        fontSize: 15,
+                        letterSpacing: -0.2,
                       ),
                     ),
                   ],

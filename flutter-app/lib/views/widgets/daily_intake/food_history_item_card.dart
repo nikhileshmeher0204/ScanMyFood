@@ -207,24 +207,28 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(5.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
                         child: Text(
                           itemName,
                           style: AppTextStyles.bodyLargeBold.copyWith(
-                            fontWeight: FontWeight.w800,
-                            color:
-                                AppColors.primaryWhite.withValues(alpha: 0.8),
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.appleLabel,
+                            fontSize: 16,
+                            letterSpacing: -0.2,
                           ),
                         ),
                       ),
                       Text(
                         '${widget.item.caloriesValue == 0 ? widget.item.energyValue : widget.item.caloriesValue} ${widget.item.caloriesUnit ?? widget.item.energyUnit}',
                         style: AppTextStyles.bodyMediumBold.copyWith(
-                          color: AppColors.primaryWhite.withValues(alpha: 0.8),
+                          color: AppColors.appleSecondaryLabel,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
                         ),
                       ),
                     ],
@@ -233,9 +237,9 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
                 if (!widget.isLast)
                   Container(
                     margin: const EdgeInsets.only(top: 4),
-                    height: 1,
+                    height: 0.5,
                     width: double.infinity,
-                    color: AppColors.primaryWhite.withValues(alpha: 0.3),
+                    color: AppColors.appleSecondaryLabel.withOpacity(0.15),
                   ),
               ],
             ),
