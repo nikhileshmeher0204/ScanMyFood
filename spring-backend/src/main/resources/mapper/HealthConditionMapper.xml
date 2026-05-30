@@ -15,4 +15,13 @@
         SELECT * FROM health_conditions ORDER BY name ASC
     </select>
 
+    <select id="findByUserId" resultMap="HealthConditionResultMap">
+        SELECT hc.* 
+        FROM health_conditions hc
+        INNER JOIN user_health_conditions uhc ON hc.name = uhc.condition_name
+        WHERE uhc.user_id = #{userId}
+        ORDER BY hc.name ASC
+    </select>
+
+
 </mapper>

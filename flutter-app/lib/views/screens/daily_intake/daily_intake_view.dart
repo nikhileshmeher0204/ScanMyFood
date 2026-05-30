@@ -52,8 +52,11 @@ class _DailyIntakeViewState extends State<DailyIntakeView> {
             collapseMode: CollapseMode.pin,
           ),
         ),
-        const SliverToBoxAdapter(
-          child: _DailyIntakeContent(),
+        const SliverPadding(
+          padding: EdgeInsets.only(bottom: 90),
+          sliver: SliverToBoxAdapter(
+            child: _DailyIntakeContent(),
+          ),
         ),
       ],
     );
@@ -116,8 +119,6 @@ class _DailyIntakeContent extends StatelessWidget {
           MacronutrientsIndicatorCard(totalNutrients: totalNutrients),
           const SizedBox(height: 24),
           const FoodHistoryCard(),
-          const SizedBox(height: 16),
-          DetailedNutrientsCard(totalNutrients: totalNutrients),
           const SizedBox(height: 16),
         ],
       ),

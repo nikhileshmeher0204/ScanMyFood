@@ -2,11 +2,11 @@ import 'package:read_the_label/main.dart';
 import 'package:read_the_label/models/create_user_request.dart';
 import 'package:read_the_label/models/health_metrics_request.dart';
 import 'package:read_the_label/models/onboarding_request.dart';
-import 'package:read_the_label/models/onboarding_status_response.dart';
 import 'package:read_the_label/models/user_check_response.dart';
 import 'package:read_the_label/models/user_preferences_request.dart';
 import 'package:read_the_label/models/health_condition.dart';
 import 'package:read_the_label/models/save_user_conditions_request.dart';
+import 'package:read_the_label/models/user_profile.dart';
 import 'package:read_the_label/repositories/api_client.dart';
 import 'package:read_the_label/repositories/user_repository_interface.dart';
 
@@ -127,5 +127,21 @@ class UserRepository implements UserRepositoryInterface {
       conditionNames: conditionNames,
     );
     await _apiClient.put('/users/health-conditions', request.toJson());
+  }
+
+  @override
+  Future<UserProfile> getUserProfile() async {
+    logger.d('Fetching user profile...');
+    try {
+      final response = await _apiClient.get('/users/profile');
+      final data = response['data'];
+      if (data is! Map<String, dynamic>) {
+        throw const FormatException('Unexpected response shape for /users/profile');
+      }
+      return UserProfile.fromJson(data);
+    } catch (e, st) {
+      logger.e('Failed to fetch user profile', e, st);
+      rethrow;
+    }
   }
 }

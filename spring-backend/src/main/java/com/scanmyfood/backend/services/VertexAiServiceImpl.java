@@ -22,6 +22,9 @@ import com.google.cloud.vertexai.generativeai.ContentMaker;
 import com.google.cloud.vertexai.generativeai.GenerativeModel;
 import com.google.cloud.vertexai.generativeai.PartMaker;
 import com.google.protobuf.ByteString;
+import java.util.List;
+import java.util.stream.Collectors;
+import com.scanmyfood.backend.dto.HealthConditionDto;
 
 @Service
 public class VertexAiServiceImpl implements AiService {
@@ -40,16 +43,85 @@ public class VertexAiServiceImpl implements AiService {
   @Autowired
   private UserService userService;
 
+  @Autowired
+  private HealthConditionService healthConditionService;
+
+
   @Override
   public ProductAnalysisResponse analyzeProductImages(MultipartFile frontImage, MultipartFile labelImage, String userId) {
 
     try {
       String frontMimeType = determineMimeType(frontImage);
       String labelMimeType = determineMimeType(labelImage);
-      User user = userService.getUserByUserId(userId);
+      
+      User user = null;
+      List<HealthConditionDto> conditions = null;
+      Double bmi = null;
+      String bmiCategory = "Unknown";
+      
+      try {
+          if (userId != null && !userId.trim().isEmpty()) {
+              user = userService.getUserByUserId(userId);
+              conditions = healthConditionService.getUserConditions(userId);
+              
+              if (user.getWeightKg() != null && user.getHeightFeet() != null && user.getHeightInches() != null) {
+                  int totalInches = (user.getHeightFeet() * 12) + user.getHeightInches();
+                  double heightMeters = totalInches * 0.0254;
+                  if (heightMeters > 0) {
+                      bmi = user.getWeightKg() / (heightMeters * heightMeters);
+                      bmi = Math.round(bmi * 10.0) / 10.0;
+                      
+                      if (bmi < 18.5) {
+                          bmiCategory = "Underweight";
+                      } else if (bmi < 25) {
+                          bmiCategory = "Normal weight";
+                      } else if (bmi < 30) {
+                          bmiCategory = "Overweight";
+                      } else {
+                          bmiCategory = "Obese";
+                      }
+                  }
+              }
+          }
+      } catch (Exception e) {
+          logger.warn("Could not retrieve user profile context for AI personalization: {}", e.getMessage());
+      }
+
+      StringBuilder contextBuilder = new StringBuilder();
+      contextBuilder.append("USER HEALTH PROFILE & CONTEXT:\n");
+      if (user != null) {
+          contextBuilder.append(String.format("- Dietary Preference: %s\n", user.getDietaryPreference() != null ? user.getDietaryPreference().name() : "None"));
+          contextBuilder.append(String.format("- Health Goal: %s\n", user.getGoal() != null ? user.getGoal().name() : "None"));
+          contextBuilder.append(String.format("- BMI: %s (%s)\n", bmi != null ? bmi : "Unknown", bmiCategory));
+          contextBuilder.append(String.format("- Region/Country: %s\n", user.getCountry() != null ? user.getCountry() : "Global"));
+          
+          if (conditions != null && !conditions.isEmpty()) {
+              contextBuilder.append("- Pre-existing Health Conditions:\n");
+              for (HealthConditionDto cond : conditions) {
+                  contextBuilder.append(String.format("  * %s: %s\n", cond.getName(), cond.getDescription()));
+                  if (cond.getNutrientsToLimit() != null && !cond.getNutrientsToLimit().isEmpty()) {
+                      contextBuilder.append(String.format("    - Nutrients to Limit: %s\n", String.join(", ", cond.getNutrientsToLimit())));
+                  }
+                  if (cond.getNutrientsToIncrease() != null && !cond.getNutrientsToIncrease().isEmpty()) {
+                      contextBuilder.append(String.format("    - Nutrients to Increase: %s\n", String.join(", ", cond.getNutrientsToIncrease())));
+                  }
+                  if (cond.getIngredientsToLimit() != null && !cond.getIngredientsToLimit().isEmpty()) {
+                      contextBuilder.append(String.format("    - Ingredients to Limit: %s\n", String.join(", ", cond.getIngredientsToLimit())));
+                  }
+              }
+          } else {
+              contextBuilder.append("- Pre-existing Health Conditions: None declared\n");
+          }
+      } else {
+          contextBuilder.append("- No user health profile available. Perform general scientific analysis.\n");
+      }
+      
+      String userContext = contextBuilder.toString();
 
       // Create prompt
           String prompt = """
+              %s
+
               Analyze the food product, product name and its nutrition label. Provide response in this strict JSON format:
               {
                 "product": {
@@ -113,8 +185,16 @@ public class VertexAiServiceImpl implements AiService {
                    Low dv_status → Good health_impact
                    Moderate dv_status → Moderate health_impact
                    High dv_status → Bad health_impact
+              12. PERSONALIZATION & LOCALIZATION RULES:
+                 - You MUST tailor the warnings inside "primary_concerns" and their "explanation" to the user's specific health conditions, health goal, and BMI category shown in the USER HEALTH PROFILE & CONTEXT above.
+                 - If the user has conditions (e.g. Hypertension, Diabetes), strongly focus on and prioritize highlighting concerns and warnings for ingredients or nutrients they need to limit (e.g. Sodium, Sugar).
+                 - In the "recommendations" list:
+                   * Suggest complementary food items that align perfectly with the user's Dietary Preference (e.g., VEG, NON_VEG, VEGAN).
+                   * Suggest additions that are highly relevant, popular, and readily available in the user's country or region (e.g., if region is India, suggest local items like paneer, curd, or dal rather than obscure western ingredients).
+                   * Align suggestions with the user's Health Goal (e.g. suggest nutrient-dense, lower-calorie high-fiber foods for WEIGHT_LOSS; high-protein, calorie-rich additions for MUSCLE_GAIN).
               """
-              .formatted(NutrientConstants.ALL_NUTRIENT_NAMES, NutrientConstants.DAILY_VALUES_REFERENCE);
+              .formatted(userContext, NutrientConstants.ALL_NUTRIENT_NAMES, NutrientConstants.DAILY_VALUES_REFERENCE);
+
 
       // Use ContentMaker and PartMaker
       Content content = ContentMaker.fromMultiModalData(
@@ -136,17 +216,29 @@ public class VertexAiServiceImpl implements AiService {
   }
 
   @Override
-  public FoodAnalysisResponse analyzeFoodImage(MultipartFile imageFile, String description) {
+  public FoodAnalysisResponse analyzeFoodImage(MultipartFile imageFile, String description, String userId) {
     try {
       String foodMimeType = determineMimeType(imageFile);
+      
+      User user = null;
+      try {
+          if (userId != null && !userId.trim().isEmpty()) {
+              user = userService.getUserByUserId(userId);
+          }
+      } catch (Exception e) {
+          logger.warn("Could not retrieve user context for food analysis localization: {}", e.getMessage());
+      }
+      
+      String country = (user != null && user.getCountry() != null) ? user.getCountry() : "Global";
 
       // Create prompt
       StringBuilder promptBuilder = new StringBuilder();
+      promptBuilder.append(String.format("USER REGION/COUNTRY: %s\n\n", country));
       promptBuilder.append("Analyze this food image and break down each visible food item.\n");
       if (description != null && !description.trim().isEmpty()) {
         promptBuilder.append(String.format("User's description/context: \"%s\". Use this description to guide your identification and portion estimation of the visible food items.\n", description));
       }
-      promptBuilder.append("""
+      promptBuilder.append(String.format("""
           Provide response in this strict JSON format:
           {
             "meal_name": "Name of the meal",
@@ -187,7 +279,10 @@ public class VertexAiServiceImpl implements AiService {
           5. Consider common serving sizes and preparation methods
           6. Account for density and volume-to-weight conversions
           7. Use Atwater factors (Protein=4 kcal/g, Carb=4, Fat=9) for grams to kcal conversion
-          """);
+          8. LOCALIZATION RULES:
+             - You MUST return the "meal_name" and the "name" of each food item in "analyzed_food_items" using the most common, localized names used in the user's region/country (%s).
+             - For example, if the user's country is India, prioritize returning terms like "Poori", "Chole Masala", "Roti", "Idli", "Dosa", "Samosa", etc., rather than generic or descriptive terms like "Indian flatbread" or "chickpea curry".
+          """, country));
       String prompt = promptBuilder.toString();
 
       // Use ContentMaker and PartMaker with the determined MIME type
@@ -210,10 +305,23 @@ public class VertexAiServiceImpl implements AiService {
   }
 
   @Override
-  public FoodAnalysisResponse analyzeFoodDescription(String description) {
+  public FoodAnalysisResponse analyzeFoodDescription(String description, String userId) {
     try {
+      User user = null;
+      try {
+          if (userId != null && !userId.trim().isEmpty()) {
+              user = userService.getUserByUserId(userId);
+          }
+      } catch (Exception e) {
+          logger.warn("Could not retrieve user context for food analysis localization: {}", e.getMessage());
+      }
+      
+      String country = (user != null && user.getCountry() != null) ? user.getCountry() : "Global";
+
       // Create prompt
       String prompt = """
+          USER REGION/COUNTRY: %s
+
           You are a highly qualified and experienced nutritionist specializing in providing accurate nutritional information.
           Analyze these food items (always consider items in cooked form whenever applicable) and their quantities:
 
@@ -261,10 +369,13 @@ public class VertexAiServiceImpl implements AiService {
               6. Consider regional variations in portion sizes when interpreting quantities. If the description is ambiguous, use standard serving sizes.
               7. Round all nutritional values to one decimal place.
               8. Account for density and volume-to-weight conversions
+              9. LOCALIZATION RULES:
+                 - You MUST return the "meal_name" and the "name" of each food item in "analyzed_food_items" using the most common, localized names used in the user's region/country (%s).
+                 - For example, if the user's country is India, prioritize returning terms like "Poori", "Chole Masala", "Roti", "Idli", "Dosa", "Samosa", etc., rather than generic descriptions like "Indian flatbread" or "chickpea curry".
 
               Provide accurate nutritional data based on the most reliable food databases and scientific sources.
               """
-          .formatted(description);
+          .formatted(country, description, country);
 
       // Use ContentMaker (text-only in this case)
       Content content = ContentMaker.fromString(prompt);
@@ -282,6 +393,7 @@ public class VertexAiServiceImpl implements AiService {
       throw new RuntimeException("Failed to analyze food description: " + e.getMessage());
     }
   }
+
 
   @Override
   public byte[] generateFoodImage(String foodDescription) {

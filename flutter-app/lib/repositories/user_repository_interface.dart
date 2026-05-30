@@ -1,10 +1,12 @@
 import 'package:read_the_label/models/health_condition.dart';
 import 'package:read_the_label/models/user_check_response.dart';
+import 'package:read_the_label/models/user_profile.dart';
 
 abstract class UserRepositoryInterface {
   /// Checks if the current user is new.
   /// Returns a [UserCheckResponse] containing [isNewUser] and [isOnboardingComplete] flags.
   Future<UserCheckResponse> isNewUser();
+
 
   /// Creates a user record on the backend.
   ///
@@ -60,4 +62,7 @@ abstract class UserRepositoryInterface {
     required String userId,
     required List<String> conditionNames,
   });
+
+  /// Fetches the complete user profile including health conditions and BMI.
+  Future<UserProfile> getUserProfile();
 }

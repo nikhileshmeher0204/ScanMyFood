@@ -27,6 +27,7 @@ import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/viewmodels/user_view_model.dart';
 import 'package:read_the_label/views/screens/sign_in/sign_in_screen.dart';
 import 'package:read_the_label/views/screens/settings/settings_view.dart';
 import 'package:read_the_label/views/screens/home/home_page.dart';
@@ -137,6 +138,9 @@ class MyApp extends StatelessWidget {
       ),
       ChangeNotifierProvider<UiViewModel>(
         create: (_) => UiViewModel(),
+      ),
+      ChangeNotifierProvider<UserViewModel>(
+        create: (_) => UserViewModel(),
       ),
 
       ChangeNotifierProvider<ProductAnalysisViewModel>(

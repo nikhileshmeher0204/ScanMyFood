@@ -46,19 +46,21 @@ public class AiAnalysisController {
     @PostMapping(value = "/analyze/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<FoodAnalysisResponse>> analyzeFoodImage(
             @RequestParam("image") MultipartFile imageFile,
-            @RequestParam(value = "description", required = false) String description) {
-        log.info("Analyzing food image with description: {}", description);
-        FoodAnalysisResponse analysis = aiService.analyzeFoodImage(imageFile, description);
+            @RequestParam(value = "description", required = false) String description,
+            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+        log.info("Analyzing food image with description: {} and userId: {}", description, userId);
+        FoodAnalysisResponse analysis = aiService.analyzeFoodImage(imageFile, description, userId);
         log.info("Food image analyzed successfully");
         return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.FOOD_ANALYZED, analysis));
     }
 
     @PostMapping("/analyze/description")
     public ResponseEntity<ApiResponse<FoodAnalysisResponse>> analyzeFoodDescription(
-            @RequestBody IntakeDescriptionRequest request) {
-        log.info("Analyzing food description");
+            @RequestBody IntakeDescriptionRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+        log.info("Analyzing food description with userId: {}", userId);
         String description = request.getDescription();
-        FoodAnalysisResponse analysis = aiService.analyzeFoodDescription(description);
+        FoodAnalysisResponse analysis = aiService.analyzeFoodDescription(description, userId);
         log.info("Food description analyzed successfully");
         return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.DESCRIPTION_ANALYZED, analysis));
     }

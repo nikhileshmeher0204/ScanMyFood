@@ -179,4 +179,24 @@ class ProductAnalysisViewModel extends BaseViewModel {
       setLoading(false);
     }
   }
+
+  void reset() {
+    _isLoading = false;
+    productAnalysis = null;
+    _frontImage = null;
+    _nutritionLabelImage = null;
+    _productName = "";
+    _totalQuantity = Quantity(value: 0, unit: 'g');
+    _servingSize = Quantity(value: 0, unit: 'g');
+    _nutritionAnalysis = null;
+    allNutrients = [];
+    _nutrients = [];
+    optimalNutrients = [];
+    moderateNutrients = [];
+    limitNutrients = [];
+    insufficientNutrients = [];
+    _primaryConcerns = [];
+    totalPlateNutrients = {};
+    notifyListeners();
+  }
 }

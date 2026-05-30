@@ -1,15 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/theme/app_theme.dart';
-import 'package:rive/rive.dart' as rive;
-import 'package:soft_edge_blur/soft_edge_blur.dart';
 
 class PickImageCard extends StatefulWidget {
   final IconData icon;
@@ -22,6 +18,7 @@ class PickImageCard extends StatefulWidget {
   final Function(ImageSource) onImageCapturePressed;
   final Function(String)? onScanWithDescription;
   final VoidCallback? onScanAnother;
+  final List<String>? loadingSentences;
 
   const PickImageCard({
     super.key,
@@ -35,6 +32,7 @@ class PickImageCard extends StatefulWidget {
     this.hasResults = false,
     this.onScanWithDescription,
     this.onScanAnother,
+    this.loadingSentences,
   });
 
   @override
@@ -94,17 +92,7 @@ class _PickImageCardState extends State<PickImageCard> {
               // Scanner Animation Overlay
               if (widget.isLoading)
                 const Positioned.fill(
-                  left: 5,
-                  right: 5,
-                  top: 5,
-                  bottom: 5,
-                  child: rive.RiveAnimation.asset(
-                    'assets/riveAssets/qr_code_scanner.riv',
-                    fit: BoxFit.fill,
-                    artboard: 'scan_board',
-                    animations: ['anim1'],
-                    stateMachines: ['State Machine 1'],
-                  ),
+                  child: PremiumLaserScanner(),
                 ),
               // Content overlay sitting at the bottom of the card
               Positioned(
@@ -118,9 +106,11 @@ class _PickImageCardState extends State<PickImageCard> {
                     if (!widget.isLoading && !widget.hasResults)
                       _buildTitleDescription(hasImage: true),
                     if (widget.isLoading)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        child: CyclingAnalysisText(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: CyclingAnalysisText(
+                          sentences: widget.loadingSentences,
+                        ),
                       ),
                     if (!widget.isLoading) _buildActionArea(context),
                   ],
@@ -145,7 +135,7 @@ class _PickImageCardState extends State<PickImageCard> {
         borderPadding: const EdgeInsets.all(-10),
         borderType: BorderType.RRect,
         radius: const Radius.circular(20),
-        color: AppColors.onSurface.withOpacity(0.2),
+        color: AppColors.onSurface.withValues(alpha: 0.2),
         strokeWidth: 1,
         dashPattern: const [6, 4],
         child: Padding(
@@ -156,7 +146,7 @@ class _PickImageCardState extends State<PickImageCard> {
               Icon(
                 widget.icon,
                 size: 70,
-                color: AppColors.onSurface.withOpacity(0.5),
+                color: AppColors.onSurface.withValues(alpha: 0.5),
               ),
               _buildTitleDescription(hasImage: false),
               _buildActionArea(context),
@@ -459,22 +449,128 @@ class _PickImageCardState extends State<PickImageCard> {
   }
 }
 
+class PremiumLaserScanner extends StatefulWidget {
+  const PremiumLaserScanner({super.key});
+
+  @override
+  State<PremiumLaserScanner> createState() => _PremiumLaserScannerState();
+}
+
+class _PremiumLaserScannerState extends State<PremiumLaserScanner>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOutCubic,
+      ),
+    );
+    _controller.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final height = constraints.maxHeight;
+        return AnimatedBuilder(
+          animation: _animation,
+          builder: (context, child) {
+            final topPosition = _animation.value * height;
+            return Stack(
+              children: [
+                // Subtle scanning glow that moves with the line
+                Positioned(
+                  top: topPosition - 40,
+                  left: 0,
+                  right: 0,
+                  height: 80,
+                  child: IgnorePointer(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            AppColors.primaryWhite.withValues(alpha: 0.08),
+                            AppColors.primaryWhite.withValues(alpha: 0.18),
+                            AppColors.primaryWhite.withValues(alpha: 0.08),
+                            Colors.transparent,
+                          ],
+                          stops: const [0.0, 0.4, 0.5, 0.6, 1.0],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Sleek horizontal laser line
+                Positioned(
+                  top: topPosition - 1.5,
+                  left: 0,
+                  right: 0,
+                  child: IgnorePointer(
+                    child: Container(
+                      height: 3,
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primaryWhite.withValues(alpha: 0.8),
+                            blurRadius: 12,
+                            spreadRadius: 2,
+                          ),
+                          BoxShadow(
+                            color: AppColors.accent.withValues(alpha: 0.4),
+                            blurRadius: 24,
+                            spreadRadius: 4,
+                          ),
+                        ],
+                        gradient: const LinearGradient(
+                          colors: [
+                            Colors.transparent,
+                            AppColors.primaryWhite,
+                            Colors.transparent,
+                          ],
+                          stops: [0.0, 0.5, 1.0],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
 class CyclingAnalysisText extends StatefulWidget {
-  const CyclingAnalysisText({super.key});
+  final List<String>? sentences;
+  const CyclingAnalysisText({super.key, this.sentences});
 
   @override
   State<CyclingAnalysisText> createState() => _CyclingAnalysisTextState();
 }
 
 class _CyclingAnalysisTextState extends State<CyclingAnalysisText> {
-  final List<String> _sentences = [
-    'Analysis in progress',
-    'Identifying food items',
-    'Calculating portions',
-    'Checking what you cooked',
-    'Reading the label',
-    'Deciphering ingredients',
-  ];
+  late final List<String> _sentences;
 
   int _currentIndex = 0;
   Timer? _timer;
@@ -482,7 +578,16 @@ class _CyclingAnalysisTextState extends State<CyclingAnalysisText> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+    // Default to a premium fallback set if none passed
+    _sentences = widget.sentences ?? [
+      'Analysis in progress',
+      'Identifying food items',
+      'Calculating portions',
+      'Checking what you cooked',
+      'Reading the label',
+      'Deciphering ingredients',
+    ];
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
       if (mounted) {
         setState(() {
           _currentIndex = (_currentIndex + 1) % _sentences.length;
@@ -500,51 +605,65 @@ class _CyclingAnalysisTextState extends State<CyclingAnalysisText> {
   @override
   Widget build(BuildContext context) {
     const textStyle = TextStyle(
-      color: AppColors.onSurface,
-      fontSize: 16,
+      color: Colors.white,
+      fontSize: 17,
       fontFamily: 'Inter',
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w600,
+      letterSpacing: -0.3,
     );
 
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 500),
-      transitionBuilder: (Widget child, Animation<double> animation) {
-        return FadeTransition(
-          opacity: animation,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0.0, 0.2),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          ),
-        );
-      },
-      child: Row(
-        key: ValueKey<int>(_currentIndex),
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            _sentences[_currentIndex],
-            style: textStyle,
-          ),
-          const ThreeDotsBounce(style: textStyle),
-        ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.45),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.12),
+          width: 1,
+        ),
+      ),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 600),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.0, 0.15),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            ),
+          );
+        },
+        child: PremiumShimmerText(
+          key: ValueKey<int>(_currentIndex),
+          text: _sentences[_currentIndex],
+          style: textStyle,
+        ),
       ),
     );
   }
 }
 
-class ThreeDotsBounce extends StatefulWidget {
+class PremiumShimmerText extends StatefulWidget {
+  final String text;
   final TextStyle style;
-  const ThreeDotsBounce({super.key, required this.style});
+
+  const PremiumShimmerText({
+    super.key,
+    required this.text,
+    required this.style,
+  });
 
   @override
-  State<ThreeDotsBounce> createState() => _ThreeDotsBounceState();
+  State<PremiumShimmerText> createState() => _PremiumShimmerTextState();
 }
 
-class _ThreeDotsBounceState extends State<ThreeDotsBounce>
+class _PremiumShimmerTextState extends State<PremiumShimmerText>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
@@ -553,7 +672,7 @@ class _ThreeDotsBounceState extends State<ThreeDotsBounce>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 2200),
     )..repeat();
   }
 
@@ -565,29 +684,31 @@ class _ThreeDotsBounceState extends State<ThreeDotsBounce>
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: List.generate(3, (index) {
-        return AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            final double progress = (_controller.value - (index * 0.2)) % 1.0;
-            double offset = 0.0;
-            if (progress < 0.5) {
-              final double t = progress / 0.5;
-              offset = -6 * (1 - (2 * t - 1) * (2 * t - 1));
-            }
-            return Transform.translate(
-              offset: Offset(0, offset),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 1.5),
-                child: Text('.', style: widget.style),
-              ),
-            );
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final double slide = _controller.value;
+        return ShaderMask(
+          blendMode: BlendMode.srcIn,
+          shaderCallback: (bounds) {
+            return LinearGradient(
+              colors: [
+                Colors.white.withValues(alpha: 0.55),
+                Colors.white,
+                Colors.white.withValues(alpha: 0.55),
+              ],
+              stops: const [0.35, 0.5, 0.65],
+              begin: Alignment(-2.0 + (slide * 4.0), -0.5),
+              end: Alignment(-1.0 + (slide * 4.0), 0.5),
+            ).createShader(bounds);
           },
+          child: Text(
+            widget.text,
+            style: widget.style,
+            textAlign: TextAlign.center,
+          ),
         );
-      }),
+      },
     );
   }
 }

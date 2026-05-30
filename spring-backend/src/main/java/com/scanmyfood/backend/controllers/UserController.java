@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -86,5 +88,53 @@ public class UserController {
                 request.getUserId(),
                 request.getConditionNames());
         return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.SUCCESS, null));
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<ApiResponse<UserProfileResponse>> getUserProfile(
+            @RequestHeader("X-User-Id") String userId) {
+        log.info("Fetching complete user profile for id {}", userId);
+        
+        User user = userService.getUserByUserId(userId);
+        List<HealthConditionDto> conditions = healthConditionService.getUserConditions(userId);
+        
+        Double bmi = null;
+        String bmiCategory = null;
+        if (user.getWeightKg() != null && user.getHeightFeet() != null && user.getHeightInches() != null) {
+            int totalInches = (user.getHeightFeet() * 12) + user.getHeightInches();
+            double heightMeters = totalInches * 0.0254;
+            if (heightMeters > 0) {
+                bmi = user.getWeightKg() / (heightMeters * heightMeters);
+                bmi = Math.round(bmi * 10.0) / 10.0;
+                
+                if (bmi < 18.5) {
+                    bmiCategory = "Underweight";
+                } else if (bmi < 25) {
+                    bmiCategory = "Normal weight";
+                } else if (bmi < 30) {
+                    bmiCategory = "Overweight";
+                } else {
+                    bmiCategory = "Obese";
+                }
+            }
+        }
+        
+        UserProfileResponse profileResponse = UserProfileResponse.builder()
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .displayName(user.getDisplayName())
+                .isOnboardingComplete(user.isOnboardingComplete())
+                .dietaryPreference(user.getDietaryPreference() != null ? user.getDietaryPreference().name() : null)
+                .country(user.getCountry())
+                .heightFeet(user.getHeightFeet())
+                .heightInches(user.getHeightInches())
+                .weightKg(user.getWeightKg())
+                .goal(user.getGoal() != null ? user.getGoal().name() : null)
+                .bmi(bmi)
+                .bmiCategory(bmiCategory)
+                .healthConditions(conditions)
+                .build();
+                
+        return ResponseEntity.ok(ApiResponse.success(ResponseCodeConstants.SUCCESS, profileResponse));
     }
 }

@@ -113,119 +113,132 @@ class _FoodAnalysisViewState extends State<FoodAnalysisView> {
                   collapseMode: CollapseMode.pin,
                 ),
               ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Consumer<MealAnalysisViewModel>(
-                        builder: (context, mealAnalysisProvider, child) {
-                          final isAnalysisComplete =
-                              mealAnalysisProvider.foodImage != null &&
-                                  mealAnalysisProvider
-                                      .analyzedScannedFoodItems.isNotEmpty &&
-                                  !mealAnalysisProvider.loading;
-                          return PickImageCard(
-                            icon: AppConstants.foodIcon,
-                            titleDescription: AppConstants.foodScanDescription,
-                            cameraButtonText: AppConstants.cameraButtonText,
-                            galleryButtonText: AppConstants.galleryButtonText,
-                            image: mealAnalysisProvider.foodImage,
-                            isLoading: mealAnalysisProvider.loading,
-                            hasResults: isAnalysisComplete,
-                            onImageCapturePressed:
-                                mealAnalysisProvider.handleFoodImageCapture,
-                            onScanWithDescription: mealAnalysisProvider
-                                .analyzeFoodImageWithDescription,
-                            onScanAnother: mealAnalysisProvider.reset,
-                          );
-                        },
-                      ),
-                      Consumer<MealAnalysisViewModel>(
-                        builder: (context, mealAnalysisProvider, child) {
-                          final isLoading = mealAnalysisProvider.loading;
-                          if (isLoading) {
-                            return const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                FoodItemCardShimmer(),
-                                FoodItemCardShimmer(),
-                                TotalNutrientsCardShimmer(),
+              SliverPadding(
+                padding: const EdgeInsets.only(bottom: 90),
+                sliver: SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Consumer<MealAnalysisViewModel>(
+                          builder: (context, mealAnalysisProvider, child) {
+                            final isAnalysisComplete =
+                                mealAnalysisProvider.foodImage != null &&
+                                    mealAnalysisProvider
+                                        .analyzedScannedFoodItems.isNotEmpty &&
+                                    !mealAnalysisProvider.loading;
+                            return PickImageCard(
+                              icon: AppConstants.foodIcon,
+                              titleDescription:
+                                  AppConstants.foodScanDescription,
+                              cameraButtonText: AppConstants.cameraButtonText,
+                              galleryButtonText: AppConstants.galleryButtonText,
+                              image: mealAnalysisProvider.foodImage,
+                              isLoading: mealAnalysisProvider.loading,
+                              hasResults: isAnalysisComplete,
+                              onImageCapturePressed:
+                                  mealAnalysisProvider.handleFoodImageCapture,
+                              onScanWithDescription: mealAnalysisProvider
+                                  .analyzeFoodImageWithDescription,
+                              onScanAnother: mealAnalysisProvider.reset,
+                              loadingSentences: const [
+                                'Analyzing plate composition',
+                                'Detecting cooked ingredients',
+                                'Estimating portion weights',
+                                'Calculating calorie density',
+                                'Evaluating nutritional index',
+                                'Compiling meal insights',
                               ],
                             );
-                          }
-                          if (mealAnalysisProvider.foodImage != null &&
-                              mealAnalysisProvider
-                                  .analyzedScannedFoodItems.isNotEmpty &&
-                              !isLoading) {
-                            return Column(
-                              spacing: 10,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0),
-                                  child: Text(
-                                    mealAnalysisProvider.scannedMealName,
-                                    style: AppTextStyles.heading2BoldClose
-                                        .copyWith(
-                                      color:
-                                          AppColors.getTitleColor(displayColor),
+                          },
+                        ),
+                        Consumer<MealAnalysisViewModel>(
+                          builder: (context, mealAnalysisProvider, child) {
+                            final isLoading = mealAnalysisProvider.loading;
+                            if (isLoading) {
+                              return const Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  FoodItemCardShimmer(),
+                                  FoodItemCardShimmer(),
+                                  TotalNutrientsCardShimmer(),
+                                ],
+                              );
+                            }
+                            if (mealAnalysisProvider.foodImage != null &&
+                                mealAnalysisProvider
+                                    .analyzedScannedFoodItems.isNotEmpty &&
+                                !isLoading) {
+                              return Column(
+                                spacing: 10,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10.0),
+                                    child: Text(
+                                      mealAnalysisProvider.scannedMealName,
+                                      style: AppTextStyles.heading2BoldClose
+                                          .copyWith(
+                                        color: AppColors.getTitleColor(
+                                            displayColor),
+                                      ),
                                     ),
                                   ),
-                                ),
 
-                                // Food item cards
-                                ...mealAnalysisProvider.analyzedScannedFoodItems
-                                    .asMap()
-                                    .entries
-                                    .map((entry) => AppListTile(
-                                          item: entry.value,
-                                          index: entry.key,
-                                          dominantColor: displayColor,
-                                        )),
+                                  // Food item cards
+                                  ...mealAnalysisProvider
+                                      .analyzedScannedFoodItems
+                                      .asMap()
+                                      .entries
+                                      .map((entry) => AppListTile(
+                                            item: entry.value,
+                                            index: entry.key,
+                                            dominantColor: displayColor,
+                                          )),
 
-                                TotalNutrientsCard(
-                                  source: AppConstants.scanMeal,
-                                  foodAnalysis:
-                                      mealAnalysisProvider.foodAnalysis,
-                                  mealName:
-                                      mealAnalysisProvider.scannedMealName,
-                                  numberOfFoodItems: mealAnalysisProvider
-                                      .analyzedScannedFoodItems.length,
-                                  totalPlateNutrients: mealAnalysisProvider
-                                      .totalScannedPlateNutrients,
-                                  nutrientInfo:
-                                      mealAnalysisProvider.nutrientInfo,
-                                  foodImage: mealAnalysisProvider.foodImage,
-                                  showSaveOptions: true,
-                                ),
+                                  TotalNutrientsCard(
+                                    source: AppConstants.scanMeal,
+                                    foodAnalysis:
+                                        mealAnalysisProvider.foodAnalysis,
+                                    mealName:
+                                        mealAnalysisProvider.scannedMealName,
+                                    numberOfFoodItems: mealAnalysisProvider
+                                        .analyzedScannedFoodItems.length,
+                                    totalPlateNutrients: mealAnalysisProvider
+                                        .totalScannedPlateNutrients,
+                                    nutrientInfo:
+                                        mealAnalysisProvider.nutrientInfo,
+                                    foodImage: mealAnalysisProvider.foodImage,
+                                    showSaveOptions: true,
+                                  ),
 
-                                InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      CupertinoPageRoute(
-                                        builder: (context) => AskAiView(
-                                          foodContext: "food",
-                                          mealName: mealAnalysisProvider
-                                              .scannedMealName,
-                                          foodImage:
-                                              mealAnalysisProvider.foodImage!,
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        CupertinoPageRoute(
+                                          builder: (context) => AskAiView(
+                                            foodContext: "food",
+                                            mealName: mealAnalysisProvider
+                                                .scannedMealName,
+                                            foodImage:
+                                                mealAnalysisProvider.foodImage!,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                  child: const AskAiWidget(),
-                                ),
-                              ],
-                            );
-                          }
-                          return const SizedBox.shrink();
-                        },
-                      ),
-                    ],
+                                      );
+                                    },
+                                    child: const AskAiWidget(),
+                                  ),
+                                ],
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
