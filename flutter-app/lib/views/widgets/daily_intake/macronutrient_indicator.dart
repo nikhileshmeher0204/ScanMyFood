@@ -82,7 +82,7 @@ class MacronutrientIndicator extends StatelessWidget {
                       TextSpan(
                         text: '${value.toStringAsFixed(0)}',
                         style: AppTextStyles.bodyLargeBold.copyWith(
-                          color: AppColors.appleLabel,
+                          color: AppColors.label,
                           fontWeight: FontWeight.w700,
                           fontSize: 18,
                         ),
@@ -90,7 +90,7 @@ class MacronutrientIndicator extends StatelessWidget {
                       TextSpan(
                         text: ' / ${goal.toStringAsFixed(0)}g',
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.appleSecondaryLabel,
+                          color: AppColors.secondaryLabel,
                         ),
                       ),
                     ],
@@ -100,8 +100,7 @@ class MacronutrientIndicator extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: percent,
-                    backgroundColor:
-                        AppColors.appleSecondaryLabel.withOpacity(0.12),
+                    backgroundColor: AppColors.secondaryLabel.withOpacity(0.12),
                     valueColor: AlwaysStoppedAnimation<Color>(color),
                     minHeight: 6,
                   ),

@@ -26,7 +26,7 @@ class UserSwitchCard extends StatelessWidget {
         context.read<DailyIntakeViewModel>().authService.currentUser;
     
     // Representative background color for the saturated sunset orange header region
-    const bgHeader = Color(0xFFD64D22);
+    const bgHeader = AppColors.sunsetOrange;
 
     final titleColor = AppColors.getTitleColor(bgHeader);
     final subtitleColor = AppColors.getSubtitleColor(bgHeader);
@@ -66,7 +66,7 @@ class UserSwitchCard extends StatelessWidget {
                   _getGreeting().toUpperCase(),
                   style: AppTextStyles.caption.copyWith(
                     color: subtitleColor,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w800,
                     letterSpacing: 0.8,
                   ),
                 ),

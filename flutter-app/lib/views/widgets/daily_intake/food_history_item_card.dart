@@ -207,7 +207,8 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12.0, vertical: 8.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -217,18 +218,18 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
                           itemName,
                           style: AppTextStyles.bodyLargeBold.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: AppColors.appleLabel,
+                            color: AppColors.label,
                             fontSize: 16,
                             letterSpacing: -0.2,
                           ),
                         ),
                       ),
                       Text(
-                        '${widget.item.caloriesValue == 0 ? widget.item.energyValue : widget.item.caloriesValue} ${widget.item.caloriesUnit ?? widget.item.energyUnit}',
+                        '${(widget.item.caloriesValue == 0 ? widget.item.energyValue : widget.item.caloriesValue).round()} ${widget.item.caloriesUnit ?? widget.item.energyUnit}',
                         style: AppTextStyles.bodyMediumBold.copyWith(
-                          color: AppColors.appleSecondaryLabel,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
+                          color: AppColors.secondaryLabel,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
                         ),
                       ),
                     ],
@@ -239,7 +240,7 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
                     margin: const EdgeInsets.only(top: 4),
                     height: 0.5,
                     width: double.infinity,
-                    color: AppColors.appleSecondaryLabel.withOpacity(0.15),
+                    color: AppColors.secondaryLabel.withOpacity(0.15),
                   ),
               ],
             ),

@@ -36,7 +36,7 @@ class HealthConditionCard extends StatelessWidget {
           onTap();
         },
         splashColor: Colors.transparent,
-        highlightColor: AppColors.appleHighlight,
+        highlightColor: AppColors.highlight,
         child: Padding(
           padding: EdgeInsets.symmetric(
             horizontal: 16,
@@ -50,14 +50,14 @@ class HealthConditionCard extends StatelessWidget {
                 _iconPath,
                 width: 28,
                 height: 28,
-                color: isSelected ? null : AppColors.appleIconUnselected,
+                color: isSelected ? null : AppColors.iconUnselected,
                 colorBlendMode: isSelected ? null : BlendMode.modulate,
                 errorBuilder: (_, __, ___) => Icon(
                   Icons.health_and_safety_outlined,
                   size: 28,
                   color: isSelected
                       ? AppColors.secondaryGreen
-                      : AppColors.appleIconUnselected,
+                      : AppColors.iconUnselected,
                 ),
               ),
               const SizedBox(width: 14),
@@ -74,10 +74,9 @@ class HealthConditionCard extends StatelessWidget {
                       curve: Curves.easeOut,
                       style: TextStyle(
                         fontSize: 17,
-                        fontWeight: isSelected
-                            ? FontWeight.w500
-                            : FontWeight.w400,
-                        color: AppColors.appleLabel,
+                        fontWeight:
+                            isSelected ? FontWeight.w500 : FontWeight.w400,
+                        color: AppColors.label,
                         letterSpacing: -0.4,
                         height: 1.3,
                       ),
@@ -90,7 +89,7 @@ class HealthConditionCard extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
-                          color: AppColors.appleSecondaryLabel,
+                          color: AppColors.secondaryLabel,
                           letterSpacing: 0,
                           height: 1.4,
                         ),
@@ -121,7 +120,7 @@ class HealthConditionCard extends StatelessWidget {
                     : const Icon(
                         Icons.circle_outlined,
                         key: ValueKey('unchecked'),
-                        color: AppColors.appleCheckmarkUnselected,
+                        color: AppColors.checkmarkUnselected,
                         size: 22,
                       ),
               ),

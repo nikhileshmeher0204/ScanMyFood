@@ -74,7 +74,7 @@ class CalorieCard extends StatelessWidget {
                     Text(
                       currentCalories.toInt().toString(),
                       style: AppTextStyles.heading1.copyWith(
-                        color: AppColors.appleLabel,
+                        color: AppColors.label,
                         fontSize: 40,
                         letterSpacing: -2.0,
                       ),
@@ -83,7 +83,7 @@ class CalorieCard extends StatelessWidget {
                     Text(
                       'kcal',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.appleSecondaryLabel,
+                        color: AppColors.secondaryLabel,
                         fontSize: 13,
                         letterSpacing: -0.1,
                       ),
@@ -95,7 +95,7 @@ class CalorieCard extends StatelessWidget {
                 Text(
                   '${caloriesLeft.toInt()} kcal remaining',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.appleSecondaryLabel,
+                    color: AppColors.secondaryLabel,
                     height: null,
                   ),
                 ),
@@ -130,7 +130,7 @@ class CalorieCard extends StatelessWidget {
                   Text(
                     '${(caloriePercent * 100).toInt()}%',
                     style: AppTextStyles.heading3Bold.copyWith(
-                      color: AppColors.appleLabel,
+                      color: AppColors.label,
                       letterSpacing: -0.5,
                       height: 1.0,
                     ),
@@ -138,7 +138,7 @@ class CalorieCard extends StatelessWidget {
                   Text(
                     'of goal',
                     style: AppTextStyles.overline.copyWith(
-                      color: AppColors.appleSecondaryLabel,
+                      color: AppColors.secondaryLabel,
                       fontSize: 9,
                       fontWeight: FontWeight.w400,
                     ),

@@ -53,8 +53,8 @@ class DateSelector extends StatelessWidget {
                   child: Ink(
                     decoration: BoxDecoration(
                       color: _isSameDay(selectedDate, dates[i])
-                          ? AppColors.accent
-                          : AppColors.appleGroupedBackground.withValues(alpha: 0.65),
+                          ? AppColors.deepTeal
+                          : AppColors.cardBackground.withValues(alpha: 0.65),
                       borderRadius: BorderRadius.circular(_borderRadius),
                     ),
                     child: Column(
@@ -64,8 +64,8 @@ class DateSelector extends StatelessWidget {
                           DateFormat('E').format(dates[i]).substring(0, 1),
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: _isSameDay(selectedDate, dates[i])
-                                ? AppColors.primaryBlack
-                                : AppColors.appleSecondaryLabel,
+                                ? AppColors.label
+                                : AppColors.secondaryLabel,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -74,8 +74,8 @@ class DateSelector extends StatelessWidget {
                           '${dates[i].day}',
                           style: AppTextStyles.buttonTextWhite.copyWith(
                             color: _isSameDay(selectedDate, dates[i])
-                                ? AppColors.primaryBlack
-                                : AppColors.appleLabel,
+                                ? AppColors.label
+                                : AppColors.label,
                             fontWeight: FontWeight.w700,
                             fontSize: 16,
                           ),

@@ -17,9 +17,12 @@ class FoodHistoryCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Today\'s Intake',
-          style: AppTextStyles.heading2.copyWith(
-            color: AppColors.onPrimary,
+          'TODAY\'S INTAKE',
+          style: AppTextStyles.caption.copyWith(
+            color: AppColors.onPrimary.withValues(alpha: 0.5),
+            fontWeight: FontWeight.w800,
+            fontSize: 11,
+            letterSpacing: 1.2,
           ),
         ),
         const Column(
