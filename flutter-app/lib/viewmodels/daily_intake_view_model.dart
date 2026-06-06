@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/models/daily_intake_record.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
@@ -36,6 +37,12 @@ class DailyIntakeViewModel extends BaseViewModel {
   DateTime _selectedDate = DateTime.now();
   String _descriptionText = "";
   bool _isImageGenerating = false;
+
+  // Caching State
+  final Map<String, DailyIntakeData> _dailyIntakeCache = {};
+  List<DailyIntakeRecord>? _currentDailyIntake;
+
+  List<DailyIntakeRecord>? get dailyIntake => _currentDailyIntake;
 
   // Getters
   bool get loading => _isLoading;
@@ -73,12 +80,73 @@ class DailyIntakeViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  String _formatDateKey(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  void _setSelectedDateData() {
+    final String key = _formatDateKey(_selectedDate);
+    final data = _dailyIntakeCache[key];
+    if (data != null) {
+      _currentDailyIntake = data.dailyIntake;
+      _totalNutrientsMap = {
+        for (var nutrient in data.totalNutrients) nutrient.name: nutrient
+      };
+    } else {
+      _currentDailyIntake = [];
+      _totalNutrientsMap = {};
+    }
+  }
+
   Future<void> updateSelectedDate(DateTime newDate) async {
     final user = authService.currentUser;
     if (user == null) return;
 
     _selectedDate = newDate;
-    await getDailyIntake(user.uid, newDate);
+    final String key = _formatDateKey(newDate);
+
+    if (_dailyIntakeCache.isEmpty) {
+      setLoading(true);
+      try {
+        final now = DateTime.now();
+        final fromDate = now.subtract(const Duration(days: 6));
+        final toDate = now;
+        final output = await intakeRepository.getDailyIntake(
+          user.uid,
+          fromDate,
+          toDate,
+        );
+        for (var data in output.dailyIntakes) {
+          _dailyIntakeCache[_formatDateKey(data.date)] = data;
+        }
+      } catch (e) {
+        setError("Failed to fetch initial daily intake: $e");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (!_dailyIntakeCache.containsKey(key)) {
+      setLoading(true);
+      try {
+        final toDate = DateTime.now();
+        final output = await intakeRepository.getDailyIntake(
+          user.uid,
+          newDate,
+          toDate,
+        );
+        for (var data in output.dailyIntakes) {
+          _dailyIntakeCache[_formatDateKey(data.date)] = data;
+        }
+      } catch (e) {
+        setError("Failed to fetch daily intake for selected date: $e");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    _setSelectedDateData();
+    notifyListeners();
   }
 
   Future<SaveIntakeOutput> saveScannedFood(String userId, File? foodImage,
@@ -100,12 +168,20 @@ class DailyIntakeViewModel extends BaseViewModel {
   }
 
   Future<void> getDailyIntake(String userId, DateTime date) async {
-    userIntakeOutput = await intakeRepository.getDailyIntake(
-      userId,
-      date,
-    );
-    _mapTotalNutrients();
-    notifyListeners();
+    try {
+      final output = await intakeRepository.getDailyIntake(
+        userId,
+        date,
+        date,
+      );
+      for (var dayData in output.dailyIntakes) {
+        _dailyIntakeCache[_formatDateKey(dayData.date)] = dayData;
+      }
+      _setSelectedDateData();
+      notifyListeners();
+    } catch (e) {
+      setError("Failed to refresh daily intake: $e");
+    }
   }
 
   Future<void> getIntakeDetailsByDailyIntakeId(
@@ -136,13 +212,6 @@ class DailyIntakeViewModel extends BaseViewModel {
       ProductAnalysisResponse? productAnalysis) async {
     await intakeRepository.saveScannedLabel(
         userId, foodImage, source, productAnalysis);
-  }
-
-  void _mapTotalNutrients() {
-    _totalNutrientsMap = {
-      for (var nutrient in userIntakeOutput?.totalNutrients ?? [])
-        nutrient.name: nutrient
-    };
   }
 
   bool isSameDay(DateTime? date1, DateTime date2) {

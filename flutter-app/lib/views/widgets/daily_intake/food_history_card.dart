@@ -44,7 +44,7 @@ class _FoodHistoryList extends StatelessWidget {
   Widget build(BuildContext context) {
     // Only listen to daily intake changes
     final dailyIntake = context.select(
-      (DailyIntakeViewModel vm) => vm.userIntakeOutput?.dailyIntake,
+      (DailyIntakeViewModel vm) => vm.dailyIntake,
     );
 
     if (dailyIntake == null || dailyIntake.isEmpty) {

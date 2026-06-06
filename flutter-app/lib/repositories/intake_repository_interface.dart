@@ -12,7 +12,7 @@ abstract class IntakeRepositoryInterface {
   Future<SaveIntakeOutput> saveScannedLabel(String userId, File? frontImage,
       String sourceOfIntake, ProductAnalysisResponse? productAnalysis);
 
-  Future<UserIntakeOutput> getDailyIntake(String userId, DateTime date);
+  Future<UserIntakeOutput> getDailyIntake(String userId, DateTime fromDate, DateTime toDate);
 
   Future<FoodAnalysisResponse> getIntakeDetails(
       String userId, int dailyIntakeId);

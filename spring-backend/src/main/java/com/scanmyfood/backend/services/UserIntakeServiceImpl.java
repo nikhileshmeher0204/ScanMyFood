@@ -189,23 +189,44 @@ public class UserIntakeServiceImpl implements UserIntakeService {
 
     @Override
     public UserIntakeOutput getUserIntake(String userId, LocalDate date) throws Exception {
+        return getUserIntakeRange(userId, date, date);
+    }
+
+    @Override
+    public UserIntakeOutput getUserIntakeRange(String userId, LocalDate fromDate, LocalDate toDate) throws Exception {
         try {
             UserIntakeOutput output = new UserIntakeOutput();
-            List<FoodNutrient> totalNutrients = new ArrayList<>();
-            List<DailyIntakeRecord> records = userIntakeMapper.fetchUserIntake(userId, date);
-            logger.info("User intake records for date {}: {}", date, records.size());
-            if (!records.isEmpty()) {
-                logger.info("Calculating total nutrients");
-                setTotalValues(records, totalNutrients);
-            }
             output.setUserId(userId);
-            output.setDate(date);
-            output.setTotalNutrients(totalNutrients);
-            output.setDailyIntake(records);
+            List<DailyIntakeData> dailyIntakes = new ArrayList<>();
+
+            List<DailyIntakeRecord> records = userIntakeMapper.fetchUserIntakeRange(userId, fromDate, toDate);
+            logger.info("User intake records for date range {} to {}: {}", fromDate, toDate, records.size());
+
+            // Group records by local date
+            Map<LocalDate, List<DailyIntakeRecord>> groupedByDate = records.stream()
+                    .collect(Collectors.groupingBy(
+                            record -> record.getCreatedAt().toLocalDateTime().toLocalDate()
+                    ));
+
+            // Generate explicit entries for all dates in the range (inclusive)
+            for (LocalDate date = fromDate; !date.isAfter(toDate); date = date.plusDays(1)) {
+                DailyIntakeData dayData = new DailyIntakeData();
+                dayData.setDate(date);
+                List<DailyIntakeRecord> dayRecords = groupedByDate.getOrDefault(date, new ArrayList<>());
+                List<FoodNutrient> totalNutrients = new ArrayList<>();
+                if (!dayRecords.isEmpty()) {
+                    setTotalValues(dayRecords, totalNutrients);
+                }
+                dayData.setTotalNutrients(totalNutrients);
+                dayData.setDailyIntake(dayRecords);
+                dailyIntakes.add(dayData);
+            }
+
+            output.setDailyIntakes(dailyIntakes);
             return output;
         } catch (Exception exception) {
-            logger.error("Error fetching user intake: {}", exception.getMessage(), exception);
-            throw new Exception("Error fetching user intake", exception);
+            logger.error("Error fetching user intake range: {}", exception.getMessage(), exception);
+            throw new Exception("Error fetching user intake range", exception);
         }
     }
 

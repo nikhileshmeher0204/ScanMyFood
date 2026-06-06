@@ -8,7 +8,5 @@ import java.util.List;
 @Data
 public class UserIntakeOutput {
     private String userId;
-    private LocalDate date;
-    private List<FoodNutrient> totalNutrients;
-    private List<DailyIntakeRecord> dailyIntake;
+    private List<DailyIntakeData> dailyIntakes;
 }

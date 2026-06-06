@@ -95,6 +95,12 @@ public interface UserIntakeMapper {
             @Param("date") LocalDate date
     );
 
+    List<DailyIntakeRecord> fetchUserIntakeRange(
+            @Param("userId") String userId,
+            @Param("fromDate") LocalDate fromDate,
+            @Param("toDate") LocalDate toDate
+    );
+
     DailyIntakeRecord fetchIntakeById(
             @Param("userId") String userId,
             @Param("dailyIntakeId") Integer dailyIntakeId

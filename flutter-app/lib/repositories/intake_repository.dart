@@ -120,16 +120,19 @@ class IntakeRepository implements IntakeRepositoryInterface {
   }
 
   @override
-  Future<UserIntakeOutput> getDailyIntake(String userId, DateTime date) async {
+  Future<UserIntakeOutput> getDailyIntake(String userId, DateTime fromDate, DateTime toDate) async {
     try {
-      final formattedDate =
-          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      final formattedFromDate =
+          '${fromDate.year}-${fromDate.month.toString().padLeft(2, '0')}-${fromDate.day.toString().padLeft(2, '0')}';
+      final formattedToDate =
+          '${toDate.year}-${toDate.month.toString().padLeft(2, '0')}-${toDate.day.toString().padLeft(2, '0')}';
 
       final uri =
           Uri.parse('${_apiClient.baseUrl}/users/intake/daily-intake').replace(
         queryParameters: {
           'userId': userId,
-          'date': formattedDate,
+          'fromDate': formattedFromDate,
+          'toDate': formattedToDate,
         },
       );
 
@@ -146,7 +149,7 @@ class IntakeRepository implements IntakeRepositoryInterface {
             jsonResponse['response_code'] ==
                 ResponseCodeConstants.dailyIntakeFetched &&
             jsonResponse['data'] != null) {
-          // Convert data to FoodAnalysisResponse
+          // Convert data to UserIntakeOutput
           return UserIntakeOutput.fromJson(jsonResponse['data']);
         } else {
           throw Exception(
@@ -154,7 +157,7 @@ class IntakeRepository implements IntakeRepositoryInterface {
         }
       } else {
         throw Exception(
-            'Failed to analyze description: ${response.statusCode}');
+            'Failed to get daily intake: ${response.statusCode}');
       }
     } catch (exception) {
       throw Exception('Error getting daily intake: $exception');
