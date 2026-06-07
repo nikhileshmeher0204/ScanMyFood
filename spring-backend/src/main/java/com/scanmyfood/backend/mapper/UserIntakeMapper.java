@@ -28,7 +28,8 @@ public interface UserIntakeMapper {
             @Param("totalSugarsValue") double totalSugarsValue,
             @Param("totalSugarsUnit") String totalSugarsUnit,
             @Param("sodiumValue") double sodiumValue,
-            @Param("sodiumUnit") String sodiumUnit
+            @Param("sodiumUnit") String sodiumUnit,
+            @Param("createdAt") java.time.LocalDateTime createdAt
     );
 
     Integer insertProductAnalysis(
@@ -61,7 +62,8 @@ public interface UserIntakeMapper {
             @Param("calciumValue") double calciumValue,
             @Param("calciumUnit") String calciumUnit,
             @Param("potassiumValue") double potassiumValue,
-            @Param("potassiumUnit") String potassiumUnit
+            @Param("potassiumUnit") String potassiumUnit,
+            @Param("createdAt") java.time.LocalDateTime createdAt
     );
 
     Integer insertFoodItem(

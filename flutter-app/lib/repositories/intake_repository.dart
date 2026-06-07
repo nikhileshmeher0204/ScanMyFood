@@ -20,12 +20,14 @@ class IntakeRepository implements IntakeRepositoryInterface {
 
   @override
   Future<SaveIntakeOutput> saveScannedFood(String userId, File? foodImage,
-      String sourceOfIntake, FoodAnalysisResponse? foodAnalysis) async {
+      String sourceOfIntake, FoodAnalysisResponse? foodAnalysis,
+      {DateTime? createdAt}) async {
     try {
       SaveScannedFoodInput saveScannedFoodInput = SaveScannedFoodInput(
         userId: userId,
         sourceOfIntake: sourceOfIntake,
         foodAnalysisResponse: foodAnalysis!,
+        createdAt: createdAt,
       );
       var request = http.MultipartRequest(
           'POST', Uri.parse('${_apiClient.baseUrl}/users/intake/scanned-food'));
@@ -71,12 +73,14 @@ class IntakeRepository implements IntakeRepositoryInterface {
 
   @override
   Future<SaveIntakeOutput> saveScannedLabel(String userId, File? productImage,
-      String sourceOfIntake, ProductAnalysisResponse? productAnalysis) async {
+      String sourceOfIntake, ProductAnalysisResponse? productAnalysis,
+      {DateTime? createdAt}) async {
     try {
       SaveScannedLabelInput saveScannedLabelInput = SaveScannedLabelInput(
         userId: userId,
         sourceOfIntake: sourceOfIntake,
         productAnalysisResponse: productAnalysis!,
+        createdAt: createdAt,
       );
       var request = http.MultipartRequest('POST',
           Uri.parse('${_apiClient.baseUrl}/users/intake/scanned-label'));

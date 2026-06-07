@@ -42,22 +42,29 @@ class AddToIntakeButton extends StatelessWidget {
             uiProvider.calculateAdjustedNutrients(totalPlateNutrients);
         foodAnalysis?.totalPlateNutrients = adjustedNutrients;
 
-        print("Add to today's intake button pressed");
+        // Combine the selected date + time chips into a single timestamp
+        final createdAt = uiProvider.selectedDateTime;
+
+        print("Add to intake button pressed");
         print("Current total nutrients: $totalPlateNutrients");
         print("foodAnalysis: $foodAnalysis");
+        print("createdAt: $createdAt");
 
         try {
           //save intake based on source
           if (source == AppConstants.scanMeal ||
               source == AppConstants.scanDescription) {
             await dailyIntakeProvider.saveScannedFood(
-                user!.uid, foodImage, source, foodAnalysis);
+                user!.uid, foodImage, source, foodAnalysis,
+                createdAt: createdAt);
           } else if (source == AppConstants.scanLabel) {
             await dailyIntakeProvider.saveScannedLabel(
-                user!.uid, foodImage, source, productAnalysis);
+                user!.uid, foodImage, source, productAnalysis,
+                createdAt: createdAt);
           }
-          //get Daily Intake after saving
-          await dailyIntakeProvider.getDailyIntake(user!.uid, DateTime.now());
+          //get Daily Intake after saving (for the selected date)
+          await dailyIntakeProvider.getDailyIntake(
+              user!.uid, uiProvider.selectedDate);
 
           // If source is description, generate image after saving intake
           if (source == AppConstants.scanDescription) {
@@ -67,12 +74,13 @@ class AddToIntakeButton extends StatelessWidget {
                 dailyIntakeProvider.saveIntakeOutput!.dailyIntakeId);
             dailyIntakeProvider.setIsImageGenerating(false);
             // Refresh daily intake to get updated image
-            await dailyIntakeProvider.getDailyIntake(user.uid, DateTime.now());
+            await dailyIntakeProvider.getDailyIntake(
+                user.uid, uiProvider.selectedDate);
           }
           uiProvider.updateCurrentIndex(2);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Added to daily intake'),
+              content: Text('Added to intake'),
               duration: Duration(seconds: 2),
             ),
           );
@@ -87,7 +95,7 @@ class AddToIntakeButton extends StatelessWidget {
         }
       },
       icon: const Icon(Icons.add_circle_outline),
-      label: const Text('Add to today\'s intake'),
+      label: const Text('Add to intake'),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: AppColors.primaryBlack,

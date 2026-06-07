@@ -13,6 +13,7 @@ class UiViewModel extends BaseViewModel {
   int _currentIndex = 0;
   bool _isLoading = false;
   DateTime _selectedTime = DateTime.now();
+  DateTime _selectedDate = DateTime.now();
   double _portionMultiplier = 1.0; // Add portion state
 
   int get currentIndex => _currentIndex;
@@ -20,6 +21,7 @@ class UiViewModel extends BaseViewModel {
   double get sliderValue => _sliderValue;
   bool get loading => _isLoading;
   DateTime get selectedTime => _selectedTime;
+  DateTime get selectedDate => _selectedDate;
   double get portionMultiplier => _portionMultiplier; // Add getter
 
   final Map<String, Future<Color>> _dominantColorCache = {};
@@ -94,6 +96,20 @@ class UiViewModel extends BaseViewModel {
     _selectedTime = time;
     notifyListeners();
   }
+
+  void updateSelectedDate(DateTime date) {
+    _selectedDate = date;
+    notifyListeners();
+  }
+
+  /// Combines the selected date and time into a single DateTime for submission.
+  DateTime get selectedDateTime => DateTime(
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
+        _selectedTime.hour,
+        _selectedTime.minute,
+      );
 
   void updatePortionMultiplier(double multiplier) {
     _portionMultiplier = multiplier;

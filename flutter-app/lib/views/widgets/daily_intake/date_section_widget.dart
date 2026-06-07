@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
-import 'package:read_the_label/views/widgets/common/date_selector.dart';
+import 'package:read_the_label/views/widgets/daily_intake/date_indicator.dart';
 
 class DateSectionWidget extends StatelessWidget {
   const DateSectionWidget({
@@ -53,7 +53,7 @@ class DateSectionWidget extends StatelessWidget {
           ),
         ),
         // Date selector
-        DateSelector(
+        DateIndicator(
           selectedDate: selectedDate,
           onDateSelected: onDateSelected,
         ),

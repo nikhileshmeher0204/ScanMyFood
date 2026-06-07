@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
+import 'package:read_the_label/views/widgets/common/rolling_text.dart';
 
 class CalorieCard extends StatelessWidget {
   final FoodNutrient? calories;
@@ -71,8 +72,8 @@ class CalorieCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
-                    Text(
-                      currentCalories.toInt().toString(),
+                    RollingText(
+                      text: currentCalories.toInt().toString(),
                       style: AppTextStyles.heading1.copyWith(
                         color: AppColors.label,
                         fontSize: 40,
@@ -92,8 +93,8 @@ class CalorieCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 // Remaining — one compact line
-                Text(
-                  '${caloriesLeft.toInt()} kcal remaining',
+                RollingText(
+                  text: '${caloriesLeft.toInt()} kcal remaining',
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.secondaryLabel,
                     height: null,
@@ -127,8 +128,8 @@ class CalorieCard extends StatelessWidget {
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    '${(caloriePercent * 100).toInt()}%',
+                  RollingText(
+                    text: '${(caloriePercent * 100).toInt()}%',
                     style: AppTextStyles.heading3Bold.copyWith(
                       color: AppColors.label,
                       letterSpacing: -0.5,

@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
+import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/models/daily_intake_record.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
@@ -58,6 +60,12 @@ class DailyIntakeViewModel extends BaseViewModel {
   DateTime get selectedDate => _selectedDate;
   String get descriptionText => _descriptionText;
   bool get isImageGenerating => _isImageGenerating;
+
+  bool hasDataForDate(DateTime date) {
+    final String key = _formatDateKey(date);
+    final data = _dailyIntakeCache[key];
+    return data != null && data.dailyIntake.isNotEmpty;
+  }
 
   // Constructor with dependency injection
   DailyIntakeViewModel({
@@ -149,13 +157,41 @@ class DailyIntakeViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  List<Map<String, dynamic>> getNutrientHistory(String nutrientName) {
+    final List<Map<String, dynamic>> history = [];
+    final now = DateTime.now();
+    for (int i = 6; i >= 0; i--) {
+      final date = now.subtract(Duration(days: i));
+      final String key = _formatDateKey(date);
+      double val = 0.0;
+      final data = _dailyIntakeCache[key];
+      if (data != null) {
+        final nutrient = data.totalNutrients.firstWhere(
+          (n) => n.name.toLowerCase() == nutrientName.toLowerCase(),
+          orElse: () => FoodNutrient(
+            name: nutrientName,
+            quantity: Quantity(value: 0.0, unit: ''),
+          ),
+        );
+        val = nutrient.quantity.value;
+      }
+      history.add({
+        'date': date,
+        'value': val,
+      });
+    }
+    return history;
+  }
+
   Future<SaveIntakeOutput> saveScannedFood(String userId, File? foodImage,
-      String source, FoodAnalysisResponse? foodAnalysis) async {
+      String source, FoodAnalysisResponse? foodAnalysis,
+      {DateTime? createdAt}) async {
     try {
       debugPrint(
           "Starting saveScannedFood for userId: $userId, source: $source");
       saveIntakeOutput = await intakeRepository.saveScannedFood(
-          userId, foodImage, source, foodAnalysis);
+          userId, foodImage, source, foodAnalysis,
+          createdAt: createdAt);
       debugPrint(
           "SaveIntakeOutput received: ${saveIntakeOutput?.dailyIntakeId}");
       return saveIntakeOutput!;
@@ -186,32 +222,108 @@ class DailyIntakeViewModel extends BaseViewModel {
 
   Future<void> getIntakeDetailsByDailyIntakeId(
       String userId, int dailyIntakeId) async {
-    setLoading(true);
-    try {
-      _intakeDetails = await intakeRepository.getIntakeDetails(
-        userId,
-        dailyIntakeId,
-      );
-
-      _analyzedScannedFoodItems.clear();
-      _totalScannedPlateNutrients.clear();
-
-      _scannedMealName = _intakeDetails!.mealName;
-      _analyzedScannedFoodItems = _intakeDetails!.analyzedFoodItems;
-      _totalScannedPlateNutrients = _intakeDetails!.totalPlateNutrients;
-      calculateNutrientInfo(_totalScannedPlateNutrients);
-      notifyListeners();
-    } catch (e) {
-      setError("Error analyzing food image: $e");
-    } finally {
-      setLoading(false);
+    // Locate the record in our _dailyIntakeCache
+    DailyIntakeRecord? record;
+    for (var dayData in _dailyIntakeCache.values) {
+      for (var r in dayData.dailyIntake) {
+        if (r.id == dailyIntakeId) {
+          record = r;
+          break;
+        }
+      }
+      if (record != null) break;
     }
+
+    if (record == null) {
+      // Fallback to fetch from repository just in case it's not in the cache range
+      setLoading(true);
+      try {
+        _intakeDetails = await intakeRepository.getIntakeDetails(
+          userId,
+          dailyIntakeId,
+        );
+        _scannedMealName = _intakeDetails!.mealName;
+        _analyzedScannedFoodItems = _intakeDetails!.analyzedFoodItems;
+        _totalScannedPlateNutrients = _intakeDetails!.totalPlateNutrients;
+      } catch (e) {
+        setError("Error fetching food details: $e");
+        setLoading(false);
+        return;
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      _analyzedScannedFoodItems = record.foodItems;
+      _scannedMealName = record.intakeName ?? "Unknown Meal";
+
+      // Reconstruct total Plate Nutrients list from the record's columns
+      _totalScannedPlateNutrients = [
+        if (record.caloriesValue > 0)
+          FoodNutrient(
+            name: AppConstants.calories,
+            quantity: Quantity(value: record.caloriesValue, unit: record.caloriesUnit),
+          )
+        else if (record.energyValue > 0)
+          FoodNutrient(
+            name: AppConstants.energy,
+            quantity: Quantity(value: record.energyValue, unit: record.energyUnit),
+          ),
+        FoodNutrient(
+          name: AppConstants.protein,
+          quantity: Quantity(value: record.proteinValue, unit: record.proteinUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.totalCarbohydrate,
+          quantity: Quantity(value: record.totalCarbohydrateValue, unit: record.totalCarbohydrateUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.totalFat,
+          quantity: Quantity(value: record.totalFatValue, unit: record.totalFatUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.dietaryFiber,
+          quantity: Quantity(value: record.dietaryFiberValue, unit: record.dietaryFiberUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.totalSugars,
+          quantity: Quantity(value: record.totalSugarsValue, unit: record.totalSugarsUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.sodium,
+          quantity: Quantity(value: record.sodiumValue, unit: record.sodiumUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.iron,
+          quantity: Quantity(value: record.ironValue, unit: record.ironUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.potassium,
+          quantity: Quantity(value: record.potassiumValue, unit: record.potassiumUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.calcium,
+          quantity: Quantity(value: record.calciumValue, unit: record.calciumUnit),
+        ),
+      ];
+      
+      // Populate intakeDetails dummy response for TotalNutrientsCard widget parameter compatibility
+      _intakeDetails = FoodAnalysisResponse(
+        mealName: _scannedMealName,
+        analyzedFoodItems: _analyzedScannedFoodItems,
+        totalPlateNutrients: _totalScannedPlateNutrients,
+      );
+    }
+
+    calculateNutrientInfo(_totalScannedPlateNutrients);
+    notifyListeners();
   }
 
   Future<void> saveScannedLabel(String userId, File? foodImage, String source,
-      ProductAnalysisResponse? productAnalysis) async {
+      ProductAnalysisResponse? productAnalysis,
+      {DateTime? createdAt}) async {
     await intakeRepository.saveScannedLabel(
-        userId, foodImage, source, productAnalysis);
+        userId, foodImage, source, productAnalysis,
+        createdAt: createdAt);
   }
 
   bool isSameDay(DateTime? date1, DateTime date2) {

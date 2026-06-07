@@ -3,6 +3,7 @@ package com.scanmyfood.backend.models;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 public class DailyIntakeRecord {
@@ -11,6 +12,7 @@ public class DailyIntakeRecord {
     private String intakeName;
     private String sourceOfIntake;
     private String imageUrl;
+    private List<FoodItem> foodItems;
     
     private Double caloriesValue = 0.0;
     private String caloriesUnit = "kcal";

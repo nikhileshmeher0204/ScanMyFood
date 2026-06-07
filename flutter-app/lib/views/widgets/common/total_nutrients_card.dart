@@ -9,6 +9,7 @@ import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:read_the_label/views/widgets/common/add_to_intake_button.dart';
+import 'package:read_the_label/views/widgets/common/date_selector.dart';
 import 'package:read_the_label/views/widgets/common/energy_distribution_bar.dart';
 import 'package:read_the_label/views/widgets/common/nutrient_tile.dart';
 import 'package:read_the_label/views/widgets/common/time_selector.dart';
@@ -139,6 +140,7 @@ class TotalNutrientsCard extends StatelessWidget {
               ),
               EnergyDistributionBar(originalNutrients: totalPlateNutrients),
               if (showSaveOptions) ...[
+                const DateSelector(),
                 const TimeSelector(),
                 const QuantitySelector(),
                 AddToIntakeButton(

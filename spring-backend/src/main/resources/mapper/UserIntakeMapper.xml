@@ -12,7 +12,8 @@
             total_fat_value, total_fat_unit,
             dietary_fiber_value, dietary_fiber_unit,
             total_sugars_value, total_sugars_unit,
-            sodium_value, sodium_unit
+            sodium_value, sodium_unit,
+            created_at
         ) VALUES (
             #{userId}, #{intakeName}, #{imageUrl}, #{sourceOfIntake},
             #{caloriesValue}, #{caloriesUnit},
@@ -21,7 +22,8 @@
             #{totalFatValue}, #{totalFatUnit},
             #{dietaryFiberValue}, #{dietaryFiberUnit},
             #{totalSugarsValue}, #{totalSugarsUnit},
-            #{sodiumValue}, #{sodiumUnit}
+            #{sodiumValue}, #{sodiumUnit},
+            COALESCE(#{createdAt}, CURRENT_TIMESTAMP)
         )
         RETURNING id
     </select>
@@ -44,7 +46,8 @@
             sodium_value, sodium_unit,
             iron_value, iron_unit,
             calcium_value, calcium_unit,
-            potassium_value, potassium_unit
+            potassium_value, potassium_unit,
+            created_at
         ) VALUES (
             #{userId},
             #{intakeName},
@@ -62,7 +65,8 @@
             #{sodiumValue}, #{sodiumUnit},
             #{ironValue}, #{ironUnit},
             #{calciumValue}, #{calciumUnit},
-            #{potassiumValue}, #{potassiumUnit}
+            #{potassiumValue}, #{potassiumUnit},
+            COALESCE(#{createdAt}, CURRENT_TIMESTAMP)
         )
         RETURNING id
     </select>

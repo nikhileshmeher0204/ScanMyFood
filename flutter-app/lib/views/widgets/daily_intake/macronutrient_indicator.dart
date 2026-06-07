@@ -1,9 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
+import 'package:read_the_label/views/widgets/common/rolling_text.dart';
+import 'package:read_the_label/views/widgets/daily_intake/macronutrient_history_sheet_view.dart';
 
 class MacronutrientIndicator extends StatelessWidget {
   final String label;
+  final String nutrientName;
   final double value;
   final double goal;
   final String iconAsset; // asset path e.g. 'assets/icons/protein_icon.png'
@@ -12,6 +16,7 @@ class MacronutrientIndicator extends StatelessWidget {
   const MacronutrientIndicator({
     super.key,
     required this.label,
+    required this.nutrientName,
     required this.value,
     required this.goal,
     required this.iconAsset,
@@ -22,7 +27,19 @@ class MacronutrientIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final percent = (value / goal).clamp(0.0, 1.0);
     return Expanded(
-      child: Container(
+      child: GestureDetector(
+        onTap: () {
+          showCupertinoSheet<void>(
+            context: context,
+            builder: (context) => MacronutrientHistorySheetView(
+              label: label,
+              nutrientName: nutrientName,
+              goal: goal,
+              color: color,
+            ),
+          );
+        },
+        child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         decoration: BoxDecoration(
           color: AppColors.cardBackground,
@@ -76,25 +93,25 @@ class MacronutrientIndicator extends StatelessWidget {
               spacing: 6,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '${value.toStringAsFixed(0)}',
-                        style: AppTextStyles.bodyLargeBold.copyWith(
-                          color: AppColors.label,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 18,
-                        ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    RollingText(
+                      text: value.toStringAsFixed(0),
+                      style: AppTextStyles.bodyLargeBold.copyWith(
+                        color: AppColors.label,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
                       ),
-                      TextSpan(
-                        text: ' / ${goal.toStringAsFixed(0)}g',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.secondaryLabel,
-                        ),
+                    ),
+                    Text(
+                      ' / ${goal.toStringAsFixed(0)}g',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.secondaryLabel,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
@@ -110,6 +127,7 @@ class MacronutrientIndicator extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

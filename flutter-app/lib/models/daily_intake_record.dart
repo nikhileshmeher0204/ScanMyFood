@@ -1,9 +1,12 @@
+import 'package:read_the_label/models/food_item.dart';
+
 class DailyIntakeRecord {
   final int? id;
   final String? userId;
   final String? intakeName;
   final String? sourceOfIntake;
   final String? imageUrl;
+  final List<FoodItem> foodItems;
 
   final double caloriesValue;
   final String caloriesUnit;
@@ -65,6 +68,7 @@ class DailyIntakeRecord {
     this.intakeName,
     this.sourceOfIntake,
     this.imageUrl,
+    this.foodItems = const [],
     this.caloriesValue = 0.0,
     this.caloriesUnit = 'kcal',
     this.energyValue = 0.0,
@@ -127,6 +131,10 @@ class DailyIntakeRecord {
       intakeName: json['intake_name'] as String?,
       sourceOfIntake: json['source_of_intake'] as String?,
       imageUrl: json['image_url'] as String?,
+      foodItems: (json['food_items'] as List<dynamic>?)
+              ?.map((e) => FoodItem.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
       caloriesValue: (json['calories_value'] as num?)?.toDouble() ?? 0.0,
       caloriesUnit: json['calories_unit'] as String? ?? 'kcal',
       energyValue: (json['energy_value'] as num?)?.toDouble() ?? 0.0,
@@ -195,6 +203,7 @@ class DailyIntakeRecord {
       'intake_name': intakeName,
       'source_of_intake': sourceOfIntake,
       'image_url': imageUrl,
+      'food_items': foodItems.map((e) => e.toJson()).toList(),
       'calories_value': caloriesValue,
       'calories_unit': caloriesUnit,
       'energy_value': energyValue,

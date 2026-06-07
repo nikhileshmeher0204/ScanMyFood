@@ -19,6 +19,7 @@ class MacronutrientsIndicatorCard extends StatelessWidget {
       children: [
         MacronutrientIndicator(
           label: 'Protein',
+          nutrientName: AppConstants.protein,
           value: protein?.quantity.value ?? 0.0,
           goal: 50.0,
           iconAsset: 'assets/icons/protein_icon.png',
@@ -26,6 +27,7 @@ class MacronutrientsIndicatorCard extends StatelessWidget {
         ),
         MacronutrientIndicator(
           label: 'Carbs',
+          nutrientName: AppConstants.totalCarbohydrate,
           value: carbs?.quantity.value ?? 0.0,
           goal: 275.0,
           iconAsset: 'assets/icons/carbs_icon.png',
@@ -33,6 +35,7 @@ class MacronutrientsIndicatorCard extends StatelessWidget {
         ),
         MacronutrientIndicator(
           label: 'Fat',
+          nutrientName: AppConstants.totalFat,
           value: fat?.quantity.value ?? 0.0,
           goal: 78.0,
           iconAsset: 'assets/icons/fat_icon.png',
