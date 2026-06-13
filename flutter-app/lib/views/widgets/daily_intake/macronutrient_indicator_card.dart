@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/core/constants/app_constants.dart';
-import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/theme/app_colors.dart';
+import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/views/widgets/daily_intake/macronutrient_indicator.dart';
 
 class MacronutrientsIndicatorCard extends StatelessWidget {
-  final Map<String, FoodNutrient> totalNutrients;
-  const MacronutrientsIndicatorCard({super.key, required this.totalNutrients});
+  const MacronutrientsIndicatorCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final FoodNutrient? protein = totalNutrients[AppConstants.protein];
-    final FoodNutrient? carbs = totalNutrients[AppConstants.totalCarbohydrate];
-    final FoodNutrient? fat = totalNutrients[AppConstants.totalFat];
+    debugPrint('REBUILD: MacronutrientsIndicatorCard');
+    final protein = context.select(
+      (DailyIntakeViewModel vm) => vm.totalNutrients?[AppConstants.protein],
+    );
+    final carbs = context.select(
+      (DailyIntakeViewModel vm) => vm.totalNutrients?[AppConstants.totalCarbohydrate],
+    );
+    final fat = context.select(
+      (DailyIntakeViewModel vm) => vm.totalNutrients?[AppConstants.totalFat],
+    );
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       spacing: 10,

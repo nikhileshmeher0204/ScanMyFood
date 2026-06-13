@@ -27,7 +27,7 @@ class DateIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<DailyIntakeViewModel>(context);
+    final viewModel = context.read<DailyIntakeViewModel>();
     final screenWidth = MediaQuery.of(context).size.width;
     final horizontalPadding = 16.0; // Standardized padding
     final availableWidth = screenWidth - (horizontalPadding * 2);

@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/views/widgets/daily_intake/date_section_widget.dart';
@@ -198,32 +197,21 @@ class _DailyIntakeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Select only totalNutrients - only rebuilds when this changes
-    final totalNutrients = context.select(
-      (DailyIntakeViewModel vm) => vm.totalNutrients,
+    debugPrint('REBUILD: _DailyIntakeContent');
+    // Select only whether totalNutrients is initialized - only rebuilds once
+    final isInitialized = context.select(
+      (DailyIntakeViewModel vm) => vm.totalNutrients != null,
     );
 
-    // Select only selectedDate - only rebuilds when this changes
-    final selectedDate = context.select(
-      (DailyIntakeViewModel vm) => vm.selectedDate,
-    );
-
-    // Get updateSelectedDate method without listening (no rebuilds)
-    final updateSelectedDate =
-        context.read<DailyIntakeViewModel>().updateSelectedDate;
-
-    if (totalNutrients == null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+    if (!isInitialized) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
-            const SizedBox(height: 8),
-            DateSectionWidget(
-              selectedDate: selectedDate,
-              onDateSelected: updateSelectedDate,
-            ),
-            const SizedBox(height: 100),
-            const Center(
+            SizedBox(height: 8),
+            DateSectionWidget(),
+            SizedBox(height: 100),
+            Center(
               child: CircularProgressIndicator(),
             ),
           ],
@@ -231,19 +219,16 @@ class _DailyIntakeContent extends StatelessWidget {
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         spacing: 16,
         children: [
-          const UserSwitchCard(),
-          DateSectionWidget(
-            selectedDate: selectedDate,
-            onDateSelected: updateSelectedDate,
-          ),
-          CalorieCard(calories: totalNutrients[AppConstants.calories]),
-          MacronutrientsIndicatorCard(totalNutrients: totalNutrients),
-          const FoodHistoryCard(),
+          UserSwitchCard(),
+          DateSectionWidget(),
+          CalorieCard(),
+          MacronutrientsIndicatorCard(),
+          FoodHistoryCard(),
         ],
       ),
     );

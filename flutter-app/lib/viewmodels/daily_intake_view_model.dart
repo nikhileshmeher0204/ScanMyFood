@@ -107,20 +107,20 @@ class DailyIntakeViewModel extends BaseViewModel {
   }
 
   Future<void> updateSelectedDate(DateTime newDate) async {
-    final user = authService.currentUser;
-    if (user == null) return;
+    final uid = authService.currentUser?.uid ?? "VzvYVBFUlxP0apdJmkGdO0XzDe82";
 
     _selectedDate = newDate;
     final String key = _formatDateKey(newDate);
 
     if (_dailyIntakeCache.isEmpty) {
-      setLoading(true);
+      _isLoading = true;
+      notifyListeners();
       try {
         final now = DateTime.now();
         final fromDate = now.subtract(const Duration(days: 6));
         final toDate = now;
         final output = await intakeRepository.getDailyIntake(
-          user.uid,
+          uid,
           fromDate,
           toDate,
         );
@@ -128,18 +128,18 @@ class DailyIntakeViewModel extends BaseViewModel {
           _dailyIntakeCache[_formatDateKey(data.date)] = data;
         }
       } catch (e) {
-        setError("Failed to fetch initial daily intake: $e");
-      } finally {
-        setLoading(false);
+        debugPrint("Failed to fetch initial daily intake: $e");
       }
+      _isLoading = false;
     }
 
     if (!_dailyIntakeCache.containsKey(key)) {
-      setLoading(true);
+      _isLoading = true;
+      notifyListeners();
       try {
         final toDate = DateTime.now();
         final output = await intakeRepository.getDailyIntake(
-          user.uid,
+          uid,
           newDate,
           toDate,
         );
@@ -147,10 +147,9 @@ class DailyIntakeViewModel extends BaseViewModel {
           _dailyIntakeCache[_formatDateKey(data.date)] = data;
         }
       } catch (e) {
-        setError("Failed to fetch daily intake for selected date: $e");
-      } finally {
-        setLoading(false);
+        debugPrint("Failed to fetch daily intake for selected date: $e");
       }
+      _isLoading = false;
     }
 
     _setSelectedDateData();

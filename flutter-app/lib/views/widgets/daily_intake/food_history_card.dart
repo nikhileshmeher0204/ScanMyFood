@@ -12,6 +12,7 @@ class FoodHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('REBUILD: FoodHistoryCard');
     return Column(
       spacing: 10,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,6 +43,7 @@ class _FoodHistoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('REBUILD: _FoodHistoryList');
     // Only listen to daily intake changes
     final dailyIntake = context.select(
       (DailyIntakeViewModel vm) => vm.dailyIntake,

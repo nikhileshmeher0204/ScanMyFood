@@ -1,16 +1,21 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:read_the_label/models/food_nutrient.dart';
+import 'package:provider/provider.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
+import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/views/widgets/common/rolling_text.dart';
 
 class CalorieCard extends StatelessWidget {
-  final FoodNutrient? calories;
-  const CalorieCard({super.key, required this.calories});
+  const CalorieCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('REBUILD: CalorieCard');
+    final calories = context.select(
+      (DailyIntakeViewModel vm) => vm.totalNutrients?[AppConstants.calories],
+    );
     const calorieGoal = 2000.0;
     final currentCalories = calories?.quantity.value ?? 0.0;
     final caloriePercent = (currentCalories / calorieGoal).clamp(0.0, 1.0);
@@ -93,12 +98,23 @@ class CalorieCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 // Remaining — one compact line
-                RollingText(
-                  text: '${caloriesLeft.toInt()} kcal remaining',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.secondaryLabel,
-                    height: null,
-                  ),
+                Row(
+                  children: [
+                    RollingText(
+                      text: '${caloriesLeft.toInt()}',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.secondaryLabel,
+                        height: null,
+                      ),
+                    ),
+                    Text(
+                      ' kcal remaining',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.secondaryLabel,
+                        height: null,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

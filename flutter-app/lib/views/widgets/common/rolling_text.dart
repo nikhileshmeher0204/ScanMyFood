@@ -34,8 +34,13 @@ class _RollingTextState extends State<RollingText> {
   void didUpdateWidget(covariant RollingText oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.text != oldWidget.text) {
-      setState(() {
-        _currentChars = widget.text.split('');
+      _currentChars = oldWidget.text.split('');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _currentChars = widget.text.split('');
+          });
+        }
       });
     }
   }

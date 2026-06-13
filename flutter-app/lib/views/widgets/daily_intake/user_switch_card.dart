@@ -22,8 +22,11 @@ class UserSwitchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('REBUILD: UserSwitchCard');
     final User? user =
         context.read<DailyIntakeViewModel>().authService.currentUser;
+    final displayName = user?.displayName ?? 'Nikhilesh Meher';
+    final photoURL = user?.photoURL ?? 'https://www.gravatar.com/avatar/placeholder';
     
     // Representative background color for the saturated sunset orange header region
     const bgHeader = AppColors.sunsetOrange;
@@ -55,8 +58,7 @@ class UserSwitchCard extends StatelessWidget {
               child: CircleAvatar(
                 radius: 24,
                 backgroundColor: AppColors.cardBackground.withValues(alpha: 0.3),
-                backgroundImage: NetworkImage(user?.photoURL ??
-                    'https://www.gravatar.com/avatar/placeholder'),
+                backgroundImage: NetworkImage(photoURL),
               ),
             ),
             Column(
@@ -72,7 +74,7 @@ class UserSwitchCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  user?.displayName ?? 'Guest User',
+                  displayName,
                   style: AppTextStyles.heading3Bold.copyWith(
                     color: titleColor,
                     fontSize: 20,
