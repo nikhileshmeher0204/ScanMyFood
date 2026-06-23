@@ -166,9 +166,16 @@ class MyApp extends StatelessWidget {
                 uiProvider: context.read<UiViewModel>(),
                 authService: context.read<AuthService>(),
               ),
-          update: (context, uiViewModel, authService, previous) => previous!
-            ..uiProvider = uiViewModel
-            ..authService = authService),
+          update: (context, uiViewModel, authService, previous) {
+            final prevUser = previous!.authService.currentUser;
+            final currUser = authService.currentUser;
+            previous.uiProvider = uiViewModel;
+            previous.authService = authService;
+            if (currUser?.uid != prevUser?.uid) {
+              previous.onUserChanged();
+            }
+            return previous;
+          }),
     ];
   }
 }

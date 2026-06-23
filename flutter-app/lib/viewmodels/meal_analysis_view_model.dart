@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
 import 'package:read_the_label/main.dart';
@@ -57,6 +58,18 @@ class MealAnalysisViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  Future<File> _persistImage(File tempFile) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final String persistentPath =
+          '${directory.path}/scanned_food_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      return await tempFile.copy(persistentPath);
+    } catch (e) {
+      logger.e("Failed to persist image: $e");
+      return tempFile;
+    }
+  }
+
   // Image capture method
   Future<void> captureImage({
     required ImageSource source,
@@ -65,7 +78,8 @@ class MealAnalysisViewModel extends BaseViewModel {
     final image = await imagePicker.pickImage(source: source);
 
     if (image != null) {
-      _foodImage = File(image.path);
+      final persisted = await _persistImage(File(image.path));
+      _foodImage = persisted;
       notifyListeners();
     }
   }
@@ -75,7 +89,8 @@ class MealAnalysisViewModel extends BaseViewModel {
     final image = await imagePicker.pickImage(source: source);
 
     if (image != null) {
-      setFoodImage(File(image.path));
+      final persisted = await _persistImage(File(image.path));
+      setFoodImage(persisted);
       await analyzeFoodImage(imageFile: _foodImage!);
     }
   }

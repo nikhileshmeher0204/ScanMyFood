@@ -266,7 +266,7 @@ class _RollingDigitState extends State<RollingDigit> with SingleTickerProviderSt
 
     // For null character slots, return truly zero-width widget
     // so the Row (and its wrapping AnimatedSize) only reflects visible digits
-    if (widget.character == null && widget.oldCharacter == null) {
+    if (widget.character == null && widget.oldCharacter == null && !_animating) {
       return const SizedBox.shrink();
     }
 

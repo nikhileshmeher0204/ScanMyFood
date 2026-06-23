@@ -17,11 +17,6 @@ class DateSectionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint('REBUILD: DateSectionWidget');
-    final selectedDate = context.select(
-      (DailyIntakeViewModel vm) => vm.selectedDate,
-    );
-    final onDateSelected = context.read<DailyIntakeViewModel>().updateSelectedDate;
-
     const bgTeal = Color(0xFF0E3E39); // Deep teal background region
     final titleColor = AppColors.getTitleColor(bgTeal);
 
@@ -34,11 +29,17 @@ class DateSectionWidget extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                DateFormat('EEEE, MMMM d').format(selectedDate),
-                style: AppTextStyles.heading3.copyWith(
-                  color: titleColor.withValues(alpha: 0.8),
-                ),
+              Selector<DailyIntakeViewModel, DateTime>(
+                selector: (context, vm) => vm.selectedDate,
+                builder: (context, selectedDate, child) {
+                  debugPrint('REBUILD: DateSectionWidget -> Selected Date Text');
+                  return Text(
+                    DateFormat('EEEE, MMMM d').format(selectedDate),
+                    style: AppTextStyles.heading3.copyWith(
+                      color: titleColor.withValues(alpha: 0.8),
+                    ),
+                  );
+                },
               ),
               IconButton(
                 icon: Icon(
@@ -57,10 +58,7 @@ class DateSectionWidget extends StatelessWidget {
           ),
         ),
         // Date selector
-        DateIndicator(
-          selectedDate: selectedDate,
-          onDateSelected: onDateSelected,
-        ),
+        const DateIndicator(),
       ],
     );
   }

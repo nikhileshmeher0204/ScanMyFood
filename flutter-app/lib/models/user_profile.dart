@@ -53,4 +53,22 @@ class UserProfile {
       healthConditions: healthConditionsList,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'userId': userId,
+      'email': email,
+      'displayName': displayName,
+      'onboardingComplete': isOnboardingComplete,
+      'dietaryPreference': dietaryPreference,
+      'country': country,
+      'heightFeet': heightFeet,
+      'heightInches': heightInches,
+      'weightKg': weightKg,
+      'goal': goal,
+      'bmi': bmi,
+      'bmiCategory': bmiCategory,
+      'healthConditions': healthConditions.map((e) => e.toJson()).toList(),
+    };
+  }
 }

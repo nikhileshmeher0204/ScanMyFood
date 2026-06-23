@@ -17,6 +17,8 @@ import 'package:read_the_label/repositories/intake_repository_interface.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/services/local_database_service.dart';
+import 'package:read_the_label/models/cached_daily_intake_record.dart';
 import 'base_view_model.dart';
 
 class DailyIntakeViewModel extends BaseViewModel {
@@ -43,6 +45,8 @@ class DailyIntakeViewModel extends BaseViewModel {
   // Caching State
   final Map<String, DailyIntakeData> _dailyIntakeCache = {};
   List<DailyIntakeRecord>? _currentDailyIntake;
+  bool _isCacheLoaded = false;
+  Future<void>? _loadCacheFuture;
 
   List<DailyIntakeRecord>? get dailyIntake => _currentDailyIntake;
 
@@ -73,7 +77,72 @@ class DailyIntakeViewModel extends BaseViewModel {
     required this.aiRepository,
     required this.uiProvider,
     required this.authService,
-  });
+  }) {
+    loadCacheFromDevice();
+  }
+
+  void onUserChanged() {
+    logger.d("User changed in DailyIntakeViewModel. Resetting state and loading device cache...");
+    _dailyIntakeCache.clear();
+    _currentDailyIntake = null;
+    _totalNutrientsMap = null;
+    _isCacheLoaded = false;
+    _loadCacheFuture = null;
+    loadCacheFromDevice();
+  }
+
+  Future<void> loadCacheFromDevice() {
+    _loadCacheFuture ??= _loadCacheFromDeviceInternal();
+    return _loadCacheFuture!;
+  }
+
+  Future<void> _loadCacheFromDeviceInternal() async {
+    final uid = authService.currentUser?.uid;
+    if (uid == null) {
+      _isCacheLoaded = true;
+      return;
+    }
+
+    try {
+      logger.d("Loading cached daily intakes from SQLite database for $uid");
+      final cachedRecords = await LocalDatabaseService.instance.getAllDailyIntakes(uid);
+      _dailyIntakeCache.clear();
+      
+      for (var record in cachedRecords) {
+        if (!record.isExpired) {
+          _dailyIntakeCache[record.dateKey] = record.data;
+        } else {
+          logger.d("Cached daily intake for $uid on ${record.dateKey} is expired. Skipping load.");
+        }
+      }
+      _setSelectedDateData();
+      notifyListeners();
+    } catch (e) {
+      logger.w("Failed to load daily intake from SQLite database cache: $e");
+    } finally {
+      _isCacheLoaded = true;
+    }
+  }
+
+  Future<void> saveCacheToDevice() async {
+    final uid = authService.currentUser?.uid;
+    if (uid == null) return;
+
+    try {
+      for (var entry in _dailyIntakeCache.entries) {
+        final record = CachedDailyIntakeRecord(
+          userId: uid,
+          dateKey: entry.key,
+          data: entry.value,
+          cachedAt: DateTime.now(),
+        );
+        await LocalDatabaseService.instance.saveDailyIntake(record);
+      }
+      logger.d("Successfully saved daily intake map to SQLite database cache for $uid");
+    } catch (e) {
+      logger.w("Failed to save daily intake map to SQLite database: $e");
+    }
+  }
   setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
@@ -112,6 +181,11 @@ class DailyIntakeViewModel extends BaseViewModel {
     _selectedDate = newDate;
     final String key = _formatDateKey(newDate);
 
+    if (!_isCacheLoaded) {
+      logger.d("Cache not loaded yet, awaiting loadCacheFromDevice()...");
+      await loadCacheFromDevice();
+    }
+
     if (_dailyIntakeCache.isEmpty) {
       _isLoading = true;
       notifyListeners();
@@ -124,9 +198,22 @@ class DailyIntakeViewModel extends BaseViewModel {
           fromDate,
           toDate,
         );
-        for (var data in output.dailyIntakes) {
-          _dailyIntakeCache[_formatDateKey(data.date)] = data;
+        
+        final returnedMap = {
+          for (var data in output.dailyIntakes) _formatDateKey(data.date): data
+        };
+
+        for (int i = 0; i <= toDate.difference(fromDate).inDays; i++) {
+          final date = fromDate.add(Duration(days: i));
+          final dateKey = _formatDateKey(date);
+          _dailyIntakeCache[dateKey] = returnedMap[dateKey] ?? DailyIntakeData(
+            date: date,
+            totalNutrients: [],
+            dailyIntake: [],
+          );
         }
+        
+        await saveCacheToDevice();
       } catch (e) {
         debugPrint("Failed to fetch initial daily intake: $e");
       }
@@ -138,14 +225,28 @@ class DailyIntakeViewModel extends BaseViewModel {
       notifyListeners();
       try {
         final toDate = DateTime.now();
+        final fromDate = toDate.subtract(const Duration(days: 6));
         final output = await intakeRepository.getDailyIntake(
           uid,
-          newDate,
+          fromDate,
           toDate,
         );
-        for (var data in output.dailyIntakes) {
-          _dailyIntakeCache[_formatDateKey(data.date)] = data;
+        
+        final returnedMap = {
+          for (var data in output.dailyIntakes) _formatDateKey(data.date): data
+        };
+
+        for (int i = 0; i <= toDate.difference(fromDate).inDays; i++) {
+          final date = fromDate.add(Duration(days: i));
+          final dateKey = _formatDateKey(date);
+          _dailyIntakeCache[dateKey] = returnedMap[dateKey] ?? DailyIntakeData(
+            date: date,
+            totalNutrients: [],
+            dailyIntake: [],
+          );
         }
+        
+        await saveCacheToDevice();
       } catch (e) {
         debugPrint("Failed to fetch daily intake for selected date: $e");
       }
@@ -209,10 +310,32 @@ class DailyIntakeViewModel extends BaseViewModel {
         date,
         date,
       );
-      for (var dayData in output.dailyIntakes) {
-        _dailyIntakeCache[_formatDateKey(dayData.date)] = dayData;
+      
+      final key = _formatDateKey(date);
+      if (output.dailyIntakes.isEmpty) {
+        _dailyIntakeCache[key] = DailyIntakeData(
+          date: date,
+          totalNutrients: [],
+          dailyIntake: [],
+        );
+      } else {
+        for (var dayData in output.dailyIntakes) {
+          _dailyIntakeCache[_formatDateKey(dayData.date)] = dayData;
+        }
       }
       _setSelectedDateData();
+      
+      // Save specific date row to SQLite
+      if (_dailyIntakeCache.containsKey(key)) {
+        final record = CachedDailyIntakeRecord(
+          userId: userId,
+          dateKey: key,
+          data: _dailyIntakeCache[key]!,
+          cachedAt: DateTime.now(),
+        );
+        await LocalDatabaseService.instance.saveDailyIntake(record);
+      }
+      
       notifyListeners();
     } catch (e) {
       setError("Failed to refresh daily intake: $e");

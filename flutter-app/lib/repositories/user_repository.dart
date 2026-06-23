@@ -9,6 +9,8 @@ import 'package:read_the_label/models/save_user_conditions_request.dart';
 import 'package:read_the_label/models/user_profile.dart';
 import 'package:read_the_label/repositories/api_client.dart';
 import 'package:read_the_label/repositories/user_repository_interface.dart';
+import 'package:read_the_label/services/local_database_service.dart';
+import 'package:read_the_label/models/cached_user_profile_record.dart';
 
 class UserRepository implements UserRepositoryInterface {
   final ApiClient _apiClient;
@@ -48,6 +50,7 @@ class UserRepository implements UserRepositoryInterface {
       final request = OnboardingRequest(userId: userId);
       await _apiClient.post('/users/complete-onboarding', request.toJson());
       logger.d('Onboarding completed successfully');
+      await _clearProfileCache();
     } catch (e) {
       logger.e('Failed to complete onboarding: $e');
       rethrow;
@@ -67,6 +70,7 @@ class UserRepository implements UserRepositoryInterface {
       country: country,
     );
     await _apiClient.put('/users/preferences', request.toJson());
+    await _clearProfileCache();
   }
 
   @override
@@ -86,6 +90,7 @@ class UserRepository implements UserRepositoryInterface {
       goal: goal,
     );
     await _apiClient.put('/users/health-metrics', request.toJson());
+    await _clearProfileCache();
   }
 
   @override
@@ -127,18 +132,64 @@ class UserRepository implements UserRepositoryInterface {
       conditionNames: conditionNames,
     );
     await _apiClient.put('/users/health-conditions', request.toJson());
+    await _clearProfileCache();
+  }
+
+  Future<void> _clearProfileCache() async {
+    try {
+      final userId = _apiClient.getCurrentUid();
+      await LocalDatabaseService.instance.clearUserProfile(userId);
+      logger.d('Cleared user profile cache in SQLite for $userId');
+    } catch (e) {
+      logger.w('Failed to clear user profile cache: $e');
+    }
   }
 
   @override
   Future<UserProfile> getUserProfile() async {
     logger.d('Fetching user profile...');
+    final userId = _apiClient.getCurrentUid();
+
+    try {
+      final cachedRecord = await LocalDatabaseService.instance.getUserProfile(userId);
+      if (cachedRecord != null) {
+        if (!cachedRecord.isExpired) {
+          logger.d('Found fresh cached user profile for $userId (TTL check passed)');
+          return cachedRecord.profile;
+        } else {
+          logger.d('Cached user profile for $userId is expired. Re-fetching from network...');
+        }
+      } else {
+        logger.d('No cached user profile found for $userId. Fetching from network...');
+      }
+    } catch (e) {
+      logger.w('Failed to read user profile from cache: $e');
+    }
+
     try {
       final response = await _apiClient.get('/users/profile');
       final data = response['data'];
       if (data is! Map<String, dynamic>) {
-        throw const FormatException('Unexpected response shape for /users/profile');
+        throw const FormatException(
+            'Unexpected response shape for /users/profile');
       }
-      return UserProfile.fromJson(data);
+
+      final profile = UserProfile.fromJson(data);
+
+      // Save to SQLite database cache
+      try {
+        final record = CachedUserProfileRecord(
+          userId: userId,
+          profile: profile,
+          cachedAt: DateTime.now(),
+        );
+        await LocalDatabaseService.instance.saveUserProfile(record);
+        logger.d('Successfully cached user profile in SQLite for $userId');
+      } catch (e) {
+        logger.w('Failed to cache user profile in SQLite: $e');
+      }
+
+      return profile;
     } catch (e, st) {
       logger.e('Failed to fetch user profile', e, st);
       rethrow;

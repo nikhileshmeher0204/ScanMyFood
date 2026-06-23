@@ -42,7 +42,7 @@ class IntakeRepository implements IntakeRepositoryInterface {
           filename: 'saveScannedFoodInput.json',
         ),
       );
-      if (foodImage != null) {
+      if (foodImage != null && await foodImage.exists()) {
         request.files.add(
             await http.MultipartFile.fromPath('foodImage', foodImage.path));
       }

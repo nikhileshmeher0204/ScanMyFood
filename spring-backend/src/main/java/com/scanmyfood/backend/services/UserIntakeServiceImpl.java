@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,10 +25,98 @@ public class UserIntakeServiceImpl implements UserIntakeService {
     @Autowired
     private UserIntakeMapper userIntakeMapper;
 
+    @Autowired
+    private UserService userService;
+
     @Override
     public int saveScannedFoodIntake(SaveScannedFoodInput saveIntakeInput, String imageAccessUrl) throws Exception {
         try {
-            // Insert food analysis record
+            User user = userService.getUserByUserId(saveIntakeInput.getUserId());
+            String countryCode = CountryCode.fromCountryName(user.getCountry()).getCode();
+
+            List<FoodItem> foodItems = saveIntakeInput.getFoodAnalysisResponse().getAnalyzedFoodItems();
+            List<ProcessedFoodItemInfo> processedItems = new ArrayList<>();
+
+            for (FoodItem foodItem : foodItems) {
+                double actualQuantityValue = foodItem.getQuantity().getValue();
+                if (actualQuantityValue <= 0) {
+                    actualQuantityValue = 100.0;
+                }
+                String actualQuantityUnit = foodItem.getQuantity().getUnit();
+                double factor = 100.0 / actualQuantityValue;
+
+                // Step 1: Check by regional name in alias table
+                FoodItemRecord dbFoodItem = userIntakeMapper.findFoodItemByAlias(foodItem.getName(), countryCode);
+                
+                if (dbFoodItem == null) {
+                    String canonicalName = foodItem.getCanonicalName();
+                    if (canonicalName == null || canonicalName.trim().isEmpty()) {
+                        String name = foodItem.getName();
+                        if (name == null || name.trim().isEmpty()) {
+                            name = "unknown_food_item";
+                        }
+                        canonicalName = name.toLowerCase()
+                                .replaceAll("[^a-z0-9\\s-]", "")
+                                .trim()
+                                .replaceAll("[\\s-]+", "_");
+                        if (canonicalName.isEmpty()) {
+                            canonicalName = "unknown_food_item";
+                        }
+                    }
+
+                    // Step 2: Check by canonical name in food_item table
+                    dbFoodItem = userIntakeMapper.findFoodItemByCanonical(canonicalName);
+                    if (dbFoodItem != null) {
+                        // Create new country alias mapping
+                        userIntakeMapper.insertFoodItemAlias(dbFoodItem.getId(), countryCode, foodItem.getName());
+                        dbFoodItem.setItemName(foodItem.getName());
+                    } else {
+                        // Step 3: Insert new food_item and food_item_alias
+                        List<FoodNutrient> nutrients = foodItem.getNutrients();
+                        Map<String, Quantity> itemNutrientMap = nutrients.stream()
+                                .collect(Collectors.toMap(FoodNutrient::getName, FoodNutrient::getQuantity));
+                        
+                        Integer newFoodItemId = userIntakeMapper.insertFoodItem(
+                                canonicalName,
+                                round(itemNutrientMap.get(CALORIES).getValue() * factor), itemNutrientMap.get(CALORIES).getUnit(),
+                                round(itemNutrientMap.get(PROTEIN).getValue() * factor), itemNutrientMap.get(PROTEIN).getUnit(),
+                                round(itemNutrientMap.get(TOTAL_CARBOHYDRATE).getValue() * factor), itemNutrientMap.get(TOTAL_CARBOHYDRATE).getUnit(),
+                                round(itemNutrientMap.get(TOTAL_FAT).getValue() * factor), itemNutrientMap.get(TOTAL_FAT).getUnit(),
+                                round(itemNutrientMap.get(DIETARY_FIBER).getValue() * factor), itemNutrientMap.get(DIETARY_FIBER).getUnit(),
+                                round(itemNutrientMap.get(TOTAL_SUGARS).getValue() * factor), itemNutrientMap.get(TOTAL_SUGARS).getUnit(),
+                                round(itemNutrientMap.get(SODIUM).getValue() * factor), itemNutrientMap.get(SODIUM).getUnit(),
+                                saveIntakeInput.getUserId()
+                        );
+                        userIntakeMapper.insertFoodItemAlias(newFoodItemId, countryCode, foodItem.getName());
+                        
+                        // Fetch the newly created record
+                        dbFoodItem = userIntakeMapper.findFoodItemByCanonical(canonicalName);
+                        dbFoodItem.setItemName(foodItem.getName());
+                    }
+                }
+
+                // Override item nutrients using DB values (per 100g) and portion factor
+                double portionFactor = actualQuantityValue / 100.0;
+                List<FoodNutrient> overriddenNutrients = new ArrayList<>();
+                overriddenNutrients.add(new FoodNutrient(CALORIES, new Quantity(round(safeDouble(dbFoodItem.getCaloriesValuePer100g()) * portionFactor), dbFoodItem.getCaloriesUnit())));
+                overriddenNutrients.add(new FoodNutrient(PROTEIN, new Quantity(round(safeDouble(dbFoodItem.getProteinValuePer100g()) * portionFactor), dbFoodItem.getProteinUnit())));
+                overriddenNutrients.add(new FoodNutrient(TOTAL_CARBOHYDRATE, new Quantity(round(safeDouble(dbFoodItem.getTotalCarbohydrateValuePer100g()) * portionFactor), dbFoodItem.getTotalCarbohydrateUnit())));
+                overriddenNutrients.add(new FoodNutrient(TOTAL_FAT, new Quantity(round(safeDouble(dbFoodItem.getTotalFatValuePer100g()) * portionFactor), dbFoodItem.getTotalFatUnit())));
+                overriddenNutrients.add(new FoodNutrient(DIETARY_FIBER, new Quantity(round(safeDouble(dbFoodItem.getDietaryFiberValuePer100g()) * portionFactor), dbFoodItem.getDietaryFiberUnit())));
+                overriddenNutrients.add(new FoodNutrient(TOTAL_SUGARS, new Quantity(round(safeDouble(dbFoodItem.getTotalSugarsValuePer100g()) * portionFactor), dbFoodItem.getTotalSugarsUnit())));
+                overriddenNutrients.add(new FoodNutrient(SODIUM, new Quantity(round(safeDouble(dbFoodItem.getSodiumValuePer100g()) * portionFactor), dbFoodItem.getSodiumUnit())));
+
+                foodItem.setNutrients(overriddenNutrients);
+                foodItem.setName(dbFoodItem.getItemName()); // Ensure name matches the exact DB display name casing
+                foodItem.setCanonicalName(dbFoodItem.getCanonicalName());
+
+                processedItems.add(new ProcessedFoodItemInfo(dbFoodItem.getId(), actualQuantityValue, actualQuantityUnit));
+            }
+
+            // Recalculate daily intake's total plate nutrients based on the overridden items
+            recalculateTotalPlateNutrients(saveIntakeInput.getFoodAnalysisResponse());
+
+            // Insert daily_intake record
             Map<String, Quantity> nutrientMap = saveIntakeInput.getFoodAnalysisResponse()
                     .getTotalPlateNutrients()
                     .stream()
@@ -51,33 +140,16 @@ public class UserIntakeServiceImpl implements UserIntakeService {
                     saveIntakeInput.getCreatedAt()
             );
 
-
-            // insert food items
-            List<FoodItem> foodItems = saveIntakeInput.getFoodAnalysisResponse().getAnalyzedFoodItems();
-            for (FoodItem foodItem : foodItems) {
-                List<FoodNutrient> nutrients = foodItem.getNutrients();
-                Map<String, Quantity> itemNutrientMap = nutrients.stream().collect(Collectors.toMap(FoodNutrient::getName, FoodNutrient::getQuantity));
-                double actualQuantityValue = foodItem.getQuantity().getValue();
-                String actualQuantityUnit = foodItem.getQuantity().getUnit();
-                double factor = 100.0 / actualQuantityValue;
-                Integer foodItemId = userIntakeMapper.insertFoodItem(foodItem.getName(),
-                        itemNutrientMap.get(CALORIES).getValue() * factor, itemNutrientMap.get(CALORIES).getUnit(),
-                        itemNutrientMap.get(PROTEIN).getValue() * factor, itemNutrientMap.get(PROTEIN).getUnit(),
-                        itemNutrientMap.get(TOTAL_CARBOHYDRATE).getValue() * factor, itemNutrientMap.get(TOTAL_CARBOHYDRATE).getUnit(),
-                        itemNutrientMap.get(TOTAL_FAT).getValue() * factor, itemNutrientMap.get(TOTAL_FAT).getUnit(),
-                        itemNutrientMap.get(DIETARY_FIBER).getValue() * factor, itemNutrientMap.get(DIETARY_FIBER).getUnit(),
-                        itemNutrientMap.get(TOTAL_SUGARS).getValue() * factor, itemNutrientMap.get(TOTAL_SUGARS).getUnit(),
-                        itemNutrientMap.get(SODIUM).getValue() * factor, itemNutrientMap.get(SODIUM).getUnit(),
-                        saveIntakeInput.getUserId());
-
-                // map food items to food analysis record
+            // Link daily intake to food items in the junction table
+            for (ProcessedFoodItemInfo item : processedItems) {
                 userIntakeMapper.insertFoodAnalysisItem(
                         dailyIntakeId,
-                        foodItemId,
-                        actualQuantityValue,
-                        actualQuantityUnit
+                        item.getFoodItemId(),
+                        item.getQuantityValue(),
+                        item.getQuantityUnit()
                 );
             }
+
             return dailyIntakeId;
         } catch (Exception exception) {
             logger.error("Error saving user intake: {}", exception.getMessage(), exception);
@@ -133,19 +205,19 @@ public class UserIntakeServiceImpl implements UserIntakeService {
                     totalQuantity.getUnit(),
                     productAnalysis.getNutritionAnalysis().getServingSize().getValue(),
                     productAnalysis.getNutritionAnalysis().getServingSize().getUnit(),
-                    nutrientMap.get(ENERGY).getValue() * factor, nutrientMap.get(ENERGY).getUnit(),
-                    nutrientMap.get(PROTEIN).getValue() * factor, nutrientMap.get(PROTEIN).getUnit(),
-                    nutrientMap.get(TOTAL_CARBOHYDRATE).getValue() * factor, nutrientMap.get(TOTAL_CARBOHYDRATE).getUnit(),
-                    nutrientMap.get(TOTAL_FAT).getValue() * factor, nutrientMap.get(TOTAL_FAT).getUnit(),
-                    nutrientMap.get(SATURATED_FAT).getValue() * factor, nutrientMap.get(SATURATED_FAT).getUnit(),
-                    nutrientMap.get(TRANS_FAT).getValue(), nutrientMap.get(TRANS_FAT).getUnit(),
-                    nutrientMap.get(DIETARY_FIBER).getValue() * factor, nutrientMap.get(DIETARY_FIBER).getUnit(),
-                    nutrientMap.get(TOTAL_SUGARS).getValue(), nutrientMap.get(TOTAL_SUGARS).getUnit(),
-                    nutrientMap.get(ADDED_SUGARS).getValue() * factor, nutrientMap.get(ADDED_SUGARS).getUnit(),
-                    nutrientMap.get(SODIUM).getValue() * factor, nutrientMap.get(SODIUM).getUnit(),
-                    nutrientMap.get(IRON).getValue() * factor, nutrientMap.get(IRON).getUnit(),
-                    nutrientMap.get(POTASSIUM).getValue() * factor, nutrientMap.get(POTASSIUM).getUnit(),
-                    nutrientMap.get(CALCIUM).getValue() * factor, nutrientMap.get(CALCIUM).getUnit(),
+                    round(nutrientMap.get(ENERGY).getValue() * factor), nutrientMap.get(ENERGY).getUnit(),
+                    round(nutrientMap.get(PROTEIN).getValue() * factor), nutrientMap.get(PROTEIN).getUnit(),
+                    round(nutrientMap.get(TOTAL_CARBOHYDRATE).getValue() * factor), nutrientMap.get(TOTAL_CARBOHYDRATE).getUnit(),
+                    round(nutrientMap.get(TOTAL_FAT).getValue() * factor), nutrientMap.get(TOTAL_FAT).getUnit(),
+                    round(nutrientMap.get(SATURATED_FAT).getValue() * factor), nutrientMap.get(SATURATED_FAT).getUnit(),
+                    round(nutrientMap.get(TRANS_FAT).getValue()), nutrientMap.get(TRANS_FAT).getUnit(),
+                    round(nutrientMap.get(DIETARY_FIBER).getValue() * factor), nutrientMap.get(DIETARY_FIBER).getUnit(),
+                    round(nutrientMap.get(TOTAL_SUGARS).getValue()), nutrientMap.get(TOTAL_SUGARS).getUnit(),
+                    round(nutrientMap.get(ADDED_SUGARS).getValue() * factor), nutrientMap.get(ADDED_SUGARS).getUnit(),
+                    round(nutrientMap.get(SODIUM).getValue() * factor), nutrientMap.get(SODIUM).getUnit(),
+                    round(nutrientMap.get(IRON).getValue() * factor), nutrientMap.get(IRON).getUnit(),
+                    round(nutrientMap.get(POTASSIUM).getValue() * factor), nutrientMap.get(POTASSIUM).getUnit(),
+                    round(nutrientMap.get(CALCIUM).getValue() * factor), nutrientMap.get(CALCIUM).getUnit(),
                     scannedLabelInput.getUserId()
             );
 
@@ -204,24 +276,28 @@ public class UserIntakeServiceImpl implements UserIntakeService {
             List<DailyIntakeRecord> records = userIntakeMapper.fetchUserIntakeRange(userId, fromDate, toDate);
             logger.info("User intake records for date range {} to {}: {}", fromDate, toDate, records.size());
 
+            User user = userService.getUserByUserId(userId);
+            String countryCode = CountryCode.fromCountryName(user.getCountry()).getCode();
+
             // Fetch and map constituent food items for each record
             for (DailyIntakeRecord record : records) {
                 List<FoodItem> foodItems = new ArrayList<>();
-                List<FoodItemRecord> foodItemRecords = userIntakeMapper.fetchFoodItemsByDailyIntakeId(record.getId());
+                List<FoodItemRecord> foodItemRecords = userIntakeMapper.fetchFoodItemsByDailyIntakeId(record.getId(), countryCode);
                 for (FoodItemRecord itemRecord : foodItemRecords) {
                     FoodItem foodItem = new FoodItem();
                     foodItem.setName(itemRecord.getItemName());
+                    foodItem.setCanonicalName(itemRecord.getCanonicalName());
                     foodItem.setQuantity(new Quantity(itemRecord.getQuantityValue(), itemRecord.getQuantityUnit()));
                     
                     List<FoodNutrient> nutrients = new ArrayList<>();
                     double factor = safeDouble(itemRecord.getQuantityValue()) / 100.0;
-                    nutrients.add(new FoodNutrient(CALORIES, new Quantity(safeDouble(itemRecord.getCaloriesValuePer100g()) * factor, itemRecord.getCaloriesUnit())));
-                    nutrients.add(new FoodNutrient(PROTEIN, new Quantity(safeDouble(itemRecord.getProteinValuePer100g()) * factor, itemRecord.getProteinUnit())));
-                    nutrients.add(new FoodNutrient(TOTAL_CARBOHYDRATE, new Quantity(safeDouble(itemRecord.getTotalCarbohydrateValuePer100g()) * factor, itemRecord.getTotalCarbohydrateUnit())));
-                    nutrients.add(new FoodNutrient(TOTAL_FAT, new Quantity(safeDouble(itemRecord.getTotalFatValuePer100g()) * factor, itemRecord.getTotalFatUnit())));
-                    nutrients.add(new FoodNutrient(DIETARY_FIBER, new Quantity(safeDouble(itemRecord.getDietaryFiberValuePer100g()) * factor, itemRecord.getDietaryFiberUnit())));
-                    nutrients.add(new FoodNutrient(TOTAL_SUGARS, new Quantity(safeDouble(itemRecord.getTotalSugarsValuePer100g()) * factor, itemRecord.getTotalSugarsUnit())));
-                    nutrients.add(new FoodNutrient(SODIUM, new Quantity(safeDouble(itemRecord.getSodiumValuePer100g()) * factor, itemRecord.getSodiumUnit())));
+                    nutrients.add(new FoodNutrient(CALORIES, new Quantity(round(safeDouble(itemRecord.getCaloriesValuePer100g()) * factor), itemRecord.getCaloriesUnit())));
+                    nutrients.add(new FoodNutrient(PROTEIN, new Quantity(round(safeDouble(itemRecord.getProteinValuePer100g()) * factor), itemRecord.getProteinUnit())));
+                    nutrients.add(new FoodNutrient(TOTAL_CARBOHYDRATE, new Quantity(round(safeDouble(itemRecord.getTotalCarbohydrateValuePer100g()) * factor), itemRecord.getTotalCarbohydrateUnit())));
+                    nutrients.add(new FoodNutrient(TOTAL_FAT, new Quantity(round(safeDouble(itemRecord.getTotalFatValuePer100g()) * factor), itemRecord.getTotalFatUnit())));
+                    nutrients.add(new FoodNutrient(DIETARY_FIBER, new Quantity(round(safeDouble(itemRecord.getDietaryFiberValuePer100g()) * factor), itemRecord.getDietaryFiberUnit())));
+                    nutrients.add(new FoodNutrient(TOTAL_SUGARS, new Quantity(round(safeDouble(itemRecord.getTotalSugarsValuePer100g()) * factor), itemRecord.getTotalSugarsUnit())));
+                    nutrients.add(new FoodNutrient(SODIUM, new Quantity(round(safeDouble(itemRecord.getSodiumValuePer100g()) * factor), itemRecord.getSodiumUnit())));
                     
                     foodItem.setNutrients(nutrients);
                     foodItems.add(foodItem);
@@ -295,20 +371,23 @@ public class UserIntakeServiceImpl implements UserIntakeService {
             totalNutrients.add(new FoodNutrient(DIETARY_FIBER, new Quantity(intakeRecord.getDietaryFiberValue(), intakeRecord.getDietaryFiberUnit())));
             totalNutrients.add(new FoodNutrient(TOTAL_SUGARS, new Quantity(intakeRecord.getTotalSugarsValue(), intakeRecord.getTotalSugarsUnit())));
             totalNutrients.add(new FoodNutrient(SODIUM, new Quantity(intakeRecord.getSodiumValue(), intakeRecord.getSodiumUnit())));
-            List<FoodItemRecord> foodItemRecords = userIntakeMapper.fetchFoodItemsByDailyIntakeId(dailyIntakeId);
+            User user = userService.getUserByUserId(userId);
+            String countryCode = CountryCode.fromCountryName(user.getCountry()).getCode();
+            List<FoodItemRecord> foodItemRecords = userIntakeMapper.fetchFoodItemsByDailyIntakeId(dailyIntakeId, countryCode);
             for(FoodItemRecord record : foodItemRecords) {
                 FoodItem foodItem = new FoodItem();
                 foodItem.setName(record.getItemName());
+                foodItem.setCanonicalName(record.getCanonicalName());
                 foodItem.setQuantity(new Quantity(record.getQuantityValue(), record.getQuantityUnit()));
                 List<FoodNutrient> nutrients = new ArrayList<>();
                 double factor = safeDouble(record.getQuantityValue()) / 100.0;
-                nutrients.add(new FoodNutrient(CALORIES, new Quantity(safeDouble(record.getCaloriesValuePer100g()) * factor, record.getCaloriesUnit())));
-                nutrients.add(new FoodNutrient(PROTEIN, new Quantity(safeDouble(record.getProteinValuePer100g()) * factor, record.getProteinUnit())));
-                nutrients.add(new FoodNutrient(TOTAL_CARBOHYDRATE, new Quantity(safeDouble(record.getTotalCarbohydrateValuePer100g()) * factor, record.getTotalCarbohydrateUnit())));
-                nutrients.add(new FoodNutrient(TOTAL_FAT, new Quantity(safeDouble(record.getTotalFatValuePer100g()) * factor, record.getTotalFatUnit())));
-                nutrients.add(new FoodNutrient(DIETARY_FIBER, new Quantity(safeDouble(record.getDietaryFiberValuePer100g()) * factor, record.getDietaryFiberUnit())));
-                nutrients.add(new FoodNutrient(TOTAL_SUGARS, new Quantity(safeDouble(record.getTotalSugarsValuePer100g()) * factor, record.getTotalSugarsUnit())));
-                nutrients.add(new FoodNutrient(SODIUM, new Quantity(safeDouble(record.getSodiumValuePer100g()) * factor, record.getSodiumUnit())));
+                nutrients.add(new FoodNutrient(CALORIES, new Quantity(round(safeDouble(record.getCaloriesValuePer100g()) * factor), record.getCaloriesUnit())));
+                nutrients.add(new FoodNutrient(PROTEIN, new Quantity(round(safeDouble(record.getProteinValuePer100g()) * factor), record.getProteinUnit())));
+                nutrients.add(new FoodNutrient(TOTAL_CARBOHYDRATE, new Quantity(round(safeDouble(record.getTotalCarbohydrateValuePer100g()) * factor), record.getTotalCarbohydrateUnit())));
+                nutrients.add(new FoodNutrient(TOTAL_FAT, new Quantity(round(safeDouble(record.getTotalFatValuePer100g()) * factor), record.getTotalFatUnit())));
+                nutrients.add(new FoodNutrient(DIETARY_FIBER, new Quantity(round(safeDouble(record.getDietaryFiberValuePer100g()) * factor), record.getDietaryFiberUnit())));
+                nutrients.add(new FoodNutrient(TOTAL_SUGARS, new Quantity(round(safeDouble(record.getTotalSugarsValuePer100g()) * factor), record.getTotalSugarsUnit())));
+                nutrients.add(new FoodNutrient(SODIUM, new Quantity(round(safeDouble(record.getSodiumValuePer100g()) * factor), record.getSodiumUnit())));
                 foodItem.setNutrients(nutrients);
                 foodItems.add(foodItem);
             }
@@ -358,20 +437,56 @@ public class UserIntakeServiceImpl implements UserIntakeService {
         String potassiumUnit = records.get(0).getPotassiumUnit() != null ? records.get(0).getPotassiumUnit() : "mg";
         String calciumUnit = records.get(0).getCalciumUnit() != null ? records.get(0).getCalciumUnit() : "mg";
 
-        totalNutrients.add(new FoodNutrient(CALORIES, new Quantity(totalCalories, caloriesUnit)));
-        totalNutrients.add(new FoodNutrient(PROTEIN, new Quantity(totalProtein, proteinUnit)));
-        totalNutrients.add(new FoodNutrient(TOTAL_CARBOHYDRATE, new Quantity(totalCarbs, carbohydrateUnit)));
-        totalNutrients.add(new FoodNutrient(TOTAL_FAT, new Quantity(totalFat, fatUnit)));
-        totalNutrients.add(new FoodNutrient(DIETARY_FIBER, new Quantity(totalFiber, fiberUnit)));
-        totalNutrients.add(new FoodNutrient(TOTAL_SUGARS, new Quantity(totalSugar, sugarsUnit)));
-        totalNutrients.add(new FoodNutrient(SODIUM, new Quantity(totalSodium, sodiumUnit)));
-        totalNutrients.add(new FoodNutrient(IRON, new Quantity(totalIron, ironUnit)));
-        totalNutrients.add(new FoodNutrient(POTASSIUM, new Quantity(totalPotassium, potassiumUnit)));
-        totalNutrients.add(new FoodNutrient(CALCIUM, new Quantity(totalCalcium, calciumUnit)));
+        totalNutrients.add(new FoodNutrient(CALORIES, new Quantity(round(totalCalories), caloriesUnit)));
+        totalNutrients.add(new FoodNutrient(PROTEIN, new Quantity(round(totalProtein), proteinUnit)));
+        totalNutrients.add(new FoodNutrient(TOTAL_CARBOHYDRATE, new Quantity(round(totalCarbs), carbohydrateUnit)));
+        totalNutrients.add(new FoodNutrient(TOTAL_FAT, new Quantity(round(totalFat), fatUnit)));
+        totalNutrients.add(new FoodNutrient(DIETARY_FIBER, new Quantity(round(totalFiber), fiberUnit)));
+        totalNutrients.add(new FoodNutrient(TOTAL_SUGARS, new Quantity(round(totalSugar), sugarsUnit)));
+        totalNutrients.add(new FoodNutrient(SODIUM, new Quantity(round(totalSodium), sodiumUnit)));
+        totalNutrients.add(new FoodNutrient(IRON, new Quantity(round(totalIron), ironUnit)));
+        totalNutrients.add(new FoodNutrient(POTASSIUM, new Quantity(round(totalPotassium), potassiumUnit)));
+        totalNutrients.add(new FoodNutrient(CALCIUM, new Quantity(round(totalCalcium), calciumUnit)));
     }
 
     private double safeDouble(Double val) {
         return val == null ? 0.0 : val;
+    }
+
+    private double round(double val) {
+        return Math.round(val * 100.0) / 100.0;
+    }
+
+    private void recalculateTotalPlateNutrients(FoodAnalysisResponse response) {
+        PlateNutrients plateNutrients = new PlateNutrients();
+        for (FoodItem item : response.getAnalyzedFoodItems()) {
+            plateNutrients.addFoodItem(item);
+        }
+        response.setTotalPlateNutrients(plateNutrients.toFoodNutrientList());
+    }
+
+    private static class ProcessedFoodItemInfo {
+        private final Integer foodItemId;
+        private final double quantityValue;
+        private final String quantityUnit;
+
+        public ProcessedFoodItemInfo(Integer foodItemId, double quantityValue, String quantityUnit) {
+            this.foodItemId = foodItemId;
+            this.quantityValue = quantityValue;
+            this.quantityUnit = quantityUnit;
+        }
+
+        public Integer getFoodItemId() {
+            return foodItemId;
+        }
+
+        public double getQuantityValue() {
+            return quantityValue;
+        }
+
+        public String getQuantityUnit() {
+            return quantityUnit;
+        }
     }
 
 }

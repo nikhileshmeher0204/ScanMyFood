@@ -8,13 +8,9 @@ import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 class DateIndicator extends StatelessWidget {
   const DateIndicator({
     super.key,
-    required this.selectedDate,
-    required this.onDateSelected,
     this.daysToShow = 7,
   });
 
-  final DateTime selectedDate;
-  final ValueChanged<DateTime> onDateSelected;
   final int daysToShow;
 
   static const double _borderRadius = 16.0;
@@ -27,6 +23,11 @@ class DateIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('REBUILD: DateIndicator');
+    final selectedDate = context.select(
+      (DailyIntakeViewModel vm) => vm.selectedDate,
+    );
+    final onDateSelected = context.read<DailyIntakeViewModel>().updateSelectedDate;
     final viewModel = context.read<DailyIntakeViewModel>();
     final screenWidth = MediaQuery.of(context).size.width;
     final horizontalPadding = 16.0; // Standardized padding

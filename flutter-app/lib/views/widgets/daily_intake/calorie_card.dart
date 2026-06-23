@@ -13,14 +13,7 @@ class CalorieCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint('REBUILD: CalorieCard');
-    final calories = context.select(
-      (DailyIntakeViewModel vm) => vm.totalNutrients?[AppConstants.calories],
-    );
     const calorieGoal = 2000.0;
-    final currentCalories = calories?.quantity.value ?? 0.0;
-    final caloriePercent = (currentCalories / calorieGoal).clamp(0.0, 1.0);
-    final caloriesLeft =
-        (calorieGoal - currentCalories).clamp(0.0, calorieGoal);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
@@ -77,13 +70,20 @@ class CalorieCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
-                    RollingText(
-                      text: currentCalories.toInt().toString(),
-                      style: AppTextStyles.heading1.copyWith(
-                        color: AppColors.label,
-                        fontSize: 40,
-                        letterSpacing: -2.0,
-                      ),
+                    Selector<DailyIntakeViewModel, double>(
+                      selector: (context, vm) =>
+                          vm.totalNutrients?[AppConstants.calories]?.quantity.value ?? 0.0,
+                      builder: (context, currentCalories, child) {
+                        debugPrint('REBUILD: CalorieCard -> Metric Value');
+                        return RollingText(
+                          text: currentCalories.toInt().toString(),
+                          style: AppTextStyles.heading1.copyWith(
+                            color: AppColors.label,
+                            fontSize: 40,
+                            letterSpacing: -2.0,
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -100,12 +100,21 @@ class CalorieCard extends StatelessWidget {
                 // Remaining — one compact line
                 Row(
                   children: [
-                    RollingText(
-                      text: '${caloriesLeft.toInt()}',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.secondaryLabel,
-                        height: null,
-                      ),
+                    Selector<DailyIntakeViewModel, double>(
+                      selector: (context, vm) =>
+                          vm.totalNutrients?[AppConstants.calories]?.quantity.value ?? 0.0,
+                      builder: (context, currentCalories, child) {
+                        debugPrint('REBUILD: CalorieCard -> Remaining Value');
+                        final caloriesLeft =
+                            (calorieGoal - currentCalories).clamp(0.0, calorieGoal);
+                        return RollingText(
+                          text: '${caloriesLeft.toInt()}',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.secondaryLabel,
+                            height: null,
+                          ),
+                        );
+                      },
                     ),
                     Text(
                       ' kcal remaining',
@@ -123,46 +132,61 @@ class CalorieCard extends StatelessWidget {
           const SizedBox(width: 16),
 
           // ─── Right: Orange ring — compact, proportional ────────────
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 88,
-                height: 88,
-                child: CustomPaint(
-                  painter: _AppleRingPainter(
-                    percent: caloriePercent,
-                    trackColor: const Color(0xFFE25227).withValues(alpha: 0.22),
-                    ringGradient: const [
-                      Color(0xFFFF7043),
-                      Color(0xFFE25227),
+          Selector<DailyIntakeViewModel, double>(
+            selector: (context, vm) =>
+                vm.totalNutrients?[AppConstants.calories]?.quantity.value ?? 0.0,
+            builder: (context, currentCalories, child) {
+              debugPrint('REBUILD: CalorieCard -> Ring Progress');
+              final caloriePercent = (currentCalories / calorieGoal).clamp(0.0, 1.0);
+              return TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0.0, end: caloriePercent),
+                duration: const Duration(milliseconds: 1200),
+                curve: Curves.easeOutQuint,
+                builder: (context, animPercent, child) {
+                  return Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 88,
+                        height: 88,
+                        child: CustomPaint(
+                          painter: _AppleRingPainter(
+                            percent: animPercent,
+                            trackColor: const Color(0xFFE25227).withValues(alpha: 0.22),
+                            ringGradient: const [
+                              Color(0xFFFF7043),
+                              Color(0xFFE25227),
+                            ],
+                            strokeWidth: 10.0,
+                          ),
+                        ),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          RollingText(
+                            text: '${(caloriePercent * 100).toInt()}%',
+                            style: AppTextStyles.heading3Bold.copyWith(
+                              color: AppColors.label,
+                              letterSpacing: -0.5,
+                              height: 1.0,
+                            ),
+                          ),
+                          Text(
+                            'of goal',
+                            style: AppTextStyles.overline.copyWith(
+                              color: AppColors.secondaryLabel,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
-                    strokeWidth: 10.0,
-                  ),
-                ),
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  RollingText(
-                    text: '${(caloriePercent * 100).toInt()}%',
-                    style: AppTextStyles.heading3Bold.copyWith(
-                      color: AppColors.label,
-                      letterSpacing: -0.5,
-                      height: 1.0,
-                    ),
-                  ),
-                  Text(
-                    'of goal',
-                    style: AppTextStyles.overline.copyWith(
-                      color: AppColors.secondaryLabel,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                  );
+                },
+              );
+            },
           ),
         ],
       ),

@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/widgets/common/ask_ai_widget.dart';
-import 'package:read_the_label/views/widgets/common/food_item_card.dart';
 import 'package:read_the_label/views/widgets/daily_intake/food_item_card_shimmer.dart';
 import 'package:read_the_label/views/widgets/daily_intake/list_tile.dart';
 import 'package:read_the_label/views/widgets/common/pick_image_card.dart';

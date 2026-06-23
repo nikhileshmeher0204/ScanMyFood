@@ -73,7 +73,7 @@
 
     <select id="insertFoodItem" resultType="java.lang.Integer">
         INSERT INTO food_item (
-            item_name,
+            canonical_name,
             calories_value_per_100g, calories_unit,
             protein_value_per_100g, protein_unit,
             total_carbohydrate_value_per_100g, total_carbohydrate_unit,
@@ -83,7 +83,7 @@
             sodium_value_per_100g, sodium_unit,
             added_by
         ) VALUES (
-            #{itemName},
+            #{canonicalName},
             #{caloriesValuePer100g}, #{caloriesUnit},
             #{proteinValuePer100g}, #{proteinUnit},
             #{totalCarbohydrateValuePer100g}, #{totalCarbohydrateUnit},
@@ -307,10 +307,23 @@
     </select>
 
     <select id="fetchFoodItemsByDailyIntakeId" resultType="com.scanmyfood.backend.models.FoodItemRecord">
-        SELECT fi.*, fai.quantity_value, fai.quantity_unit
+        SELECT 
+            fi.id,
+            COALESCE(fia.display_name, fi.canonical_name) AS item_name,
+            fi.canonical_name,
+            fi.calories_value_per_100g, fi.calories_unit,
+            fi.protein_value_per_100g, fi.protein_unit,
+            fi.total_carbohydrate_value_per_100g, fi.total_carbohydrate_unit,
+            fi.total_fat_value_per_100g, fi.total_fat_unit,
+            fi.dietary_fiber_value_per_100g, fi.dietary_fiber_unit,
+            fi.total_sugars_value_per_100g, fi.total_sugars_unit,
+            fi.sodium_value_per_100g, fi.sodium_unit,
+            fi.iron_value_per_100g, fi.iron_unit,
+            fi.added_by, fi.created_at,
+            fai.quantity_value, fai.quantity_unit
         FROM food_item fi
-                 INNER JOIN food_analysis_item fai
-                            ON fi.id = fai.food_item_id
+        INNER JOIN food_analysis_item fai ON fi.id = fai.food_item_id
+        LEFT JOIN food_item_alias fia ON fi.id = fia.food_item_id AND fia.country_code = #{countryCode}
         WHERE fai.daily_intake_id = #{dailyIntakeId};
     </select>
 
@@ -401,5 +414,49 @@
         SET image_url = #{imageUrl}
         WHERE id = #{dailyIntakeId}
     </update>
+
+    <select id="findFoodItemByAlias" resultType="com.scanmyfood.backend.models.FoodItemRecord">
+        SELECT 
+            fi.id,
+            fia.display_name AS item_name,
+            fi.canonical_name,
+            fi.calories_value_per_100g, fi.calories_unit,
+            fi.protein_value_per_100g, fi.protein_unit,
+            fi.total_carbohydrate_value_per_100g, fi.total_carbohydrate_unit,
+            fi.total_fat_value_per_100g, fi.total_fat_unit,
+            fi.dietary_fiber_value_per_100g, fi.dietary_fiber_unit,
+            fi.total_sugars_value_per_100g, fi.total_sugars_unit,
+            fi.sodium_value_per_100g, fi.sodium_unit,
+            fi.iron_value_per_100g, fi.iron_unit,
+            fi.added_by, fi.created_at
+        FROM food_item fi 
+        INNER JOIN food_item_alias fia ON fi.id = fia.food_item_id
+        WHERE LOWER(fia.display_name) = LOWER(#{displayName}) AND fia.country_code = #{countryCode}
+        LIMIT 1
+    </select>
+
+    <select id="findFoodItemByCanonical" resultType="com.scanmyfood.backend.models.FoodItemRecord">
+        SELECT 
+            id,
+            canonical_name AS item_name,
+            canonical_name,
+            calories_value_per_100g, calories_unit,
+            protein_value_per_100g, protein_unit,
+            total_carbohydrate_value_per_100g, total_carbohydrate_unit,
+            total_fat_value_per_100g, total_fat_unit,
+            dietary_fiber_value_per_100g, dietary_fiber_unit,
+            total_sugars_value_per_100g, total_sugars_unit,
+            sodium_value_per_100g, sodium_unit,
+            added_by, created_at
+        FROM food_item
+        WHERE canonical_name = #{canonicalName}
+        LIMIT 1
+    </select>
+
+    <insert id="insertFoodItemAlias">
+        INSERT INTO food_item_alias (food_item_id, country_code, display_name)
+        VALUES (#{foodItemId}, #{countryCode}, #{displayName})
+        ON CONFLICT (food_item_id, country_code) DO NOTHING
+    </insert>
 
 </mapper>

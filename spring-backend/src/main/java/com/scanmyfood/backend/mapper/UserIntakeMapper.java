@@ -67,7 +67,7 @@ public interface UserIntakeMapper {
     );
 
     Integer insertFoodItem(
-            @Param("itemName") String itemName,
+            @Param("canonicalName") String canonicalName,
             @Param("caloriesValuePer100g") double caloriesValuePer100g,
             @Param("caloriesUnit") String caloriesUnit,
             @Param("proteinValuePer100g") double proteinValuePer100g,
@@ -109,7 +109,23 @@ public interface UserIntakeMapper {
     );
 
     List<FoodItemRecord> fetchFoodItemsByDailyIntakeId(
-            @Param("dailyIntakeId") Integer dailyIntakeId
+            @Param("dailyIntakeId") Integer dailyIntakeId,
+            @Param("countryCode") String countryCode
+    );
+
+    FoodItemRecord findFoodItemByAlias(
+            @Param("displayName") String displayName,
+            @Param("countryCode") String countryCode
+    );
+
+    FoodItemRecord findFoodItemByCanonical(
+            @Param("canonicalName") String canonicalName
+    );
+
+    void insertFoodItemAlias(
+            @Param("foodItemId") Integer foodItemId,
+            @Param("countryCode") String countryCode,
+            @Param("displayName") String displayName
     );
 
     Integer insertProductLabel(

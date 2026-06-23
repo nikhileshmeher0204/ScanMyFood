@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
-import 'package:read_the_label/models/food_nutrient.dart';
 
 class MacronutrientHistorySheetView extends StatefulWidget {
   final String label;
@@ -24,10 +23,12 @@ class MacronutrientHistorySheetView extends StatefulWidget {
   });
 
   @override
-  State<MacronutrientHistorySheetView> createState() => _MacronutrientHistorySheetViewState();
+  State<MacronutrientHistorySheetView> createState() =>
+      _MacronutrientHistorySheetViewState();
 }
 
-class _MacronutrientHistorySheetViewState extends State<MacronutrientHistorySheetView> {
+class _MacronutrientHistorySheetViewState
+    extends State<MacronutrientHistorySheetView> {
   int? _selectedIndex;
 
   @override
@@ -52,17 +53,19 @@ class _MacronutrientHistorySheetViewState extends State<MacronutrientHistoryShee
     final activeDate = activeData['date'] as DateTime;
 
     // Calculate overall stats
-    final totalSum = history.map((e) => e['value'] as double).reduce((a, b) => a + b);
+    final totalSum =
+        history.map((e) => e['value'] as double).reduce((a, b) => a + b);
     final avgValue = totalSum / history.length;
-    final maxValue = history.map((e) => e['value'] as double).reduce((a, b) => a > b ? a : b);
-    final goalsMet = history.where((e) => (e['value'] as double) >= widget.goal).length;
+    final maxValue = history
+        .map((e) => e['value'] as double)
+        .reduce((a, b) => a > b ? a : b);
+    final goalsMet =
+        history.where((e) => (e['value'] as double) >= widget.goal).length;
 
     final isTodaySelected = activeIndex == history.length - 1;
     final dateString = isTodaySelected
         ? 'Today'
         : DateFormat('EEEE, MMM d').format(activeDate);
-
-    final percentOfGoal = widget.goal > 0 ? (activeValue / widget.goal) : 0.0;
 
     return Container(
       decoration: BoxDecoration(
@@ -81,181 +84,182 @@ class _MacronutrientHistorySheetViewState extends State<MacronutrientHistoryShee
         color: Colors.transparent,
         child: SafeArea(
           child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Drag handle indicator
-            Center(
-              child: Container(
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
-                width: 36,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(2.5),
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Drag handle indicator
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 12, bottom: 8),
+                  width: 36,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(2.5),
+                  ),
                 ),
               ),
-            ),
-            
-            // Header Row
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${widget.label.toUpperCase()} HISTORY',
-                    style: AppTextStyles.caption.copyWith(
-                      color: widget.color,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Icon(
-                      CupertinoIcons.xmark_circle_fill,
-                      color: Colors.white.withOpacity(0.18),
-                      size: 26,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: 16),
 
-            // Active day details / stats display
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    dateString,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.secondaryLabel,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Text(
-                        '${activeValue.toStringAsFixed(0)}${widget.unit}',
-                        style: TextStyle(
-                          fontFamily: AppTextStyles.fontFamily,
-                          fontSize: 38,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.label,
-                        ),
+              // Header Row
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${widget.label.toUpperCase()} HISTORY',
+                      style: AppTextStyles.caption.copyWith(
+                        color: widget.color,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.0,
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'of ${widget.goal.toStringAsFixed(0)}${widget.unit} goal',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.secondaryLabel,
-                        ),
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Icon(
+                        CupertinoIcons.xmark_circle_fill,
+                        color: Colors.white.withOpacity(0.18),
+                        size: 26,
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Interactive Custom Painter Chart
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: AspectRatio(
-                aspectRatio: 1.7,
-                child: MacronutrientHistoryChart(
-                  history: history,
-                  goal: widget.goal,
-                  color: widget.color,
-                  selectedIndex: _selectedIndex,
-                  onIndexSelected: (index) {
-                    setState(() {
-                      _selectedIndex = index;
-                    });
-                  },
+                    ),
+                  ],
                 ),
               ),
-            ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-            // Weekly Summary section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                'Weekly Summary',
-                style: AppTextStyles.heading3.copyWith(
-                  color: AppColors.label,
-                  fontWeight: FontWeight.w700,
+              // Active day details / stats display
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      dateString,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.secondaryLabel,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          '${activeValue.toStringAsFixed(0)}${widget.unit}',
+                          style: TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 38,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.label,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'of ${widget.goal.toStringAsFixed(0)}${widget.unit} goal',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.secondaryLabel,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ),
 
-            const SizedBox(height: 12),
+              const SizedBox(height: 16),
 
-            // Stats grid layout
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                spacing: 12,
-                children: [
-                  Expanded(
-                    child: _StatCard(
-                      label: 'Daily Average',
-                      value: '${avgValue.toStringAsFixed(1)}${widget.unit}',
-                      color: widget.color,
-                    ),
+              // Interactive Custom Painter Chart
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: AspectRatio(
+                  aspectRatio: 1.7,
+                  child: MacronutrientHistoryChart(
+                    history: history,
+                    goal: widget.goal,
+                    color: widget.color,
+                    selectedIndex: _selectedIndex,
+                    onIndexSelected: (index) {
+                      setState(() {
+                        _selectedIndex = index;
+                      });
+                    },
                   ),
-                  Expanded(
-                    child: _StatCard(
-                      label: 'Goal Achievements',
-                      value: '$goalsMet / 7 days',
-                      color: widget.color,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-            
-            const SizedBox(height: 12),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                spacing: 12,
-                children: [
-                  Expanded(
-                    child: _StatCard(
-                      label: 'Weekly High',
-                      value: '${maxValue.toStringAsFixed(0)}${widget.unit}',
-                      color: widget.color,
-                    ),
+              const SizedBox(height: 20),
+
+              // Weekly Summary section
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  'Weekly Summary',
+                  style: AppTextStyles.heading3.copyWith(
+                    color: AppColors.label,
+                    fontWeight: FontWeight.w700,
                   ),
-                  Expanded(
-                    child: _StatCard(
-                      label: 'Remaining Today',
-                      value: '${(widget.goal - (history.last['value'] as double)).clamp(0, double.infinity).toStringAsFixed(0)}${widget.unit}',
-                      color: widget.color,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 12),
+
+              // Stats grid layout
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  spacing: 12,
+                  children: [
+                    Expanded(
+                      child: _StatCard(
+                        label: 'Daily Average',
+                        value: '${avgValue.toStringAsFixed(1)}${widget.unit}',
+                        color: widget.color,
+                      ),
+                    ),
+                    Expanded(
+                      child: _StatCard(
+                        label: 'Goal Achievements',
+                        value: '$goalsMet / 7 days',
+                        color: widget.color,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  spacing: 12,
+                  children: [
+                    Expanded(
+                      child: _StatCard(
+                        label: 'Weekly High',
+                        value: '${maxValue.toStringAsFixed(0)}${widget.unit}',
+                        color: widget.color,
+                      ),
+                    ),
+                    Expanded(
+                      child: _StatCard(
+                        label: 'Remaining Today',
+                        value:
+                            '${(widget.goal - (history.last['value'] as double)).clamp(0, double.infinity).toStringAsFixed(0)}${widget.unit}',
+                        color: widget.color,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 class _StatCard extends StatelessWidget {
@@ -326,7 +330,8 @@ class MacronutrientHistoryChart extends StatefulWidget {
   });
 
   @override
-  State<MacronutrientHistoryChart> createState() => _MacronutrientHistoryChartState();
+  State<MacronutrientHistoryChart> createState() =>
+      _MacronutrientHistoryChartState();
 }
 
 class _MacronutrientHistoryChartState extends State<MacronutrientHistoryChart>
@@ -370,9 +375,12 @@ class _MacronutrientHistoryChartState extends State<MacronutrientHistoryChart>
     return LayoutBuilder(
       builder: (context, constraints) {
         return GestureDetector(
-          onPanStart: (details) => _handleTouch(details.localPosition, constraints.maxWidth),
-          onPanUpdate: (details) => _handleTouch(details.localPosition, constraints.maxWidth),
-          onTapDown: (details) => _handleTouch(details.localPosition, constraints.maxWidth),
+          onPanStart: (details) =>
+              _handleTouch(details.localPosition, constraints.maxWidth),
+          onPanUpdate: (details) =>
+              _handleTouch(details.localPosition, constraints.maxWidth),
+          onTapDown: (details) =>
+              _handleTouch(details.localPosition, constraints.maxWidth),
           onPanEnd: (_) => widget.onIndexSelected(null),
           onTapUp: (_) => widget.onIndexSelected(null),
           child: AnimatedBuilder(
@@ -458,7 +466,8 @@ class MacronutrientHistoryChartPainter extends CustomPainter {
       yLabelPainter.layout();
       yLabelPainter.paint(
         canvas,
-        Offset(paddingLeft - yLabelPainter.width - 6, y - yLabelPainter.height / 2),
+        Offset(paddingLeft - yLabelPainter.width - 6,
+            y - yLabelPainter.height / 2),
       );
     }
 
@@ -468,7 +477,9 @@ class MacronutrientHistoryChartPainter extends CustomPainter {
       final double x = paddingLeft + i * (drawWidth / 6);
       final double val = history[i]['value'] as double;
       // Interpolate value using the animation progress
-      final double y = paddingTop + drawHeight - ((val * animationValue) / maxY) * drawHeight;
+      final double y = paddingTop +
+          drawHeight -
+          ((val * animationValue) / maxY) * drawHeight;
       points.add(Offset(x, y));
     }
 
@@ -543,7 +554,8 @@ class MacronutrientHistoryChartPainter extends CustomPainter {
           color.withOpacity(0.25),
           color.withOpacity(0.0),
         ],
-      ).createShader(Rect.fromLTRB(0, paddingTop, size.width, paddingTop + drawHeight))
+      ).createShader(
+          Rect.fromLTRB(0, paddingTop, size.width, paddingTop + drawHeight))
       ..style = PaintingStyle.fill;
 
     canvas.drawPath(fillPath, fillPaint);
@@ -558,12 +570,14 @@ class MacronutrientHistoryChartPainter extends CustomPainter {
     canvas.drawPath(path, linePaint);
 
     // Draw vertical guide line and glowing active cursor dot (Apple Stocks style)
-    if (selectedIndex != null && selectedIndex! >= 0 && selectedIndex! < points.length) {
+    if (selectedIndex != null &&
+        selectedIndex! >= 0 &&
+        selectedIndex! < points.length) {
       final double selectX = points[selectedIndex!].dx;
       final selectLinePaint = Paint()
         ..color = Colors.white.withOpacity(0.12)
         ..strokeWidth = 1.0;
-      
+
       canvas.drawLine(
         Offset(selectX, paddingTop),
         Offset(selectX, paddingTop + drawHeight),
@@ -574,19 +588,19 @@ class MacronutrientHistoryChartPainter extends CustomPainter {
       final pointPaint = Paint()
         ..color = color
         ..style = PaintingStyle.fill;
-      
+
       // Outer glow ring
       final glowPaint = Paint()
         ..color = color.withOpacity(0.24)
         ..style = PaintingStyle.fill;
       canvas.drawCircle(activePoint, 10.0, glowPaint);
-      
+
       // Active center with white border
       final activePointBorder = Paint()
         ..color = Colors.white
         ..strokeWidth = 2.0
         ..style = PaintingStyle.stroke;
-        
+
       canvas.drawCircle(activePoint, 5.5, pointPaint);
       canvas.drawCircle(activePoint, 5.5, activePointBorder);
     }
@@ -612,7 +626,8 @@ class MacronutrientHistoryChartPainter extends CustomPainter {
       labelPainter.layout();
       labelPainter.paint(
         canvas,
-        Offset(points[i].dx - labelPainter.width / 2, paddingTop + drawHeight + 8),
+        Offset(
+            points[i].dx - labelPainter.width / 2, paddingTop + drawHeight + 8),
       );
     }
   }

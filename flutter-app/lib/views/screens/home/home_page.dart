@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/repositories/user_repository.dart';
+import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/viewmodels/user_view_model.dart';
 import 'package:read_the_label/views/screens/product_analysis/product_analysis_view.dart';
 import 'package:read_the_label/views/screens/food_analysis/food_analysis_view.dart';
 import 'package:read_the_label/views/screens/daily_intake/daily_intake_view.dart';
-
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -29,7 +29,10 @@ class _HomePageState extends State<HomePage> {
     _pageController = PageController(initialPage: initialIndex);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<UserViewModel>().fetchUserProfile(context.read<UserRepository>());
+      context
+          .read<UserViewModel>()
+          .fetchUserProfile(context.read<UserRepository>());
+      context.read<DailyIntakeViewModel>().updateSelectedDate(DateTime.now());
     });
   }
 
@@ -48,8 +51,10 @@ class _HomePageState extends State<HomePage> {
       body: AnimatedBuilder(
         animation: _pageController,
         builder: (context, _) {
-          final double page = _pageController.hasClients ? (_pageController.page ?? 0.0) : _initialPage;
-          
+          final double page = _pageController.hasClients
+              ? (_pageController.page ?? 0.0)
+              : _initialPage;
+
           return PageView.builder(
             controller: _pageController,
             onPageChanged: (index) {
@@ -58,11 +63,13 @@ class _HomePageState extends State<HomePage> {
             itemCount: 3,
             itemBuilder: (context, index) {
               final double offset = index - page;
-              
+
               // Apple Music Style: Adjacent pages scale down and fade out gently
-              final double scale = (1.0 - (offset.abs() * 0.12)).clamp(0.88, 1.0);
-              final double opacity = (1.0 - (offset.abs() * 0.70)).clamp(0.0, 1.0);
-              
+              final double scale =
+                  (1.0 - (offset.abs() * 0.12)).clamp(0.88, 1.0);
+              final double opacity =
+                  (1.0 - (offset.abs() * 0.70)).clamp(0.0, 1.0);
+
               // Subtle parallax offset shift (slides slower/delayed relative to index stack)
               final double translationX = offset * 45.0;
 
@@ -121,7 +128,8 @@ class _HomePageState extends State<HomePage> {
                   ),
                   // Layer 2: Clean pill-capsule nav row
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

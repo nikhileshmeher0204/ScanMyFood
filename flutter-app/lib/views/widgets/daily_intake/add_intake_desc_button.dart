@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:read_the_label/theme/app_colors.dart';
-import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/views/screens/meal_analysis/meal_description_analysis_view.dart';
 import 'package:read_the_label/views/widgets/daily_intake/food_input_form.dart';
 
