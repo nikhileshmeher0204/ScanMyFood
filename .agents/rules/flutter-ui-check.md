@@ -1,18 +1,13 @@
----
-trigger: manual
----
-
 # Flutter UI Verification Rule
 
-When any file in `lib/ui/` or `lib/widgets/` is modified, or after any `flutter run` or hot reload command, the agent MUST:
+> ⛔ **SEE ALSO**: `flutter-hot-reload.md` — the MANDATORY rule for applying code changes. Never use `flutter run` or rebuild. Always use MCP hot reload.
 
-1.  **Ensure the app is running** on the connected Android emulator.
-2.  **Capture the Screenshot** using the most reliable command (pre-configured for this environment):
-    ```bash
-    C:/Users/nikhi/AppData/Local/Android/Sdk/platform-tools/adb.exe exec-out screencap -p > ./screenshots/ui_verify.png
-    ```
-    _(Note: This uses direct binary streaming which is faster and avoids path issues on the device.)_
-3.  **Prepare for Review**:
-    - Copy the screenshot to the current conversation's `artifacts/` directory.
-    - Embed the image in an `implementation_plan.md` or `walkthrough.md` using the absolute artifact path.
-4.  **Upload Visual Artifact**: Explicitly mention the verification status and provide the image for user review before completing the task.
+When any Flutter file in `lib/views/` or `lib/widgets/` is modified, the agent MUST:
+
+1. **Hot Reload via MCP** (see `flutter-hot-reload.md` for the exact steps — this is non-negotiable)
+2. **Check for Errors**: Use `get_runtime_errors` from `dart-mcp-server` to guarantee no exceptions or layout overflows were introduced.
+3. **Capture UI Screenshot**: Run:
+   ```bash
+   cmd.exe /c "C:/Users/nikhi/AppData/Local/Android/Sdk/platform-tools/adb.exe exec-out screencap -p > ./screenshots/ui_verify.png"
+   ```
+4. **Visual Inspection**: Open and inspect `./screenshots/ui_verify.png` to confirm the styling and UX align with instructions before responding to the user.

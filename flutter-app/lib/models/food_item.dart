@@ -3,11 +3,13 @@ import 'package:read_the_label/models/quantity.dart';
 
 class FoodItem {
   final String name;
+  final String? canonicalName;
   final Quantity quantity;
   final List<FoodNutrient> nutrients;
 
   FoodItem({
     required this.name,
+    this.canonicalName,
     required this.quantity,
     required this.nutrients,
   });
@@ -25,6 +27,7 @@ class FoodItem {
 
     return FoodItem(
       name: json['name'] ?? 'Unknown',
+      canonicalName: json['canonical_name'],
       quantity: quantity,
       nutrients: nutrients,
     );
@@ -33,6 +36,7 @@ class FoodItem {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
+      'canonical_name': canonicalName,
       'quantity': quantity.toJson(),
       'nutrients': nutrients.map((nutrient) => nutrient.toJson()).toList(),
     };

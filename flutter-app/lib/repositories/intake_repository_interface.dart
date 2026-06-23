@@ -7,12 +7,14 @@ import 'package:read_the_label/models/user_intake_output.dart';
 
 abstract class IntakeRepositoryInterface {
   Future<SaveIntakeOutput> saveScannedFood(String userId, File? frontImage,
-      String sourceOfIntake, FoodAnalysisResponse? foodAnalysis);
+      String sourceOfIntake, FoodAnalysisResponse? foodAnalysis,
+      {DateTime? createdAt});
 
   Future<SaveIntakeOutput> saveScannedLabel(String userId, File? frontImage,
-      String sourceOfIntake, ProductAnalysisResponse? productAnalysis);
+      String sourceOfIntake, ProductAnalysisResponse? productAnalysis,
+      {DateTime? createdAt});
 
-  Future<UserIntakeOutput> getDailyIntake(String userId, DateTime date);
+  Future<UserIntakeOutput> getDailyIntake(String userId, DateTime fromDate, DateTime toDate);
 
   Future<FoodAnalysisResponse> getIntakeDetails(
       String userId, int dailyIntakeId);

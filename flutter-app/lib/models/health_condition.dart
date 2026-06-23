@@ -13,4 +13,11 @@ class HealthCondition {
       description: json['description'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'description': description,
+    };
+  }
 }

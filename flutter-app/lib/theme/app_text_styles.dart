@@ -37,6 +37,14 @@ class AppTextStyles {
     height: 1.3,
   );
 
+  static TextStyle heading1BoldClose = const TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 37,
+    fontWeight: FontWeight.w600, // SemiBold
+    letterSpacing: -3.0,
+    height: 1.3,
+  );
+
   static TextStyle heading2BoldClose = const TextStyle(
     fontFamily: fontFamily,
     fontSize: 30,

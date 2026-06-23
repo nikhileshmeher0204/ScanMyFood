@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:read_the_label/core/constants/app_constants.dart';
-import 'package:read_the_label/theme/app_colors.dart';
-import 'package:read_the_label/theme/app_colors.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
 import 'package:read_the_label/utils/nutrient_utils.dart';
@@ -60,6 +58,18 @@ class ProductAnalysisViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  Future<File> _persistImage(File tempFile) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final String persistentPath =
+          '${directory.path}/scanned_product_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      return await tempFile.copy(persistentPath);
+    } catch (e) {
+      print("Failed to persist image: $e");
+      return tempFile;
+    }
+  }
+
   // Methods for product analysis
   Future<void> captureImage({
     required ImageSource source,
@@ -69,10 +79,11 @@ class ProductAnalysisViewModel extends BaseViewModel {
     final image = await imagePicker.pickImage(source: source);
 
     if (image != null) {
+      final persisted = await _persistImage(File(image.path));
       if (isFrontImage) {
-        _frontImage = File(image.path);
+        _frontImage = persisted;
       } else {
-        _nutritionLabelImage = File(image.path);
+        _nutritionLabelImage = persisted;
       }
       notifyListeners();
     }
@@ -178,5 +189,25 @@ class ProductAnalysisViewModel extends BaseViewModel {
     } finally {
       setLoading(false);
     }
+  }
+
+  void reset() {
+    _isLoading = false;
+    productAnalysis = null;
+    _frontImage = null;
+    _nutritionLabelImage = null;
+    _productName = "";
+    _totalQuantity = Quantity(value: 0, unit: 'g');
+    _servingSize = Quantity(value: 0, unit: 'g');
+    _nutritionAnalysis = null;
+    allNutrients = [];
+    _nutrients = [];
+    optimalNutrients = [];
+    moderateNutrients = [];
+    limitNutrients = [];
+    insufficientNutrients = [];
+    _primaryConcerns = [];
+    totalPlateNutrients = {};
+    notifyListeners();
   }
 }

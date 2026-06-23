@@ -28,7 +28,8 @@ public interface UserIntakeMapper {
             @Param("totalSugarsValue") double totalSugarsValue,
             @Param("totalSugarsUnit") String totalSugarsUnit,
             @Param("sodiumValue") double sodiumValue,
-            @Param("sodiumUnit") String sodiumUnit
+            @Param("sodiumUnit") String sodiumUnit,
+            @Param("createdAt") java.time.LocalDateTime createdAt
     );
 
     Integer insertProductAnalysis(
@@ -61,11 +62,12 @@ public interface UserIntakeMapper {
             @Param("calciumValue") double calciumValue,
             @Param("calciumUnit") String calciumUnit,
             @Param("potassiumValue") double potassiumValue,
-            @Param("potassiumUnit") String potassiumUnit
+            @Param("potassiumUnit") String potassiumUnit,
+            @Param("createdAt") java.time.LocalDateTime createdAt
     );
 
     Integer insertFoodItem(
-            @Param("itemName") String itemName,
+            @Param("canonicalName") String canonicalName,
             @Param("caloriesValuePer100g") double caloriesValuePer100g,
             @Param("caloriesUnit") String caloriesUnit,
             @Param("proteinValuePer100g") double proteinValuePer100g,
@@ -95,13 +97,35 @@ public interface UserIntakeMapper {
             @Param("date") LocalDate date
     );
 
+    List<DailyIntakeRecord> fetchUserIntakeRange(
+            @Param("userId") String userId,
+            @Param("fromDate") LocalDate fromDate,
+            @Param("toDate") LocalDate toDate
+    );
+
     DailyIntakeRecord fetchIntakeById(
             @Param("userId") String userId,
             @Param("dailyIntakeId") Integer dailyIntakeId
     );
 
     List<FoodItemRecord> fetchFoodItemsByDailyIntakeId(
-            @Param("dailyIntakeId") Integer dailyIntakeId
+            @Param("dailyIntakeId") Integer dailyIntakeId,
+            @Param("countryCode") String countryCode
+    );
+
+    FoodItemRecord findFoodItemByAlias(
+            @Param("displayName") String displayName,
+            @Param("countryCode") String countryCode
+    );
+
+    FoodItemRecord findFoodItemByCanonical(
+            @Param("canonicalName") String canonicalName
+    );
+
+    void insertFoodItemAlias(
+            @Param("foodItemId") Integer foodItemId,
+            @Param("countryCode") String countryCode,
+            @Param("displayName") String displayName
     );
 
     Integer insertProductLabel(

@@ -10,6 +10,7 @@ class ApiClient {
 
   // For local development
   ApiClient({this.baseUrl = 'http://10.0.2.2:8080/api'});
+  // ApiClient({this.baseUrl = 'http://192.168.1.5:8080/api'});
 
   // Get auth token from Firebase
   Future<String?> getAuthToken() async {
@@ -31,21 +32,29 @@ class ApiClient {
     return user!.uid;
   }
 
+  // Get standardized headers for API requests
+  Future<Map<String, String>> getRequestHeaders(
+      {bool includeContentType = true}) async {
+    final token = await getAuthToken();
+    return {
+      if (includeContentType) 'Content-Type': 'application/json',
+      'X-User-Id': getCurrentUid(),
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+  }
+
   // Helper method for GET requests
   Future<dynamic> get(String endpoint) async {
     try {
       final uri = Uri.parse('$baseUrl$endpoint');
       logger.d("Making GET request to: $uri");
 
-      final token = await getAuthToken();
-      final response = await http.get(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': getCurrentUid(),
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
-      ).timeout(const Duration(seconds: 15)); // Add timeout
+      final response = await http
+          .get(
+            uri,
+            headers: await getRequestHeaders(),
+          )
+          .timeout(const Duration(seconds: 15)); // Add timeout
 
       logger.d("Response status code: ${response.statusCode}");
       logger.d("Response body: ${response.body}");
@@ -78,15 +87,9 @@ class ApiClient {
     try {
       final uri = Uri.parse('$baseUrl$endpoint');
       logger.d("Making POST request to: $uri");
-      final token = await getAuthToken();
-
       final response = await http.post(
         uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': getCurrentUid(),
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
+        headers: await getRequestHeaders(),
         body: jsonEncode(data),
       );
 
@@ -116,15 +119,9 @@ class ApiClient {
     try {
       final uri = Uri.parse('$baseUrl$endpoint');
       logger.d("Making PUT request to: $uri");
-      final token = await getAuthToken();
-
       final response = await http.put(
         uri,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': getCurrentUid(),
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
+        headers: await getRequestHeaders(),
         body: jsonEncode(data),
       );
 

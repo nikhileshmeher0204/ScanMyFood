@@ -84,13 +84,13 @@ public class UserIntakeController {
     @GetMapping("/daily-intake")
     public ResponseEntity<ApiResponse<UserIntakeOutput>> getDailyIntake(
             @RequestParam("userId") String userId,
-            @RequestParam("date") LocalDate date
+            @RequestParam("fromDate") LocalDate fromDate,
+            @RequestParam("toDate") LocalDate toDate
     ) throws Exception {
-        log.info("Fetching daily intake for userId: {} on date: {}", userId, date);
-        UserIntakeOutput dailyIntake = userIntakeService.getUserIntake(userId, date);
-        log.info("Daily intake fetched successfully for userId: {} on date: {}", userId, date);
+        log.info("Fetching daily intake for userId: {} fromDate: {} toDate: {}", userId, fromDate, toDate);
+        UserIntakeOutput dailyIntake = userIntakeService.getUserIntakeRange(userId, fromDate, toDate);
+        log.info("Daily intake fetched successfully for userId: {} fromDate: {} toDate: {}", userId, fromDate, toDate);
         return ResponseEntity.ok(ApiResponse.success(dailyIntake, ResponseCodeConstants.DAILY_INTAKE_FETCHED, "Daily intake fetched successfully"));
-
     }
 
     @GetMapping("/intake-record")

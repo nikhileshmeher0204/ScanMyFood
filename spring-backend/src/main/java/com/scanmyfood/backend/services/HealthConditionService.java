@@ -34,6 +34,14 @@ public class HealthConditionService {
         return conditions.stream().map(this::mapToDto).collect(Collectors.toList());
     }
 
+    public List<HealthConditionDto> getUserConditions(String userId) {
+        log.info("Fetching health conditions for user {}", userId);
+        List<HealthCondition> conditions = healthConditionMapper.findByUserId(userId);
+        log.info("Fetched {} health conditions for user {}", conditions.size(), userId);
+        return conditions.stream().map(this::mapToDto).collect(Collectors.toList());
+    }
+
+
     @Transactional
     public void saveUserConditions(String userId, List<String> conditionNames) {
         log.info("saveUserConditions — userId: {}, conditionCount: {}",

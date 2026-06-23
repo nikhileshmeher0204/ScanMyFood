@@ -47,19 +47,26 @@ class AppColors {
   static const Color cardBackground = Color.fromARGB(255, 16, 16, 22);
   static const Color onCardBackground = Color.fromARGB(255, 38, 38, 38);
 
+  // Macro nutrient accent colors
+  static const Color saturatedOrange = Color(0xFFE25227);
+  static const Color limeGreen = Color(0xFF9ACD32);
+  static const Color yellow = Color(0xFFECCD01);
+  static const Color amberOrange = Color(0xFFFFA500);
+  static const Color sunsetOrange = Color(0xFFD64D22);
+  static const Color deepTeal = Color(0xFF0E3E39);
+  static const Color darkTeal = Color(0xFF062320);
+  static const Color midnightTeal = Color(0xFF010807);
+
   static const Color inputBackground = Color(0xFF1A1A1A);
 
-  // Apple system dark-mode colors (HIG)
-  // https://developer.apple.com/design/human-interface-guidelines/color
-  static const Color appleLabel = Color(0xFFFFFFFF);                        // label
-  static const Color appleSecondaryLabel = Color.fromRGBO(235, 235, 245, 0.6); // secondaryLabel
-  static const Color appleTertiaryLabel = Color.fromRGBO(235, 235, 245, 0.3);  // tertiaryLabel
-  static const Color appleQuaternaryLabel = Color.fromRGBO(235, 235, 245, 0.18); // quaternaryLabel
-  static const Color appleSeparator = Color.fromRGBO(84, 84, 88, 0.6);     // separator
-  static const Color appleIconUnselected = Color.fromRGBO(255, 255, 255, 0.38); // icon unselected tint
-  static const Color appleCheckmarkUnselected = Color.fromRGBO(255, 255, 255, 0.24); // unchecked circle
-  static const Color appleHighlight = Color.fromRGBO(255, 255, 255, 0.04); // cell press highlight
-  static const Color appleGroupedBackground = Color(0xFF1C1C1E);            // systemGroupedBackground
+  static const Color label = Color(0xFFFFFFFF);
+  static const Color secondaryLabel = Color.fromRGBO(235, 235, 245, 0.6);
+  static const Color tertiaryLabel = Color.fromRGBO(235, 235, 245, 0.3);
+  static const Color aquaternaryLabel = Color.fromRGBO(235, 235, 245, 0.18);
+  static const Color separator = Color.fromRGBO(84, 84, 88, 0.6);
+  static const Color iconUnselected = Color.fromRGBO(255, 255, 255, 0.38);
+  static const Color checkmarkUnselected = Color.fromRGBO(255, 255, 255, 0.24);
+  static const Color highlight = Color.fromRGBO(255, 255, 255, 0.04);
 
   static Color getTitleColor(Color bg) {
     final luminance = bg.computeLuminance();

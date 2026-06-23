@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
+import 'package:read_the_label/models/quantity.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/models/daily_intake_record.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
@@ -14,6 +17,8 @@ import 'package:read_the_label/repositories/intake_repository_interface.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/services/local_database_service.dart';
+import 'package:read_the_label/models/cached_daily_intake_record.dart';
 import 'base_view_model.dart';
 
 class DailyIntakeViewModel extends BaseViewModel {
@@ -37,6 +42,14 @@ class DailyIntakeViewModel extends BaseViewModel {
   String _descriptionText = "";
   bool _isImageGenerating = false;
 
+  // Caching State
+  final Map<String, DailyIntakeData> _dailyIntakeCache = {};
+  List<DailyIntakeRecord>? _currentDailyIntake;
+  bool _isCacheLoaded = false;
+  Future<void>? _loadCacheFuture;
+
+  List<DailyIntakeRecord>? get dailyIntake => _currentDailyIntake;
+
   // Getters
   bool get loading => _isLoading;
   UserIntakeOutput? get userIntake => userIntakeOutput;
@@ -52,13 +65,84 @@ class DailyIntakeViewModel extends BaseViewModel {
   String get descriptionText => _descriptionText;
   bool get isImageGenerating => _isImageGenerating;
 
+  bool hasDataForDate(DateTime date) {
+    final String key = _formatDateKey(date);
+    final data = _dailyIntakeCache[key];
+    return data != null && data.dailyIntake.isNotEmpty;
+  }
+
   // Constructor with dependency injection
   DailyIntakeViewModel({
     required this.intakeRepository,
     required this.aiRepository,
     required this.uiProvider,
     required this.authService,
-  });
+  }) {
+    loadCacheFromDevice();
+  }
+
+  void onUserChanged() {
+    logger.d("User changed in DailyIntakeViewModel. Resetting state and loading device cache...");
+    _dailyIntakeCache.clear();
+    _currentDailyIntake = null;
+    _totalNutrientsMap = null;
+    _isCacheLoaded = false;
+    _loadCacheFuture = null;
+    loadCacheFromDevice();
+  }
+
+  Future<void> loadCacheFromDevice() {
+    _loadCacheFuture ??= _loadCacheFromDeviceInternal();
+    return _loadCacheFuture!;
+  }
+
+  Future<void> _loadCacheFromDeviceInternal() async {
+    final uid = authService.currentUser?.uid;
+    if (uid == null) {
+      _isCacheLoaded = true;
+      return;
+    }
+
+    try {
+      logger.d("Loading cached daily intakes from SQLite database for $uid");
+      final cachedRecords = await LocalDatabaseService.instance.getAllDailyIntakes(uid);
+      _dailyIntakeCache.clear();
+      
+      for (var record in cachedRecords) {
+        if (!record.isExpired) {
+          _dailyIntakeCache[record.dateKey] = record.data;
+        } else {
+          logger.d("Cached daily intake for $uid on ${record.dateKey} is expired. Skipping load.");
+        }
+      }
+      _setSelectedDateData();
+      notifyListeners();
+    } catch (e) {
+      logger.w("Failed to load daily intake from SQLite database cache: $e");
+    } finally {
+      _isCacheLoaded = true;
+    }
+  }
+
+  Future<void> saveCacheToDevice() async {
+    final uid = authService.currentUser?.uid;
+    if (uid == null) return;
+
+    try {
+      for (var entry in _dailyIntakeCache.entries) {
+        final record = CachedDailyIntakeRecord(
+          userId: uid,
+          dateKey: entry.key,
+          data: entry.value,
+          cachedAt: DateTime.now(),
+        );
+        await LocalDatabaseService.instance.saveDailyIntake(record);
+      }
+      logger.d("Successfully saved daily intake map to SQLite database cache for $uid");
+    } catch (e) {
+      logger.w("Failed to save daily intake map to SQLite database: $e");
+    }
+  }
   setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
@@ -73,21 +157,141 @@ class DailyIntakeViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  String _formatDateKey(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  void _setSelectedDateData() {
+    final String key = _formatDateKey(_selectedDate);
+    final data = _dailyIntakeCache[key];
+    if (data != null) {
+      _currentDailyIntake = data.dailyIntake;
+      _totalNutrientsMap = {
+        for (var nutrient in data.totalNutrients) nutrient.name: nutrient
+      };
+    } else {
+      _currentDailyIntake = [];
+      _totalNutrientsMap = {};
+    }
+  }
+
   Future<void> updateSelectedDate(DateTime newDate) async {
-    final user = authService.currentUser;
-    if (user == null) return;
+    final uid = authService.currentUser?.uid ?? "VzvYVBFUlxP0apdJmkGdO0XzDe82";
 
     _selectedDate = newDate;
-    await getDailyIntake(user.uid, newDate);
+    final String key = _formatDateKey(newDate);
+
+    if (!_isCacheLoaded) {
+      logger.d("Cache not loaded yet, awaiting loadCacheFromDevice()...");
+      await loadCacheFromDevice();
+    }
+
+    if (_dailyIntakeCache.isEmpty) {
+      _isLoading = true;
+      notifyListeners();
+      try {
+        final now = DateTime.now();
+        final fromDate = now.subtract(const Duration(days: 6));
+        final toDate = now;
+        final output = await intakeRepository.getDailyIntake(
+          uid,
+          fromDate,
+          toDate,
+        );
+        
+        final returnedMap = {
+          for (var data in output.dailyIntakes) _formatDateKey(data.date): data
+        };
+
+        for (int i = 0; i <= toDate.difference(fromDate).inDays; i++) {
+          final date = fromDate.add(Duration(days: i));
+          final dateKey = _formatDateKey(date);
+          _dailyIntakeCache[dateKey] = returnedMap[dateKey] ?? DailyIntakeData(
+            date: date,
+            totalNutrients: [],
+            dailyIntake: [],
+          );
+        }
+        
+        await saveCacheToDevice();
+      } catch (e) {
+        debugPrint("Failed to fetch initial daily intake: $e");
+      }
+      _isLoading = false;
+    }
+
+    if (!_dailyIntakeCache.containsKey(key)) {
+      _isLoading = true;
+      notifyListeners();
+      try {
+        final toDate = DateTime.now();
+        final fromDate = toDate.subtract(const Duration(days: 6));
+        final output = await intakeRepository.getDailyIntake(
+          uid,
+          fromDate,
+          toDate,
+        );
+        
+        final returnedMap = {
+          for (var data in output.dailyIntakes) _formatDateKey(data.date): data
+        };
+
+        for (int i = 0; i <= toDate.difference(fromDate).inDays; i++) {
+          final date = fromDate.add(Duration(days: i));
+          final dateKey = _formatDateKey(date);
+          _dailyIntakeCache[dateKey] = returnedMap[dateKey] ?? DailyIntakeData(
+            date: date,
+            totalNutrients: [],
+            dailyIntake: [],
+          );
+        }
+        
+        await saveCacheToDevice();
+      } catch (e) {
+        debugPrint("Failed to fetch daily intake for selected date: $e");
+      }
+      _isLoading = false;
+    }
+
+    _setSelectedDateData();
+    notifyListeners();
+  }
+
+  List<Map<String, dynamic>> getNutrientHistory(String nutrientName) {
+    final List<Map<String, dynamic>> history = [];
+    final now = DateTime.now();
+    for (int i = 6; i >= 0; i--) {
+      final date = now.subtract(Duration(days: i));
+      final String key = _formatDateKey(date);
+      double val = 0.0;
+      final data = _dailyIntakeCache[key];
+      if (data != null) {
+        final nutrient = data.totalNutrients.firstWhere(
+          (n) => n.name.toLowerCase() == nutrientName.toLowerCase(),
+          orElse: () => FoodNutrient(
+            name: nutrientName,
+            quantity: Quantity(value: 0.0, unit: ''),
+          ),
+        );
+        val = nutrient.quantity.value;
+      }
+      history.add({
+        'date': date,
+        'value': val,
+      });
+    }
+    return history;
   }
 
   Future<SaveIntakeOutput> saveScannedFood(String userId, File? foodImage,
-      String source, FoodAnalysisResponse? foodAnalysis) async {
+      String source, FoodAnalysisResponse? foodAnalysis,
+      {DateTime? createdAt}) async {
     try {
       debugPrint(
           "Starting saveScannedFood for userId: $userId, source: $source");
       saveIntakeOutput = await intakeRepository.saveScannedFood(
-          userId, foodImage, source, foodAnalysis);
+          userId, foodImage, source, foodAnalysis,
+          createdAt: createdAt);
       debugPrint(
           "SaveIntakeOutput received: ${saveIntakeOutput?.dailyIntakeId}");
       return saveIntakeOutput!;
@@ -100,49 +304,148 @@ class DailyIntakeViewModel extends BaseViewModel {
   }
 
   Future<void> getDailyIntake(String userId, DateTime date) async {
-    userIntakeOutput = await intakeRepository.getDailyIntake(
-      userId,
-      date,
-    );
-    _mapTotalNutrients();
-    notifyListeners();
+    try {
+      final output = await intakeRepository.getDailyIntake(
+        userId,
+        date,
+        date,
+      );
+      
+      final key = _formatDateKey(date);
+      if (output.dailyIntakes.isEmpty) {
+        _dailyIntakeCache[key] = DailyIntakeData(
+          date: date,
+          totalNutrients: [],
+          dailyIntake: [],
+        );
+      } else {
+        for (var dayData in output.dailyIntakes) {
+          _dailyIntakeCache[_formatDateKey(dayData.date)] = dayData;
+        }
+      }
+      _setSelectedDateData();
+      
+      // Save specific date row to SQLite
+      if (_dailyIntakeCache.containsKey(key)) {
+        final record = CachedDailyIntakeRecord(
+          userId: userId,
+          dateKey: key,
+          data: _dailyIntakeCache[key]!,
+          cachedAt: DateTime.now(),
+        );
+        await LocalDatabaseService.instance.saveDailyIntake(record);
+      }
+      
+      notifyListeners();
+    } catch (e) {
+      setError("Failed to refresh daily intake: $e");
+    }
   }
 
   Future<void> getIntakeDetailsByDailyIntakeId(
       String userId, int dailyIntakeId) async {
-    setLoading(true);
-    try {
-      _intakeDetails = await intakeRepository.getIntakeDetails(
-        userId,
-        dailyIntakeId,
-      );
-
-      _analyzedScannedFoodItems.clear();
-      _totalScannedPlateNutrients.clear();
-
-      _scannedMealName = _intakeDetails!.mealName;
-      _analyzedScannedFoodItems = _intakeDetails!.analyzedFoodItems;
-      _totalScannedPlateNutrients = _intakeDetails!.totalPlateNutrients;
-      calculateNutrientInfo(_totalScannedPlateNutrients);
-      notifyListeners();
-    } catch (e) {
-      setError("Error analyzing food image: $e");
-    } finally {
-      setLoading(false);
+    // Locate the record in our _dailyIntakeCache
+    DailyIntakeRecord? record;
+    for (var dayData in _dailyIntakeCache.values) {
+      for (var r in dayData.dailyIntake) {
+        if (r.id == dailyIntakeId) {
+          record = r;
+          break;
+        }
+      }
+      if (record != null) break;
     }
+
+    if (record == null) {
+      // Fallback to fetch from repository just in case it's not in the cache range
+      setLoading(true);
+      try {
+        _intakeDetails = await intakeRepository.getIntakeDetails(
+          userId,
+          dailyIntakeId,
+        );
+        _scannedMealName = _intakeDetails!.mealName;
+        _analyzedScannedFoodItems = _intakeDetails!.analyzedFoodItems;
+        _totalScannedPlateNutrients = _intakeDetails!.totalPlateNutrients;
+      } catch (e) {
+        setError("Error fetching food details: $e");
+        setLoading(false);
+        return;
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      _analyzedScannedFoodItems = record.foodItems;
+      _scannedMealName = record.intakeName ?? "Unknown Meal";
+
+      // Reconstruct total Plate Nutrients list from the record's columns
+      _totalScannedPlateNutrients = [
+        if (record.caloriesValue > 0)
+          FoodNutrient(
+            name: AppConstants.calories,
+            quantity: Quantity(value: record.caloriesValue, unit: record.caloriesUnit),
+          )
+        else if (record.energyValue > 0)
+          FoodNutrient(
+            name: AppConstants.energy,
+            quantity: Quantity(value: record.energyValue, unit: record.energyUnit),
+          ),
+        FoodNutrient(
+          name: AppConstants.protein,
+          quantity: Quantity(value: record.proteinValue, unit: record.proteinUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.totalCarbohydrate,
+          quantity: Quantity(value: record.totalCarbohydrateValue, unit: record.totalCarbohydrateUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.totalFat,
+          quantity: Quantity(value: record.totalFatValue, unit: record.totalFatUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.dietaryFiber,
+          quantity: Quantity(value: record.dietaryFiberValue, unit: record.dietaryFiberUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.totalSugars,
+          quantity: Quantity(value: record.totalSugarsValue, unit: record.totalSugarsUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.sodium,
+          quantity: Quantity(value: record.sodiumValue, unit: record.sodiumUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.iron,
+          quantity: Quantity(value: record.ironValue, unit: record.ironUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.potassium,
+          quantity: Quantity(value: record.potassiumValue, unit: record.potassiumUnit),
+        ),
+        FoodNutrient(
+          name: AppConstants.calcium,
+          quantity: Quantity(value: record.calciumValue, unit: record.calciumUnit),
+        ),
+      ];
+      
+      // Populate intakeDetails dummy response for TotalNutrientsCard widget parameter compatibility
+      _intakeDetails = FoodAnalysisResponse(
+        mealName: _scannedMealName,
+        analyzedFoodItems: _analyzedScannedFoodItems,
+        totalPlateNutrients: _totalScannedPlateNutrients,
+      );
+    }
+
+    calculateNutrientInfo(_totalScannedPlateNutrients);
+    notifyListeners();
   }
 
   Future<void> saveScannedLabel(String userId, File? foodImage, String source,
-      ProductAnalysisResponse? productAnalysis) async {
+      ProductAnalysisResponse? productAnalysis,
+      {DateTime? createdAt}) async {
     await intakeRepository.saveScannedLabel(
-        userId, foodImage, source, productAnalysis);
-  }
-
-  void _mapTotalNutrients() {
-    _totalNutrientsMap = {
-      for (var nutrient in userIntakeOutput?.totalNutrients ?? [])
-        nutrient.name: nutrient
-    };
+        userId, foodImage, source, productAnalysis,
+        createdAt: createdAt);
   }
 
   bool isSameDay(DateTime? date1, DateTime date2) {

@@ -20,20 +20,20 @@ class IntakeRepository implements IntakeRepositoryInterface {
 
   @override
   Future<SaveIntakeOutput> saveScannedFood(String userId, File? foodImage,
-      String sourceOfIntake, FoodAnalysisResponse? foodAnalysis) async {
+      String sourceOfIntake, FoodAnalysisResponse? foodAnalysis,
+      {DateTime? createdAt}) async {
     try {
       SaveScannedFoodInput saveScannedFoodInput = SaveScannedFoodInput(
         userId: userId,
         sourceOfIntake: sourceOfIntake,
         foodAnalysisResponse: foodAnalysis!,
+        createdAt: createdAt,
       );
       var request = http.MultipartRequest(
           'POST', Uri.parse('${_apiClient.baseUrl}/users/intake/scanned-food'));
 
-      final token = await _apiClient.getAuthToken();
-      if (token != null) {
-        request.headers['Authorization'] = 'Bearer $token';
-      }
+      // Add request headers
+      request.headers.addAll(await _apiClient.getRequestHeaders(includeContentType: false));
       request.files.add(
         http.MultipartFile.fromString(
           'saveScannedFoodInput',
@@ -42,7 +42,7 @@ class IntakeRepository implements IntakeRepositoryInterface {
           filename: 'saveScannedFoodInput.json',
         ),
       );
-      if (foodImage != null) {
+      if (foodImage != null && await foodImage.exists()) {
         request.files.add(
             await http.MultipartFile.fromPath('foodImage', foodImage.path));
       }
@@ -73,20 +73,20 @@ class IntakeRepository implements IntakeRepositoryInterface {
 
   @override
   Future<SaveIntakeOutput> saveScannedLabel(String userId, File? productImage,
-      String sourceOfIntake, ProductAnalysisResponse? productAnalysis) async {
+      String sourceOfIntake, ProductAnalysisResponse? productAnalysis,
+      {DateTime? createdAt}) async {
     try {
       SaveScannedLabelInput saveScannedLabelInput = SaveScannedLabelInput(
         userId: userId,
         sourceOfIntake: sourceOfIntake,
         productAnalysisResponse: productAnalysis!,
+        createdAt: createdAt,
       );
       var request = http.MultipartRequest('POST',
           Uri.parse('${_apiClient.baseUrl}/users/intake/scanned-label'));
 
-      final token = await _apiClient.getAuthToken();
-      if (token != null) {
-        request.headers['Authorization'] = 'Bearer $token';
-      }
+      // Add request headers
+      request.headers.addAll(await _apiClient.getRequestHeaders(includeContentType: false));
       request.files.add(
         http.MultipartFile.fromString(
           'saveScannedLabelInput',
@@ -124,24 +124,23 @@ class IntakeRepository implements IntakeRepositoryInterface {
   }
 
   @override
-  Future<UserIntakeOutput> getDailyIntake(String userId, DateTime date) async {
+  Future<UserIntakeOutput> getDailyIntake(String userId, DateTime fromDate, DateTime toDate) async {
     try {
-      final formattedDate =
-          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      final formattedFromDate =
+          '${fromDate.year}-${fromDate.month.toString().padLeft(2, '0')}-${fromDate.day.toString().padLeft(2, '0')}';
+      final formattedToDate =
+          '${toDate.year}-${toDate.month.toString().padLeft(2, '0')}-${toDate.day.toString().padLeft(2, '0')}';
 
       final uri =
           Uri.parse('${_apiClient.baseUrl}/users/intake/daily-intake').replace(
         queryParameters: {
           'userId': userId,
-          'date': formattedDate,
+          'fromDate': formattedFromDate,
+          'toDate': formattedToDate,
         },
       );
 
-      final token = await _apiClient.getAuthToken();
-      final headers = <String, String>{};
-      if (token != null) {
-        headers['Authorization'] = 'Bearer $token';
-      }
+      final headers = await _apiClient.getRequestHeaders(includeContentType: false);
 
       final response = await http.get(uri, headers: headers);
       print("Raw response: ${response.body}");
@@ -154,7 +153,7 @@ class IntakeRepository implements IntakeRepositoryInterface {
             jsonResponse['response_code'] ==
                 ResponseCodeConstants.dailyIntakeFetched &&
             jsonResponse['data'] != null) {
-          // Convert data to FoodAnalysisResponse
+          // Convert data to UserIntakeOutput
           return UserIntakeOutput.fromJson(jsonResponse['data']);
         } else {
           throw Exception(
@@ -162,7 +161,7 @@ class IntakeRepository implements IntakeRepositoryInterface {
         }
       } else {
         throw Exception(
-            'Failed to analyze description: ${response.statusCode}');
+            'Failed to get daily intake: ${response.statusCode}');
       }
     } catch (exception) {
       throw Exception('Error getting daily intake: $exception');
@@ -182,15 +181,8 @@ class IntakeRepository implements IntakeRepositoryInterface {
         },
       );
 
-      // Add auth header if available
-      final token = await _apiClient.getAuthToken();
-      Map<String, String> headers = {
-        'Content-Type': 'application/json',
-      };
-
-      if (token != null) {
-        headers['Authorization'] = 'Bearer $token';
-      }
+      // Add request headers
+      final headers = await _apiClient.getRequestHeaders();
       // Send request with JSON body
       final response = await http.get(
         uri,

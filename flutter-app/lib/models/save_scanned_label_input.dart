@@ -4,11 +4,13 @@ class SaveScannedLabelInput {
   final String userId;
   final String sourceOfIntake;
   final ProductAnalysisResponse productAnalysisResponse;
+  final DateTime? createdAt;
 
   SaveScannedLabelInput({
     required this.userId,
     required this.sourceOfIntake,
     required this.productAnalysisResponse,
+    this.createdAt,
   });
 
   Map<String, dynamic> toJson() {
@@ -16,6 +18,7 @@ class SaveScannedLabelInput {
       'user_id': userId,
       'source_of_intake': sourceOfIntake,
       'product_analysis_response': productAnalysisResponse.toJson(),
+      if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
     };
   }
 }

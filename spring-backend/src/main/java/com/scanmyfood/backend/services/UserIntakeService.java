@@ -17,6 +17,8 @@ public interface UserIntakeService {
 
     public UserIntakeOutput getUserIntake(String userId, LocalDate date) throws Exception;
 
+    public UserIntakeOutput getUserIntakeRange(String userId, LocalDate fromDate, LocalDate toDate) throws Exception;
+
     public void updateDailyIntakeImage(int dailyIntakeId, String imageAccessUrl) throws Exception;
 
     public FoodAnalysisResponse getIntakeDetails(String userId, int dailyIntakeId) throws Exception;

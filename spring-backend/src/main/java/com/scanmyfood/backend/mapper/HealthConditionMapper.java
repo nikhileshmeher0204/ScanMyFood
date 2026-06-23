@@ -18,4 +18,7 @@ public interface HealthConditionMapper {
 
     @Delete("DELETE FROM user_health_conditions WHERE user_id = #{userId}")
     void deleteUserConditions(@Param("userId") String userId);
+
+    List<HealthCondition> findByUserId(@Param("userId") String userId);
 }
+
