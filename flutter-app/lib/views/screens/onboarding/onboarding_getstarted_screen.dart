@@ -1,6 +1,9 @@
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/main.dart';
+import 'package:read_the_label/models/auth_result.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
@@ -38,8 +41,8 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
     );
 
     _heightAnimation = Tween<double>(
-      begin: 0.30, // Height factor when collapsed
-      end: 0.55, // Height factor when expanded
+      begin: 0.28, // Height factor when collapsed
+      end: 0.60, // Height factor when expanded
     ).animate(
       CurvedAnimation(
         parent: _animationController,
@@ -102,6 +105,202 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
     });
   }
 
+  Future<void> _loginWithEmail() async {
+    final uiViewModel = Provider.of<UiViewModel>(context, listen: false);
+    try {
+      uiViewModel.setLoading(true);
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final result = await authService.signInWithEmail(
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      if (result.success) {
+        logger.i("Email sign-in successful!");
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Sign in successful!',
+                style: TextStyle(fontFamily: 'Inter'),
+              ),
+              backgroundColor: AppColors.secondaryGreen,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                result.errorMessage ?? 'Sign in failed',
+                style: const TextStyle(fontFamily: 'Inter'),
+              ),
+              backgroundColor: AppColors.secondaryRed,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      logger.e("Error during email sign-in: $e");
+    } finally {
+      if (mounted) {
+        uiViewModel.setLoading(false);
+      }
+    }
+  }
+
+  Future<void> _registerWithEmail() async {
+    final uiViewModel = Provider.of<UiViewModel>(context, listen: false);
+    try {
+      uiViewModel.setLoading(true);
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final result = await authService.registerWithEmail(
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      if (result.success) {
+        logger.i("Email registration successful!");
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Registration successful!',
+                style: TextStyle(fontFamily: 'Inter'),
+              ),
+              backgroundColor: AppColors.secondaryGreen,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                result.errorMessage ?? 'Registration failed',
+                style: const TextStyle(fontFamily: 'Inter'),
+              ),
+              backgroundColor: AppColors.secondaryRed,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      logger.e("Error during email registration: $e");
+    } finally {
+      if (mounted) {
+        uiViewModel.setLoading(false);
+      }
+    }
+  }
+
+  Future<void> _showForgotPasswordDialog(BuildContext context) async {
+    final emailController = TextEditingController(text: _emailController.text);
+    final formKey = GlobalKey<FormState>();
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: Text(
+            'Reset Password',
+            style: AppTextStyles.heading3Bold
+                .copyWith(color: AppColors.primaryWhite),
+          ),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Enter your email address and we will send you a password reset link.',
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  style: const TextStyle(
+                    fontFamily: AppTextStyles.fontFamily,
+                    color: AppColors.primaryWhite,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    labelStyle: const TextStyle(color: Colors.white70),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Colors.white30),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Color(0xFF9ACD32)),
+                    ),
+                    filled: true,
+                    fillColor: AppColors.primaryWhite.withOpacity(0.1),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    }
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                        .hasMatch(value)) {
+                      return 'Please enter a valid email';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel',
+                  style: TextStyle(color: AppColors.textSecondary)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  final authService =
+                      Provider.of<AuthService>(context, listen: false);
+                  Navigator.of(context).pop();
+
+                  final result = await authService
+                      .sendPasswordResetEmail(emailController.text);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          result.success
+                              ? 'Password reset email sent!'
+                              : (result.errorMessage ??
+                                  'Failed to send reset email'),
+                          style: const TextStyle(fontFamily: 'Inter'),
+                        ),
+                        backgroundColor: result.success
+                            ? AppColors.secondaryGreen
+                            : AppColors.secondaryRed,
+                      ),
+                    );
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryWhite,
+                foregroundColor: AppColors.primaryBlack,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+              ),
+              child: const Text('Send'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -145,8 +344,12 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                         ? const BouncingScrollPhysics()
                         : const NeverScrollableScrollPhysics(),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24.0, vertical: 32.0),
+                      padding: EdgeInsets.only(
+                        left: 24.0,
+                        right: 24.0,
+                        top: 32.0,
+                        bottom: MediaQuery.of(context).padding.bottom,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize
@@ -251,7 +454,7 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                           ),
                                           decoration: InputDecoration(
                                             labelText: 'Email',
-                                            labelStyle: TextStyle(
+                                            labelStyle: const TextStyle(
                                               fontFamily:
                                                   AppTextStyles.fontFamily,
                                               color: Colors.white70,
@@ -281,6 +484,11 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                                 value.isEmpty) {
                                               return 'Please enter your email';
                                             }
+                                            if (!RegExp(
+                                                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                                .hasMatch(value)) {
+                                              return 'Please enter a valid email address';
+                                            }
                                             return null;
                                           },
                                         ),
@@ -296,7 +504,7 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                           ),
                                           decoration: InputDecoration(
                                             labelText: 'Password',
-                                            labelStyle: TextStyle(
+                                            labelStyle: const TextStyle(
                                               fontFamily:
                                                   AppTextStyles.fontFamily,
                                               color: Colors.white70,
@@ -326,32 +534,66 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                                 value.isEmpty) {
                                               return 'Please enter your password';
                                             }
+                                            if (value.length < 6) {
+                                              return 'Password must be at least 6 characters';
+                                            }
                                             return null;
                                           },
                                         ),
+
+                                        // Forgot password link (only for sign in mode)
+                                        if (_isLogin) ...[
+                                          const SizedBox(height: 8),
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: TextButton(
+                                              onPressed: () =>
+                                                  _showForgotPasswordDialog(
+                                                      context),
+                                              style: TextButton.styleFrom(
+                                                padding: EdgeInsets.zero,
+                                                minimumSize: const Size(50, 30),
+                                                tapTargetSize:
+                                                    MaterialTapTargetSize
+                                                        .shrinkWrap,
+                                              ),
+                                              child: Text(
+                                                "Forgot Password?",
+                                                style: AppTextStyles.withColor(
+                                                  AppTextStyles.bodySmall,
+                                                  const Color(0xFF9ACD32),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                         const SizedBox(height: 24),
 
-                                        // Login/Register button
+                                        // Login/Register buttons
                                         Row(
                                           children: [
                                             // Register button
                                             Expanded(
                                               child: ElevatedButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    _isLogin = false;
-                                                  });
-                                                  if (_formKey.currentState!
-                                                      .validate()) {
-                                                    // Implement register logic
+                                                onPressed: () async {
+                                                  if (_isLogin) {
+                                                    setState(() {
+                                                      _isLogin = false;
+                                                    });
+                                                  } else {
+                                                    if (_formKey.currentState!
+                                                        .validate()) {
+                                                      await _registerWithEmail();
+                                                    }
                                                   }
                                                 },
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: !_isLogin
                                                       ? AppColors.primaryWhite
                                                       : AppColors.primaryBlack,
-                                                  foregroundColor:
-                                                      AppColors.primaryBlack,
+                                                  foregroundColor: !_isLogin
+                                                      ? AppColors.primaryBlack
+                                                      : AppColors.primaryWhite,
                                                   elevation: 0,
                                                   shape: RoundedRectangleBorder(
                                                     side: const BorderSide(
@@ -364,32 +606,46 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                                   padding: const EdgeInsets
                                                       .symmetric(vertical: 12),
                                                 ),
-                                                child: Text("Register",
-                                                    style: AppTextStyles
-                                                        .buttonTextWhite),
+                                                child: Text(
+                                                  "Register",
+                                                  style: _isLogin
+                                                      ? AppTextStyles
+                                                          .buttonTextWhite
+                                                      : AppTextStyles
+                                                          .buttonTextBlack,
+                                                ),
                                               ),
                                             ),
 
                                             const SizedBox(width: 16),
 
-                                            //Login button
+                                            // Login button
                                             Expanded(
                                               child: ElevatedButton(
-                                                onPressed: () {
-                                                  if (_formKey.currentState!
-                                                      .validate()) {
-                                                    // Implement login logic
+                                                onPressed: () async {
+                                                  if (!_isLogin) {
+                                                    setState(() {
+                                                      _isLogin = true;
+                                                    });
+                                                  } else {
+                                                    if (_formKey.currentState!
+                                                        .validate()) {
+                                                      await _loginWithEmail();
+                                                    }
                                                   }
                                                 },
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: _isLogin
                                                       ? AppColors.primaryWhite
-                                                      : AppColors.primaryWhite
-                                                          .withOpacity(0.3),
-                                                  foregroundColor:
-                                                      AppColors.primaryBlack,
+                                                      : AppColors.primaryBlack,
+                                                  foregroundColor: _isLogin
+                                                      ? AppColors.primaryBlack
+                                                      : AppColors.primaryWhite,
                                                   elevation: 0,
                                                   shape: RoundedRectangleBorder(
+                                                    side: const BorderSide(
+                                                        color: AppColors
+                                                            .primaryWhite),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             30),
@@ -399,8 +655,11 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                                 ),
                                                 child: Text(
                                                   "Login",
-                                                  style: AppTextStyles
-                                                      .buttonTextBlack,
+                                                  style: _isLogin
+                                                      ? AppTextStyles
+                                                          .buttonTextBlack
+                                                      : AppTextStyles
+                                                          .buttonTextWhite,
                                                 ),
                                               ),
                                             ),
@@ -444,6 +703,12 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                           icon: Image.asset(
                                             'assets/images/google_icon.png',
                                             height: 20,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return const Icon(
+                                                  Icons.g_mobiledata,
+                                                  color: Colors.black);
+                                            },
                                           ),
                                           onPressed: () async {
                                             final uiViewModel =
@@ -461,51 +726,32 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                               final result = await authService
                                                   .signInWithGoogle();
 
-                                              if (result != null) {
-                                                if (context.mounted) {
-                                                  final user =
-                                                      authService.currentUser;
-                                                  if (user == null) {
-                                                    logger.e(
-                                                        "Authentication successful but user is null");
-                                                    throw Exception(
-                                                        "Authentication failed");
-                                                  }
-
-                                                  logger.i(
-                                                      "Successfully signed in with Google: ${user.email}");
-                                                  
-                                                  // No manual navigation here - AuthWrapper in main.dart
-                                                  // will automatically react to the auth change.
-                                                }
+                                              if (result.success) {
+                                                logger.i(
+                                                    "Successfully signed in with Google");
                                               } else {
-                                                // User cancelled the sign-in flow
-                                                logger.w(
-                                                    "Sign-in was cancelled by user");
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                        "Sign-in was cancelled"),
-                                                  ),
-                                                );
+                                                if (result.errorType !=
+                                                    AuthErrorType.cancelled) {
+                                                  if (context.mounted) {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(result
+                                                                .errorMessage ??
+                                                            "Google Sign-In failed"),
+                                                        backgroundColor:
+                                                            AppColors
+                                                                .secondaryRed,
+                                                      ),
+                                                    );
+                                                  }
+                                                }
                                               }
                                             } catch (e) {
-                                              // Handle errors
                                               logger.e(
                                                   "Error during Google sign-in: $e");
-                                              if (context.mounted) {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                        "Sign-in error: ${e.toString().split('\n')[0]}"),
-                                                    backgroundColor: Colors.red,
-                                                  ),
-                                                );
-                                              }
                                             } finally {
-                                              // Hide loading indicator
                                               if (context.mounted) {
                                                 uiViewModel.setLoading(false);
                                               }
@@ -514,6 +760,8 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor:
                                                 AppColors.primaryWhite,
+                                            minimumSize:
+                                                const Size(double.infinity, 50),
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(30),
@@ -524,6 +772,79 @@ class _OnboardingGetstartedScreenState extends State<OnboardingGetstartedScreen>
                                               style: AppTextStyles
                                                   .buttonTextBlack),
                                         ),
+
+                                        // Apple sign-in button (iOS only)
+                                        if (!kIsWeb && Platform.isIOS) ...[
+                                          const SizedBox(height: 12),
+                                          ElevatedButton.icon(
+                                            icon: const Icon(
+                                              Icons.apple,
+                                              color: Colors.black,
+                                              size: 24,
+                                            ),
+                                            onPressed: () async {
+                                              final uiViewModel =
+                                                  Provider.of<UiViewModel>(
+                                                      context,
+                                                      listen: false);
+
+                                              try {
+                                                uiViewModel.setLoading(true);
+
+                                                final authService =
+                                                    Provider.of<AuthService>(
+                                                        context,
+                                                        listen: false);
+                                                final result = await authService
+                                                    .signInWithApple();
+
+                                                if (result.success) {
+                                                  logger.i(
+                                                      "Successfully signed in with Apple");
+                                                } else {
+                                                  if (result.errorType !=
+                                                      AuthErrorType.cancelled) {
+                                                    if (context.mounted) {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(result
+                                                                  .errorMessage ??
+                                                              "Apple Sign-In failed"),
+                                                          backgroundColor:
+                                                              AppColors
+                                                                  .secondaryRed,
+                                                        ),
+                                                      );
+                                                    }
+                                                  }
+                                                }
+                                              } catch (e) {
+                                                logger.e(
+                                                    "Error during Apple sign-in: $e");
+                                              } finally {
+                                                if (context.mounted) {
+                                                  uiViewModel.setLoading(false);
+                                                }
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  AppColors.primaryWhite,
+                                              minimumSize: const Size(
+                                                  double.infinity, 50),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(30),
+                                              ),
+                                              padding: const EdgeInsets.all(12),
+                                            ),
+                                            label: Text("Sign in with Apple",
+                                                style: AppTextStyles
+                                                    .buttonTextBlack),
+                                          ),
+                                        ],
                                         const SizedBox(height: 24),
                                         Text(
                                           "By continuing, you agree to our Terms of Service and Privacy Policy",
