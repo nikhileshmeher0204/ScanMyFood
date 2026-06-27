@@ -28,7 +28,6 @@ import 'package:read_the_label/viewmodels/meal_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/product_analysis_view_model.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/viewmodels/user_view_model.dart';
-import 'package:read_the_label/views/screens/sign_in/sign_in_screen.dart';
 import 'package:read_the_label/views/screens/settings/settings_view.dart';
 import 'package:read_the_label/views/screens/home/home_page.dart';
 import 'package:read_the_label/views/widgets/common/auth_wrapper.dart';
@@ -73,7 +72,6 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => const AuthWrapper(),
-          '/sign-in': (context) => const SignInScreen(),
 
           // Onboarding flow
           '/onboarding-getstarted': (context) =>
