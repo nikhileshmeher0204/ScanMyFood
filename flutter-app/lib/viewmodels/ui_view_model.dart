@@ -46,6 +46,8 @@ class UiViewModel extends BaseViewModel {
       if (imagePathOrUrl.startsWith('http') ||
           imagePathOrUrl.startsWith('https')) {
         imageProvider = NetworkImage(imagePathOrUrl);
+      } else if (imagePathOrUrl.startsWith('assets/')) {
+        imageProvider = AssetImage(imagePathOrUrl);
       } else {
         imageProvider = FileImage(File(imagePathOrUrl));
       }
@@ -55,13 +57,25 @@ class UiViewModel extends BaseViewModel {
         brightness: Brightness.light,
       );
 
-      // Apple Music backgrounds are a dark, rich version of the image's dominant color.
-      // We grab the true vibrant color, and manually shape it to be a sleek dark background.
+      // ─── Tuning knobs ────────────────────────────────────────────────
+      // Apple Music keeps backgrounds dark but vivid.
+      // Raise saturation to get closer to the source image's true color.
+      const double targetLightness =
+          0.18; // 0.0 (black) → 1.0 (white). Apple ≈ 0.15–0.22
+      const double targetSaturation =
+          0.95; // 0.0 (grey) → 1.0 (full chroma). Apple ≈ 0.65–0.85
+      // ─────────────────────────────────────────────────────────────────
+
       final seedColor = colorScheme.primary;
       final hsl = HSLColor.fromColor(seedColor);
 
-      // Force it to be dark (lightness 0.15 - 0.2) but keep the rich hue and saturation
-      final darkBackground = hsl.withLightness(0.18).toColor();
+      // Clamp original saturation upward — never reduce a naturally vivid color.
+      final boostedSaturation = hsl.saturation.clamp(targetSaturation, 1.0);
+
+      final darkBackground = hsl
+          .withSaturation(boostedSaturation)
+          .withLightness(targetLightness)
+          .toColor();
 
       return darkBackground;
     } catch (e) {
@@ -104,12 +118,12 @@ class UiViewModel extends BaseViewModel {
 
   /// Combines the selected date and time into a single DateTime for submission.
   DateTime get selectedDateTime => DateTime(
-        _selectedDate.year,
-        _selectedDate.month,
-        _selectedDate.day,
-        _selectedTime.hour,
-        _selectedTime.minute,
-      );
+    _selectedDate.year,
+    _selectedDate.month,
+    _selectedDate.day,
+    _selectedTime.hour,
+    _selectedTime.minute,
+  );
 
   void updatePortionMultiplier(double multiplier) {
     _portionMultiplier = multiplier;
@@ -118,17 +132,20 @@ class UiViewModel extends BaseViewModel {
 
   // Helper method to calculate adjusted nutrients
   List<FoodNutrient> calculateAdjustedNutrients(
-      List<FoodNutrient> originalNutrients) {
+    List<FoodNutrient> originalNutrients,
+  ) {
     final List<FoodNutrient> result = [];
     for (var nutrient in originalNutrients) {
       // Create new FoodNutrient with adjusted value but same unit
-      result.add(FoodNutrient(
-        name: nutrient.name,
-        quantity: Quantity(
-          value: nutrient.quantity.value * _portionMultiplier,
-          unit: nutrient.quantity.unit,
+      result.add(
+        FoodNutrient(
+          name: nutrient.name,
+          quantity: Quantity(
+            value: nutrient.quantity.value * _portionMultiplier,
+            unit: nutrient.quantity.unit,
+          ),
         ),
-      ));
+      );
     }
     return result;
   }
@@ -170,8 +187,8 @@ class UiViewModel extends BaseViewModel {
     final hour = _selectedTime.hour == 0
         ? 12
         : (_selectedTime.hour > 12
-            ? _selectedTime.hour - 12
-            : _selectedTime.hour);
+              ? _selectedTime.hour - 12
+              : _selectedTime.hour);
     final minute = _selectedTime.minute.toString().padLeft(2, '0');
     final period = _selectedTime.hour >= 12 ? 'PM' : 'AM';
     return '$hour:$minute $period';
@@ -184,26 +201,30 @@ class UiViewModel extends BaseViewModel {
 
     if (parts.length >= 2) {
       // Time part (HH:MM)
-      spans.add(TextSpan(
-        text: "${parts[0]} ",
-        style: const TextStyle(
-          color: AppColors.primaryWhite,
-          fontSize: 20,
-          fontWeight: FontWeight.w500,
-          fontFamily: AppTextStyles.fontFamily,
+      spans.add(
+        TextSpan(
+          text: "${parts[0]} ",
+          style: const TextStyle(
+            color: AppColors.primaryWhite,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+            fontFamily: AppTextStyles.fontFamily,
+          ),
         ),
-      ));
+      );
 
       // AM/PM part
-      spans.add(TextSpan(
-        text: parts[1],
-        style: const TextStyle(
-          color: AppColors.secondaryBlackTextColor,
-          fontSize: 20,
-          fontWeight: FontWeight.w500,
-          fontFamily: AppTextStyles.fontFamily,
+      spans.add(
+        TextSpan(
+          text: parts[1],
+          style: const TextStyle(
+            color: AppColors.secondaryBlackTextColor,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+            fontFamily: AppTextStyles.fontFamily,
+          ),
         ),
-      ));
+      );
     }
 
     return spans;

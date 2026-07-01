@@ -1,6 +1,13 @@
 {
   "version": 1,
   "skills": {
+    "create-catalog-item": {
+      "source": "flutter/genui",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "packages/genui/skills/create-catalog-item/SKILL.md",
+      "computedHash": "ed51e56dc7ffad2318311246f385160c953efd82db9be342ba0dc0e91099a6b1"
+    },
     "flutter-add-integration-test": {
       "source": "flutter/skills",
       "sourceType": "github",
@@ -60,6 +67,13 @@
       "sourceType": "github",
       "skillPath": "skills/flutter-use-http-package/SKILL.md",
       "computedHash": "bd169b5cee731751f3b32f43c94cfe9495fc8e6c3eb621b785c69e38b77d0e19"
+    },
+    "integrate-genui-firebase": {
+      "source": "flutter/genui",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "packages/genui/skills/integrate-genui-firebase/SKILL.md",
+      "computedHash": "6eb737ae02f6ab9c854d81f4eb399187c42b70b71f9a30d244b2bdb7f222663d"
     }
   }
 }

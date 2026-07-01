@@ -89,7 +89,7 @@ class AddToIntakeButton extends StatelessWidget {
             SnackBar(
               content: Text('Error saving intake: $e'),
               backgroundColor: Colors.red,
-              duration: Duration(seconds: 3),
+              duration: const Duration(seconds: 3),
             ),
           );
         }

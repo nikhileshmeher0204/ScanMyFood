@@ -31,6 +31,8 @@ import 'package:read_the_label/viewmodels/user_view_model.dart';
 import 'package:read_the_label/views/screens/settings/settings_view.dart';
 import 'package:read_the_label/views/screens/home/home_page.dart';
 import 'package:read_the_label/views/widgets/common/auth_wrapper.dart';
+import 'package:read_the_label/viewmodels/ai_chat_view_model.dart';
+import 'package:genui/genui.dart' hide TextPart;
 
 final logger = AppLogger();
 
@@ -38,6 +40,10 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   logger.i('Application starting...');
+
+  configureLogging(
+    logCallback: (level, msg) => debugPrint('GenUI $level: $msg'),
+  );
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -139,6 +145,12 @@ class MyApp extends StatelessWidget {
       ),
       ChangeNotifierProvider<UserViewModel>(
         create: (_) => UserViewModel(),
+      ),
+      ChangeNotifierProvider<AiChatViewModel>(
+        create: (context) => AiChatViewModel(
+          userRepository: context.read<UserRepository>(),
+          authService: context.read<AuthService>(),
+        ),
       ),
 
       ChangeNotifierProvider<ProductAnalysisViewModel>(
