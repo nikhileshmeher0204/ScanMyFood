@@ -3,10 +3,11 @@ import 'package:firebase_ai/firebase_ai.dart' as fbai;
 import 'package:genui/genui.dart' hide TextPart;
 import 'package:genui/genui.dart' as genui;
 import 'package:uuid/uuid.dart';
-import 'package:read_the_label/models/ai_chat_session.dart';
 import 'package:read_the_label/models/user_profile.dart';
 import 'package:read_the_label/services/local_database_service.dart';
 import 'package:read_the_label/services/ai_context_builder.dart';
+import 'package:read_the_label/services/tools/ai_tool_declarations.dart';
+import 'package:read_the_label/services/tools/tool_execution_client.dart';
 import 'package:read_the_label/main.dart';
 
 class AgentStepEvent {
@@ -68,6 +69,7 @@ class AiChatService {
     final model = fbai.FirebaseAI.vertexAI().generativeModel(
       model: 'gemini-2.5-flash',
       systemInstruction: fbai.Content.system(systemPrompt),
+      tools: [fbai.Tool.functionDeclarations(AiToolDeclarations.all)],
     );
 
     // Load past messages from database
@@ -88,11 +90,12 @@ class AiChatService {
   }
 
   /// Sends a message and processes the response.
-  /// Emits step events during the loop (mainly in Phase 2, but stubbed here).
+  /// Emits step events during the loop for tool calls.
   Future<void> processMessage({
     required String sessionId,
     required ChatMessage userMessage,
     required A2uiTransportAdapter transport,
+    required ToolExecutionClient toolClient,
     UserProfile? profile,
     String? mealScanContext,
   }) async {
@@ -110,11 +113,56 @@ class AiChatService {
         profile: profile,
       );
 
-      // In Phase 2 we will handle the tool call execution loop here.
-      // For Phase 1, we do a direct sendMessage.
-      final response = await chatSession.sendMessage(
+      var response = await chatSession.sendMessage(
         _chatMessageToFirebaseContent(userMessage),
       );
+
+      // Handle function calls in the agentic loop
+      while (response.functionCalls.isNotEmpty) {
+        final functionResponses = <fbai.Part>[];
+
+        for (final call in response.functionCalls) {
+          final toolName = call.name;
+          final args = call.args;
+
+          // Emit start event
+          final humanLabel = AiToolDeclarations.humanLabel(toolName, args);
+          _stepEventsController.add(AgentStepEvent(
+            sessionId: sessionId,
+            toolName: toolName,
+            label: humanLabel,
+            isRunning: true,
+            timestamp: DateTime.now(),
+          ));
+
+          Map<String, Object?> result;
+          bool success = true;
+          try {
+            // Execute tool on Spring Boot
+            result = await toolClient.execute(toolName, args);
+          } catch (e) {
+            success = false;
+            result = {'error': e.toString()};
+          }
+
+          // Emit completed event
+          _stepEventsController.add(AgentStepEvent(
+            sessionId: sessionId,
+            toolName: toolName,
+            label: success ? humanLabel : 'Failed',
+            isRunning: false,
+            success: success,
+            timestamp: DateTime.now(),
+          ));
+
+          functionResponses.add(fbai.FunctionResponse(toolName, result));
+        }
+
+        // Send function responses back to the model
+        response = await chatSession.sendMessage(
+          fbai.Content('user', functionResponses),
+        );
+      }
 
       final aiText = response.text ?? '';
       if (aiText.isNotEmpty) {

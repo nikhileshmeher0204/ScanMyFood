@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:genui/genui.dart' hide TextPart;
 import 'package:read_the_label/models/ai_chat_session.dart';
@@ -9,6 +8,7 @@ import 'package:read_the_label/repositories/user_repository.dart';
 import 'package:read_the_label/services/auth_service.dart';
 import 'package:read_the_label/services/local_database_service.dart';
 import 'package:read_the_label/services/ai_chat_service.dart';
+import 'package:read_the_label/services/tools/tool_execution_client.dart';
 import 'base_view_model.dart';
 import 'package:read_the_label/main.dart';
 
@@ -40,6 +40,7 @@ class ChatItem {
 class AiChatViewModel extends BaseViewModel {
   final UserRepository userRepository;
   final AuthService authService;
+  final ToolExecutionClient toolClient;
 
   List<AiChatSession> _sessions = [];
   AiChatSession? _currentSession;
@@ -47,11 +48,15 @@ class AiChatViewModel extends BaseViewModel {
   List<AgentStepRecord> _activeSteps = [];
   bool _isLoading = false;
 
+  bool _isAgentRunning = false;
+  String? _currentRunningLabel;
+
   StreamSubscription<AgentStepEvent>? _stepEventsSub;
 
   AiChatViewModel({
     required this.userRepository,
     required this.authService,
+    required this.toolClient,
   }) {
     _listenToStepEvents();
   }
@@ -62,10 +67,18 @@ class AiChatViewModel extends BaseViewModel {
   List<AgentStepRecord> get activeSteps => _activeSteps;
   bool get isLoading => _isLoading;
 
+  bool get isAgentRunning => _isAgentRunning;
+  String? get currentRunningLabel => _currentRunningLabel;
+
   void _listenToStepEvents() {
     _stepEventsSub?.cancel();
     _stepEventsSub = AiChatService.instance.stepEvents.listen((event) {
       if (event.sessionId != _currentSession?.sessionId) return;
+
+      if (event.isRunning) {
+        _isAgentRunning = true;
+        _currentRunningLabel = event.label;
+      }
 
       final stepIdx = _activeSteps.indexWhere((s) => s.toolName == event.toolName);
       if (stepIdx != -1) {
@@ -85,7 +98,12 @@ class AiChatViewModel extends BaseViewModel {
       }
 
       // Update or add ChatItemType.steps at the bottom
-      final chatStepIdx = _chatItems.indexWhere((item) => item.type == ChatItemType.steps && item.steps != null && item.steps!.any((s) => s.toolName == event.toolName || _activeSteps.any((as) => as.toolName == s.toolName)));
+      final chatStepIdx = _chatItems.indexWhere((item) =>
+          item.type == ChatItemType.steps &&
+          item.steps != null &&
+          item.steps!.any((s) =>
+              s.toolName == event.toolName ||
+              _activeSteps.any((as) => as.toolName == s.toolName)));
       if (chatStepIdx != -1) {
         _chatItems[chatStepIdx] = ChatItem(
           id: _chatItems[chatStepIdx].id,
@@ -155,14 +173,14 @@ class AiChatViewModel extends BaseViewModel {
 
     try {
       final dbMessages = await LocalDatabaseService.instance.getSessionMessages(sessionId);
-      
+
       _chatItems = [];
       for (final msg in dbMessages) {
         if (msg.role == ChatMessageRole.system) continue;
 
         // Check if message content has surfaces or text
         final type = msg.role == ChatMessageRole.user ? ChatItemType.userText : ChatItemType.aiText;
-        
+
         // Check if there are surface parts in this message
         bool hasSurface = false;
         for (final part in msg.parts) {
@@ -216,7 +234,7 @@ class AiChatViewModel extends BaseViewModel {
 
     final session = _currentSession!;
     final userMessage = ChatMessage.user(text);
-    
+
     // Add local user message item to UI
     _chatItems.add(ChatItem(
       id: const Uuid().v4(),
@@ -225,6 +243,8 @@ class AiChatViewModel extends BaseViewModel {
       timestamp: DateTime.now(),
     ));
     _activeSteps = [];
+    _isAgentRunning = false;
+    _currentRunningLabel = null;
     notifyListeners();
 
     // Fetch user profile for context building
@@ -238,14 +258,21 @@ class AiChatViewModel extends BaseViewModel {
       logger.w('Failed to load user profile for chat context: $e');
     }
 
-    // Call service to process message asynchronously
-    unawaited(AiChatService.instance.processMessage(
-      sessionId: session.sessionId,
-      userMessage: userMessage,
-      transport: transport,
-      profile: profile,
-      mealScanContext: session.mealContext,
-    ));
+    // Call service to process message and await it to handle loader state
+    try {
+      await AiChatService.instance.processMessage(
+        sessionId: session.sessionId,
+        userMessage: userMessage,
+        transport: transport,
+        toolClient: toolClient,
+        profile: profile,
+        mealScanContext: session.mealContext,
+      );
+    } finally {
+      _isAgentRunning = false;
+      _currentRunningLabel = null;
+      notifyListeners();
+    }
   }
 
   void appendAiText(String text) {

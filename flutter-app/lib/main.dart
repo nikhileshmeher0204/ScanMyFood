@@ -32,6 +32,8 @@ import 'package:read_the_label/views/screens/settings/settings_view.dart';
 import 'package:read_the_label/views/screens/home/home_page.dart';
 import 'package:read_the_label/views/widgets/common/auth_wrapper.dart';
 import 'package:read_the_label/viewmodels/ai_chat_view_model.dart';
+import 'package:read_the_label/services/tools/tool_execution_client.dart';
+import 'package:read_the_label/services/notification_service.dart';
 import 'package:genui/genui.dart' hide TextPart;
 
 final logger = AppLogger();
@@ -136,6 +138,16 @@ class MyApp extends StatelessWidget {
       Provider<IntakeRepository>(
         create: (context) => IntakeRepository(context.read<ApiClient>()),
       ),
+      Provider<ToolExecutionClient>(
+        create: (context) => ToolExecutionClient(context.read<ApiClient>()),
+      ),
+      Provider<NotificationService>(
+        create: (context) => NotificationService(
+          context.read<ApiClient>(),
+          context.read<AuthService>(),
+        ),
+        dispose: (context, service) => service.dispose(),
+      ),
       // Register ViewModels
       ChangeNotifierProvider<OnboardingViewModel>(
         create: (_) => OnboardingViewModel(),
@@ -150,6 +162,7 @@ class MyApp extends StatelessWidget {
         create: (context) => AiChatViewModel(
           userRepository: context.read<UserRepository>(),
           authService: context.read<AuthService>(),
+          toolClient: context.read<ToolExecutionClient>(),
         ),
       ),
 
@@ -175,6 +188,8 @@ class MyApp extends StatelessWidget {
                 aiRepository: context.read<SpringBackendRepository>(),
                 uiProvider: context.read<UiViewModel>(),
                 authService: context.read<AuthService>(),
+                notificationService: context.read<NotificationService>(),
+                toolClient: context.read<ToolExecutionClient>(),
               ),
           update: (context, uiViewModel, authService, previous) {
             final prevUser = previous!.authService.currentUser;
