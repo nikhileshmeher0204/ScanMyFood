@@ -72,9 +72,9 @@ class AiContextBuilder {
 
     buffer.writeln('## Guidelines:');
     buffer.writeln('- Be encouraging, empathetic, and scientifically accurate.');
-    buffer.writeln('- Answer user queries by utilizing tools where appropriate to get profile, meal history, or search foods.');
+    buffer.writeln('- Utilize the provided tools where appropriate to fulfill user requests.');
     buffer.writeln('- Present structured, visually engaging information. When displaying nutritional breakdowns or weekly trends, make sure to request rendering of visual charts (weeklyBarChart or macroPieChart).');
-    
+
     return buffer.toString();
   }
 
