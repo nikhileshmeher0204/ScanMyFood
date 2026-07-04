@@ -37,32 +37,25 @@ class _AgentStepsPillState extends State<AgentStepsPill> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withOpacity(0.06),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white12, width: 0.8),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white38),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  TextShimmer(text: label),
-                ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white38),
+                ),
               ),
-            ),
+              const SizedBox(width: 10),
+              TextShimmer(text: label),
+            ],
           ),
         ),
       ),
@@ -73,8 +66,6 @@ class _AgentStepsPillState extends State<AgentStepsPill> {
     if (widget.steps.isEmpty) return const SizedBox.shrink();
 
     final stepCount = widget.steps.length;
-    final successfulCount = widget.steps.where((s) => s.success).length;
-    final allSuccessful = successfulCount == stepCount;
 
     return Align(
       alignment: Alignment.centerLeft,
@@ -86,92 +77,117 @@ class _AgentStepsPillState extends State<AgentStepsPill> {
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.06),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white12, width: 0.8),
           ),
-          child: ClipRRect(
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                _isExpanded = !_isExpanded;
+              });
+            },
             borderRadius: BorderRadius.circular(20),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
-              child: InkWell(
-                onTap: () {
-                  setState(() {
-                    _isExpanded = !_isExpanded;
-                  });
-                },
-                borderRadius: BorderRadius.circular(20),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header Row
+                  Row(
                     mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header Row
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            allSuccessful ? Icons.check : Icons.error_outline,
-                            size: 14,
-                            color: allSuccessful ? Colors.greenAccent : Colors.redAccent,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '$stepCount ${stepCount == 1 ? 'step' : 'steps'}',
-                            style: const TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white70,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Icon(
-                            _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                            size: 14,
-                            color: Colors.white38,
-                          ),
-                        ],
-                      ),
-                      if (_isExpanded) ...[
-                        const SizedBox(height: 8),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 300),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: widget.steps.map((step) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      step.success
-                                          ? Icons.check_circle_outline
-                                          : Icons.error_outline,
-                                      size: 12,
-                                      color: step.success ? Colors.greenAccent : Colors.redAccent,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        step.humanLabel,
-                                        style: TextStyle(
-                                          fontFamily: 'Inter',
-                                          fontSize: 12,
-                                          color: Colors.white.withOpacity(0.6),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
+                      Container(
+                        width: 18,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(5),
+                          child: Image.asset(
+                            'assets/icons/app_logo.png',
+                            fit: BoxFit.cover,
                           ),
                         ),
-                      ],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '$stepCount ${stepCount == 1 ? 'step' : 'steps'}',
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Icon(
+                        _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        size: 16,
+                        color: Colors.white54,
+                      ),
                     ],
                   ),
-                ),
+                  if (_isExpanded) ...[
+                    const SizedBox(height: 8),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 300),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: widget.steps.map((step) {
+                          final bool isToolCall = step.toolName == 'getUserProfile' ||
+                              step.toolName == 'getDailyIntake' ||
+                              step.toolName == 'logMealViaDescription' ||
+                              step.toolName == 'saveScannedFoodIntake';
+
+                          Widget leadingIcon;
+                          if (isToolCall) {
+                            leadingIcon = Container(
+                              width: 14,
+                              height: 14,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: Image.asset(
+                                  'assets/icons/app_logo.png',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            );
+                          } else {
+                            leadingIcon = const Icon(
+                              Icons.search,
+                              size: 14,
+                              color: Colors.white70,
+                            );
+                          }
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                leadingIcon,
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    step.humanLabel,
+                                    style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      fontSize: 12,
+                                      color: Colors.white.withOpacity(0.6),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           ),

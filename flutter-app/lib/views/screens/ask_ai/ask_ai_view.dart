@@ -17,7 +17,9 @@ import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/services/ai_context_builder.dart';
 import 'package:read_the_label/services/ai_chat_service.dart';
+import 'package:read_the_label/services/tools/tool_execution_client.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
+import 'package:read_the_label/views/widgets/ai_chat/agent_steps_pill.dart';
 
 class AskAiView extends StatefulWidget {
   final String? foodContext;
@@ -42,7 +44,8 @@ class _AskAiViewState extends State<AskAiView> {
   @override
   void initState() {
     super.initState();
-    _catalog = NutritionCatalog.create();
+    final toolClient = context.read<ToolExecutionClient>();
+    _catalog = NutritionCatalog.create(toolClient);
     _controller = SurfaceController(catalogs: [_catalog]);
     _transport = A2uiTransportAdapter(onSend: _sendAndReceive);
     _conversation = Conversation(
@@ -112,6 +115,8 @@ class _AskAiViewState extends State<AskAiView> {
   }
 
   Future<void> _sendAndReceive(ChatMessage msg) async {
+    if (msg.role == ChatMessageRole.system) return;
+
     final buffer = StringBuffer();
     for (final part in msg.parts) {
       if (part.isUiInteractionPart) {
@@ -223,20 +228,36 @@ class _AskAiViewState extends State<AskAiView> {
       color: Colors.transparent,
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              color: Colors.white70,
-              size: 20,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(25),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppColors.primaryWhite.withValues(alpha: 0.2),
+                    width: 1,
+                  ),
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    // If we are showing as a nested PageView item (home_page index 3), we can't pop.
+                    // Only pop if we are a pushed screen (e.g. opened from scan views).
+                    final modalRoute = ModalRoute.of(context);
+                    if (modalRoute != null && modalRoute.canPop) {
+                      Navigator.pop(context);
+                    }
+                  },
+                  icon: Icon(
+                    Icons.close,
+                    color: AppColors.primaryWhite.withValues(alpha: 0.8),
+                    size: 30,
+                  ),
+                ),
+              ),
             ),
-            onPressed: () {
-              // If we are showing as a nested PageView item (home_page index 3), we can't pop.
-              // Only pop if we are a pushed screen (e.g. opened from scan views).
-              final modalRoute = ModalRoute.of(context);
-              if (modalRoute != null && modalRoute.canPop) {
-                Navigator.pop(context);
-              }
-            },
           ),
           const SizedBox(width: 4),
           Expanded(
@@ -280,6 +301,7 @@ class _AskAiViewState extends State<AskAiView> {
   }
 
   Widget _buildChatItem(ChatItem item, bool isLast) {
+    final viewModel = Provider.of<AiChatViewModel>(context, listen: false);
     // Use AppColors semantic label system (mirrors Apple UIColor.label / .tertiaryLabel).
     // This avoids computing from a hardcoded background and gives warm-tinted white
     // for active text and a properly dimmed tone for past messages.
@@ -433,78 +455,10 @@ class _AskAiViewState extends State<AskAiView> {
 
       case ChatItemType.steps:
         final steps = item.steps ?? [];
-        if (steps.isEmpty) return const SizedBox.shrink();
-        return Container(
-          margin: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.06),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white12, width: 0.8),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.auto_awesome,
-                          size: 14,
-                          color: baseColor.withOpacity(0.8),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Agent Actions',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5,
-                            color: baseColor.withOpacity(0.8),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    ...steps.map(
-                      (step) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          children: [
-                            Icon(
-                              step.success
-                                  ? Icons.check_circle_outline
-                                  : Icons.error_outline,
-                              size: 14,
-                              color: step.success
-                                  ? Colors.greenAccent
-                                  : Colors.redAccent,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                step.humanLabel,
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 13,
-                                  color: baseColor.withOpacity(0.6),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+        return AgentStepsPill(
+          steps: steps,
+          isRunning: viewModel.isAgentRunning,
+          runningLabel: viewModel.currentRunningLabel,
         );
     }
   }

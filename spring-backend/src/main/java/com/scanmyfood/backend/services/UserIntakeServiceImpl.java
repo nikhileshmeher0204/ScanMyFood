@@ -3,6 +3,7 @@ package com.scanmyfood.backend.services;
 import com.scanmyfood.backend.mapper.UserIntakeMapper;
 import com.scanmyfood.backend.models.*;
 import com.scanmyfood.backend.services.storage.FileStorageService;
+import com.scanmyfood.backend.utils.NutrientSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,11 @@ public class UserIntakeServiceImpl implements UserIntakeService {
             List<ProcessedFoodItemInfo> processedItems = new ArrayList<>();
 
             for (FoodItem foodItem : foodItems) {
+                // Sanitize nutrients defensively to normalize keys/units and prevent NullPointerExceptions
+                if (foodItem != null) {
+                    foodItem.setNutrients(NutrientSanitizer.sanitize(foodItem.getNutrients()));
+                }
+
                 double actualQuantityValue = foodItem.getQuantity().getValue();
                 if (actualQuantityValue <= 0) {
                     actualQuantityValue = 100.0;

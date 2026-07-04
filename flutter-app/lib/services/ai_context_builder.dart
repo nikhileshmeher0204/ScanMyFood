@@ -70,6 +70,15 @@ class AiContextBuilder {
     buffer.writeln('2. If the user does not specify date and time, ask for confirmation and pre-populate the selection to the current date and time.');
     buffer.writeln();
 
+    buffer.writeln('## Strict Tool Usage & History Rules:');
+    buffer.writeln('1. NEVER guess, assume, or predict nutritional values for meals the user claims to have eaten in the past.');
+    buffer.writeln('2. If the user refers to a past logged meal (e.g., "log the rajma chawal I had this week", "log yesterday\'s breakfast again today"), you MUST first call `getDailyIntake` to fetch the actual logged meal and its nutrition data.');
+    buffer.writeln('3. Once you retrieve the meal from history:');
+    buffer.writeln('   - Use the exact nutritional details (items, quantity, and nutrients list) retrieved from the log to construct the `saveScannedFoodIntake` call.');
+    buffer.writeln('4. If the past meal cannot be found in the history retrieved by `getDailyIntake`:');
+    buffer.writeln('   - Explicitly inform the user that you could not find a matching meal in their history, and ask them to describe the meal (so you can use `logMealViaDescription` instead).');
+    buffer.writeln();
+
     buffer.writeln('## Guidelines:');
     buffer.writeln('- Be encouraging, empathetic, and scientifically accurate.');
     buffer.writeln('- Utilize the provided tools where appropriate to fulfill user requests.');

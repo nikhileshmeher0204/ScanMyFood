@@ -5,6 +5,7 @@ import com.scanmyfood.backend.models.FoodAnalysisResponse;
 import com.scanmyfood.backend.tools.GetUserProfileTool;
 import com.scanmyfood.backend.tools.LogMealViaDescriptionTool;
 import com.scanmyfood.backend.tools.SaveScannedFoodIntakeTool;
+import com.scanmyfood.backend.tools.GetDailyIntakeTool;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scanmyfood.backend.utils.UserContextHolder;
 import com.scanmyfood.backend.exceptions.NotFoundException;
@@ -30,6 +31,9 @@ public class ToolExecutionController {
     private SaveScannedFoodIntakeTool saveScannedFoodIntakeTool;
 
     @Autowired
+    private GetDailyIntakeTool getDailyIntakeTool;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @PostMapping("/{toolName}/execute")
@@ -47,6 +51,17 @@ public class ToolExecutionController {
             switch (toolName) {
                 case "getUserProfile":
                     result = userProfileTool.getUserProfile();
+                    break;
+                case "getDailyIntake":
+                    String fromDate = (String) args.get("from_date");
+                    if (fromDate == null) {
+                        fromDate = (String) args.get("fromDate");
+                    }
+                    String toDate = (String) args.get("to_date");
+                    if (toDate == null) {
+                        toDate = (String) args.get("toDate");
+                    }
+                    result = getDailyIntakeTool.getDailyIntake(fromDate, toDate);
                     break;
                 case "logMealViaDescription":
                     String description = (String) args.get("description");

@@ -13,9 +13,10 @@ public class ToolRegistrationConfig {
     public ToolCallbackProvider scanMyFoodTools(
             GetUserProfileTool userProfileTool,
             LogMealViaDescriptionTool logMealTool,
-            SaveScannedFoodIntakeTool saveScannedFoodIntakeTool) {
+            SaveScannedFoodIntakeTool saveScannedFoodIntakeTool,
+            GetDailyIntakeTool getDailyIntakeTool) {
         return MethodToolCallbackProvider.builder()
-                .toolObjects(userProfileTool, logMealTool, saveScannedFoodIntakeTool)
+                .toolObjects(userProfileTool, logMealTool, saveScannedFoodIntakeTool, getDailyIntakeTool)
                 .build();
     }
 }
