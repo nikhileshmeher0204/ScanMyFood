@@ -8,6 +8,18 @@ class AiToolDeclarations {
           parameters: {},
         ),
         fbai.FunctionDeclaration(
+          'getDailyIntake',
+          'Fetches the user\'s logged meals and daily nutrient intake summary for a given date range.',
+          parameters: {
+            'from_date': fbai.Schema.string(
+              description: 'The start date for the query in YYYY-MM-DD format.',
+            ),
+            'to_date': fbai.Schema.string(
+              description: 'The end date for the query in YYYY-MM-DD format.',
+            ),
+          },
+        ),
+        fbai.FunctionDeclaration(
           'logMealViaDescription',
           'Analyzes a natural language meal description to extract nutritional data and saves it as a meal intake record. Returns the meal details.',
           parameters: {
@@ -39,7 +51,9 @@ class AiToolDeclarations {
                       'nutrients': fbai.Schema.array(
                         items: fbai.Schema.object(
                           properties: {
-                            'name': fbai.Schema.string(description: 'Name of nutrient'),
+                            'name': fbai.Schema.string(
+                              description: 'Name of nutrient. Must be exactly one of: calories, protein, total_carbohydrate, total_fat, dietary_fiber, total_sugars, sodium.',
+                            ),
                             'quantity': fbai.Schema.object(
                               properties: {
                                 'value': fbai.Schema.number(description: 'Value'),
@@ -55,7 +69,9 @@ class AiToolDeclarations {
                 'total_plate_nutrients': fbai.Schema.array(
                   items: fbai.Schema.object(
                     properties: {
-                      'name': fbai.Schema.string(description: 'Name of nutrient'),
+                      'name': fbai.Schema.string(
+                        description: 'Name of nutrient. Must be exactly one of: calories, protein, total_carbohydrate, total_fat, dietary_fiber, total_sugars, sodium.',
+                      ),
                       'quantity': fbai.Schema.object(
                         properties: {
                           'value': fbai.Schema.number(description: 'Value'),
@@ -81,6 +97,8 @@ class AiToolDeclarations {
     switch (toolName) {
       case 'getUserProfile':
         return 'Fetching your profile...';
+      case 'getDailyIntake':
+        return 'Fetching your daily intake...';
       case 'logMealViaDescription':
         final desc = args['description'] ?? 'meal';
         return 'Logging "$desc"...';

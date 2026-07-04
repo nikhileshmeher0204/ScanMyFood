@@ -32,9 +32,9 @@ class _HomePageState extends State<HomePage> {
     _pageController = PageController(initialPage: initialIndex);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context
-          .read<UserViewModel>()
-          .fetchUserProfile(context.read<UserRepository>());
+      context.read<UserViewModel>().fetchUserProfile(
+        context.read<UserRepository>(),
+      );
       context.read<DailyIntakeViewModel>().updateSelectedDate(DateTime.now());
     });
   }
@@ -63,33 +63,34 @@ class _HomePageState extends State<HomePage> {
             onPageChanged: (index) {
               context.read<UiViewModel>().updateCurrentIndex(index);
             },
-             itemCount: 3,
-             itemBuilder: (context, index) {
-               final double offset = index - page;
- 
-               // Apple Music Style: Adjacent pages scale down and fade out gently
-               final double scale =
-                   (1.0 - (offset.abs() * 0.12)).clamp(0.88, 1.0);
-               final double opacity =
-                   (1.0 - (offset.abs() * 0.70)).clamp(0.0, 1.0);
- 
-               // Subtle parallax offset shift (slides slower/delayed relative to index stack)
-               final double translationX = offset * 45.0;
- 
-               final Widget child = const [
-                 ProductAnalysisView(),
-                 FoodAnalysisView(),
-                 DailyIntakeView(),
-               ][index];
+            itemCount: 3,
+            itemBuilder: (context, index) {
+              final double offset = index - page;
+
+              // Apple Music Style: Adjacent pages scale down and fade out gently
+              final double scale = (1.0 - (offset.abs() * 0.12)).clamp(
+                0.88,
+                1.0,
+              );
+              final double opacity = (1.0 - (offset.abs() * 0.70)).clamp(
+                0.0,
+                1.0,
+              );
+
+              // Subtle parallax offset shift (slides slower/delayed relative to index stack)
+              final double translationX = offset * 45.0;
+
+              final Widget child = const [
+                ProductAnalysisView(),
+                FoodAnalysisView(),
+                DailyIntakeView(),
+              ][index];
 
               return Opacity(
                 opacity: opacity,
                 child: Transform.translate(
                   offset: Offset(translationX, 0),
-                  child: Transform.scale(
-                    scale: scale,
-                    child: child,
-                  ),
+                  child: Transform.scale(scale: scale, child: child),
                 ),
               );
             },
@@ -127,7 +128,10 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             Positioned.fill(
                               child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                                filter: ImageFilter.blur(
+                                  sigmaX: 24,
+                                  sigmaY: 24,
+                                ),
                                 child: Container(
                                   color: Colors.black.withValues(alpha: 0.4),
                                 ),
@@ -135,9 +139,12 @@ class _HomePageState extends State<HomePage> {
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 6),
+                                horizontal: 16,
+                                vertical: 6,
+                              ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   _buildCustomNavItem(
                                     index: 0,
@@ -255,7 +262,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildAskAiCircularButton(UiViewModel uiProvider, VoidCallback openContainer) {
+  Widget _buildAskAiCircularButton(
+    UiViewModel uiProvider,
+    VoidCallback openContainer,
+  ) {
     return GestureDetector(
       onTap: openContainer,
       child: Container(
@@ -283,9 +293,7 @@ class _HomePageState extends State<HomePage> {
               Positioned.fill(
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    color: Colors.black.withValues(alpha: 0.25),
-                  ),
+                  child: Container(color: Colors.black.withValues(alpha: 0.25)),
                 ),
               ),
               // Siri-like 3D animated orb
@@ -307,7 +315,8 @@ class SiriWaveformOrb extends StatefulWidget {
   State<SiriWaveformOrb> createState() => _SiriWaveformOrbState();
 }
 
-class _SiriWaveformOrbState extends State<SiriWaveformOrb> with SingleTickerProviderStateMixin {
+class _SiriWaveformOrbState extends State<SiriWaveformOrb>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
@@ -333,9 +342,7 @@ class _SiriWaveformOrbState extends State<SiriWaveformOrb> with SingleTickerProv
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
-          return CustomPaint(
-            painter: _SiriOrbPainter(_controller.value),
-          );
+          return CustomPaint(painter: _SiriOrbPainter(_controller.value));
         },
       ),
     );
@@ -356,67 +363,67 @@ class _SiriOrbPainter extends CustomPainter {
     canvas.saveLayer(Rect.fromLTWH(0, 0, size.width, size.height), Paint());
 
     // Blob 1: Violet/Indigo
-    final offset1 = Offset(
-      math.sin(t) * 3,
-      math.cos(t) * 3,
-    );
+    final offset1 = Offset(math.sin(t) * 3, math.cos(t) * 3);
     final radius1 = baseRadius * (1.0 + 0.12 * math.sin(t * 2));
     final paint1 = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          const Color(0xFF6B4EFF).withOpacity(0.85),
-          const Color(0xFF6B4EFF).withOpacity(0.0),
-        ],
-        stops: const [0.2, 1.0],
-      ).createShader(Rect.fromCircle(center: center + offset1, radius: radius1));
+      ..shader =
+          RadialGradient(
+            colors: [
+              const Color(0xFF6B4EFF).withOpacity(0.85),
+              const Color(0xFF6B4EFF).withOpacity(0.0),
+            ],
+            stops: const [0.2, 1.0],
+          ).createShader(
+            Rect.fromCircle(center: center + offset1, radius: radius1),
+          );
 
     // Blob 2: Magenta/Pink
-    final offset2 = Offset(
-      math.cos(t + 1.5) * 4,
-      math.sin(t + 1.5) * 4,
-    );
+    final offset2 = Offset(math.cos(t + 1.5) * 4, math.sin(t + 1.5) * 4);
     final radius2 = baseRadius * (0.95 + 0.15 * math.sin(t * 2 + 1.0));
     final paint2 = Paint()
       ..blendMode = BlendMode.screen
-      ..shader = RadialGradient(
-        colors: [
-          const Color(0xFFFF007F).withOpacity(0.85),
-          const Color(0xFFFF007F).withOpacity(0.0),
-        ],
-        stops: const [0.2, 1.0],
-      ).createShader(Rect.fromCircle(center: center + offset2, radius: radius2));
+      ..shader =
+          RadialGradient(
+            colors: [
+              const Color(0xFFFF007F).withOpacity(0.85),
+              const Color(0xFFFF007F).withOpacity(0.0),
+            ],
+            stops: const [0.2, 1.0],
+          ).createShader(
+            Rect.fromCircle(center: center + offset2, radius: radius2),
+          );
 
     // Blob 3: Cyan/Teal
-    final offset3 = Offset(
-      math.sin(t + 3.0) * 3.5,
-      math.cos(t + 3.0) * 3.5,
-    );
+    final offset3 = Offset(math.sin(t + 3.0) * 3.5, math.cos(t + 3.0) * 3.5);
     final radius3 = baseRadius * (1.05 + 0.1 * math.sin(t * 2 + 2.0));
     final paint3 = Paint()
       ..blendMode = BlendMode.screen
-      ..shader = RadialGradient(
-        colors: [
-          const Color(0xFF00F2FE).withOpacity(0.85),
-          const Color(0xFF00F2FE).withOpacity(0.0),
-        ],
-        stops: const [0.2, 1.0],
-      ).createShader(Rect.fromCircle(center: center + offset3, radius: radius3));
+      ..shader =
+          RadialGradient(
+            colors: [
+              const Color(0xFF00F2FE).withOpacity(0.85),
+              const Color(0xFF00F2FE).withOpacity(0.0),
+            ],
+            stops: const [0.2, 1.0],
+          ).createShader(
+            Rect.fromCircle(center: center + offset3, radius: radius3),
+          );
 
     // Blob 4: Gold/Amber
-    final offset4 = Offset(
-      math.cos(t + 4.5) * 3,
-      math.sin(t + 4.5) * 3,
-    );
+    final offset4 = Offset(math.cos(t + 4.5) * 3, math.sin(t + 4.5) * 3);
     final radius4 = baseRadius * (0.9 + 0.12 * math.cos(t * 2 + 3.0));
     final paint4 = Paint()
       ..blendMode = BlendMode.screen
-      ..shader = RadialGradient(
-        colors: [
-          const Color(0xFFFFB300).withOpacity(0.75),
-          const Color(0xFFFFB300).withOpacity(0.0),
-        ],
-        stops: const [0.2, 1.0],
-      ).createShader(Rect.fromCircle(center: center + offset4, radius: radius4));
+      ..shader =
+          RadialGradient(
+            colors: [
+              const Color(0xFFFFB300).withOpacity(0.75),
+              const Color(0xFFFFB300).withOpacity(0.0),
+            ],
+            stops: const [0.2, 1.0],
+          ).createShader(
+            Rect.fromCircle(center: center + offset4, radius: radius4),
+          );
 
     canvas.drawCircle(center + offset1, radius1, paint1);
     canvas.drawCircle(center + offset2, radius2, paint2);
@@ -431,4 +438,3 @@ class _SiriOrbPainter extends CustomPainter {
     return oldDelegate.progress != progress;
   }
 }
-
