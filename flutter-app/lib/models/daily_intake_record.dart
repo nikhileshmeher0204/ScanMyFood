@@ -6,6 +6,7 @@ class DailyIntakeRecord {
   final String? intakeName;
   final String? sourceOfIntake;
   final String? imageUrl;
+  final double portion;
   final List<FoodItem> foodItems;
 
   final double caloriesValue;
@@ -68,6 +69,7 @@ class DailyIntakeRecord {
     this.intakeName,
     this.sourceOfIntake,
     this.imageUrl,
+    this.portion = 1.0,
     this.foodItems = const [],
     this.caloriesValue = 0.0,
     this.caloriesUnit = 'kcal',
@@ -131,6 +133,7 @@ class DailyIntakeRecord {
       intakeName: json['intake_name'] as String?,
       sourceOfIntake: json['source_of_intake'] as String?,
       imageUrl: json['image_url'] as String?,
+      portion: (json['portion'] as num?)?.toDouble() ?? 1.0,
       foodItems: (json['food_items'] as List<dynamic>?)
               ?.map((e) => FoodItem.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -203,6 +206,7 @@ class DailyIntakeRecord {
       'intake_name': intakeName,
       'source_of_intake': sourceOfIntake,
       'image_url': imageUrl,
+      'portion': portion,
       'food_items': foodItems.map((e) => e.toJson()).toList(),
       'calories_value': caloriesValue,
       'calories_unit': caloriesUnit,

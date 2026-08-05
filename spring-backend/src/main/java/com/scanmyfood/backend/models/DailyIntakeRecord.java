@@ -12,6 +12,13 @@ public class DailyIntakeRecord {
     private String intakeName;
     private String sourceOfIntake;
     private String imageUrl;
+    private Double portion = 1.0;
+    private String createdBy;
+    private String updatedBy;
+    private Timestamp createdTs;
+    private Timestamp updatedTs;
+    private Timestamp createdAt;
+    
     private List<FoodItem> foodItems;
     
     private Double caloriesValue = 0.0;
@@ -66,5 +73,4 @@ public class DailyIntakeRecord {
     private String vitaminEUnit = "mg";
     private Double vitaminKValue = 0.0;
     private String vitaminKUnit = "mcg";
-    private Timestamp createdAt;
 }

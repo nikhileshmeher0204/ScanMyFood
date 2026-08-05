@@ -14,11 +14,12 @@ import 'package:read_the_label/views/widgets/daily_intake/food_intake_detail_she
 import 'package:soft_edge_blur/soft_edge_blur.dart';
 
 class FoodHistoryItemCard extends StatefulWidget {
-  const FoodHistoryItemCard(
-      {super.key,
-      required this.item,
-      required this.borderRadius,
-      required this.isLast});
+  const FoodHistoryItemCard({
+    super.key,
+    required this.item,
+    required this.borderRadius,
+    required this.isLast,
+  });
 
   final DailyIntakeRecord item;
   final BorderRadius? borderRadius;
@@ -78,13 +79,16 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
           context: context,
           builder: (context) => FoodIntakeDetailSheetView(itemCard: widget),
         );
-        final userId =
-            context.read<DailyIntakeViewModel>().authService.currentUser?.uid;
+        final userId = context
+            .read<DailyIntakeViewModel>()
+            .authService
+            .currentUser
+            ?.uid;
         if (userId != null) {
           context.read<DailyIntakeViewModel>().getIntakeDetailsByDailyIntakeId(
-                userId,
-                widget.item.id!,
-              );
+            userId,
+            widget.item.id!,
+          );
         }
       },
       child: ClipRRect(
@@ -100,41 +104,71 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
                   sigma: 5,
                   tintColor: Colors.black.withValues(alpha: 0.3),
                   controlPoints: [
-                    ControlPoint(
-                      position: 0.5,
-                      type: ControlPointType.visible,
-                    ),
+                    ControlPoint(position: 0.5, type: ControlPointType.visible),
                     ControlPoint(
                       position: 1,
                       type: ControlPointType.transparent,
-                    )
+                    ),
                   ],
-                )
+                ),
               ],
-              child: (widget.item.imageUrl!.isEmpty && isImageGenerating)
-                  ? AnimatedBuilder(
-                      animation: _shimmerController,
-                      builder: (context, child) {
-                        return Container(
-                          height: 125,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: const [
-                                Color.fromARGB(255, 237, 202, 149),
-                                Color.fromARGB(255, 253, 142, 81),
-                                Color.fromARGB(255, 255, 0, 85),
-                                Color.fromARGB(255, 0, 21, 255),
-                              ],
-                              stops: const [0.2, 0.4, 0.6, 1.0],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              transform: GradientRotation(
-                                  _shimmerController.value * 6.28),
+              child: (widget.item.imageUrl == 'GENERATING')
+                  ? Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        AnimatedBuilder(
+                          animation: _shimmerController,
+                          builder: (context, child) {
+                            return Container(
+                              height: 125,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: const [
+                                    Color.fromARGB(255, 237, 202, 149),
+                                    Color.fromARGB(255, 253, 142, 81),
+                                    Color.fromARGB(255, 255, 0, 85),
+                                    Color.fromARGB(255, 0, 21, 255),
+                                  ],
+                                  stops: const [0.2, 0.4, 0.6, 1.0],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  transform: GradientRotation(
+                                    _shimmerController.value * 6.28,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          ],
+                        ),
+                      ],
+                    )
+                  : (widget.item.imageUrl == null ||
+                        widget.item.imageUrl!.isEmpty)
+                  ? Container(
+                      height: 125,
+                      width: double.infinity,
+                      color: Colors.grey.shade900,
+                      child: const Icon(
+                        Icons.restaurant,
+                        color: Colors.white24,
+                        size: 40,
+                      ),
                     )
                   : Image.network(
                       widget.item.imageUrl!,
@@ -146,8 +180,10 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
                           height: 125,
                           width: double.infinity,
                           color: Colors.grey,
-                          child: const Icon(Icons.broken_image,
-                              color: Colors.white),
+                          child: const Icon(
+                            Icons.broken_image,
+                            color: Colors.white,
+                          ),
                         );
                       },
                       loadingBuilder: (context, child, loadingProgress) {
@@ -160,7 +196,7 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
                             child: CircularProgressIndicator(
                               value: loadingProgress.expectedTotalBytes != null
                                   ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
+                                        loadingProgress.expectedTotalBytes!
                                   : null,
                             ),
                           ),
@@ -176,8 +212,10 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -208,7 +246,9 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 12.0, vertical: 8.0),
+                    horizontal: 12.0,
+                    vertical: 8.0,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,

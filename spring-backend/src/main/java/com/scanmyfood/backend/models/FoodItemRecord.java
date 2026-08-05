@@ -35,9 +35,9 @@ public class FoodItemRecord {
     private Double ironValuePer100g;
     private String ironUnit;
 
-    private String addedBy;
-    private LocalDateTime createdAt;
-
     private Double quantityValue;
     private String quantityUnit;
+    private Integer dailyIntakeId;
+    private Double portion = 1.0;
+    private LocalDateTime createdTs;
 }

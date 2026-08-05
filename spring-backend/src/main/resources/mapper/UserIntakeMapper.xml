@@ -4,327 +4,107 @@
 <mapper namespace="com.scanmyfood.backend.mapper.UserIntakeMapper">
 
     <select id="insertFoodAnalysis" resultType="java.lang.Integer">
-            INSERT INTO daily_intake (
+        INSERT INTO daily_intake (
             user_id, intake_name, image_url, source_of_intake,
-            calories_value, calories_unit,
-            protein_value, protein_unit,
-            total_carbohydrate_value, total_carbohydrate_unit,
-            total_fat_value, total_fat_unit,
-            dietary_fiber_value, dietary_fiber_unit,
-            total_sugars_value, total_sugars_unit,
-            sodium_value, sodium_unit,
-            created_at
+            portion, created_by, updated_by, created_ts, updated_ts
         ) VALUES (
             #{userId}, #{intakeName}, #{imageUrl}, #{sourceOfIntake},
-            #{caloriesValue}, #{caloriesUnit},
-            #{proteinValue}, #{proteinUnit},
-            #{totalCarbohydrateValue}, #{totalCarbohydrateUnit},
-            #{totalFatValue}, #{totalFatUnit},
-            #{dietaryFiberValue}, #{dietaryFiberUnit},
-            #{totalSugarsValue}, #{totalSugarsUnit},
-            #{sodiumValue}, #{sodiumUnit},
-            COALESCE(#{createdAt}, CURRENT_TIMESTAMP)
-        )
-        RETURNING id
-    </select>
-
-    <select id="insertProductAnalysis" resultType="java.lang.Integer">
-        INSERT INTO daily_intake (
-            user_id,
-            intake_name,
-            image_url,
-            source_of_intake,
-            energy_value, energy_unit,
-            protein_value, protein_unit,
-            total_carbohydrate_value, total_carbohydrate_unit,
-            total_fat_value, total_fat_unit,
-            saturated_fat_value, saturated_fat_unit,
-            trans_fat_value, trans_fat_unit,
-            dietary_fiber_value, dietary_fiber_unit,
-            total_sugars_value, total_sugars_unit,
-            added_sugars_value, added_sugars_unit,
-            sodium_value, sodium_unit,
-            iron_value, iron_unit,
-            calcium_value, calcium_unit,
-            potassium_value, potassium_unit,
-            created_at
-        ) VALUES (
-            #{userId},
-            #{intakeName},
-            #{imageUrl},
-            #{sourceOfIntake},
-            #{energyValue}, #{energyUnit},
-            #{proteinValue}, #{proteinUnit},
-            #{totalCarbohydrateValue}, #{totalCarbohydrateUnit},
-            #{totalFatValue}, #{totalFatUnit},
-            #{saturatedFatValue}, #{saturatedFatUnit},
-            #{transFatValue}, #{transFatUnit},
-            #{dietaryFiberValue}, #{dietaryFiberUnit},
-            #{totalSugarsValue}, #{totalSugarsUnit},
-            #{addedSugarsValue}, #{addedSugarsUnit},
-            #{sodiumValue}, #{sodiumUnit},
-            #{ironValue}, #{ironUnit},
-            #{calciumValue}, #{calciumUnit},
-            #{potassiumValue}, #{potassiumUnit},
-            COALESCE(#{createdAt}, CURRENT_TIMESTAMP)
+            #{portion}, #{createdBy}, #{updatedBy},
+            COALESCE(#{createdTs}, CURRENT_TIMESTAMP),
+            COALESCE(#{updatedTs}, CURRENT_TIMESTAMP)
         )
         RETURNING id
     </select>
 
     <select id="insertFoodItem" resultType="java.lang.Integer">
         INSERT INTO food_item (
-            canonical_name,
-            calories_value_per_100g, calories_unit,
-            protein_value_per_100g, protein_unit,
-            total_carbohydrate_value_per_100g, total_carbohydrate_unit,
-            total_fat_value_per_100g, total_fat_unit,
-            dietary_fiber_value_per_100g, dietary_fiber_unit,
-            total_sugars_value_per_100g, total_sugars_unit,
-            sodium_value_per_100g, sodium_unit,
-            added_by
+            daily_intake_id, item_name, canonical_name,
+            quantity_value, quantity_unit, portion, created_ts
         ) VALUES (
-            #{canonicalName},
-            #{caloriesValuePer100g}, #{caloriesUnit},
-            #{proteinValuePer100g}, #{proteinUnit},
-            #{totalCarbohydrateValuePer100g}, #{totalCarbohydrateUnit},
-            #{totalFatValuePer100g}, #{totalFatUnit},
-            #{dietaryFiberValuePer100g}, #{dietaryFiberUnit},
-            #{totalSugarsValuePer100g}, #{totalSugarsUnit},
-            #{sodiumValuePer100g}, #{sodiumUnit},
-            #{addedBy}
+            #{dailyIntakeId}, #{itemName}, #{canonicalName},
+            #{quantityValue}, #{quantityUnit}, #{portion},
+            COALESCE(#{createdTs}, CURRENT_TIMESTAMP)
         )
         RETURNING id
     </select>
 
-    <insert id="insertFoodAnalysisItem">
-        INSERT INTO food_analysis_item (
-            daily_intake_id,
-            food_item_id,
-            quantity_value,
-            quantity_unit
-        ) VALUES (
-            #{dailyIntakeId},
-            #{foodItemId},
-            #{quantityValue},
-            #{quantityUnit}
-        )
-    </insert>
-
     <select id="fetchUserIntake" resultType="com.scanmyfood.backend.models.DailyIntakeRecord">
         SELECT
             id,
-            user_id,
-            intake_name,
-            source_of_intake,
-            image_url,
-            calories_value,
-            calories_unit,
-            energy_value,
-            energy_unit,
-            protein_value,
-            protein_unit,
-            cholesterol_value,
-            cholesterol_unit,
-            total_carbohydrate_value,
-            total_carbohydrate_unit,
-            dietary_fiber_value,
-            dietary_fiber_unit,
-            total_sugars_value,
-            total_sugars_unit,
-            added_sugars_value,
-            added_sugars_unit,
-            total_fat_value,
-            total_fat_unit,
-            saturated_fat_value,
-            saturated_fat_unit,
-            trans_fat_value,
-            trans_fat_unit,
-            sodium_value,
-            sodium_unit,
-            calcium_value,
-            calcium_unit,
-            iron_value,
-            iron_unit,
-            potassium_value,
-            potassium_unit,
-            magnesium_value,
-            magnesium_unit,
-            phosphorus_value,
-            phosphorus_unit,
-            zinc_value,
-            zinc_unit,
-            folate_value,
-            folate_unit,
-            vitamin_d_value,
-            vitamin_d_unit,
-            vitamin_a_value,
-            vitamin_a_unit,
-            vitamin_c_value,
-            vitamin_c_unit,
-            vitamin_b6_value,
-            vitamin_b6_unit,
-            vitamin_b12_value,
-            vitamin_b12_unit,
-            vitamin_e_value,
-            vitamin_e_unit,
-            vitamin_k_value,
-            vitamin_k_unit,
-            created_at
+            user_id AS userId,
+            intake_name AS intakeName,
+            source_of_intake AS sourceOfIntake,
+            image_url AS imageUrl,
+            portion,
+            created_by AS createdBy,
+            updated_by AS updatedBy,
+            created_ts AS createdTs,
+            updated_ts AS updatedTs,
+            COALESCE(created_ts, created_at) AS createdAt
         FROM daily_intake
         WHERE user_id = #{userId}
-            AND DATE(created_at) = #{date}
+            AND DATE(COALESCE(created_ts, created_at)) = #{date}
     </select>
 
     <select id="fetchUserIntakeRange" resultType="com.scanmyfood.backend.models.DailyIntakeRecord">
         SELECT
             id,
-            user_id,
-            intake_name,
-            source_of_intake,
-            image_url,
-            calories_value,
-            calories_unit,
-            energy_value,
-            energy_unit,
-            protein_value,
-            protein_unit,
-            cholesterol_value,
-            cholesterol_unit,
-            total_carbohydrate_value,
-            total_carbohydrate_unit,
-            dietary_fiber_value,
-            dietary_fiber_unit,
-            total_sugars_value,
-            total_sugars_unit,
-            added_sugars_value,
-            added_sugars_unit,
-            total_fat_value,
-            total_fat_unit,
-            saturated_fat_value,
-            saturated_fat_unit,
-            trans_fat_value,
-            trans_fat_unit,
-            sodium_value,
-            sodium_unit,
-            calcium_value,
-            calcium_unit,
-            iron_value,
-            iron_unit,
-            potassium_value,
-            potassium_unit,
-            magnesium_value,
-            magnesium_unit,
-            phosphorus_value,
-            phosphorus_unit,
-            zinc_value,
-            zinc_unit,
-            folate_value,
-            folate_unit,
-            vitamin_d_value,
-            vitamin_d_unit,
-            vitamin_a_value,
-            vitamin_a_unit,
-            vitamin_c_value,
-            vitamin_c_unit,
-            vitamin_b6_value,
-            vitamin_b6_unit,
-            vitamin_b12_value,
-            vitamin_b12_unit,
-            vitamin_e_value,
-            vitamin_e_unit,
-            vitamin_k_value,
-            vitamin_k_unit,
-            created_at
+            user_id AS userId,
+            intake_name AS intakeName,
+            source_of_intake AS sourceOfIntake,
+            image_url AS imageUrl,
+            portion,
+            created_by AS createdBy,
+            updated_by AS updatedBy,
+            created_ts AS createdTs,
+            updated_ts AS updatedTs,
+            COALESCE(created_ts, created_at) AS createdAt
         FROM daily_intake
         WHERE user_id = #{userId}
-            AND DATE(created_at) &gt;= #{fromDate}
-            AND DATE(created_at) &lt;= #{toDate}
+            AND DATE(COALESCE(created_ts, created_at)) &gt;= #{fromDate}
+            AND DATE(COALESCE(created_ts, created_at)) &lt;= #{toDate}
     </select>
 
     <select id="fetchIntakeById" resultType="com.scanmyfood.backend.models.DailyIntakeRecord">
         SELECT
             id,
-            user_id,
-            intake_name,
-            source_of_intake,
-            image_url,
-            calories_value,
-            calories_unit,
-            energy_value,
-            energy_unit,
-            protein_value,
-            protein_unit,
-            cholesterol_value,
-            cholesterol_unit,
-            total_carbohydrate_value,
-            total_carbohydrate_unit,
-            dietary_fiber_value,
-            dietary_fiber_unit,
-            total_sugars_value,
-            total_sugars_unit,
-            added_sugars_value,
-            added_sugars_unit,
-            total_fat_value,
-            total_fat_unit,
-            saturated_fat_value,
-            saturated_fat_unit,
-            trans_fat_value,
-            trans_fat_unit,
-            sodium_value,
-            sodium_unit,
-            calcium_value,
-            calcium_unit,
-            iron_value,
-            iron_unit,
-            potassium_value,
-            potassium_unit,
-            magnesium_value,
-            magnesium_unit,
-            phosphorus_value,
-            phosphorus_unit,
-            zinc_value,
-            zinc_unit,
-            folate_value,
-            folate_unit,
-            vitamin_d_value,
-            vitamin_d_unit,
-            vitamin_a_value,
-            vitamin_a_unit,
-            vitamin_c_value,
-            vitamin_c_unit,
-            vitamin_b6_value,
-            vitamin_b6_unit,
-            vitamin_b12_value,
-            vitamin_b12_unit,
-            vitamin_e_value,
-            vitamin_e_unit,
-            vitamin_k_value,
-            vitamin_k_unit,
-            created_at
+            user_id AS userId,
+            intake_name AS intakeName,
+            source_of_intake AS sourceOfIntake,
+            image_url AS imageUrl,
+            portion,
+            created_by AS createdBy,
+            updated_by AS updatedBy,
+            created_ts AS createdTs,
+            updated_ts AS updatedTs,
+            COALESCE(created_ts, created_at) AS createdAt
         FROM daily_intake
         WHERE user_id = #{userId}
-          AND id= #{dailyIntakeId}
+          AND id = #{dailyIntakeId}
     </select>
 
     <select id="fetchFoodItemsByDailyIntakeId" resultType="com.scanmyfood.backend.models.FoodItemRecord">
         SELECT 
             fi.id,
-            COALESCE(fia.display_name, fi.canonical_name) AS item_name,
-            fi.canonical_name,
-            fi.calories_value_per_100g, fi.calories_unit,
-            fi.protein_value_per_100g, fi.protein_unit,
-            fi.total_carbohydrate_value_per_100g, fi.total_carbohydrate_unit,
-            fi.total_fat_value_per_100g, fi.total_fat_unit,
-            fi.dietary_fiber_value_per_100g, fi.dietary_fiber_unit,
-            fi.total_sugars_value_per_100g, fi.total_sugars_unit,
-            fi.sodium_value_per_100g, fi.sodium_unit,
-            fi.iron_value_per_100g, fi.iron_unit,
-            fi.added_by, fi.created_at,
-            fai.quantity_value, fai.quantity_unit
+            COALESCE(fi.item_name, fia.display_name, fi.canonical_name) AS itemName,
+            fi.canonical_name AS canonicalName,
+            fi.quantity_value AS quantityValue,
+            fi.quantity_unit AS quantityUnit,
+            fi.portion,
+            fi.daily_intake_id AS dailyIntakeId,
+            fi.created_ts AS createdTs,
+            fid.calories_value_per_100g AS caloriesValuePer100g, fid.calories_unit AS caloriesUnit,
+            fid.protein_value_per_100g AS proteinValuePer100g, fid.protein_unit AS proteinUnit,
+            fid.total_carbohydrate_value_per_100g AS totalCarbohydrateValuePer100g, fid.total_carbohydrate_unit AS totalCarbohydrateUnit,
+            fid.total_fat_value_per_100g AS totalFatValuePer100g, fid.total_fat_unit AS totalFatUnit,
+            fid.dietary_fiber_value_per_100g AS dietaryFiberValuePer100g, fid.dietary_fiber_unit AS dietaryFiberUnit,
+            fid.total_sugars_value_per_100g AS totalSugarsValuePer100g, fid.total_sugars_unit AS totalSugarsUnit,
+            fid.sodium_value_per_100g AS sodiumValuePer100g, fid.sodium_unit AS sodiumUnit,
+            fid.iron_value_per_100g AS ironValuePer100g, fid.iron_unit AS ironUnit
         FROM food_item fi
-        INNER JOIN food_analysis_item fai ON fi.id = fai.food_item_id
-        LEFT JOIN food_item_alias fia ON fi.id = fia.food_item_id AND fia.country_code = #{countryCode}
-        WHERE fai.daily_intake_id = #{dailyIntakeId};
+        LEFT JOIN food_item_dictionary fid ON fi.canonical_name = fid.canonical_name
+        LEFT JOIN food_item_alias fia ON fi.canonical_name = fia.canonical_name AND fia.country_code = #{countryCode}
+        WHERE fi.daily_intake_id = #{dailyIntakeId}
     </select>
 
     <select id="insertProductLabel" resultType="java.lang.Integer">
@@ -368,20 +148,6 @@
         RETURNING id
     </select>
 
-    <insert id="insertFoodAnalysisProduct">
-        INSERT INTO food_analysis_product (
-            daily_intake_id,
-            product_label_id,
-            quantity_value,
-            quantity_unit
-        ) VALUES (
-            #{dailyIntakeId},
-            #{productLabelId},
-            #{quantityValue},
-            #{quantityUnit}
-        )
-    </insert>
-
     <select id="insertProductPrimaryConcern" resultType="java.lang.Integer">
         INSERT INTO product_primary_concern (
             product_label_id,
@@ -417,20 +183,19 @@
 
     <select id="findFoodItemByAlias" resultType="com.scanmyfood.backend.models.FoodItemRecord">
         SELECT 
-            fi.id,
-            fia.display_name AS item_name,
-            fi.canonical_name,
-            fi.calories_value_per_100g, fi.calories_unit,
-            fi.protein_value_per_100g, fi.protein_unit,
-            fi.total_carbohydrate_value_per_100g, fi.total_carbohydrate_unit,
-            fi.total_fat_value_per_100g, fi.total_fat_unit,
-            fi.dietary_fiber_value_per_100g, fi.dietary_fiber_unit,
-            fi.total_sugars_value_per_100g, fi.total_sugars_unit,
-            fi.sodium_value_per_100g, fi.sodium_unit,
-            fi.iron_value_per_100g, fi.iron_unit,
-            fi.added_by, fi.created_at
-        FROM food_item fi 
-        INNER JOIN food_item_alias fia ON fi.id = fia.food_item_id
+            fid.id,
+            fia.display_name AS itemName,
+            fid.canonical_name AS canonicalName,
+            fid.calories_value_per_100g AS caloriesValuePer100g, fid.calories_unit AS caloriesUnit,
+            fid.protein_value_per_100g AS proteinValuePer100g, fid.protein_unit AS proteinUnit,
+            fid.total_carbohydrate_value_per_100g AS totalCarbohydrateValuePer100g, fid.total_carbohydrate_unit AS totalCarbohydrateUnit,
+            fid.total_fat_value_per_100g AS totalFatValuePer100g, fid.total_fat_unit AS totalFatUnit,
+            fid.dietary_fiber_value_per_100g AS dietaryFiberValuePer100g, fid.dietary_fiber_unit AS dietaryFiberUnit,
+            fid.total_sugars_value_per_100g AS totalSugarsValuePer100g, fid.total_sugars_unit AS totalSugarsUnit,
+            fid.sodium_value_per_100g AS sodiumValuePer100g, fid.sodium_unit AS sodiumUnit,
+            fid.iron_value_per_100g AS ironValuePer100g, fid.iron_unit AS ironUnit
+        FROM food_item_dictionary fid 
+        INNER JOIN food_item_alias fia ON fid.canonical_name = fia.canonical_name
         WHERE LOWER(fia.display_name) = LOWER(#{displayName}) AND fia.country_code = #{countryCode}
         LIMIT 1
     </select>
@@ -438,7 +203,29 @@
     <select id="findFoodItemByCanonical" resultType="com.scanmyfood.backend.models.FoodItemRecord">
         SELECT 
             id,
-            canonical_name AS item_name,
+            canonical_name AS itemName,
+            canonical_name AS canonicalName,
+            calories_value_per_100g AS caloriesValuePer100g, calories_unit AS caloriesUnit,
+            protein_value_per_100g AS proteinValuePer100g, protein_unit AS proteinUnit,
+            total_carbohydrate_value_per_100g AS totalCarbohydrateValuePer100g, total_carbohydrate_unit AS totalCarbohydrateUnit,
+            total_fat_value_per_100g AS totalFatValuePer100g, total_fat_unit AS totalFatUnit,
+            dietary_fiber_value_per_100g AS dietaryFiberValuePer100g, dietary_fiber_unit AS dietaryFiberUnit,
+            total_sugars_value_per_100g AS totalSugarsValuePer100g, total_sugars_unit AS totalSugarsUnit,
+            sodium_value_per_100g AS sodiumValuePer100g, sodium_unit AS sodiumUnit,
+            iron_value_per_100g AS ironValuePer100g, iron_unit AS ironUnit
+        FROM food_item_dictionary
+        WHERE canonical_name = #{canonicalName}
+        LIMIT 1
+    </select>
+
+    <insert id="insertFoodItemAlias">
+        INSERT INTO food_item_alias (canonical_name, country_code, display_name)
+        VALUES (#{canonicalName}, #{countryCode}, #{displayName})
+        ON CONFLICT (canonical_name, country_code) DO NOTHING
+    </insert>
+
+    <insert id="insertOrUpdateFoodItemDictionary">
+        INSERT INTO food_item_dictionary (
             canonical_name,
             calories_value_per_100g, calories_unit,
             protein_value_per_100g, protein_unit,
@@ -447,16 +234,100 @@
             dietary_fiber_value_per_100g, dietary_fiber_unit,
             total_sugars_value_per_100g, total_sugars_unit,
             sodium_value_per_100g, sodium_unit,
-            added_by, created_at
-        FROM food_item
-        WHERE canonical_name = #{canonicalName}
+            iron_value_per_100g, iron_unit,
+            verified_ind
+        )
+        VALUES (
+            #{canonicalName},
+            #{caloriesValuePer100g}, #{caloriesUnit},
+            #{proteinValuePer100g}, #{proteinUnit},
+            #{totalCarbohydrateValuePer100g}, #{totalCarbohydrateUnit},
+            #{totalFatValuePer100g}, #{totalFatUnit},
+            #{dietaryFiberValuePer100g}, #{dietaryFiberUnit},
+            #{totalSugarsValuePer100g}, #{totalSugarsUnit},
+            #{sodiumValuePer100g}, #{sodiumUnit},
+            #{ironValuePer100g}, #{ironUnit},
+            COALESCE(#{verifiedInd}, FALSE)
+        )
+        ON CONFLICT (canonical_name) DO NOTHING
+    </insert>
+
+    <insert id="insertOrUpdateMealDictionary">
+        INSERT INTO meal_dictionary (
+            canonical_meal_name, display_meal_name, recipe_items,
+            standard_quantity_value, standard_quantity_unit,
+            calories_value, calories_unit,
+            protein_value, protein_unit,
+            total_carbohydrate_value, total_carbohydrate_unit,
+            total_fat_value, total_fat_unit,
+            dietary_fiber_value, dietary_fiber_unit,
+            total_sugars_value, total_sugars_unit,
+            sodium_value, sodium_unit,
+            verified_ind, created_by_user_id
+        )
+        VALUES (
+            #{canonicalMealName}, #{displayMealName}, #{recipeItems, typeHandler=com.scanmyfood.backend.mapper.RecipeItemListTypeHandler}::jsonb,
+            #{standardQuantityValue}, #{standardQuantityUnit},
+            #{caloriesValue}, #{caloriesUnit},
+            #{proteinValue}, #{proteinUnit},
+            #{totalCarbohydrateValue}, #{totalCarbohydrateUnit},
+            #{totalFatValue}, #{totalFatUnit},
+            #{dietaryFiberValue}, #{dietaryFiberUnit},
+            #{totalSugarsValue}, #{totalSugarsUnit},
+            #{sodiumValue}, #{sodiumUnit},
+            COALESCE(#{verifiedInd}, FALSE),
+            #{createdByUserId}
+        )
+        ON CONFLICT (canonical_meal_name) DO NOTHING
+    </insert>
+
+    <resultMap id="MealDictionaryResultMap" type="com.scanmyfood.backend.models.MealDictionaryRecord">
+        <id property="id" column="id"/>
+        <result property="canonicalMealName" column="canonical_meal_name"/>
+        <result property="displayMealName" column="display_meal_name"/>
+        <result property="recipeItems" column="recipe_items" typeHandler="com.scanmyfood.backend.mapper.RecipeItemListTypeHandler"/>
+        <result property="standardQuantityValue" column="standard_quantity_value"/>
+        <result property="standardQuantityUnit" column="standard_quantity_unit"/>
+        <result property="caloriesValue" column="calories_value"/>
+        <result property="caloriesUnit" column="calories_unit"/>
+        <result property="proteinValue" column="protein_value"/>
+        <result property="proteinUnit" column="protein_unit"/>
+        <result property="totalCarbohydrateValue" column="total_carbohydrate_value"/>
+        <result property="totalCarbohydrateUnit" column="total_carbohydrate_unit"/>
+        <result property="totalFatValue" column="total_fat_value"/>
+        <result property="totalFatUnit" column="total_fat_unit"/>
+        <result property="dietaryFiberValue" column="dietary_fiber_value"/>
+        <result property="dietaryFiberUnit" column="dietary_fiber_unit"/>
+        <result property="totalSugarsValue" column="total_sugars_value"/>
+        <result property="totalSugarsUnit" column="total_sugars_unit"/>
+        <result property="sodiumValue" column="sodium_value"/>
+        <result property="sodiumUnit" column="sodium_unit"/>
+        <result property="verifiedInd" column="verified_ind"/>
+        <result property="createdByUserId" column="created_by_user_id"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="findMealInDictionary" resultMap="MealDictionaryResultMap">
+        SELECT 
+            id,
+            canonical_meal_name,
+            display_meal_name,
+            recipe_items,
+            standard_quantity_value,
+            standard_quantity_unit,
+            calories_value, calories_unit,
+            protein_value, protein_unit,
+            total_carbohydrate_value, total_carbohydrate_unit,
+            total_fat_value, total_fat_unit,
+            dietary_fiber_value, dietary_fiber_unit,
+            total_sugars_value, total_sugars_unit,
+            sodium_value, sodium_unit,
+            verified_ind,
+            created_by_user_id,
+            created_at
+        FROM meal_dictionary
+        WHERE canonical_meal_name = #{canonicalMealName}
         LIMIT 1
     </select>
-
-    <insert id="insertFoodItemAlias">
-        INSERT INTO food_item_alias (food_item_id, country_code, display_name)
-        VALUES (#{foodItemId}, #{countryCode}, #{displayName})
-        ON CONFLICT (food_item_id, country_code) DO NOTHING
-    </insert>
 
 </mapper>

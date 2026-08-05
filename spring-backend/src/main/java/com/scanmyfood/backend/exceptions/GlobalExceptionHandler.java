@@ -13,7 +13,9 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 /**
@@ -157,12 +159,40 @@ public class GlobalExceptionHandler {
     }
 
     // ─────────────────────────────────────────────────────────────────
-    //  Catch-all
+    //  Catch-all & Async / Network disconnects
     // ─────────────────────────────────────────────────────────────────
+
+    @ExceptionHandler(AsyncRequestTimeoutException.class)
+    public ResponseEntity<ErrorResponse> handleAsyncRequestTimeout(
+            AsyncRequestTimeoutException ex, WebRequest request) {
+        log.debug("Async request timed out at path {}: {}", extractPath(request), ex.getMessage());
+        return null;
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ErrorResponse> handleIOException(
+            IOException ex, WebRequest request) {
+        if (isClientAbort(ex)) {
+            log.debug("Client disconnected from path {}: {}", extractPath(request), ex.getMessage());
+            return null;
+        }
+        log.error("I/O error at path {}: {}", extractPath(request), ex.getMessage(), ex);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorResponse.of(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        ErrorCodes.ERR_INTERNAL_SERVER_ERROR,
+                        "An I/O error occurred. Please try again later.",
+                        extractPath(request)));
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex, WebRequest request) {
+        if (isClientAbort(ex)) {
+            log.debug("Client disconnected from path {}: {}", extractPath(request), ex.getMessage());
+            return null;
+        }
         log.error("Unhandled exception at path {}: {}", extractPath(request), ex.getMessage(), ex);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -176,6 +206,26 @@ public class GlobalExceptionHandler {
     // ─────────────────────────────────────────────────────────────────
     //  Helpers
     // ─────────────────────────────────────────────────────────────────
+
+    private boolean isClientAbort(Throwable ex) {
+        Throwable cause = ex;
+        while (cause != null) {
+            String className = cause.getClass().getName();
+            String message = cause.getMessage();
+            if (className.contains("ClientAbortException")
+                    || (message != null && (
+                    message.toLowerCase().contains("an established connection was aborted")
+                    || message.toLowerCase().contains("broken pipe")
+                    || message.toLowerCase().contains("connection reset")
+                    || message.toLowerCase().contains("connection was aborted")
+                    || message.toLowerCase().contains("socket closed")
+            ))) {
+                return true;
+            }
+            cause = cause.getCause();
+        }
+        return false;
+    }
 
     private String extractPath(WebRequest request) {
         // e.g. "uri=/api/users/user"  →  "/api/users/user"

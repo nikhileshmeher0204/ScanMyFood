@@ -4,6 +4,8 @@ import 'package:path/path.dart';
 import 'package:read_the_label/core/constants/database_constants.dart';
 import 'package:read_the_label/models/cached_daily_intake_record.dart';
 import 'package:read_the_label/models/cached_user_profile_record.dart';
+import 'package:read_the_label/models/ai_chat_session.dart';
+import 'package:genui/genui.dart' hide TextPart;
 import 'package:read_the_label/main.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -29,6 +31,27 @@ class LocalDatabaseService {
     )
   ''';
 
+  static const String _createAiChatSessionsTableQuery = '''
+    CREATE TABLE ${DatabaseConstants.tableAiChatSessions} (
+      ${DatabaseConstants.columnSessionId} TEXT PRIMARY KEY,
+      ${DatabaseConstants.columnTitle} TEXT NOT NULL,
+      ${DatabaseConstants.columnMealContext} TEXT,
+      ${DatabaseConstants.columnCreatedAt} INTEGER NOT NULL,
+      ${DatabaseConstants.columnLastMsgAt} INTEGER NOT NULL
+    )
+  ''';
+
+  static const String _createAiChatMessagesTableQuery = '''
+    CREATE TABLE ${DatabaseConstants.tableAiChatMessages} (
+      ${DatabaseConstants.columnMessageId} TEXT PRIMARY KEY,
+      ${DatabaseConstants.columnSessionId} TEXT NOT NULL,
+      ${DatabaseConstants.columnRole} TEXT NOT NULL,
+      ${DatabaseConstants.columnContentJson} TEXT NOT NULL,
+      ${DatabaseConstants.columnCreatedAt} INTEGER NOT NULL,
+      FOREIGN KEY (${DatabaseConstants.columnSessionId}) REFERENCES ${DatabaseConstants.tableAiChatSessions} (${DatabaseConstants.columnSessionId}) ON DELETE CASCADE
+    )
+  ''';
+
   LocalDatabaseService._init();
 
   Future<Database> get database async {
@@ -46,6 +69,10 @@ class LocalDatabaseService {
       path,
       version: DatabaseConstants.dbVersion,
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
+      onConfigure: (db) async {
+        await db.execute('PRAGMA foreign_keys = ON');
+      },
     );
   }
 
@@ -53,6 +80,16 @@ class LocalDatabaseService {
     logger.i('Creating SQLite Tables...');
     await db.execute(_createUserProfileTableQuery);
     await db.execute(_createDailyIntakeTableQuery);
+    await db.execute(_createAiChatSessionsTableQuery);
+    await db.execute(_createAiChatMessagesTableQuery);
+  }
+
+  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    logger.i('Upgrading SQLite Database from $oldVersion to $newVersion...');
+    if (oldVersion < 2) {
+      await db.execute(_createAiChatSessionsTableQuery);
+      await db.execute(_createAiChatMessagesTableQuery);
+    }
   }
 
   // --- User Profile cache operations ---
@@ -198,6 +235,113 @@ class LocalDatabaseService {
       logger.d('Cleared All Daily Intake Cache in SQLite for: $userId');
     } catch (e) {
       logger.e('Failed to clear daily intakes from SQLite: $e');
+    }
+  }
+
+  // --- AI Chat Sessions operations ---
+
+  Future<void> createSession(AiChatSession session) async {
+    try {
+      final db = await database;
+      await db.insert(
+        DatabaseConstants.tableAiChatSessions,
+        session.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      logger.d('Created AI Chat Session: ${session.sessionId}');
+    } catch (e) {
+      logger.e('Failed to create AI Chat Session: $e');
+    }
+  }
+
+  Future<List<AiChatSession>> getSessions() async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        DatabaseConstants.tableAiChatSessions,
+        orderBy: '${DatabaseConstants.columnLastMsgAt} DESC',
+      );
+      return maps.map((map) => AiChatSession.fromMap(map)).toList();
+    } catch (e) {
+      logger.e('Failed to get AI Chat Sessions: $e');
+      return [];
+    }
+  }
+
+  Future<void> updateSessionLastMsgAt(String sessionId, DateTime lastMsgAt) async {
+    try {
+      final db = await database;
+      await db.update(
+        DatabaseConstants.tableAiChatSessions,
+        {
+          DatabaseConstants.columnLastMsgAt: lastMsgAt.millisecondsSinceEpoch,
+        },
+        where: '${DatabaseConstants.columnSessionId} = ?',
+        whereArgs: [sessionId],
+      );
+      logger.d('Updated last message time for session: $sessionId');
+    } catch (e) {
+      logger.e('Failed to update last message time: $e');
+    }
+  }
+
+  Future<void> deleteSession(String sessionId) async {
+    try {
+      final db = await database;
+      await db.delete(
+        DatabaseConstants.tableAiChatSessions,
+        where: '${DatabaseConstants.columnSessionId} = ?',
+        whereArgs: [sessionId],
+      );
+      logger.d('Deleted AI Chat Session: $sessionId');
+    } catch (e) {
+      logger.e('Failed to delete AI Chat Session: $e');
+    }
+  }
+
+  // --- AI Chat Messages operations ---
+
+  Future<void> saveMessage(String sessionId, String id, ChatMessage message) async {
+    try {
+      final db = await database;
+      final contentJsonStr = jsonEncode(message.toJson());
+      await db.insert(
+        DatabaseConstants.tableAiChatMessages,
+        {
+          DatabaseConstants.columnMessageId: id,
+          DatabaseConstants.columnSessionId: sessionId,
+          DatabaseConstants.columnRole: message.role.name,
+          DatabaseConstants.columnContentJson: contentJsonStr,
+          DatabaseConstants.columnCreatedAt: DateTime.now().millisecondsSinceEpoch,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      logger.d('Saved message: $id to session: $sessionId');
+    } catch (e) {
+      logger.e('Failed to save chat message: $e');
+    }
+  }
+
+  Future<List<ChatMessage>> getSessionMessages(String sessionId) async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        DatabaseConstants.tableAiChatMessages,
+        where: '${DatabaseConstants.columnSessionId} = ?',
+        whereArgs: [sessionId],
+        orderBy: '${DatabaseConstants.columnCreatedAt} ASC',
+      );
+      
+      final List<ChatMessage> messages = [];
+      for (final map in maps) {
+        final contentJsonStr = map[DatabaseConstants.columnContentJson] as String;
+        final contentJson = jsonDecode(contentJsonStr) as Map<String, dynamic>;
+        messages.add(ChatMessage.fromJson(contentJson));
+      }
+      return messages;
+    } catch (e) {
+      logger.e('Failed to get messages for session $sessionId: $e');
+      return [];
     }
   }
 }

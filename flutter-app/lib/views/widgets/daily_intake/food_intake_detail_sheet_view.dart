@@ -19,10 +19,7 @@ import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:soft_edge_blur/soft_edge_blur.dart';
 
 class FoodIntakeDetailSheetView extends StatefulWidget {
-  const FoodIntakeDetailSheetView({
-    super.key,
-    required this.itemCard,
-  });
+  const FoodIntakeDetailSheetView({super.key, required this.itemCard});
 
   final FoodHistoryItemCard itemCard;
 
@@ -74,7 +71,8 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                             type: EdgeType.bottomEdge,
                             size: 220,
                             sigma: 8,
-                            tintColor: _dominantColor ??
+                            tintColor:
+                                _dominantColor ??
                                 Colors.black.withValues(alpha: 0.2),
                             controlPoints: [
                               ControlPoint(
@@ -84,9 +82,9 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                               ControlPoint(
                                 position: 1,
                                 type: ControlPointType.transparent,
-                              )
+                              ),
                             ],
-                          )
+                          ),
                         ],
                         child: Image.network(
                           widget.itemCard.item.imageUrl!,
@@ -98,8 +96,10 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                               height: 400,
                               width: double.infinity,
                               color: Colors.grey,
-                              child: const Icon(Icons.broken_image,
-                                  color: Colors.white),
+                              child: const Icon(
+                                Icons.broken_image,
+                                color: Colors.white,
+                              ),
                             );
                           },
                           loadingBuilder: (context, child, loadingProgress) {
@@ -110,10 +110,10 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                               color: Colors.grey.shade800,
                               child: Center(
                                 child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
+                                  value:
+                                      loadingProgress.expectedTotalBytes != null
                                       ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
+                                            loadingProgress.expectedTotalBytes!
                                       : null,
                                 ),
                               ),
@@ -139,24 +139,42 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                   textAlign: TextAlign.center,
                                   style: AppTextStyles.heading2Bold.copyWith(
                                     color: AppColors.getTitleColor(
-                                        _dominantColor ?? Colors.black),
+                                      _dominantColor ?? Colors.black,
+                                    ),
                                     fontWeight: FontWeight.w600,
                                     height: 1.15,
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                Text(
-                                  "North Indian • 1 Serving • ${DateFormat('h:mm a').format(widget.itemCard.item.createdAt!)}",
-                                  textAlign: TextAlign.center,
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    color: AppColors.getSubtitleColor(
-                                        _dominantColor ?? Colors.black),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    letterSpacing: 0.2,
-                                    height: 1.2,
-                                  ),
+                                Builder(
+                                  builder: (context) {
+                                    final portionVal = widget.itemCard.item.portion;
+                                    final portionStr = portionVal % 1 == 0
+                                        ? portionVal.toInt().toString()
+                                        : portionVal.toString();
+                                    final servingText = '$portionStr ${portionVal == 1.0 ? "Serving" : "Servings"}';
+                                    final timeText = widget.itemCard.item.createdAt != null
+                                        ? DateFormat('h:mm a').format(widget.itemCard.item.createdAt!)
+                                        : '';
+                                    final subtitleText = timeText.isNotEmpty
+                                        ? '$servingText • $timeText'
+                                        : servingText;
+
+                                    return Text(
+                                      subtitleText,
+                                      textAlign: TextAlign.center,
+                                      style: AppTextStyles.bodyMedium.copyWith(
+                                        color: AppColors.getSubtitleColor(
+                                          _dominantColor ?? Colors.black,
+                                        ),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        letterSpacing: 0.2,
+                                        height: 1.2,
+                                      ),
+                                    );
+                                  },
                                 ),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -166,11 +184,14 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                       borderRadius: BorderRadius.circular(25),
                                       child: BackdropFilter(
                                         filter: ImageFilter.blur(
-                                            sigmaX: 5, sigmaY: 5),
+                                          sigmaX: 5,
+                                          sigmaY: 5,
+                                        ),
                                         child: Container(
                                           decoration: BoxDecoration(
-                                            color: Colors.white
-                                                .withValues(alpha: 0.1),
+                                            color: Colors.white.withValues(
+                                              alpha: 0.1,
+                                            ),
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: AppColors.primaryWhite
@@ -181,9 +202,10 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                           child: IconButton(
                                             padding: EdgeInsets.zero,
                                             icon: const Icon(
-                                                CupertinoIcons.plus,
-                                                color: Colors.white,
-                                                size: 22),
+                                              CupertinoIcons.plus,
+                                              color: Colors.white,
+                                              size: 22,
+                                            ),
                                             onPressed: () {},
                                           ),
                                         ),
@@ -197,30 +219,32 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                         backgroundColor: Colors.white,
                                         foregroundColor: _dominantColor != null
                                             ? HSLColor.fromColor(
-                                                    _dominantColor!)
-                                                .withLightness(0.3)
-                                                .toColor()
+                                                _dominantColor!,
+                                              ).withLightness(0.3).toColor()
                                             : Colors.black,
                                         elevation: 0,
                                         padding: const EdgeInsets.symmetric(
-                                            vertical: 12, horizontal: 40),
+                                          vertical: 12,
+                                          horizontal: 40,
+                                        ),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(30),
+                                          borderRadius: BorderRadius.circular(
+                                            30,
+                                          ),
                                         ),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(Icons.edit_rounded,
-                                              size: 22),
+                                          const Icon(
+                                            Icons.edit_rounded,
+                                            size: 22,
+                                          ),
                                           const SizedBox(width: 6),
                                           Text(
                                             "Edit",
                                             style: AppTextStyles.bodyMediumBold
-                                                .copyWith(
-                                              fontSize: 16,
-                                            ),
+                                                .copyWith(fontSize: 16),
                                           ),
                                         ],
                                       ),
@@ -231,11 +255,14 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                       borderRadius: BorderRadius.circular(25),
                                       child: BackdropFilter(
                                         filter: ImageFilter.blur(
-                                            sigmaX: 5, sigmaY: 5),
+                                          sigmaX: 5,
+                                          sigmaY: 5,
+                                        ),
                                         child: Container(
                                           decoration: BoxDecoration(
-                                            color: Colors.white
-                                                .withValues(alpha: 0.1),
+                                            color: Colors.white.withValues(
+                                              alpha: 0.1,
+                                            ),
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: AppColors.primaryWhite
@@ -293,8 +320,8 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                         );
                       }
 
-                      final dailyIntakeProvider =
-                          context.read<DailyIntakeViewModel>();
+                      final dailyIntakeProvider = context
+                          .read<DailyIntakeViewModel>();
                       return Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -312,15 +339,18 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                   AppConstants.totalSugars,
                                 ];
 
-                                final indicators =
-                                    dailyIntakeProvider.nutrientInfo.where((n) {
-                                  final name = n['name'] as String?;
-                                  final status = n['dv_status'] as String?;
-                                  return name != null &&
-                                      targetNutrients.contains(
-                                          NutrientUtils.toSnakeCase(name)) &&
-                                      (status == 'High' || status == 'Low');
-                                }).toList();
+                                final indicators = dailyIntakeProvider
+                                    .nutrientInfo
+                                    .where((n) {
+                                      final name = n['name'] as String?;
+                                      final status = n['dv_status'] as String?;
+                                      return name != null &&
+                                          targetNutrients.contains(
+                                            NutrientUtils.toSnakeCase(name),
+                                          ) &&
+                                          (status == 'High' || status == 'Low');
+                                    })
+                                    .toList();
 
                                 if (indicators.isEmpty) {
                                   return const SizedBox.shrink();
@@ -367,11 +397,13 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                       .analyzedScannedFoodItems
                                       .asMap()
                                       .entries
-                                      .map((entry) => AppListTile(
-                                            item: entry.value,
-                                            index: entry.key,
-                                            dominantColor: _dominantColor,
-                                          ))
+                                      .map(
+                                        (entry) => AppListTile(
+                                          item: entry.value,
+                                          index: entry.key,
+                                          dominantColor: _dominantColor,
+                                        ),
+                                      )
                                       .toList(),
                                 ),
                               ],
@@ -384,7 +416,8 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                 foodAnalysis: dailyIntakeProvider.intakeDetails,
                                 mealName: dailyIntakeProvider.scannedMealName,
                                 numberOfFoodItems: dailyIntakeProvider
-                                    .analyzedScannedFoodItems.length,
+                                    .analyzedScannedFoodItems
+                                    .length,
                                 totalPlateNutrients: dailyIntakeProvider
                                     .totalScannedPlateNutrients,
                                 nutrientInfo: dailyIntakeProvider.nutrientInfo,
@@ -451,8 +484,9 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                           onPressed: () {},
                           icon: Icon(
                             CupertinoIcons.share,
-                            color:
-                                AppColors.primaryWhite.withValues(alpha: 0.8),
+                            color: AppColors.primaryWhite.withValues(
+                              alpha: 0.8,
+                            ),
                             size: 26,
                           ),
                         ),

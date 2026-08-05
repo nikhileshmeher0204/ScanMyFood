@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/core/constants/app_constants.dart';
 import 'package:read_the_label/models/food_item.dart';
 import 'package:read_the_label/utils/nutrient_utils.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
 
 class AppListTile extends StatefulWidget {
   final FoodItem item;
@@ -62,13 +64,18 @@ class _AppListTileState extends State<AppListTile>
 
   @override
   Widget build(BuildContext context) {
+    final portion = context.watch<UiViewModel>().portionMultiplier;
     final title = widget.item.name;
-    final caloriesValue =
+    final rawCaloriesValue =
         NutrientUtils.getNutrientValue(widget.item, AppConstants.calories);
+    final caloriesValue = (rawCaloriesValue * portion).round();
     final caloriesUnit =
         NutrientUtils.getNutrientUnit(widget.item, AppConstants.calories);
+    final scaledQuantity = (widget.item.quantity.value * portion)
+        .toStringAsFixed(1)
+        .replaceAll(RegExp(r'\.0$'), '');
     final subtitle =
-        '$caloriesValue $caloriesUnit • ${widget.item.quantity.value} ${widget.item.quantity.unit}';
+        '$caloriesValue $caloriesUnit • $scaledQuantity ${widget.item.quantity.unit}';
 
     final baseBgColor =
         widget.dominantColor ?? Theme.of(context).scaffoldBackgroundColor;
@@ -190,7 +197,8 @@ class _AppListTileState extends State<AppListTile>
                     iconPath: 'assets/icons/protein_icon.png',
                     label: NutrientUtils.toTitleCase(AppConstants.protein),
                     value: NutrientUtils.getNutrientValue(
-                        widget.item, AppConstants.protein),
+                            widget.item, AppConstants.protein) *
+                        portion,
                     unit: NutrientUtils.getNutrientUnit(
                         widget.item, AppConstants.protein),
                   ),
@@ -198,7 +206,8 @@ class _AppListTileState extends State<AppListTile>
                     iconPath: 'assets/icons/carbs_icon.png',
                     label: NutrientUtils.toTitleCase(AppConstants.carbohydrate),
                     value: NutrientUtils.getNutrientValue(
-                        widget.item, AppConstants.totalCarbohydrate),
+                            widget.item, AppConstants.totalCarbohydrate) *
+                        portion,
                     unit: NutrientUtils.getNutrientUnit(
                         widget.item, AppConstants.totalCarbohydrate),
                   ),
@@ -206,7 +215,8 @@ class _AppListTileState extends State<AppListTile>
                     iconPath: 'assets/icons/fat_icon.png',
                     label: NutrientUtils.toTitleCase(AppConstants.fat),
                     value: NutrientUtils.getNutrientValue(
-                        widget.item, AppConstants.totalFat),
+                            widget.item, AppConstants.totalFat) *
+                        portion,
                     unit: NutrientUtils.getNutrientUnit(
                         widget.item, AppConstants.totalFat),
                   ),
@@ -214,7 +224,8 @@ class _AppListTileState extends State<AppListTile>
                     iconPath: 'assets/icons/fibre_icon.png',
                     label: NutrientUtils.toTitleCase(AppConstants.dietaryFiber),
                     value: NutrientUtils.getNutrientValue(
-                        widget.item, AppConstants.dietaryFiber),
+                            widget.item, AppConstants.dietaryFiber) *
+                        portion,
                     unit: NutrientUtils.getNutrientUnit(
                         widget.item, AppConstants.dietaryFiber),
                   ),
@@ -222,7 +233,8 @@ class _AppListTileState extends State<AppListTile>
                     iconPath: 'assets/icons/sugar_icon.png',
                     label: NutrientUtils.toTitleCase(AppConstants.sugar),
                     value: NutrientUtils.getNutrientValue(
-                        widget.item, AppConstants.totalSugars),
+                            widget.item, AppConstants.totalSugars) *
+                        portion,
                     unit: NutrientUtils.getNutrientUnit(
                         widget.item, AppConstants.totalSugars),
                   ),
@@ -230,7 +242,8 @@ class _AppListTileState extends State<AppListTile>
                     iconPath: 'assets/icons/sodium_icon.png',
                     label: NutrientUtils.toTitleCase(AppConstants.sodium),
                     value: NutrientUtils.getNutrientValue(
-                        widget.item, AppConstants.sodium),
+                            widget.item, AppConstants.sodium) *
+                        portion,
                     unit: NutrientUtils.getNutrientUnit(
                         widget.item, AppConstants.sodium),
                   ),

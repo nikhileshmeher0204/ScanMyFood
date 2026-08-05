@@ -1,6 +1,7 @@
 package com.scanmyfood.backend.services;
 
 import java.io.IOException;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,13 +17,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.scanmyfood.backend.models.MealDictionaryRecord;
+import com.scanmyfood.backend.models.RecipeItem;
 import com.google.cloud.vertexai.api.Content;
 import com.google.cloud.vertexai.api.GenerateContentResponse;
 import com.google.cloud.vertexai.generativeai.ContentMaker;
 import com.google.cloud.vertexai.generativeai.GenerativeModel;
 import com.google.cloud.vertexai.generativeai.PartMaker;
 import com.google.protobuf.ByteString;
-import java.util.List;
+
 import java.util.stream.Collectors;
 import com.scanmyfood.backend.dto.HealthConditionDto;
 import com.scanmyfood.backend.models.FoodItem;
@@ -32,8 +36,6 @@ import com.scanmyfood.backend.models.Quantity;
 import com.scanmyfood.backend.models.CountryCode;
 import com.scanmyfood.backend.models.PlateNutrients;
 import com.scanmyfood.backend.mapper.UserIntakeMapper;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 @Service
 public class VertexAiServiceImpl implements AiService {
@@ -319,7 +321,7 @@ public class VertexAiServiceImpl implements AiService {
       String responseText = response.getCandidates(0).getContent().getParts(0).getText();
       String jsonString = extractJsonString(responseText);
       FoodAnalysisResponse responseObj = objectMapper.readValue(jsonString, FoodAnalysisResponse.class);
-      enrichFoodAnalysisResponse(responseObj, userId);
+      enrichFoodAnalysisResponse(responseObj, userId, "SM");
       return responseObj;
 
     } catch (Exception e) {
@@ -412,7 +414,7 @@ public class VertexAiServiceImpl implements AiService {
       String responseText = response.getCandidates(0).getContent().getParts(0).getText();
       String jsonString = extractJsonString(responseText);
       FoodAnalysisResponse responseObj = objectMapper.readValue(jsonString, FoodAnalysisResponse.class);
-      enrichFoodAnalysisResponse(responseObj, userId);
+      enrichFoodAnalysisResponse(responseObj, userId, "SD");
       return responseObj;
 
     } catch (Exception e) {
@@ -534,56 +536,182 @@ public class VertexAiServiceImpl implements AiService {
     }
   }
 
-  private void enrichFoodAnalysisResponse(FoodAnalysisResponse response, String userId) {
-    if (userId == null || userId.trim().isEmpty() || response == null || response.getAnalyzedFoodItems() == null) {
+  private void enrichFoodAnalysisResponse(FoodAnalysisResponse response, String userId, String sourceOfIntake) {
+    if (userId == null || userId.trim().isEmpty() || response == null) {
       return;
     }
     try {
       User user = userService.getUserByUserId(userId);
       String countryCode = CountryCode.fromCountryName(user.getCountry()).getCode();
+      String canonicalMealName = response.getMealName().toLowerCase().trim().replaceAll("\\s+", "_");
 
-      for (FoodItem foodItem : response.getAnalyzedFoodItems()) {
-        FoodItemRecord dbFoodItem = userIntakeMapper.findFoodItemByAlias(foodItem.getName(), countryCode);
-        boolean foundByAlias = (dbFoodItem != null);
-        if (dbFoodItem == null) {
-          dbFoodItem = userIntakeMapper.findFoodItemByCanonical(foodItem.getCanonicalName());
-        }
+      // 1. If source = "SD" (description-based), check if standard recipe exists in meal_dictionary
+      if ("SD".equalsIgnoreCase(sourceOfIntake)) {
+        MealDictionaryRecord dbMeal = userIntakeMapper.findMealInDictionary(canonicalMealName);
+        if (dbMeal != null) {
+          logger.info("SD scan: Found standardized recipe in meal_dictionary for {}", dbMeal.getDisplayMealName());
+          response.setMealName(dbMeal.getDisplayMealName());
 
-        if (dbFoodItem != null) {
-          foodItem.setCanonicalName(dbFoodItem.getCanonicalName());
-          if (foundByAlias) {
-            foodItem.setName(dbFoodItem.getItemName());
+          List<FoodNutrient> mealNutrients = new ArrayList<>();
+          if (dbMeal.getCaloriesValue() != null) {
+            mealNutrients.add(new FoodNutrient(NutrientConstants.CALORIES, new Quantity(dbMeal.getCaloriesValue(), dbMeal.getCaloriesUnit())));
           }
+          if (dbMeal.getProteinValue() != null) {
+            mealNutrients.add(new FoodNutrient(NutrientConstants.PROTEIN, new Quantity(dbMeal.getProteinValue(), dbMeal.getProteinUnit())));
+          }
+          if (dbMeal.getTotalCarbohydrateValue() != null) {
+            mealNutrients.add(new FoodNutrient(NutrientConstants.TOTAL_CARBOHYDRATE, new Quantity(dbMeal.getTotalCarbohydrateValue(), dbMeal.getTotalCarbohydrateUnit())));
+          }
+          if (dbMeal.getTotalFatValue() != null) {
+            mealNutrients.add(new FoodNutrient(NutrientConstants.TOTAL_FAT, new Quantity(dbMeal.getTotalFatValue(), dbMeal.getTotalFatUnit())));
+          }
+          if (dbMeal.getDietaryFiberValue() != null) {
+            mealNutrients.add(new FoodNutrient(NutrientConstants.DIETARY_FIBER, new Quantity(dbMeal.getDietaryFiberValue(), dbMeal.getDietaryFiberUnit())));
+          }
+          if (dbMeal.getTotalSugarsValue() != null) {
+            mealNutrients.add(new FoodNutrient(NutrientConstants.TOTAL_SUGARS, new Quantity(dbMeal.getTotalSugarsValue(), dbMeal.getTotalSugarsUnit())));
+          }
+          if (dbMeal.getSodiumValue() != null) {
+            mealNutrients.add(new FoodNutrient(NutrientConstants.SODIUM, new Quantity(dbMeal.getSodiumValue(), dbMeal.getSodiumUnit())));
+          }
+          response.setTotalPlateNutrients(mealNutrients);
 
-          double actualQuantityValue = foodItem.getQuantity().getValue();
-          double portionFactor = actualQuantityValue / 100.0;
+          if (dbMeal.getRecipeItems() != null && !dbMeal.getRecipeItems().isEmpty()) {
+            List<FoodItem> foodItems = new ArrayList<>();
+            for (RecipeItem recipeItem : dbMeal.getRecipeItems()) {
+              String itemCanonical = recipeItem.getCanonicalName();
+              String itemName = recipeItem.getName();
+              double portionValue = recipeItem.getValue();
+              String portionUnit = recipeItem.getUnit();
 
-          List<FoodNutrient> overriddenNutrients = new ArrayList<>();
-          overriddenNutrients.add(new FoodNutrient(NutrientConstants.CALORIES, new Quantity(
-              round(safeDouble(dbFoodItem.getCaloriesValuePer100g()) * portionFactor), dbFoodItem.getCaloriesUnit())));
-          overriddenNutrients.add(new FoodNutrient(NutrientConstants.PROTEIN, new Quantity(
-              round(safeDouble(dbFoodItem.getProteinValuePer100g()) * portionFactor), dbFoodItem.getProteinUnit())));
-          overriddenNutrients.add(new FoodNutrient(NutrientConstants.TOTAL_CARBOHYDRATE,
-              new Quantity(round(safeDouble(dbFoodItem.getTotalCarbohydrateValuePer100g()) * portionFactor),
-                  dbFoodItem.getTotalCarbohydrateUnit())));
-          overriddenNutrients.add(new FoodNutrient(NutrientConstants.TOTAL_FAT, new Quantity(
-              round(safeDouble(dbFoodItem.getTotalFatValuePer100g()) * portionFactor), dbFoodItem.getTotalFatUnit())));
-          overriddenNutrients.add(new FoodNutrient(NutrientConstants.DIETARY_FIBER, new Quantity(
-              round(safeDouble(dbFoodItem.getDietaryFiberValuePer100g()) * portionFactor), dbFoodItem.getDietaryFiberUnit())));
-          overriddenNutrients.add(new FoodNutrient(NutrientConstants.TOTAL_SUGARS, new Quantity(
-              round(safeDouble(dbFoodItem.getTotalSugarsValuePer100g()) * portionFactor), dbFoodItem.getTotalSugarsUnit())));
-          overriddenNutrients.add(new FoodNutrient(NutrientConstants.SODIUM, new Quantity(
-              round(safeDouble(dbFoodItem.getSodiumValuePer100g()) * portionFactor), dbFoodItem.getSodiumUnit())));
+              FoodItem foodItem = new FoodItem();
+              foodItem.setCanonicalName(itemCanonical);
+              foodItem.setName(itemName);
+              foodItem.setQuantity(new Quantity(portionValue, portionUnit));
 
-          foodItem.setNutrients(overriddenNutrients);
+              FoodItemRecord dbFoodItem = userIntakeMapper.findFoodItemByCanonical(itemCanonical);
+              if (dbFoodItem != null) {
+                double portionFactor = portionValue / 100.0;
+                List<FoodNutrient> itemNutrients = new ArrayList<>();
+                itemNutrients.add(new FoodNutrient(NutrientConstants.CALORIES, new Quantity(
+                    round(safeDouble(dbFoodItem.getCaloriesValuePer100g()) * portionFactor), dbFoodItem.getCaloriesUnit())));
+                itemNutrients.add(new FoodNutrient(NutrientConstants.PROTEIN, new Quantity(
+                    round(safeDouble(dbFoodItem.getProteinValuePer100g()) * portionFactor), dbFoodItem.getProteinUnit())));
+                itemNutrients.add(new FoodNutrient(NutrientConstants.TOTAL_CARBOHYDRATE, new Quantity(
+                    round(safeDouble(dbFoodItem.getTotalCarbohydrateValuePer100g()) * portionFactor), dbFoodItem.getTotalCarbohydrateUnit())));
+                itemNutrients.add(new FoodNutrient(NutrientConstants.TOTAL_FAT, new Quantity(
+                    round(safeDouble(dbFoodItem.getTotalFatValuePer100g()) * portionFactor), dbFoodItem.getTotalFatUnit())));
+                itemNutrients.add(new FoodNutrient(NutrientConstants.DIETARY_FIBER, new Quantity(
+                    round(safeDouble(dbFoodItem.getDietaryFiberValuePer100g()) * portionFactor), dbFoodItem.getDietaryFiberUnit())));
+                itemNutrients.add(new FoodNutrient(NutrientConstants.TOTAL_SUGARS, new Quantity(
+                    round(safeDouble(dbFoodItem.getTotalSugarsValuePer100g()) * portionFactor), dbFoodItem.getTotalSugarsUnit())));
+                itemNutrients.add(new FoodNutrient(NutrientConstants.SODIUM, new Quantity(
+                    round(safeDouble(dbFoodItem.getSodiumValuePer100g()) * portionFactor), dbFoodItem.getSodiumUnit())));
+                foodItem.setNutrients(itemNutrients);
+              }
+              foodItems.add(foodItem);
+            }
+            response.setAnalyzedFoodItems(foodItems);
+          }
+          return;
         }
       }
 
-      recalculateTotalPlateNutrients(response);
+      // 2. For SM (image scan) OR SD when meal was not in meal_dictionary: Loop food items
+      List<RecipeItem> recipeItemsForCatalog = new ArrayList<>();
+
+      if (response.getAnalyzedFoodItems() != null) {
+        for (FoodItem foodItem : response.getAnalyzedFoodItems()) {
+          FoodItemRecord dbFoodItem = userIntakeMapper.findFoodItemByAlias(foodItem.getName(), countryCode);
+          boolean foundByAlias = (dbFoodItem != null);
+          if (dbFoodItem == null) {
+            dbFoodItem = userIntakeMapper.findFoodItemByCanonical(foodItem.getCanonicalName());
+          }
+
+          double actualQuantityValue = foodItem.getQuantity() != null ? foodItem.getQuantity().getValue() : 100.0;
+          if (actualQuantityValue <= 0) actualQuantityValue = 100.0;
+
+          if (dbFoodItem != null) {
+            foodItem.setCanonicalName(dbFoodItem.getCanonicalName());
+            if (foundByAlias) {
+              foodItem.setName(dbFoodItem.getItemName());
+            }
+
+            double portionFactor = actualQuantityValue / 100.0;
+            List<FoodNutrient> overriddenNutrients = new ArrayList<>();
+            overriddenNutrients.add(new FoodNutrient(NutrientConstants.CALORIES, new Quantity(
+                round(safeDouble(dbFoodItem.getCaloriesValuePer100g()) * portionFactor), dbFoodItem.getCaloriesUnit())));
+            overriddenNutrients.add(new FoodNutrient(NutrientConstants.PROTEIN, new Quantity(
+                round(safeDouble(dbFoodItem.getProteinValuePer100g()) * portionFactor), dbFoodItem.getProteinUnit())));
+            overriddenNutrients.add(new FoodNutrient(NutrientConstants.TOTAL_CARBOHYDRATE,
+                new Quantity(round(safeDouble(dbFoodItem.getTotalCarbohydrateValuePer100g()) * portionFactor),
+                    dbFoodItem.getTotalCarbohydrateUnit())));
+            overriddenNutrients.add(new FoodNutrient(NutrientConstants.TOTAL_FAT, new Quantity(
+                round(safeDouble(dbFoodItem.getTotalFatValuePer100g()) * portionFactor), dbFoodItem.getTotalFatUnit())));
+            overriddenNutrients.add(new FoodNutrient(NutrientConstants.DIETARY_FIBER, new Quantity(
+                round(safeDouble(dbFoodItem.getDietaryFiberValuePer100g()) * portionFactor), dbFoodItem.getDietaryFiberUnit())));
+            overriddenNutrients.add(new FoodNutrient(NutrientConstants.TOTAL_SUGARS, new Quantity(
+                round(safeDouble(dbFoodItem.getTotalSugarsValuePer100g()) * portionFactor), dbFoodItem.getTotalSugarsUnit())));
+            overriddenNutrients.add(new FoodNutrient(NutrientConstants.SODIUM, new Quantity(
+                round(safeDouble(dbFoodItem.getSodiumValuePer100g()) * portionFactor), dbFoodItem.getSodiumUnit())));
+            foodItem.setNutrients(overriddenNutrients);
+          } else {
+            // Unlisted item in dictionary: Auto-populate food_item_dictionary with verified_ind = false
+            double factor = 100.0 / actualQuantityValue;
+            Map<String, Quantity> itemNutrientMap = foodItem.getNutrients() != null ? foodItem.getNutrients().stream()
+                .collect(Collectors.toMap(FoodNutrient::getName, FoodNutrient::getQuantity, (v1, v2) -> v1)) : Collections.emptyMap();
+
+            userIntakeMapper.insertOrUpdateFoodItemDictionary(
+                foodItem.getCanonicalName(),
+                round(safeGetNutrientVal(itemNutrientMap, NutrientConstants.CALORIES) * factor), safeGetNutrientUnit(itemNutrientMap, NutrientConstants.CALORIES, "kcal"),
+                round(safeGetNutrientVal(itemNutrientMap, NutrientConstants.PROTEIN) * factor), safeGetNutrientUnit(itemNutrientMap, NutrientConstants.PROTEIN, "g"),
+                round(safeGetNutrientVal(itemNutrientMap, NutrientConstants.TOTAL_CARBOHYDRATE) * factor), safeGetNutrientUnit(itemNutrientMap, NutrientConstants.TOTAL_CARBOHYDRATE, "g"),
+                round(safeGetNutrientVal(itemNutrientMap, NutrientConstants.TOTAL_FAT) * factor), safeGetNutrientUnit(itemNutrientMap, NutrientConstants.TOTAL_FAT, "g"),
+                round(safeGetNutrientVal(itemNutrientMap, NutrientConstants.DIETARY_FIBER) * factor), safeGetNutrientUnit(itemNutrientMap, NutrientConstants.DIETARY_FIBER, "g"),
+                round(safeGetNutrientVal(itemNutrientMap, NutrientConstants.TOTAL_SUGARS) * factor), safeGetNutrientUnit(itemNutrientMap, NutrientConstants.TOTAL_SUGARS, "g"),
+                round(safeGetNutrientVal(itemNutrientMap, NutrientConstants.SODIUM) * factor), safeGetNutrientUnit(itemNutrientMap, NutrientConstants.SODIUM, "mg"),
+                0.0, "mg",
+                false // verified_ind = false
+            );
+            userIntakeMapper.insertFoodItemAlias(foodItem.getCanonicalName(), countryCode, foodItem.getName());
+          }
+          recipeItemsForCatalog.add(new RecipeItem(foodItem.getCanonicalName(), foodItem.getName(), actualQuantityValue, foodItem.getQuantity() != null ? foodItem.getQuantity().getUnit() : "g"));
+        }
+        recalculateTotalPlateNutrients(response);
+      }
+
+      // Auto-populate meal_dictionary with verified_ind = false
+      Map<String, Quantity> plateNutrientMap = response.getTotalPlateNutrients() != null ? response.getTotalPlateNutrients().stream()
+          .collect(Collectors.toMap(FoodNutrient::getName, FoodNutrient::getQuantity, (v1, v2) -> v1)) : Collections.emptyMap();
+
+      userIntakeMapper.insertOrUpdateMealDictionary(
+          canonicalMealName,
+          response.getMealName(),
+          recipeItemsForCatalog,
+          1.0, "serving",
+          safeGetNutrientVal(plateNutrientMap, NutrientConstants.CALORIES), safeGetNutrientUnit(plateNutrientMap, NutrientConstants.CALORIES, "kcal"),
+          safeGetNutrientVal(plateNutrientMap, NutrientConstants.PROTEIN), safeGetNutrientUnit(plateNutrientMap, NutrientConstants.PROTEIN, "g"),
+          safeGetNutrientVal(plateNutrientMap, NutrientConstants.TOTAL_CARBOHYDRATE), safeGetNutrientUnit(plateNutrientMap, NutrientConstants.TOTAL_CARBOHYDRATE, "g"),
+          safeGetNutrientVal(plateNutrientMap, NutrientConstants.TOTAL_FAT), safeGetNutrientUnit(plateNutrientMap, NutrientConstants.TOTAL_FAT, "g"),
+          safeGetNutrientVal(plateNutrientMap, NutrientConstants.DIETARY_FIBER), safeGetNutrientUnit(plateNutrientMap, NutrientConstants.DIETARY_FIBER, "g"),
+          safeGetNutrientVal(plateNutrientMap, NutrientConstants.TOTAL_SUGARS), safeGetNutrientUnit(plateNutrientMap, NutrientConstants.TOTAL_SUGARS, "g"),
+          safeGetNutrientVal(plateNutrientMap, NutrientConstants.SODIUM), safeGetNutrientUnit(plateNutrientMap, NutrientConstants.SODIUM, "mg"),
+          false, userId
+      );
 
     } catch (Exception e) {
-      logger.warn("Failed to enrich food analysis response with DB values: {}", e.getMessage());
+      logger.warn("Failed to enrich food analysis response with DB values: {}", e.getMessage(), e);
     }
+  }
+
+  private double safeGetNutrientVal(Map<String, Quantity> map, String key) {
+    Quantity q = map.get(key);
+    return q != null ? q.getValue() : 0.0;
+  }
+
+  private String safeGetNutrientUnit(Map<String, Quantity> map, String key, String defaultUnit) {
+    Quantity q = map.get(key);
+    return q != null ? q.getUnit() : defaultUnit;
   }
 
   private double safeDouble(Double val) {

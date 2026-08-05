@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:read_the_label/core/constants/app_constants.dart';
@@ -19,6 +20,8 @@ import 'package:read_the_label/utils/nutrient_utils.dart';
 import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/services/local_database_service.dart';
 import 'package:read_the_label/models/cached_daily_intake_record.dart';
+import 'package:read_the_label/services/notification_service.dart';
+import 'package:read_the_label/services/tools/tool_execution_client.dart';
 import 'base_view_model.dart';
 
 class DailyIntakeViewModel extends BaseViewModel {
@@ -27,6 +30,11 @@ class DailyIntakeViewModel extends BaseViewModel {
   AiRepositoryInterface aiRepository;
   UiViewModel uiProvider;
   AuthService authService;
+  final NotificationService notificationService;
+  final ToolExecutionClient toolClient;
+  
+  StreamSubscription? _sseSub;
+  StreamSubscription? _toolSub;
 
   // State
   bool _isLoading = false;
@@ -77,8 +85,24 @@ class DailyIntakeViewModel extends BaseViewModel {
     required this.aiRepository,
     required this.uiProvider,
     required this.authService,
+    required this.notificationService,
+    required this.toolClient,
   }) {
     loadCacheFromDevice();
+    _subscribeToMealLogging();
+  }
+
+  void _subscribeToMealLogging() {
+    _sseSub = notificationService.onMealLogged.listen((_) => _handleMealLoggedRefresh());
+    _toolSub = toolClient.onMealLogged.listen((_) => _handleMealLoggedRefresh());
+  }
+
+  void _handleMealLoggedRefresh() {
+    final uid = authService.currentUser?.uid;
+    if (uid != null) {
+      debugPrint("DailyIntakeViewModel: Meal logged event received, refreshing intake for $uid...");
+      getDailyIntake(uid, selectedDate);
+    }
   }
 
   void onUserChanged() {
@@ -431,6 +455,7 @@ class DailyIntakeViewModel extends BaseViewModel {
       // Populate intakeDetails dummy response for TotalNutrientsCard widget parameter compatibility
       _intakeDetails = FoodAnalysisResponse(
         mealName: _scannedMealName,
+        portion: record.portion,
         analyzedFoodItems: _analyzedScannedFoodItems,
         totalPlateNutrients: _totalScannedPlateNutrients,
       );
@@ -544,5 +569,12 @@ class DailyIntakeViewModel extends BaseViewModel {
     logger.i("Final _nutrientInfo length: ${_nutrientInfo.length}");
     logger.i("Final _nutrientInfo: $_nutrientInfo");
     logger.i("=== End calculateNutrientInfo ===");
+  }
+
+  @override
+  void dispose() {
+    _sseSub?.cancel();
+    _toolSub?.cancel();
+    super.dispose();
   }
 }
