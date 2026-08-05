@@ -39,7 +39,11 @@ public class NotificationController {
                     .name("connected")
                     .data("Real-time notifications connected"));
         } catch (IOException e) {
+            log.debug("Failed to send initial SSE connected event to user {}: {}", userId, e.getMessage());
             removeEmitter(userId, emitter);
+            try {
+                emitter.completeWithError(e);
+            } catch (Exception ignored) {}
         }
 
         return emitter;
@@ -50,7 +54,7 @@ public class NotificationController {
         if (emitters != null) {
             emitters.remove(emitter);
             if (emitters.isEmpty()) {
-                userEmitters.remove(userId);
+                userEmitters.remove(userId, emitters);
             }
         }
     }
@@ -66,8 +70,12 @@ public class NotificationController {
                     emitter.send(SseEmitter.event()
                             .name("meal_logged")
                             .data(Map.of("dailyIntakeId", event.getDailyIntakeId())));
-                } catch (IOException e) {
+                } catch (Throwable e) {
+                    log.debug("Failed to send SSE notification to emitter for user {}: {}", event.getUserId(), e.getMessage());
                     deadEmitters.add(emitter);
+                    try {
+                        emitter.completeWithError(e);
+                    } catch (Exception ignored) {}
                 }
             }
             for (SseEmitter dead : deadEmitters) {

@@ -455,6 +455,7 @@ class DailyIntakeViewModel extends BaseViewModel {
       // Populate intakeDetails dummy response for TotalNutrientsCard widget parameter compatibility
       _intakeDetails = FoodAnalysisResponse(
         mealName: _scannedMealName,
+        portion: record.portion,
         analyzedFoodItems: _analyzedScannedFoodItems,
         totalPlateNutrients: _totalScannedPlateNutrients,
       );

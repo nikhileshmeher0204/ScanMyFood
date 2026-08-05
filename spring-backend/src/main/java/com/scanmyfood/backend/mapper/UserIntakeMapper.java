@@ -2,6 +2,7 @@ package com.scanmyfood.backend.mapper;
 
 import com.scanmyfood.backend.models.DailyIntakeRecord;
 import com.scanmyfood.backend.models.FoodItemRecord;
+import com.scanmyfood.backend.models.RecipeItem;
 import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDate;
@@ -15,81 +16,21 @@ public interface UserIntakeMapper {
             @Param("intakeName") String intakeName,
             @Param("imageUrl") String imageUrl,
             @Param("sourceOfIntake") String sourceOfIntake,
-            @Param("caloriesValue") double caloriesValue,
-            @Param("caloriesUnit") String caloriesUnit,
-            @Param("proteinValue") double proteinValue,
-            @Param("proteinUnit") String proteinUnit,
-            @Param("totalCarbohydrateValue") double totalCarbohydrateValue,
-            @Param("totalCarbohydrateUnit") String totalCarbohydrateUnit,
-            @Param("totalFatValue") double totalFatValue,
-            @Param("totalFatUnit") String totalFatUnit,
-            @Param("dietaryFiberValue") double dietaryFiberValue,
-            @Param("dietaryFiberUnit") String dietaryFiberUnit,
-            @Param("totalSugarsValue") double totalSugarsValue,
-            @Param("totalSugarsUnit") String totalSugarsUnit,
-            @Param("sodiumValue") double sodiumValue,
-            @Param("sodiumUnit") String sodiumUnit,
-            @Param("createdAt") java.time.LocalDateTime createdAt
-    );
-
-    Integer insertProductAnalysis(
-            @Param("userId") String userId,
-            @Param("intakeName") String intakeName,
-            @Param("imageUrl") String imageUrl,
-            @Param("sourceOfIntake") String sourceOfIntake,
-            @Param("energyValue") double energyValue,
-            @Param("energyUnit") String energyUnit,
-            @Param("proteinValue") double proteinValue,
-            @Param("proteinUnit") String proteinUnit,
-            @Param("totalCarbohydrateValue") double totalCarbohydrateValue,
-            @Param("totalCarbohydrateUnit") String totalCarbohydrateUnit,
-            @Param("totalFatValue") double totalFatValue,
-            @Param("totalFatUnit") String totalFatUnit,
-            @Param("saturatedFatValue") double saturatedFatValue,
-            @Param("saturatedFatUnit") String saturatedFatUnit,
-            @Param("transFatValue") double transFatValue,
-            @Param("transFatUnit") String transFatUnit,
-            @Param("dietaryFiberValue") double dietaryFiberValue,
-            @Param("dietaryFiberUnit") String dietaryFiberUnit,
-            @Param("totalSugarsValue") double totalSugarsValue,
-            @Param("totalSugarsUnit") String totalSugarsUnit,
-            @Param("addedSugarsValue") double addedSugarsValue,
-            @Param("addedSugarsUnit") String addedSugarsUnit,
-            @Param("sodiumValue") double sodiumValue,
-            @Param("sodiumUnit") String sodiumUnit,
-            @Param("ironValue") double ironValue,
-            @Param("ironUnit") String ironUnit,
-            @Param("calciumValue") double calciumValue,
-            @Param("calciumUnit") String calciumUnit,
-            @Param("potassiumValue") double potassiumValue,
-            @Param("potassiumUnit") String potassiumUnit,
-            @Param("createdAt") java.time.LocalDateTime createdAt
+            @Param("portion") double portion,
+            @Param("createdBy") String createdBy,
+            @Param("updatedBy") String updatedBy,
+            @Param("createdTs") java.time.LocalDateTime createdTs,
+            @Param("updatedTs") java.time.LocalDateTime updatedTs
     );
 
     Integer insertFoodItem(
-            @Param("canonicalName") String canonicalName,
-            @Param("caloriesValuePer100g") double caloriesValuePer100g,
-            @Param("caloriesUnit") String caloriesUnit,
-            @Param("proteinValuePer100g") double proteinValuePer100g,
-            @Param("proteinUnit") String proteinUnit,
-            @Param("totalCarbohydrateValuePer100g") double totalCarbohydrateValuePer100g,
-            @Param("totalCarbohydrateUnit") String totalCarbohydrateUnit,
-            @Param("totalFatValuePer100g") double totalFatValuePer100g,
-            @Param("totalFatUnit") String totalFatUnit,
-            @Param("dietaryFiberValuePer100g") double dietaryFiberValuePer100g,
-            @Param("dietaryFiberUnit") String dietaryFiberUnit,
-            @Param("totalSugarsValuePer100g") double totalSugarsValuePer100g,
-            @Param("totalSugarsUnit") String totalSugarsUnit,
-            @Param("sodiumValuePer100g") double sodiumValuePer100g,
-            @Param("sodiumUnit") String sodiumUnit,
-            @Param("addedBy") String addedBy
-    );
-
-    void insertFoodAnalysisItem(
             @Param("dailyIntakeId") Integer dailyIntakeId,
-            @Param("foodItemId") Integer foodItemId,
+            @Param("itemName") String itemName,
+            @Param("canonicalName") String canonicalName,
             @Param("quantityValue") double quantityValue,
-            @Param("quantityUnit") String quantityUnit
+            @Param("quantityUnit") String quantityUnit,
+            @Param("portion") double portion,
+            @Param("createdTs") java.time.LocalDateTime createdTs
     );
 
     List<DailyIntakeRecord> fetchUserIntake(
@@ -123,7 +64,7 @@ public interface UserIntakeMapper {
     );
 
     void insertFoodItemAlias(
-            @Param("foodItemId") Integer foodItemId,
+            @Param("canonicalName") String canonicalName,
             @Param("countryCode") String countryCode,
             @Param("displayName") String displayName
     );
@@ -164,11 +105,76 @@ public interface UserIntakeMapper {
             @Param("addedBy") String addedBy
     );
 
-    void insertFoodAnalysisProduct(
-            @Param("dailyIntakeId") Integer dailyIntakeId,
+    Integer insertFoodMeal(
+            @Param("mealName") String mealName,
+            @Param("imageUrl") String imageUrl,
+            @Param("quantityValue") Double quantityValue,
+            @Param("quantityUnit") String quantityUnit,
+            @Param("caloriesValue") Double caloriesValue, @Param("caloriesUnit") String caloriesUnit,
+            @Param("energyValue") Double energyValue, @Param("energyUnit") String energyUnit,
+            @Param("proteinValue") Double proteinValue, @Param("proteinUnit") String proteinUnit,
+            @Param("cholesterolValue") Double cholesterolValue, @Param("cholesterolUnit") String cholesterolUnit,
+            @Param("totalCarbohydrateValue") Double totalCarbohydrateValue, @Param("totalCarbohydrateUnit") String totalCarbohydrateUnit,
+            @Param("dietaryFiberValue") Double dietaryFiberValue, @Param("dietaryFiberUnit") String dietaryFiberUnit,
+            @Param("totalSugarsValue") Double totalSugarsValue, @Param("totalSugarsUnit") String totalSugarsUnit,
+            @Param("sugarValue") Double sugarValue, @Param("sugarUnit") String sugarUnit,
+            @Param("addedSugarsValue") Double addedSugarsValue, @Param("addedSugarsUnit") String addedSugarsUnit,
+            @Param("totalFatValue") Double totalFatValue, @Param("totalFatUnit") String totalFatUnit,
+            @Param("saturatedFatValue") Double saturatedFatValue, @Param("saturatedFatUnit") String saturatedFatUnit,
+            @Param("transFatValue") Double transFatValue, @Param("transFatUnit") String transFatUnit,
+            @Param("sodiumValue") Double sodiumValue, @Param("sodiumUnit") String sodiumUnit,
+            @Param("calciumValue") Double calciumValue, @Param("calciumUnit") String calciumUnit,
+            @Param("ironValue") Double ironValue, @Param("ironUnit") String ironUnit,
+            @Param("potassiumValue") Double potassiumValue, @Param("potassiumUnit") String potassiumUnit,
+            @Param("magnesiumValue") Double magnesiumValue, @Param("magnesiumUnit") String magnesiumUnit,
+            @Param("phosphorusValue") Double phosphorusValue, @Param("phosphorusUnit") String phosphorusUnit,
+            @Param("zincValue") Double zincValue, @Param("zincUnit") String zincUnit,
+            @Param("folateValue") Double folateValue, @Param("folateUnit") String folateUnit,
+            @Param("vitaminDValue") Double vitaminDValue, @Param("vitaminDUnit") String vitaminDUnit,
+            @Param("vitaminAValue") Double vitaminAValue, @Param("vitaminAUnit") String vitaminAUnit,
+            @Param("vitaminCValue") Double vitaminCValue, @Param("vitaminCUnit") String vitaminCUnit,
+            @Param("vitaminB6Value") Double vitaminB6Value, @Param("vitaminB6Unit") String vitaminB6Unit,
+            @Param("vitaminB12Value") Double vitaminB12Value, @Param("vitaminB12Unit") String vitaminB12Unit,
+            @Param("vitaminEValue") Double vitaminEValue, @Param("vitaminEUnit") String vitaminEUnit,
+            @Param("vitaminKValue") Double vitaminKValue, @Param("vitaminKUnit") String vitaminKUnit
+    );
+
+    Integer insertFoodProduct(
             @Param("productLabelId") Integer productLabelId,
-            @Param("quantityValue") double quantityValue,
-            @Param("quantityUnit") String quantityUnit
+            @Param("quantityValue") Double quantityValue,
+            @Param("quantityUnit") String quantityUnit,
+            @Param("caloriesValue") Double caloriesValue, @Param("caloriesUnit") String caloriesUnit,
+            @Param("energyValue") Double energyValue, @Param("energyUnit") String energyUnit,
+            @Param("proteinValue") Double proteinValue, @Param("proteinUnit") String proteinUnit,
+            @Param("cholesterolValue") Double cholesterolValue, @Param("cholesterolUnit") String cholesterolUnit,
+            @Param("totalCarbohydrateValue") Double totalCarbohydrateValue, @Param("totalCarbohydrateUnit") String totalCarbohydrateUnit,
+            @Param("dietaryFiberValue") Double dietaryFiberValue, @Param("dietaryFiberUnit") String dietaryFiberUnit,
+            @Param("totalSugarsValue") Double totalSugarsValue, @Param("totalSugarsUnit") String totalSugarsUnit,
+            @Param("sugarValue") Double sugarValue, @Param("sugarUnit") String sugarUnit,
+            @Param("addedSugarsValue") Double addedSugarsValue, @Param("addedSugarsUnit") String addedSugarsUnit,
+            @Param("totalFatValue") Double totalFatValue, @Param("totalFatUnit") String totalFatUnit,
+            @Param("saturatedFatValue") Double saturatedFatValue, @Param("saturatedFatUnit") String saturatedFatUnit,
+            @Param("transFatValue") Double transFatValue, @Param("transFatUnit") String transFatUnit,
+            @Param("sodiumValue") Double sodiumValue, @Param("sodiumUnit") String sodiumUnit,
+            @Param("calciumValue") Double calciumValue, @Param("calciumUnit") String calciumUnit,
+            @Param("ironValue") Double ironValue, @Param("ironUnit") String ironUnit,
+            @Param("potassiumValue") Double potassiumValue, @Param("potassiumUnit") String potassiumUnit,
+            @Param("magnesiumValue") Double magnesiumValue, @Param("magnesiumUnit") String magnesiumUnit,
+            @Param("phosphorusValue") Double phosphorusValue, @Param("phosphorusUnit") String phosphorusUnit,
+            @Param("zincValue") Double zincValue, @Param("zincUnit") String zincUnit,
+            @Param("folateValue") Double folateValue, @Param("folateUnit") String folateUnit,
+            @Param("vitaminDValue") Double vitaminDValue, @Param("vitaminDUnit") String vitaminDUnit,
+            @Param("vitaminAValue") Double vitaminAValue, @Param("vitaminAUnit") String vitaminAUnit,
+            @Param("vitaminCValue") Double vitaminCValue, @Param("vitaminCUnit") String vitaminCUnit,
+            @Param("vitaminB6Value") Double vitaminB6Value, @Param("vitaminB6Unit") String vitaminB6Unit,
+            @Param("vitaminB12Value") Double vitaminB12Value, @Param("vitaminB12Unit") String vitaminB12Unit,
+            @Param("vitaminEValue") Double vitaminEValue, @Param("vitaminEUnit") String vitaminEUnit,
+            @Param("vitaminKValue") Double vitaminKValue, @Param("vitaminKUnit") String vitaminKUnit
+    );
+
+    void updateFoodMealImageUrlByDailyIntakeId(
+            @Param("dailyIntakeId") Integer dailyIntakeId,
+            @Param("imageUrl") String imageUrl
     );
 
     Integer insertProductPrimaryConcern(
@@ -184,10 +190,44 @@ public interface UserIntakeMapper {
             @Param("reasoning") String reasoning
     );
 
-
     void updateDailyIntakeImageUrl(
             @Param("dailyIntakeId") Integer dailyIntakeId,
             @Param("imageUrl") String imageUrl
     );
+
+    void insertOrUpdateFoodItemDictionary(
+            @Param("canonicalName") String canonicalName,
+            @Param("caloriesValuePer100g") double caloriesValuePer100g, @Param("caloriesUnit") String caloriesUnit,
+            @Param("proteinValuePer100g") double proteinValuePer100g, @Param("proteinUnit") String proteinUnit,
+            @Param("totalCarbohydrateValuePer100g") double totalCarbohydrateValuePer100g, @Param("totalCarbohydrateUnit") String totalCarbohydrateUnit,
+            @Param("totalFatValuePer100g") double totalFatValuePer100g, @Param("totalFatUnit") String totalFatUnit,
+            @Param("dietaryFiberValuePer100g") double dietaryFiberValuePer100g, @Param("dietaryFiberUnit") String dietaryFiberUnit,
+            @Param("totalSugarsValuePer100g") double totalSugarsValuePer100g, @Param("totalSugarsUnit") String totalSugarsUnit,
+            @Param("sodiumValuePer100g") double sodiumValuePer100g, @Param("sodiumUnit") String sodiumUnit,
+            @Param("ironValuePer100g") double ironValuePer100g, @Param("ironUnit") String ironUnit,
+            @Param("verifiedInd") Boolean verifiedInd
+    );
+
+    void insertOrUpdateMealDictionary(
+            @Param("canonicalMealName") String canonicalMealName,
+            @Param("displayMealName") String displayMealName,
+            @Param("recipeItems") List<RecipeItem> recipeItems,
+            @Param("standardQuantityValue") double standardQuantityValue,
+            @Param("standardQuantityUnit") String standardQuantityUnit,
+            @Param("caloriesValue") double caloriesValue, @Param("caloriesUnit") String caloriesUnit,
+            @Param("proteinValue") double proteinValue, @Param("proteinUnit") String proteinUnit,
+            @Param("totalCarbohydrateValue") double totalCarbohydrateValue, @Param("totalCarbohydrateUnit") String totalCarbohydrateUnit,
+            @Param("totalFatValue") double totalFatValue, @Param("totalFatUnit") String totalFatUnit,
+            @Param("dietaryFiberValue") double dietaryFiberValue, @Param("dietaryFiberUnit") String dietaryFiberUnit,
+            @Param("totalSugarsValue") double totalSugarsValue, @Param("totalSugarsUnit") String totalSugarsUnit,
+            @Param("sodiumValue") double sodiumValue, @Param("sodiumUnit") String sodiumUnit,
+            @Param("verifiedInd") Boolean verifiedInd,
+            @Param("createdByUserId") String createdByUserId
+    );
+
+    com.scanmyfood.backend.models.MealDictionaryRecord findMealInDictionary(
+            @Param("canonicalMealName") String canonicalMealName
+    );
+
 
 }

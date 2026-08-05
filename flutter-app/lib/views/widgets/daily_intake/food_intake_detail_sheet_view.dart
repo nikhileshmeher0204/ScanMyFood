@@ -147,18 +147,34 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                Text(
-                                  "North Indian • 1 Serving • ${DateFormat('h:mm a').format(widget.itemCard.item.createdAt!)}",
-                                  textAlign: TextAlign.center,
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    color: AppColors.getSubtitleColor(
-                                      _dominantColor ?? Colors.black,
-                                    ),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    letterSpacing: 0.2,
-                                    height: 1.2,
-                                  ),
+                                Builder(
+                                  builder: (context) {
+                                    final portionVal = widget.itemCard.item.portion;
+                                    final portionStr = portionVal % 1 == 0
+                                        ? portionVal.toInt().toString()
+                                        : portionVal.toString();
+                                    final servingText = '$portionStr ${portionVal == 1.0 ? "Serving" : "Servings"}';
+                                    final timeText = widget.itemCard.item.createdAt != null
+                                        ? DateFormat('h:mm a').format(widget.itemCard.item.createdAt!)
+                                        : '';
+                                    final subtitleText = timeText.isNotEmpty
+                                        ? '$servingText • $timeText'
+                                        : servingText;
+
+                                    return Text(
+                                      subtitleText,
+                                      textAlign: TextAlign.center,
+                                      style: AppTextStyles.bodyMedium.copyWith(
+                                        color: AppColors.getSubtitleColor(
+                                          _dominantColor ?? Colors.black,
+                                        ),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        letterSpacing: 0.2,
+                                        height: 1.2,
+                                      ),
+                                    );
+                                  },
                                 ),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,

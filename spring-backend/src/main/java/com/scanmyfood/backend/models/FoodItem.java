@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 public class FoodItem {
     private String name;
+    private double portion = 1.0;
     
     @JsonProperty("canonical_name")
     private String canonicalName;

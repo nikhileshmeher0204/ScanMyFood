@@ -40,9 +40,7 @@ class _MacronutrientHistorySheetViewState
       return Container(
         color: AppColors.background,
         height: 500,
-        child: const Center(
-          child: CircularProgressIndicator(),
-        ),
+        child: const Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -53,14 +51,16 @@ class _MacronutrientHistorySheetViewState
     final activeDate = activeData['date'] as DateTime;
 
     // Calculate overall stats
-    final totalSum =
-        history.map((e) => e['value'] as double).reduce((a, b) => a + b);
+    final totalSum = history
+        .map((e) => e['value'] as double)
+        .reduce((a, b) => a + b);
     final avgValue = totalSum / history.length;
     final maxValue = history
         .map((e) => e['value'] as double)
         .reduce((a, b) => a > b ? a : b);
-    final goalsMet =
-        history.where((e) => (e['value'] as double) >= widget.goal).length;
+    final goalsMet = history
+        .where((e) => (e['value'] as double) >= widget.goal)
+        .length;
 
     final isTodaySelected = activeIndex == history.length - 1;
     final dateString = isTodaySelected
@@ -74,10 +74,7 @@ class _MacronutrientHistorySheetViewState
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
         ),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.04),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.04), width: 1),
       ),
       padding: const EdgeInsets.only(bottom: 24),
       child: Material(
@@ -148,7 +145,7 @@ class _MacronutrientHistorySheetViewState
                       children: [
                         Text(
                           '${activeValue.toStringAsFixed(0)}${widget.unit}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: AppTextStyles.fontFamily,
                             fontSize: 38,
                             fontWeight: FontWeight.w700,
@@ -280,10 +277,7 @@ class _StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.03),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.02),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.02), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -466,8 +460,10 @@ class MacronutrientHistoryChartPainter extends CustomPainter {
       yLabelPainter.layout();
       yLabelPainter.paint(
         canvas,
-        Offset(paddingLeft - yLabelPainter.width - 6,
-            y - yLabelPainter.height / 2),
+        Offset(
+          paddingLeft - yLabelPainter.width - 6,
+          y - yLabelPainter.height / 2,
+        ),
       );
     }
 
@@ -477,7 +473,8 @@ class MacronutrientHistoryChartPainter extends CustomPainter {
       final double x = paddingLeft + i * (drawWidth / 6);
       final double val = history[i]['value'] as double;
       // Interpolate value using the animation progress
-      final double y = paddingTop +
+      final double y =
+          paddingTop +
           drawHeight -
           ((val * animationValue) / maxY) * drawHeight;
       points.add(Offset(x, y));
@@ -547,15 +544,14 @@ class MacronutrientHistoryChartPainter extends CustomPainter {
     fillPath.close();
 
     final fillPaint = Paint()
-      ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          color.withOpacity(0.25),
-          color.withOpacity(0.0),
-        ],
-      ).createShader(
-          Rect.fromLTRB(0, paddingTop, size.width, paddingTop + drawHeight))
+      ..shader =
+          LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [color.withOpacity(0.25), color.withOpacity(0.0)],
+          ).createShader(
+            Rect.fromLTRB(0, paddingTop, size.width, paddingTop + drawHeight),
+          )
       ..style = PaintingStyle.fill;
 
     canvas.drawPath(fillPath, fillPaint);
@@ -627,7 +623,9 @@ class MacronutrientHistoryChartPainter extends CustomPainter {
       labelPainter.paint(
         canvas,
         Offset(
-            points[i].dx - labelPainter.width / 2, paddingTop + drawHeight + 8),
+          points[i].dx - labelPainter.width / 2,
+          paddingTop + drawHeight + 8,
+        ),
       );
     }
   }

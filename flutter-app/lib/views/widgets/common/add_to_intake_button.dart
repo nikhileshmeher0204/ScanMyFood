@@ -38,9 +38,12 @@ class AddToIntakeButton extends StatelessWidget {
         final authService = Provider.of<AuthService>(context, listen: false);
         final user = authService.currentUser;
 
-        final List<FoodNutrient> adjustedNutrients =
-            uiProvider.calculateAdjustedNutrients(totalPlateNutrients);
-        foodAnalysis?.totalPlateNutrients = adjustedNutrients;
+        if (foodAnalysis != null) {
+          foodAnalysis!.portion = uiProvider.portionMultiplier;
+          for (var item in foodAnalysis!.analyzedFoodItems) {
+            item.portion = 1.0;
+          }
+        }
 
         // Combine the selected date + time chips into a single timestamp
         final createdAt = uiProvider.selectedDateTime;
@@ -66,17 +69,6 @@ class AddToIntakeButton extends StatelessWidget {
           await dailyIntakeProvider.getDailyIntake(
               user!.uid, uiProvider.selectedDate);
 
-          // If source is description, generate image after saving intake
-          if (source == AppConstants.scanDescription) {
-            dailyIntakeProvider.setIsImageGenerating(true);
-            await dailyIntakeProvider.aiRepository.generateIntakeImage(
-                dailyIntakeProvider.descriptionText,
-                dailyIntakeProvider.saveIntakeOutput!.dailyIntakeId);
-            dailyIntakeProvider.setIsImageGenerating(false);
-            // Refresh daily intake to get updated image
-            await dailyIntakeProvider.getDailyIntake(
-                user.uid, uiProvider.selectedDate);
-          }
           uiProvider.updateCurrentIndex(2);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

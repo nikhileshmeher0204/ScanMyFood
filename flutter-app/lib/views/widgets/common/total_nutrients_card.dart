@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:read_the_label/core/constants/dv_values.dart';
 import 'package:read_the_label/core/constants/nutrient_insights.dart';
 import 'package:read_the_label/models/food_analysis_response.dart';
 import 'package:read_the_label/models/food_nutrient.dart';
@@ -8,6 +10,7 @@ import 'package:read_the_label/models/product_analysis_response.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/utils/nutrient_utils.dart';
+import 'package:read_the_label/viewmodels/ui_view_model.dart';
 import 'package:read_the_label/views/widgets/common/add_to_intake_button.dart';
 import 'package:read_the_label/views/widgets/common/date_selector.dart';
 import 'package:read_the_label/views/widgets/common/energy_distribution_bar.dart';
@@ -39,10 +42,69 @@ class TotalNutrientsCard extends StatelessWidget {
     required this.showSaveOptions,
   });
 
+  List<Map<String, dynamic>> _getAdjustedNutrientInfo(
+      List<Map<String, dynamic>> originalInfo, double portion) {
+    if (portion == 1.0) return originalInfo;
+
+    final List<Map<String, dynamic>> adjusted = [];
+    for (var item in originalInfo) {
+      final Map<String, dynamic> copy = Map.from(item);
+      final String name = item['name'] ?? '';
+      final double qty =
+          (item['quantity'] as num? ?? 0.0).toDouble() * portion;
+      copy['quantity'] = qty;
+
+      final matchingNutrient = nutrientDataMap[name];
+      if (matchingNutrient != null) {
+        double currentDV =
+            double.parse(matchingNutrient['Current Daily Value'].toString());
+        double fivePercentDV =
+            double.parse(matchingNutrient['5%DV'].toString());
+        double twentyPercentDV =
+            double.parse(matchingNutrient['20%DV'].toString());
+        String goal = matchingNutrient['Goal'].toString();
+
+        double dailyValuePercent =
+            double.parse(((qty / currentDV) * 100).toStringAsFixed(2));
+        copy['daily_value'] = dailyValuePercent;
+
+        String dvStatus;
+        if (qty < fivePercentDV) {
+          dvStatus = 'Low';
+        } else if (qty > twentyPercentDV) {
+          dvStatus = 'High';
+        } else {
+          dvStatus = 'Moderate';
+        }
+        copy['dv_status'] = dvStatus;
+
+        String healthImpact;
+        if ((dvStatus == "High" && goal == "At least") ||
+            (dvStatus == "Low" && goal == "Less than")) {
+          healthImpact = "Good";
+        } else {
+          healthImpact = "Bad";
+        }
+        copy['health_impact'] = healthImpact;
+      } else {
+        copy['daily_value'] =
+            (item['daily_value'] as num? ?? 0.0).toDouble() * portion;
+      }
+      adjusted.add(copy);
+    }
+    return adjusted;
+  }
+
   @override
   Widget build(BuildContext context) {
     print("🔴 TotalNutrientsCard: build() called - Stack trace:");
     print(StackTrace.current.toString().split('\n').take(10).join('\n'));
+
+    final uiVm = context.watch<UiViewModel>();
+    final portion = uiVm.portionMultiplier;
+    final adjustedTotalNutrients =
+        uiVm.calculateAdjustedNutrients(totalPlateNutrients);
+    final adjustedNutrientInfo = _getAdjustedNutrientInfo(nutrientInfo, portion);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,7 +160,7 @@ class TotalNutrientsCard extends StatelessWidget {
                     "Good": [],
                   };
 
-                  for (var nutrient in nutrientInfo) {
+                  for (var nutrient in adjustedNutrientInfo) {
                     final dvStatus = nutrient['dv_status'] ?? "";
                     final goal = nutrient['goal'] ?? "";
 
@@ -138,7 +200,7 @@ class TotalNutrientsCard extends StatelessWidget {
                   );
                 },
               ),
-              EnergyDistributionBar(originalNutrients: totalPlateNutrients),
+              EnergyDistributionBar(originalNutrients: adjustedTotalNutrients),
               if (showSaveOptions) ...[
                 const DateSelector(),
                 const TimeSelector(),
