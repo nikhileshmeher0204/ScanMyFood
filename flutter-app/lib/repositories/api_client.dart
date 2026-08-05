@@ -2,15 +2,20 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:read_the_label/main.dart';
 import 'package:read_the_label/models/api_exception.dart';
 
 class ApiClient {
   final String baseUrl;
 
-  // For local development
-  ApiClient({this.baseUrl = 'http://10.0.2.2:8080/api'});
-  // ApiClient({this.baseUrl = 'http://192.168.1.5:8080/api'});
+  ApiClient({String? baseUrl})
+      : baseUrl = baseUrl ??
+            dotenv.env['API_BASE_URL'] ??
+            const String.fromEnvironment(
+              'API_BASE_URL',
+              defaultValue: 'https://scanmyfood-uat.up.railway.app/api',
+            );
 
   // Get auth token from Firebase
   Future<String?> getAuthToken() async {

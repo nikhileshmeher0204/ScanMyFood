@@ -21,8 +21,8 @@ public class LocalFileStorageService implements FileStorageService {
     @Value("${storage.local.base-dir}")
     private String baseDir;
 
-    @Value("${server.port:8080}")
-    private String serverPort;
+    @Value("${app.base-url:http://10.0.2.2:8080}")
+    private String appBaseUrl;
 
     @Override
     public String store(MultipartFile file, String folder) throws Exception {
@@ -71,7 +71,7 @@ public class LocalFileStorageService implements FileStorageService {
 
     @Override
     public String getAccessUrl(String storedPath) {
-        // Return URL accessible from Android emulator
-        return "http://10.0.2.2:" + serverPort + "/uploads/" + storedPath;
+        String base = appBaseUrl.endsWith("/") ? appBaseUrl.substring(0, appBaseUrl.length() - 1) : appBaseUrl;
+        return base + "/uploads/" + storedPath;
     }
 }
