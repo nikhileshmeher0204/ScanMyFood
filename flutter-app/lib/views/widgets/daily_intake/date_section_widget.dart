@@ -7,10 +7,7 @@ import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/views/widgets/daily_intake/date_indicator.dart';
 
 class DateSectionWidget extends StatelessWidget {
-  const DateSectionWidget({
-    super.key,
-    this.onCalendarTap,
-  });
+  const DateSectionWidget({super.key, this.onCalendarTap});
 
   final VoidCallback? onCalendarTap;
 
@@ -32,7 +29,9 @@ class DateSectionWidget extends StatelessWidget {
               Selector<DailyIntakeViewModel, DateTime>(
                 selector: (context, vm) => vm.selectedDate,
                 builder: (context, selectedDate, child) {
-                  debugPrint('REBUILD: DateSectionWidget -> Selected Date Text');
+                  debugPrint(
+                    'REBUILD: DateSectionWidget -> Selected Date Text',
+                  );
                   return Text(
                     DateFormat('EEEE, MMMM d').format(selectedDate),
                     style: AppTextStyles.heading3.copyWith(
@@ -47,7 +46,8 @@ class DateSectionWidget extends StatelessWidget {
                   color: titleColor.withValues(alpha: 0.8),
                   size: 20,
                 ),
-                onPressed: onCalendarTap ??
+                onPressed:
+                    onCalendarTap ??
                     () {
                       // Date picker logic can be added here
                     },

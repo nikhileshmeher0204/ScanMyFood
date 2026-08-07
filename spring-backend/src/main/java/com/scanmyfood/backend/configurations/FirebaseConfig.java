@@ -18,7 +18,7 @@ import java.io.IOException;
 public class FirebaseConfig {
     private static final Logger logger = LoggerFactory.getLogger(FirebaseConfig.class);
 
-    @org.springframework.beans.factory.annotation.Value("${firebase.storage.bucket-name:foodscanai-d28bc.appspot.com}")
+    @org.springframework.beans.factory.annotation.Value("${firebase.storage.bucket-name:foodscanai-d28bc.firebasestorage.app}")
     private String storageBucket;
 
     @PostConstruct

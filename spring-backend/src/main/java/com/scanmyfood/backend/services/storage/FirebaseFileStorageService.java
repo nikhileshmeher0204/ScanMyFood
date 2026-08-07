@@ -18,7 +18,7 @@ import java.util.UUID;
 @ConditionalOnProperty(name = "storage.type", havingValue = "firebase")
 public class FirebaseFileStorageService implements FileStorageService {
 
-    @Value("${firebase.storage.bucket-name:foodscanai-d28bc.appspot.com}")
+    @Value("${firebase.storage.bucket-name:foodscanai-d28bc.firebasestorage.app}")
     private String bucketName;
 
     @Override
@@ -75,7 +75,7 @@ public class FirebaseFileStorageService implements FileStorageService {
         if (storedPath.startsWith("http://") || storedPath.startsWith("https://")) {
             return storedPath;
         }
-        String bucket = bucketName != null && !bucketName.isEmpty() ? bucketName : "foodscanai-d28bc.appspot.com";
+        String bucket = bucketName != null && !bucketName.isEmpty() ? bucketName : "foodscanai-d28bc.firebasestorage.app";
         String encodedPath = URLEncoder.encode(storedPath, StandardCharsets.UTF_8);
         return String.format("https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media", bucket, encodedPath);
     }

@@ -728,19 +728,33 @@ class _LiquidTwistBackgroundState extends State<LiquidTwistBackground>
       final completer = Completer<ui.Image>();
 
       ImageStreamListener? listener;
-      listener = ImageStreamListener((info, _) {
-        completer.complete(info.image);
-        imageStream.removeListener(listener!);
-      });
+      listener = ImageStreamListener(
+        (info, _) {
+          if (!completer.isCompleted) {
+            completer.complete(info.image);
+          }
+          if (listener != null) imageStream.removeListener(listener);
+        },
+        onError: (exception, stackTrace) {
+          if (!completer.isCompleted) {
+            completer.completeError(exception, stackTrace);
+          }
+          if (listener != null) imageStream.removeListener(listener);
+        },
+      );
       imageStream.addListener(listener);
 
       final image = await completer.future;
 
-      final uiViewModel = Provider.of<UiViewModel>(context, listen: false);
-      final bgColor = await uiViewModel.extractDominantColor(
-        'assets/images/ai_chat_cover_image.jpg',
-      );
-      debugPrint('EXTRACTED BG COLOR: $bgColor');
+      Color bgColor = const Color(0xFF121212);
+      try {
+        final uiViewModel = Provider.of<UiViewModel>(context, listen: false);
+        bgColor = await uiViewModel.extractDominantColor(
+          'assets/images/ai_chat_cover_image.jpg',
+        );
+      } catch (err) {
+        debugPrint('Failed to extract dominant color, using fallback: $err');
+      }
 
       if (mounted) {
         setState(() {

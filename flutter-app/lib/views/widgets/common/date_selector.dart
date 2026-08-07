@@ -39,7 +39,7 @@ class DateSelector extends StatelessWidget {
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
     ];
-    return '${weekdays[date.weekday - 1]}, ${months[date.month - 1]} ${date.day}';
+    return '${months[date.month - 1]} ${date.day}, ${weekdays[date.weekday - 1]}';
   }
 
   /// Opens the date picker sheet — identical shell to [TimeSelector].
@@ -292,23 +292,23 @@ class DateSelector extends StatelessWidget {
       ];
     }
 
-    // "Mon, Jun 3" → split on comma: day-name dimmed, rest bright
+    // "Aug 6, Thu" → split on comma: date bright, day-name dimmed
     final commaIdx = label.indexOf(',');
     if (commaIdx != -1) {
       return [
         TextSpan(
-          text: label.substring(0, commaIdx + 1),
+          text: label.substring(0, commaIdx),
           style: const TextStyle(
-            color: AppColors.secondaryBlackTextColor,
+            color: AppColors.primaryWhite,
             fontSize: 18,
             fontWeight: FontWeight.w500,
             fontFamily: AppTextStyles.fontFamily,
           ),
         ),
         TextSpan(
-          text: label.substring(commaIdx + 1),
+          text: label.substring(commaIdx),
           style: const TextStyle(
-            color: AppColors.primaryWhite,
+            color: AppColors.secondaryBlackTextColor,
             fontSize: 18,
             fontWeight: FontWeight.w500,
             fontFamily: AppTextStyles.fontFamily,
