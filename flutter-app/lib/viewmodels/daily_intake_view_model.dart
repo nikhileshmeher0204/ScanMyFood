@@ -327,6 +327,42 @@ class DailyIntakeViewModel extends BaseViewModel {
     }
   }
 
+  Future<void> refreshDailyIntake() async {
+    final uid = authService.currentUser?.uid ?? "VzvYVBFUlxP0apdJmkGdO0XzDe82";
+    final now = DateTime.now();
+    final fromDate = now.subtract(const Duration(days: 6));
+    final toDate = now;
+
+    try {
+      debugPrint("DailyIntakeViewModel: Pull-to-refresh requested for $uid");
+      final output = await intakeRepository.getDailyIntake(
+        uid,
+        fromDate,
+        toDate,
+      );
+
+      final returnedMap = {
+        for (var data in output.dailyIntakes) _formatDateKey(data.date): data
+      };
+
+      for (int i = 0; i <= toDate.difference(fromDate).inDays; i++) {
+        final date = fromDate.add(Duration(days: i));
+        final dateKey = _formatDateKey(date);
+        _dailyIntakeCache[dateKey] = returnedMap[dateKey] ?? DailyIntakeData(
+          date: date,
+          totalNutrients: [],
+          dailyIntake: [],
+        );
+      }
+
+      await saveCacheToDevice();
+      _setSelectedDateData();
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Failed to refresh daily intake: $e");
+    }
+  }
+
   Future<void> getDailyIntake(String userId, DateTime date) async {
     try {
       final output = await intakeRepository.getDailyIntake(

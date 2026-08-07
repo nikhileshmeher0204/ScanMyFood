@@ -1,9 +1,11 @@
 package com.scanmyfood.backend.controllers;
 
 import com.scanmyfood.backend.events.MealLoggedEvent;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -22,8 +24,13 @@ public class NotificationController {
     private final Map<String, List<SseEmitter>> userEmitters = new ConcurrentHashMap<>();
 
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter streamNotifications(@RequestParam String userId) {
+    public SseEmitter streamNotifications(@RequestParam String userId, HttpServletResponse response) {
         log.info("Client connected to notification stream for userId: {}", userId);
+
+        // Prevent proxy buffering on Railway / Cloudflare / Nginx
+        response.setHeader("X-Accel-Buffering", "no");
+        response.setHeader("Cache-Control", "no-cache, no-transform");
+        response.setHeader("Connection", "keep-alive");
 
         // Connection timeout: 24 hours (86,400,000 ms)
         SseEmitter emitter = new SseEmitter(86400000L);
@@ -37,7 +44,7 @@ public class NotificationController {
         try {
             emitter.send(SseEmitter.event()
                     .name("connected")
-                    .data("Real-time notifications connected"));
+                    .data(Map.of("status", "connected", "event", "connected")));
         } catch (IOException e) {
             log.debug("Failed to send initial SSE connected event to user {}: {}", userId, e.getMessage());
             removeEmitter(userId, emitter);
@@ -59,6 +66,26 @@ public class NotificationController {
         }
     }
 
+    @Scheduled(fixedRate = 15000)
+    public void sendHeartbeat() {
+        if (userEmitters.isEmpty()) return;
+        userEmitters.forEach((userId, emitters) -> {
+            List<SseEmitter> deadEmitters = new ArrayList<>();
+            for (SseEmitter emitter : emitters) {
+                try {
+                    emitter.send(SseEmitter.event()
+                            .name("ping")
+                            .data(Map.of("event", "ping", "ts", System.currentTimeMillis())));
+                } catch (Throwable e) {
+                    deadEmitters.add(emitter);
+                }
+            }
+            for (SseEmitter dead : deadEmitters) {
+                removeEmitter(userId, dead);
+            }
+        });
+    }
+
     @EventListener
     public void handleMealLoggedEvent(MealLoggedEvent event) {
         log.info("Received MealLoggedEvent for user: {}", event.getUserId());
@@ -69,7 +96,10 @@ public class NotificationController {
                 try {
                     emitter.send(SseEmitter.event()
                             .name("meal_logged")
-                            .data(Map.of("dailyIntakeId", event.getDailyIntakeId())));
+                            .data(Map.of(
+                                    "event", "meal_logged",
+                                    "dailyIntakeId", event.getDailyIntakeId()
+                            )));
                 } catch (Throwable e) {
                     log.debug("Failed to send SSE notification to emitter for user {}: {}", event.getUserId(), e.getMessage());
                     deadEmitters.add(emitter);

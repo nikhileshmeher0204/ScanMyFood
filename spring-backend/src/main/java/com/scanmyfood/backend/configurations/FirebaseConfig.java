@@ -18,6 +18,9 @@ import java.io.IOException;
 public class FirebaseConfig {
     private static final Logger logger = LoggerFactory.getLogger(FirebaseConfig.class);
 
+    @org.springframework.beans.factory.annotation.Value("${firebase.storage.bucket-name:foodscanai-d28bc.appspot.com}")
+    private String storageBucket;
+
     @PostConstruct
     public void initialize() {
         try {
@@ -29,6 +32,7 @@ public class FirebaseConfig {
                 options = FirebaseOptions.builder()
                         .setCredentials(GoogleCredentials.fromStream(
                                 new ByteArrayInputStream(firebaseConfig.getBytes())))
+                        .setStorageBucket(storageBucket)
                         .build();
             } else {
                 // Fallback to file
@@ -39,6 +43,7 @@ public class FirebaseConfig {
                 }
                 options = FirebaseOptions.builder()
                         .setCredentials(GoogleCredentials.fromStream(resource.getInputStream()))
+                        .setStorageBucket(storageBucket)
                         .build();
             }
 

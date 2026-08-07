@@ -19,6 +19,7 @@ flutter-app/firebase.json
 
 
 # Flutter environment files
+*.env
 flutter-app/.env
 flutter-app/*.env
 flutter-app/**/*.env
@@ -66,11 +67,16 @@ spring-backend/.project
 spring-backend/.settings
 spring-backend/.springBeans
 spring-backend/.sts4-cache
-spring-backend/src/main/resources/application-local.properties
-spring-backend/src/main/resources/application-local.yml
+spring-backend/*.log
 spring-backend/src/main/resources/firebase-service-account.json
 
+
+# SQL Queries/Schemas specific
+
+spring-backend/src/main/resources/*.sql
+
 # IDE specific
+
 .idea/
 *.iws
 *.iml
@@ -105,3 +111,8 @@ postman/environments/
 
 ## Postman local config & cache
 .postman/
+flutter-app/android/.settings/*.prefs
+flutter-app/.env.example
+spring-backend/.env.example
+spring-backend/.vscode/launch.json
+spring-backend/.vscode/settings.json

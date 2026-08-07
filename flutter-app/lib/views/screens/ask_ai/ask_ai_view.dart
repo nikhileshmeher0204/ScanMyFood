@@ -39,6 +39,7 @@ class _AskAiViewState extends State<AskAiView> {
   late final Catalog _catalog;
 
   final TextEditingController _inputController = TextEditingController();
+  final FocusNode _inputFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -52,6 +53,12 @@ class _AskAiViewState extends State<AskAiView> {
       controller: _controller,
       transport: _transport,
     );
+
+    _inputFocusNode.addListener(() {
+      if (_inputFocusNode.hasFocus) {
+        _scrollToBottom();
+      }
+    });
 
     _conversation.events.listen((event) {
       if (!mounted) return;
@@ -139,6 +146,7 @@ class _AskAiViewState extends State<AskAiView> {
     if (text.isEmpty) return;
 
     _inputController.clear();
+    _scrollToBottom();
     _transport.sendRequest(ChatMessage.user(text));
   }
 
@@ -150,6 +158,15 @@ class _AskAiViewState extends State<AskAiView> {
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 150),
+              curve: Curves.easeOut,
+            );
+          }
+        });
       }
     });
   }
@@ -157,6 +174,7 @@ class _AskAiViewState extends State<AskAiView> {
   @override
   void dispose() {
     _inputController.dispose();
+    _inputFocusNode.dispose();
     _scrollController.dispose();
     _transport.dispose();
     _controller.dispose();
@@ -166,55 +184,61 @@ class _AskAiViewState extends State<AskAiView> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<AiChatViewModel>();
+    final double bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          // Liquid twist shader background
+          // Liquid twist shader background (fixed full screen)
           const LiquidTwistBackground(),
 
           SafeArea(
             bottom: false,
-            child: Column(
-              children: [
-                // Frosted glass premium App Bar
-                _buildAppBar(context, viewModel),
+            child: Padding(
+              padding: EdgeInsets.only(bottom: bottomInset),
+              child: Column(
+                children: [
+                  // Frosted glass premium App Bar
+                  _buildAppBar(context, viewModel),
 
-                // Chat message log area
-                Expanded(
-                  child: viewModel.isLoading
-                      ? const Center(
-                          child: CircularProgressIndicator(
-                            color: Color(0xFF6B4EFF),
+                  // Chat message log area
+                  Expanded(
+                    child: viewModel.isLoading
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFF6B4EFF),
+                            ),
+                          )
+                        : ListView.builder(
+                            controller: _scrollController,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
+                            itemCount: viewModel.chatItems.length,
+                            itemBuilder: (context, index) {
+                              final item = viewModel.chatItems[index];
+                              final isLast =
+                                  index == viewModel.chatItems.length - 1;
+                              return _buildChatItem(item, isLast);
+                            },
                           ),
-                        )
-                      : ListView.builder(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.only(
-                            left: 16,
-                            right: 16,
-                            top: 16,
-                            bottom: 100, // Cushion for the floating input bar
-                          ),
-                          itemCount: viewModel.chatItems.length,
-                          itemBuilder: (context, index) {
-                            final item = viewModel.chatItems[index];
-                            final isLast =
-                                index == viewModel.chatItems.length - 1;
-                            return _buildChatItem(item, isLast);
-                          },
-                        ),
-                ),
-              ],
+                  ),
+
+                  // Floating Apple Music style input row
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: 16,
+                      top: 8,
+                    ),
+                    child: _buildFloatingInputBar(context, viewModel),
+                  ),
+                ],
+              ),
             ),
-          ),
-
-          // Floating Apple Music style input row
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 16,
-            child: _buildFloatingInputBar(context, viewModel),
           ),
         ],
       ),
@@ -484,6 +508,7 @@ class _AskAiViewState extends State<AskAiView> {
               Expanded(
                 child: TextField(
                   controller: _inputController,
+                  focusNode: _inputFocusNode,
                   onSubmitted: (_) => _handleSend(),
                   style: const TextStyle(
                     fontFamily: 'Inter',

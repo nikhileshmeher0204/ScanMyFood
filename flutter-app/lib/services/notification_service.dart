@@ -37,6 +37,8 @@ class NotificationService {
 
     _client = http.Client();
     final request = http.Request('GET', url);
+    final headers = await _apiClient.getRequestHeaders(includeContentType: false);
+    request.headers.addAll(headers);
     request.headers['Accept'] = 'text/event-stream';
     request.headers['Cache-Control'] = 'no-cache';
 
@@ -49,6 +51,7 @@ class NotificationService {
           .transform(const LineSplitter())
           .listen(
         (line) {
+          if (line.trim().isEmpty) return;
           debugPrint('NotificationService SSE line: $line');
           if (line.contains('meal_logged')) {
             debugPrint('NotificationService: Meal logged notification received! Broadcasting...');

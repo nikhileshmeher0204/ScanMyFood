@@ -145,6 +145,19 @@ public class GlobalExceptionHandler {
                         extractPath(request)));
     }
 
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFound(
+            org.springframework.web.servlet.resource.NoResourceFoundException ex, WebRequest request) {
+        log.warn("Static resource not found at path {}: {}", extractPath(request), ex.getResourcePath());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.of(
+                        HttpStatus.NOT_FOUND,
+                        ErrorCodes.ERR_NOT_FOUND,
+                        "Static resource '" + ex.getResourcePath() + "' was not found.",
+                        extractPath(request)));
+    }
+
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleUnsupportedMediaType(
             HttpMediaTypeNotSupportedException ex, WebRequest request) {

@@ -130,21 +130,30 @@ class _DailyIntakeViewState extends State<DailyIntakeView> {
                   ).createShader(bounds);
                 },
                 blendMode: BlendMode.dstIn,
-                child: CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: SizedBox(
-                        height: statusBarHeight + baseExpandedHeight,
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    await context.read<DailyIntakeViewModel>().refreshDailyIntake();
+                  },
+                  edgeOffset: statusBarHeight + baseExpandedHeight,
+                  color: AppColors.sunsetOrange,
+                  backgroundColor: Colors.black,
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: statusBarHeight + baseExpandedHeight,
+                        ),
                       ),
-                    ),
-                    const SliverPadding(
-                      padding: EdgeInsets.only(bottom: 90),
-                      sliver: SliverToBoxAdapter(
-                        child: _DailyIntakeContent(),
+                      const SliverPadding(
+                        padding: EdgeInsets.only(bottom: 90),
+                        sliver: SliverToBoxAdapter(
+                          child: _DailyIntakeContent(),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
