@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:read_the_label/core/constants/app_constants.dart';
@@ -6,6 +7,7 @@ import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
 import 'package:read_the_label/views/widgets/common/rolling_text.dart';
+import 'package:read_the_label/views/widgets/daily_intake/macronutrient_history_sheet_view.dart';
 
 class CalorieCard extends StatelessWidget {
   const CalorieCard({super.key});
@@ -15,7 +17,20 @@ class CalorieCard extends StatelessWidget {
     debugPrint('REBUILD: CalorieCard');
     const calorieGoal = 2000.0;
 
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        showCupertinoSheet<void>(
+          context: context,
+          builder: (context) => const MacronutrientHistorySheetView(
+            label: 'CALORIES',
+            nutrientName: AppConstants.calories,
+            goal: calorieGoal,
+            color: AppColors.saturatedOrange,
+            unit: 'kcal',
+          ),
+        );
+      },
+      child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
@@ -190,6 +205,7 @@ class CalorieCard extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

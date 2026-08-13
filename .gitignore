@@ -21,6 +21,7 @@ flutter-app/firebase.json
 # Flutter environment files
 *.env
 flutter-app/.env
+flutter-app/.env.*
 flutter-app/*.env
 flutter-app/**/*.env
 
@@ -95,19 +96,16 @@ flutter-app/android/.settings/org.eclipse.buildship.core.prefs
 
 # Postman
 ## Auto-generated resource/definition files inside collections
-postman/**/.resources/
-postman/**/*.resources/
-postman/**/definition.yaml
-postman/**/definition.json
+postman/**/*.yaml
+postman/**/*.json
 
-## Postman environment files (may contain secrets/tokens)
-postman/environments/
-*.postman_environment.json
-*.postman_globals.json
-*.globals.yaml
-*.request.yaml
-## Exported collection dumps
-*.postman_collection.json
+## Postman environment & collection files
+!postman/*.environment.yaml
+!postman/**/*.environment.yaml
+!postman/*.postman_environment.json
+!postman/**/*.postman_environment.json
+!postman/*.postman_collection.json
+!postman/**/*.postman_collection.json
 
 ## Postman local config & cache
 .postman/

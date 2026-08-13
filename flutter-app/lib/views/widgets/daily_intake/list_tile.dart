@@ -156,17 +156,31 @@ class _AppListTileState extends State<AppListTile>
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Text(
-                                subtitle,
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  color: AppColors.getSubtitleColor(
-                                      widget.dominantColor ?? Colors.black),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  letterSpacing: 0.2,
-                                  height: 1.2,
-                                ),
-                              )
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    subtitle,
+                                    style: AppTextStyles.bodyMedium.copyWith(
+                                      color: AppColors.getSubtitleColor(
+                                          widget.dominantColor ?? Colors.black),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      letterSpacing: 0.2,
+                                      height: 1.2,
+                                    ),
+                                  ),
+                                  if (widget.item.dietaryIconAsset != null) ...[
+                                    const SizedBox(width: 6),
+                                    Image.asset(
+                                      widget.item.dietaryIconAsset!,
+                                      width: 14,
+                                      height: 14,
+                                    ),
+                                  ],
+                                ],
+                              ),
                             ],
                           ),
                         ),

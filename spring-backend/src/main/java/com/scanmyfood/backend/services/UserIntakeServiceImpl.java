@@ -125,6 +125,7 @@ public class UserIntakeServiceImpl implements UserIntakeService {
                         qtyVal,
                         qtyUnit,
                         itemPortion,
+                        foodItem.getDietaryType(),
                         saveIntakeInput.getCreatedAt()
                 );
             }

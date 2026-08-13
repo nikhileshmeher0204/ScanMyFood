@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -170,12 +171,13 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
                         size: 40,
                       ),
                     )
-                  : Image.network(
-                      widget.item.imageUrl!,
+                  : CachedNetworkImage(
+                      imageUrl: widget.item.imageUrl!,
                       fit: BoxFit.cover,
                       height: 125,
                       width: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
+                      memCacheWidth: 600,
+                      errorWidget: (context, url, error) {
                         return Container(
                           height: 125,
                           width: double.infinity,
@@ -186,19 +188,13 @@ class _FoodHistoryItemCardState extends State<FoodHistoryItemCard>
                           ),
                         );
                       },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
+                      placeholder: (context, url) {
                         return Container(
                           height: 125,
                           width: double.infinity,
                           color: Colors.grey.shade800,
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                  : null,
-                            ),
+                          child: const Center(
+                            child: CircularProgressIndicator(),
                           ),
                         );
                       },

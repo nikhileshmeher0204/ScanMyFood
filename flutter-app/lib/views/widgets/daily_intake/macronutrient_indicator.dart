@@ -30,7 +30,13 @@ class MacronutrientIndicator extends StatelessWidget {
       (DailyIntakeViewModel vm) =>
           vm.totalNutrients?[nutrientName]?.quantity.value ?? 0.0,
     );
-    final percent = (value / goal).clamp(0.0, 1.0);
+    final isOverflow = goal > 0 && value > goal;
+    final rawPercent = goal > 0 ? (value / goal) : 0.0;
+    final percent = rawPercent.clamp(0.0, 1.0);
+    final activeColor = isOverflow
+        ? Color.lerp(color, Colors.orangeAccent, 0.4)!
+        : color;
+
     return Expanded(
       child: GestureDetector(
         onTap: () {
@@ -50,12 +56,16 @@ class MacronutrientIndicator extends StatelessWidget {
             color: AppColors.cardBackground,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.white.withOpacity(0.02),
+              color: isOverflow
+                  ? activeColor.withOpacity(0.3)
+                  : Colors.white.withOpacity(0.02),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.15),
+                color: isOverflow
+                    ? activeColor.withOpacity(0.12)
+                    : Colors.black.withOpacity(0.15),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -78,7 +88,7 @@ class MacronutrientIndicator extends StatelessWidget {
                     child: Text(
                       label.toUpperCase(),
                       style: AppTextStyles.caption.copyWith(
-                        color: color, // label rendered in macro accent color
+                        color: activeColor, // label rendered in macro accent color
                         fontWeight: FontWeight.w700,
                         fontSize: 10,
                         letterSpacing: 0.8,
@@ -86,11 +96,29 @@ class MacronutrientIndicator extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  if (isOverflow) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: activeColor.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        '${(rawPercent * 100).toInt()}%',
+                        style: TextStyle(
+                          color: activeColor,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                  ],
                   Icon(
                     Icons.arrow_forward_ios,
                     size: 10,
-                    color: color,
+                    color: activeColor,
                   ),
                 ],
               ),
@@ -105,7 +133,7 @@ class MacronutrientIndicator extends StatelessWidget {
                       RollingText(
                         text: value.toStringAsFixed(0),
                         style: AppTextStyles.bodyLargeBold.copyWith(
-                          color: AppColors.label,
+                          color: isOverflow ? activeColor : AppColors.label,
                           fontWeight: FontWeight.w700,
                           fontSize: 18,
                         ),
@@ -129,7 +157,7 @@ class MacronutrientIndicator extends StatelessWidget {
                           value: animPercent,
                           backgroundColor:
                               AppColors.secondaryLabel.withOpacity(0.12),
-                          valueColor: AlwaysStoppedAnimation<Color>(color),
+                          valueColor: AlwaysStoppedAnimation<Color>(activeColor),
                           minHeight: 6,
                         );
                       },

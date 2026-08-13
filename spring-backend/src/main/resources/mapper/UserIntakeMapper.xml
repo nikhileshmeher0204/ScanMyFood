@@ -19,10 +19,10 @@
     <select id="insertFoodItem" resultType="java.lang.Integer">
         INSERT INTO food_item (
             daily_intake_id, item_name, canonical_name,
-            quantity_value, quantity_unit, portion, created_ts
+            quantity_value, quantity_unit, portion, dietary_type, created_ts
         ) VALUES (
             #{dailyIntakeId}, #{itemName}, #{canonicalName},
-            #{quantityValue}, #{quantityUnit}, #{portion},
+            #{quantityValue}, #{quantityUnit}, #{portion}, #{dietaryType},
             COALESCE(#{createdTs}, CURRENT_TIMESTAMP)
         )
         RETURNING id
@@ -235,6 +235,7 @@
             total_sugars_value_per_100g, total_sugars_unit,
             sodium_value_per_100g, sodium_unit,
             iron_value_per_100g, iron_unit,
+            dietary_type,
             verified_ind
         )
         VALUES (
@@ -247,6 +248,7 @@
             #{totalSugarsValuePer100g}, #{totalSugarsUnit},
             #{sodiumValuePer100g}, #{sodiumUnit},
             #{ironValuePer100g}, #{ironUnit},
+            #{dietaryType},
             COALESCE(#{verifiedInd}, FALSE)
         )
         ON CONFLICT (canonical_name) DO NOTHING

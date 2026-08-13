@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -60,67 +61,95 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
         backgroundColor: _dominantColor,
         child: Stack(
           children: [
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  Stack(
-                    children: [
-                      SoftEdgeBlur(
-                        edges: [
-                          EdgeBlur(
-                            type: EdgeType.bottomEdge,
-                            size: 220,
-                            sigma: 8,
-                            tintColor:
-                                _dominantColor ??
-                                Colors.black.withValues(alpha: 0.2),
-                            controlPoints: [
-                              ControlPoint(
-                                position: 0.2,
-                                type: ControlPointType.visible,
-                              ),
-                              ControlPoint(
-                                position: 1,
-                                type: ControlPointType.transparent,
-                              ),
-                            ],
-                          ),
-                        ],
-                        child: Image.network(
-                          widget.itemCard.item.imageUrl!,
-                          fit: BoxFit.cover,
-                          height: 400,
-                          width: double.infinity,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              height: 400,
-                              width: double.infinity,
-                              color: Colors.grey,
-                              child: const Icon(
-                                Icons.broken_image,
-                                color: Colors.white,
-                              ),
-                            );
-                          },
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Container(
-                              height: 400,
-                              width: double.infinity,
-                              color: Colors.grey.shade800,
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  value:
-                                      loadingProgress.expectedTotalBytes != null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                      : null,
+            NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification is OverscrollNotification &&
+                    notification.overscroll < -8 &&
+                    notification.metrics.pixels <= 0) {
+                  Navigator.of(context).maybePop();
+                  return true;
+                }
+                return false;
+              },
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onVerticalDragUpdate: (details) {
+                        if (details.primaryDelta != null &&
+                            details.primaryDelta! > 10) {
+                          Navigator.of(context).maybePop();
+                        }
+                      },
+                      child: Stack(
+                        children: [
+                          RepaintBoundary(
+                            child: SoftEdgeBlur(
+                              edges: [
+                                EdgeBlur(
+                                  type: EdgeType.bottomEdge,
+                                  size: 220,
+                                  sigma: 8,
+                                  tintColor:
+                                      _dominantColor ??
+                                      Colors.black.withValues(alpha: 0.2),
+                                  controlPoints: [
+                                    ControlPoint(
+                                      position: 0.2,
+                                      type: ControlPointType.visible,
+                                    ),
+                                    ControlPoint(
+                                      position: 1,
+                                      type: ControlPointType.transparent,
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                              ],
+                              child: widget.itemCard.item.imageUrl != null &&
+                                      widget.itemCard.item.imageUrl!.isNotEmpty
+                                  ? CachedNetworkImage(
+                                      imageUrl: widget.itemCard.item.imageUrl!,
+                                      fit: BoxFit.cover,
+                                      height: 400,
+                                      width: double.infinity,
+                                      memCacheWidth: 800,
+                                      errorWidget: (context, url, error) {
+                                        return Container(
+                                          height: 400,
+                                          width: double.infinity,
+                                          color: Colors.grey,
+                                          child: const Icon(
+                                            Icons.broken_image,
+                                            color: Colors.white,
+                                          ),
+                                        );
+                                      },
+                                      placeholder: (context, url) {
+                                        return Container(
+                                          height: 400,
+                                          width: double.infinity,
+                                          color: Colors.grey.shade800,
+                                          child: const Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Container(
+                                      height: 400,
+                                      width: double.infinity,
+                                      color: Colors.grey.shade900,
+                                      child: const Icon(
+                                        Icons.restaurant,
+                                        color: Colors.white24,
+                                        size: 60,
+                                      ),
+                                    ),
+                            ),
+                          ),
                       Positioned(
                         bottom: 60,
                         left: 20,
@@ -299,7 +328,8 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                       ),
                     ],
                   ),
-                  Builder(
+                ),
+                Builder(
                     builder: (context) {
                       final isLoading = context.select(
                         (DailyIntakeViewModel vm) => vm.loading,
@@ -432,6 +462,7 @@ class _FoodIntakeDetailSheetViewState extends State<FoodIntakeDetailSheetView> {
                 ],
               ),
             ),
+          ),
             // Persistent Header Buttons
             Positioned(
               top: 8,

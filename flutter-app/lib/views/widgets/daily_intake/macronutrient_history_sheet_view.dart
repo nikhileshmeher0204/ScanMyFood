@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:read_the_label/theme/app_colors.dart';
 import 'package:read_the_label/theme/app_text_styles.dart';
 import 'package:read_the_label/viewmodels/daily_intake_view_model.dart';
+import 'package:read_the_label/views/widgets/common/rolling_text.dart';
 
 class MacronutrientHistorySheetView extends StatefulWidget {
   final String label;
@@ -143,8 +144,17 @@ class _MacronutrientHistorySheetViewState
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
                       children: [
+                        RollingText(
+                          text: activeValue.toStringAsFixed(0),
+                          style: const TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 38,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.label,
+                          ),
+                        ),
                         Text(
-                          '${activeValue.toStringAsFixed(0)}${widget.unit}',
+                          widget.unit,
                           style: const TextStyle(
                             fontFamily: AppTextStyles.fontFamily,
                             fontSize: 38,
@@ -292,9 +302,9 @@ class _StatCard extends StatelessWidget {
               letterSpacing: 0.5,
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
+          RollingText(
+            text: value,
+            style: const TextStyle(
               fontFamily: AppTextStyles.fontFamily,
               fontSize: 18,
               fontWeight: FontWeight.w700,

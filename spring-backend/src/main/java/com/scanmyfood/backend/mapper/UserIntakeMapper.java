@@ -30,6 +30,7 @@ public interface UserIntakeMapper {
             @Param("quantityValue") double quantityValue,
             @Param("quantityUnit") String quantityUnit,
             @Param("portion") double portion,
+            @Param("dietaryType") String dietaryType,
             @Param("createdTs") java.time.LocalDateTime createdTs
     );
 
@@ -205,6 +206,7 @@ public interface UserIntakeMapper {
             @Param("totalSugarsValuePer100g") double totalSugarsValuePer100g, @Param("totalSugarsUnit") String totalSugarsUnit,
             @Param("sodiumValuePer100g") double sodiumValuePer100g, @Param("sodiumUnit") String sodiumUnit,
             @Param("ironValuePer100g") double ironValuePer100g, @Param("ironUnit") String ironUnit,
+            @Param("dietaryType") String dietaryType,
             @Param("verifiedInd") Boolean verifiedInd
     );
 

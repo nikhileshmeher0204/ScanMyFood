@@ -268,6 +268,7 @@ public class VertexAiServiceImpl implements AiService {
                   {
                     "name": "Regional Name of the food item",
                     "canonical_name": "Unique lowercase snake_case English name for the item, e.g., 'roti', 'idli', 'basmati_rice', 'coconut_chutney', 'okra'",
+                    "dietary_type": "Dietary classification of the food item: 'VEG' for vegetarian, 'NVEG' for non-vegetarian (chicken/meat/seafood/egg), or 'VGN' for vegan",
                     "quantity": {
                       "value": 0,
                       "unit": "g"
@@ -360,6 +361,7 @@ public class VertexAiServiceImpl implements AiService {
               {
                 "name": "Regional Name of the food item",
                 "canonical_name": "Unique lowercase snake_case English name for the item, e.g., 'roti', 'idli', 'basmati_rice', 'coconut_chutney', 'okra'",
+                "dietary_type": "Dietary classification of the food item: 'VEG' for vegetarian, 'NVEG' for non-vegetarian (chicken/meat/seafood/egg), or 'VGN' for vegan",
                 "quantity": {
                   "value": 0,
                   "unit": "g"
@@ -671,6 +673,7 @@ public class VertexAiServiceImpl implements AiService {
                 round(safeGetNutrientVal(itemNutrientMap, NutrientConstants.TOTAL_SUGARS) * factor), safeGetNutrientUnit(itemNutrientMap, NutrientConstants.TOTAL_SUGARS, "g"),
                 round(safeGetNutrientVal(itemNutrientMap, NutrientConstants.SODIUM) * factor), safeGetNutrientUnit(itemNutrientMap, NutrientConstants.SODIUM, "mg"),
                 0.0, "mg",
+                foodItem.getDietaryType(),
                 false // verified_ind = false
             );
             userIntakeMapper.insertFoodItemAlias(foodItem.getCanonicalName(), countryCode, foodItem.getName());

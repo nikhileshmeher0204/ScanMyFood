@@ -13,6 +13,9 @@ public class FoodItem {
     @JsonProperty("canonical_name")
     private String canonicalName;
     
+    @JsonProperty("dietary_type")
+    private String dietaryType;
+    
     private Quantity quantity;
     private List<FoodNutrient> nutrients;
 }
